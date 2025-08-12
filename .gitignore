@@ -1,0 +1,67 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+.Python
+
+# Virtual Environment
+liveness_env/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# IDE
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# Data
+data/
+!data/processed/*_stats.json
+!data/processed/datasets_summary*.json
+
+# Models 
+*.h5
+*.keras
+*.pb
+*.pth
+*.ckpt
+models/
+results/training/
+saved_models/
+
+# Logs
+logs/
+*.log
+results/logs/
+tensorboard_logs/
+
+# Results 
+results/
+!results/combined/AttackNetV2_2/models/AttackNetV2_2_combined_all_final.h5
+
+# Media files
+*.mp4
+*.avi
+*.mov
+*.jpg
+*.jpeg
+*.png
+*.bmp
+!samples/*.png
+!samples/*.jpg
+
+# Temporary
+*.tmp
+*.temp
+tmp/
+temp/
+
+# Large files
+*.zip
+*.tar
+*.gz
+*.rar
