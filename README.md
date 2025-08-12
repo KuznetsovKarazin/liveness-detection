@@ -279,7 +279,7 @@ Contributions are welcome! Please feel free to submit a Pull Request. For major 
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE.txt) file for details.
 
 ## 🙏 Acknowledgments
 
@@ -292,9 +292,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📧 Contact
 
-- **Author**: [Oleksandr Kuznetsov]
-- **Email**: [oleksandr.o.kuznetsov@gmail.com]
-- **LinkedIn**: [https://www.linkedin.com/in/oleksandr-kuznetsov/]
+- **Author**: Oleksandr Kuznetsov
+- **Email**: oleksandr.o.kuznetsov@gmail.com
+- **LinkedIn**: https://www.linkedin.com/in/oleksandr-kuznetsov/
 
 ## 🐛 Known Issues
 
