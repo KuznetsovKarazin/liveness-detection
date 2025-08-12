@@ -31,8 +31,6 @@ LivenessDetection/
 │   ├── train_all_models.py       # Multi-model training orchestrator
 │   ├── train_combined_models.py  # Combined dataset training
 │   └── evaluate_all_models.py    # Cross-dataset evaluation
-├── notebooks/
-│   └── dataset_exploration.ipynb # Interactive data analysis
 ├── data/
 │   ├── raw/                      # Original dataset files
 │   ├── processed/                 # Preprocessed .pkl files
@@ -60,7 +58,7 @@ LivenessDetection/
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/yourusername/liveness-detection.git
+git clone https://github.com/KuznetsovKarazin/liveness-detection.git
 cd liveness-detection
 ```
 
