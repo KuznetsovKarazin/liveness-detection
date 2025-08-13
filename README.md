@@ -263,8 +263,8 @@ If you use this code in your research, please cite:
   author={Kuznetsov, Oleksandr and Frontoni, Emanuele and Romeo, Luca and 
           Rosati, Riccardo and Maranesi, Andrea and Muscatello, Alessandro},
   year={2025},
-  journal={arXiv preprint},
-  url={https://github.com/KuznetsovKarazin/liveness-detection}
+  journal={arXiv preprint, arXiv:2508.09094},
+  url={https://doi.org/10.48550/arXiv.2508.09094}
 }
 ```
 ## 🤝 Contributing
