@@ -258,14 +258,20 @@ early_stopping_patience = 10
 If you use this code in your research, please cite:
 
 ```bibtex
-@article{kuznetsov2025liveness,
-  title={Deep Learning Models for Robust Facial Liveness Detection},
-  author={Kuznetsov, Oleksandr and Frontoni, Emanuele and Romeo, Luca and 
-          Rosati, Riccardo and Maranesi, Andrea and Muscatello, Alessandro},
-  year={2025},
-  journal={arXiv preprint, arXiv:2508.09094},
-  url={https://doi.org/10.48550/arXiv.2508.09094}
+@article{Kuznetsov_Frontoni_Romeo_Rosati_Maranesi_Muscatello_2026, 
+  title={Deep learning models for robust facial liveness detection}, 
+  volume={85}, 
+  ISSN={1573-7721}, 
+  DOI={10.1007/s11042-026-21445-w}, 
+  number={3}, 
+  journal={Multimedia Tools and Applications}, 
+  author={Kuznetsov, Oleksandr and Frontoni, Emanuele and Romeo, Luca and Rosati, Riccardo and Maranesi, Andrea and Muscatello, Alessandro}, 
+  year={2026}, 
+  month=feb, 
+  pages={222}, 
+  language={en} 
 }
+
 ```
 ## 🤝 Contributing
 
