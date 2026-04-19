@@ -80,6 +80,68 @@ pip install -r requirements.txt
 python test_environment.py
 ```
 
+### Dataset Setup (Important)
+
+**Important:** The code does **not** work directly with `.zip` or `.tar` archives. All datasets must be **downloaded and extracted manually** before running any scripts.
+
+#### 1. Download Datasets
+
+You need to request and download the following datasets from their official providers:
+
+- 3DMAD  
+- CSMAD  
+- Replay-Attack  
+- MSSpoof  
+
+*(Due to licensing restrictions, these datasets are not included in this repository.)*
+
+---
+
+#### 2. Extract the Archives
+
+After downloading, extract all archives (`.zip`, `.tar`, `.tar.gz`, etc.).
+
+---
+
+#### 3. Organize Folder Structure
+
+```text
+data/
+├── 3DMAD/
+│   └── images/
+├── CSMAD/
+│   └── images/
+├── Replay_Attack/
+│   └── images/
+├── MSSpoof_dataset/
+│   └── images/
+```
+
+Inside each `images/` folder:
+
+```text
+attack_training/
+attack_validation/
+bonafide_training/
+bonafide_validation/
+```
+
+---
+
+#### 4. Run Dataset Preparation
+
+```bash
+python scripts/create_datasets.py
+```
+
+---
+
+#### Notes
+
+- `data/raw/` is **not used by the code**
+- Folder names must match exactly
+- You may need to manually reorganize datasets
+
 ### Dataset Preparation
 
 1. **Download datasets** and place in `data/raw/`:
