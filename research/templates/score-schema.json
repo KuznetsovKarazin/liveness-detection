@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "purpose": "Schema only. Store populated per-sample records in authorized restricted storage.",
+  "fields": {
+    "run_id": "string",
+    "sample_id": "dataset-scoped identifier",
+    "dataset_id": "string",
+    "split": "train|dev|test",
+    "subject_id": "real dataset identifier or null if unavailable",
+    "session_id": "string or null",
+    "video_id": "string or null",
+    "attack_type": "string or null",
+    "modality": "RGB|VIS|NIR|measured_depth|fusion",
+    "label": "0=bona_fide, 1=attack",
+    "score_attack": "number; larger means more likely attack",
+    "threshold": "number frozen from source dev",
+    "prediction": "0=bona_fide, 1=attack; document equality rule",
+    "checkpoint_sha256": "string",
+    "config_sha256": "string"
+  },
+  "rules": [
+    "Do not fabricate missing subject or session identifiers.",
+    "Preserve original score and transformation when adopting the shared direction.",
+    "Record independent units and aggregation outside frame-level records.",
+    "Missing metrics remain null, not zero.",
+    "Do not commit populated biometric or per-subject records to the public repository."
+  ]
+}
