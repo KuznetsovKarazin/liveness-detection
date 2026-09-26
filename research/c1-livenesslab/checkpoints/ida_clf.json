@@ -1,0 +1,38 @@
+{
+ "analyzer": "ida",
+ "dataset": "nuaa",
+ "protocol": "official",
+ "classifier": "svm",
+ "per_class": 1500,
+ "n_train": 3000,
+ "n_test": 3000,
+ "feature_dim": 16,
+ "seed": 42,
+ "train_seconds": 2.4,
+ "hyperparameters": {
+  "C": 1.0,
+  "gamma": 0.1,
+  "cv_auc": 1.0,
+  "cv": "per soggetto"
+ },
+ "created": "2026-09-25T21:31:02",
+ "script_sha256": "064b44aa3ae91ef58dc9cc4254fa409a898e0fb0ccf9c63fafc2418fd13dc948",
+ "clf_sha256": "297b069ec5c3e57a1f61156cbfca06fa3814492a2ae3aaa0f820f9c7fc3a8d57",
+ "test": {
+  "n": 3000,
+  "n_real": 1500,
+  "n_attack": 1500,
+  "threshold": 0.5,
+  "apcer": 0.24933333333333332,
+  "bpcer": 0.43733333333333335,
+  "acer": 0.3433333333333333,
+  "accuracy": 0.6566666666666666,
+  "eer": 0.29333333333333333,
+  "eer_threshold": 0.6687951184577463,
+  "bpcer_at_apcer10": 0.666,
+  "auc": 0.8053626666666667,
+  "apcer_at_eer": 0.29333333333333333,
+  "bpcer_at_eer": 0.29333333333333333
+ },
+ "note": "Feature estratte sul ritaglio RetinaFace con il CROP dell'analizzatore; split ufficiale train/test del dataset."
+}

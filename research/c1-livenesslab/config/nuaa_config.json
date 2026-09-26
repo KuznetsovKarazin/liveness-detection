@@ -1,0 +1,780 @@
+{
+ "task": "C1",
+ "table": "results/c1/nuaa_table.md",
+ "generated_by": "scripts/make_c1_manifest.py",
+ "repository": {
+  "commit": "eb9b32690bd0f60d96e0379774c80e18afcf7430",
+  "livedetection": "4334db59d87855f73a060e2f6bc220e707003a72",
+  "silent_face": "b6d5f04ad78778917853b25c778acef6d5626d15"
+ },
+ "dataset": {
+  "id": "nuaa",
+  "name": "NUAA Imposter (test)",
+  "n_bona_fide": 150,
+  "n_attack": 150,
+  "info": {
+   "name": "NUAA Imposter (test)",
+   "source": "Tan, Li, Liu, Jiang — NUAA Photograph Imposter Database, ECCV 2010; mirror HF akahana/anti-spoofing-nuaaaa",
+   "license": "uso accademico (mirror non ufficiale)",
+   "note": "Attacchi con foto stampata (A4) ripresi da webcam. Sottoinsieme del test set ufficiale (3.362 bona fide, 5.761 attacchi): 150 reali + 150 attacchi presi a passo costante sugli elenchi ufficiali ordinati; i reali coprono 9 soggetti e gli attacchi 15 (la composizione del test set ufficiale)."
+  },
+  "manifest": "nuaa_manifest.csv",
+  "manifest_sha256": "86095da1531b1f24b1233c9668ac1ab37714978e444b313456732c028ccfb40c"
+ },
+ "conventions": {
+  "label": "0 = bona fide, 1 = attack",
+  "score": "probability of attack in [0, 1] (higher = more likely an attack)",
+  "threshold": 0.5,
+  "decision": "attack if score > 0.5; a tie counts as bona fide",
+  "threshold_selection": "fixed a priori, not tuned on a development set (EER and BPCER@APCER10 are descriptive)",
+  "metrics": "ISO/IEC 30107-3: APCER, BPCER, ACER, accuracy at the threshold; EER on the full ROC without interpolation; BPCER@APCER=10%; AUC",
+  "differences_vs_reference_code": [
+   "BPCER@APCER10 counts rejected bona fide (the reference evaluation_utils.py counted accepted ones)",
+   "non-computable values are null instead of 0",
+   "EER searched on the full ROC (drop_intermediate=False)"
+  ],
+  "no_face": "images where no face is detected get the analyzer's fallback (whole image) and are flagged in the CSV",
+  "frames": "NUAA images are still frames; consecutive frames of one session are not independent samples"
+ },
+ "commands": {
+  "recompute_from_saved_scores": "python scripts/eval_dataset.py --dataset nuaa --from-cache --export results/c1/nuaa_scores.csv --table results/c1/nuaa_table.md",
+  "new_inference": "python scripts/eval_dataset.py --dataset nuaa --force --export results/c1/nuaa_scores.csv --table results/c1/nuaa_table.md",
+  "requires": {
+   "recompute": "results/eval/<dataset>.json (saved scores) only",
+   "inference": "data/eval/<dataset>/ (images per manifest), models/weights/ (checkpoints), Hugging Face cache for CLIP, Depth Anything and DINOv2"
+  }
+ },
+ "analyzers": [
+  {
+   "id": "livenessnet__nuaa",
+   "name": "LivenessNet · NUAA",
+   "family": "docente",
+   "reliability": "trained",
+   "fingerprint": "d861c5969f24376aff5aaac30c2b2b8793e0cd142dd016756dc82f188ccd99a5"
+  },
+  {
+   "id": "livenessnet__nuaa-pooled",
+   "name": "LivenessNet · NUAA (split 80/20 del docente)",
+   "family": "docente",
+   "reliability": "trained",
+   "fingerprint": "2456c9f3bda446badf519de2b2d80ba99b99add32c5c9e452e0d7a208023ba9b",
+   "excluded": "non valutabile qui: con lo split 80/20 del docente le immagini di questo dataset fanno parte del training del modello (il test del 20 % tenuto fuori è riportato in models/weights/*.json)"
+  },
+  {
+   "id": "attacknet_v1__nuaa",
+   "name": "AttackNet V1 · NUAA",
+   "family": "docente",
+   "reliability": "trained",
+   "fingerprint": "0cbc46cc56ba76931324ad252177a4912aad3044780fa7dd847c609b5098f12f"
+  },
+  {
+   "id": "attacknet_v1__nuaa-pooled",
+   "name": "AttackNet V1 · NUAA (split 80/20 del docente)",
+   "family": "docente",
+   "reliability": "trained",
+   "fingerprint": "bdd312afa6553750b48c59b21146f4e5e949f7d0a071977921a25dfadd84db80",
+   "excluded": "non valutabile qui: con lo split 80/20 del docente le immagini di questo dataset fanno parte del training del modello (il test del 20 % tenuto fuori è riportato in models/weights/*.json)"
+  },
+  {
+   "id": "attacknet_v2_1__nuaa",
+   "name": "AttackNet V2.1 · NUAA",
+   "family": "docente",
+   "reliability": "trained",
+   "fingerprint": "67d9138d6c43e33164d4510b4b34868c2fdc0a637f27664816c388c4e059f8dc"
+  },
+  {
+   "id": "attacknet_v2_1__nuaa-pooled",
+   "name": "AttackNet V2.1 · NUAA (split 80/20 del docente)",
+   "family": "docente",
+   "reliability": "trained",
+   "fingerprint": "7315b59dc7b3153f3427c92beea123ad610c4a7b7f7dd74fa6860bf01d4abf1a",
+   "excluded": "non valutabile qui: con lo split 80/20 del docente le immagini di questo dataset fanno parte del training del modello (il test del 20 % tenuto fuori è riportato in models/weights/*.json)"
+  },
+  {
+   "id": "attacknet_v2_2__nuaa",
+   "name": "AttackNet V2.2 · NUAA",
+   "family": "docente",
+   "reliability": "trained",
+   "fingerprint": "0258b72597a205017bf1654755550fea3830cc2556649a52f56161e11b2d29d2"
+  },
+  {
+   "id": "attacknet_v2_2__nuaa-pooled",
+   "name": "AttackNet V2.2 · NUAA (split 80/20 del docente)",
+   "family": "docente",
+   "reliability": "trained",
+   "fingerprint": "9570f88523921805b73333ad0115c7348135f41356935dde12a9bc544d56a7a5",
+   "excluded": "non valutabile qui: con lo split 80/20 del docente le immagini di questo dataset fanno parte del training del modello (il test del 20 % tenuto fuori è riportato in models/weights/*.json)"
+  },
+  {
+   "id": "livenessnet__casia_fasd",
+   "name": "LivenessNet · CASIA-FASD",
+   "family": "docente",
+   "reliability": "trained",
+   "fingerprint": "38152229e814638fa1dbe991fbd2138557a3b91bb465299059c7f3df5e88ca81"
+  },
+  {
+   "id": "livenessnet__casia_fasd-pooled",
+   "name": "LivenessNet · CASIA-FASD (split 80/20 del docente)",
+   "family": "docente",
+   "reliability": "trained",
+   "fingerprint": "c7cb5bf8aa8ca854fbe6d19edfb03371d555497983cf261f264f5ccd2e10dfc0"
+  },
+  {
+   "id": "attacknet_v1__casia_fasd",
+   "name": "AttackNet V1 · CASIA-FASD",
+   "family": "docente",
+   "reliability": "trained",
+   "fingerprint": "c973c08970b36e74afc2f26cacf5045defe02cccb162f292697131266e7c8909"
+  },
+  {
+   "id": "attacknet_v2_1__casia_fasd",
+   "name": "AttackNet V2.1 · CASIA-FASD",
+   "family": "docente",
+   "reliability": "trained",
+   "fingerprint": "c50be744cf393ca609446e72e139a01aca3ae7f1ceed3200e9e7a7d04f7ee59c"
+  },
+  {
+   "id": "attacknet_v2_2__casia_fasd",
+   "name": "AttackNet V2.2 · CASIA-FASD",
+   "family": "docente",
+   "reliability": "trained",
+   "fingerprint": "1b3ba1700505ab14fb180115b0f91d11ecd8bfffc43f886c318f427c6d62366a"
+  },
+  {
+   "id": "attacknet_v2_2__casia_fasd-pooled",
+   "name": "AttackNet V2.2 · CASIA-FASD (split 80/20 del docente)",
+   "family": "docente",
+   "reliability": "trained",
+   "fingerprint": "4e6ab99ace1ed6a68dbc389ce0b6bd8406524a07f37f425e36b6d88fa58aeac0"
+  },
+  {
+   "id": "livenessnet__celeba_spoof",
+   "name": "LivenessNet · CelebA-Spoof",
+   "family": "docente",
+   "reliability": "trained",
+   "fingerprint": "f2cac7ce396409049511be12cb2b855e647487966a06fdd7a30f49a0ba382ffd"
+  },
+  {
+   "id": "livenessnet__celeba_spoof-pooled",
+   "name": "LivenessNet · CelebA-Spoof (split 80/20 del docente)",
+   "family": "docente",
+   "reliability": "trained",
+   "fingerprint": "4f7553343edabc31d382a6bbd6fe1dff664b1727010737a2c94c89bf22bcc48d"
+  },
+  {
+   "id": "attacknet_v1__celeba_spoof",
+   "name": "AttackNet V1 · CelebA-Spoof",
+   "family": "docente",
+   "reliability": "trained",
+   "fingerprint": "ddd4b19446621cd843714a7a87c7d9cf155498c94c88c80d0e123b4444e4cbcd"
+  },
+  {
+   "id": "attacknet_v2_1__celeba_spoof",
+   "name": "AttackNet V2.1 · CelebA-Spoof",
+   "family": "docente",
+   "reliability": "trained",
+   "fingerprint": "a78a8e964722a121eb5ee3680bd5827c54f2874cb637297df392e0148513e1ee"
+  },
+  {
+   "id": "attacknet_v2_2__celeba_spoof",
+   "name": "AttackNet V2.2 · CelebA-Spoof",
+   "family": "docente",
+   "reliability": "trained",
+   "fingerprint": "b9e4db69dd6873c1bb1c61d6db340a2749f8f9d20467769d64ae5ace42926e6a"
+  },
+  {
+   "id": "attacknet_v2_2__celeba_spoof-pooled",
+   "name": "AttackNet V2.2 · CelebA-Spoof (split 80/20 del docente)",
+   "family": "docente",
+   "reliability": "trained",
+   "fingerprint": "fd813458862f8f187fb6b68a06cb2cd1d3780066f3cc31e094947c7a069b812a"
+  },
+  {
+   "id": "livenessnet__synthaspoof",
+   "name": "LivenessNet · SynthASpoof",
+   "family": "docente",
+   "reliability": "trained",
+   "fingerprint": "8af2d94faa12fd87b77806a348a357a697221ea7d118a56ea0816b5a1971bda9"
+  },
+  {
+   "id": "attacknet_v1__synthaspoof",
+   "name": "AttackNet V1 · SynthASpoof",
+   "family": "docente",
+   "reliability": "trained",
+   "fingerprint": "98ac29423441523c0f495d0021836c3f6bac815cdfe21f44789c45b73d2a2da0"
+  },
+  {
+   "id": "attacknet_v2_1__synthaspoof",
+   "name": "AttackNet V2.1 · SynthASpoof",
+   "family": "docente",
+   "reliability": "trained",
+   "fingerprint": "ce0c39cd29b1092b50b30bd35d97d573926fde5bc854ac94a70a5feca12490e9"
+  },
+  {
+   "id": "attacknet_v2_2__synthaspoof",
+   "name": "AttackNet V2.2 · SynthASpoof",
+   "family": "docente",
+   "reliability": "trained",
+   "fingerprint": "821aa1b28b63a1910ca8ec05affe6aa599015ceaac8e065a4df896da2c68f3f9"
+  },
+  {
+   "id": "minifasnet",
+   "name": "MiniFASNet (pre-addestrato)",
+   "family": "pretrained",
+   "reliability": "trained",
+   "fingerprint": "minifasnet:a5eb02e1843f19b5+84ee1d37d96894d5"
+  },
+  {
+   "id": "clip_zeroshot",
+   "name": "CLIP zero-shot (FLIP)",
+   "family": "pretrained",
+   "reliability": "zeroshot",
+   "fingerprint": "clip:openai/clip-vit-base-patch32@3d74acf9a28c:a real human face|a live person looking at the camera|a real person taking a selfie|a person with natural skin in a close-up portrait|a printed photo of a face|a photograph of a photograph of a face|a face displayed on a phone screen|a face on a computer monitor|a person wearing a realistic mask|a paper cutout of a face:v3-ensemble8"
+  },
+  {
+   "id": "clip_probe",
+   "name": "CLIP linear probe",
+   "family": "pretrained",
+   "reliability": "trained",
+   "fingerprint": "clip-probe:3d74acf9a28c:clip_probe-clf:v1:d4251b391ca86b99"
+  },
+  {
+   "id": "depth",
+   "name": "Profondità (Depth Anything)",
+   "family": "pretrained",
+   "reliability": "heuristic",
+   "fingerprint": "depth:depth-anything/Depth-Anything-V2-Small-hf@5426e4f0f365:v2"
+  },
+  {
+   "id": "dinov2_probe",
+   "name": "DINOv2 linear probe",
+   "family": "pretrained",
+   "reliability": "trained",
+   "fingerprint": "dinov2-probe:ed25f3a31f01:dinov2_probe-clf:v1:5b105bb846414f9c"
+  },
+  {
+   "id": "lbp",
+   "name": "LBP micro-texture",
+   "family": "classico",
+   "reliability": "trained",
+   "fingerprint": "lbp-clf:v1:94d1f595e36f7677"
+  },
+  {
+   "id": "fourier",
+   "name": "Spettro di Fourier",
+   "family": "classico",
+   "reliability": "heuristic",
+   "fingerprint": "fourier:0.24-0.4:30.0"
+  },
+  {
+   "id": "ida",
+   "name": "Distorsioni IDA",
+   "family": "classico",
+   "reliability": "trained",
+   "fingerprint": "ida-clf:v1:297b069ec5c3e57a"
+  },
+  {
+   "id": "dog",
+   "name": "DoG (Tan et al. 2010)",
+   "family": "classico",
+   "reliability": "trained",
+   "fingerprint": "dog-clf:v2:6cbc5cafcfb4dbd3"
+  },
+  {
+   "id": "facemesh",
+   "name": "Face Mesh 3D (MediaPipe)",
+   "family": "classico",
+   "reliability": "descriptive",
+   "fingerprint": "facemesh"
+  },
+  {
+   "id": "iqa",
+   "name": "Qualità d'immagine (IQA)",
+   "family": "classico",
+   "reliability": "trained",
+   "fingerprint": "iqa-clf:v1:657fa4ba31ca4cb3"
+  }
+ ],
+ "checkpoints": [
+  {
+   "card": "AttackNetV1__casia_fasd.json",
+   "weights_file": "AttackNetV1__casia_fasd.keras",
+   "sha256": "c973c08970b36e74afc2f26cacf5045defe02cccb162f292697131266e7c8909",
+   "arch": "AttackNetV1",
+   "dataset": "casia_fasd",
+   "protocol": "official",
+   "seed": null,
+   "saved": "2026-09-12 18:23",
+   "test": {
+    "n": 2091,
+    "acer": 0.43775126903553296,
+    "eer": 0.40045685279187815,
+    "auc": 0.639809926677947
+   }
+  },
+  {
+   "card": "AttackNetV1__celeba_spoof.json",
+   "weights_file": "AttackNetV1__celeba_spoof.keras",
+   "sha256": "ddd4b19446621cd843714a7a87c7d9cf155498c94c88c80d0e123b4444e4cbcd",
+   "arch": "AttackNetV1",
+   "dataset": "celeba_spoof",
+   "protocol": "official",
+   "seed": null,
+   "saved": "2026-09-12 18:11",
+   "test": {
+    "n": 900,
+    "acer": 0.3277777777777778,
+    "eer": 0.3155555555555556,
+    "auc": 0.7392197530864197
+   }
+  },
+  {
+   "card": "AttackNetV1__nuaa-pooled.json",
+   "weights_file": "AttackNetV1__nuaa-pooled.keras",
+   "sha256": "bdd312afa6553750b48c59b21146f4e5e949f7d0a071977921a25dfadd84db80",
+   "arch": "AttackNetV1",
+   "dataset": "nuaa",
+   "protocol": "pooled",
+   "seed": null,
+   "saved": "2026-09-12 18:46",
+   "test": {
+    "n": 1200,
+    "acer": 0.07916666666666666,
+    "eer": 0.08499999999999999,
+    "auc": 0.9754305555555556
+   }
+  },
+  {
+   "card": "AttackNetV1__nuaa.json",
+   "weights_file": "AttackNetV1__nuaa.keras",
+   "sha256": "0cbc46cc56ba76931324ad252177a4912aad3044780fa7dd847c609b5098f12f",
+   "arch": "AttackNetV1",
+   "dataset": "nuaa",
+   "protocol": "official",
+   "seed": null,
+   "saved": "2026-09-12 17:49",
+   "test": {
+    "n": 3000,
+    "acer": 0.2876666666666667,
+    "eer": 0.29033333333333333,
+    "auc": 0.7524908888888889
+   }
+  },
+  {
+   "card": "AttackNetV1__synthaspoof.json",
+   "weights_file": "AttackNetV1__synthaspoof.keras",
+   "sha256": "98ac29423441523c0f495d0021836c3f6bac815cdfe21f44789c45b73d2a2da0",
+   "arch": "AttackNetV1",
+   "dataset": "synthaspoof",
+   "protocol": "official",
+   "seed": 42,
+   "saved": "2026-09-25 19:57",
+   "test": {
+    "n": 3000,
+    "acer": 0.242,
+    "eer": 0.2386666666666667,
+    "auc": 0.8443320000000001
+   }
+  },
+  {
+   "card": "AttackNetV2_1__casia_fasd.json",
+   "weights_file": "AttackNetV2_1__casia_fasd.keras",
+   "sha256": "c50be744cf393ca609446e72e139a01aca3ae7f1ceed3200e9e7a7d04f7ee59c",
+   "arch": "AttackNetV2_1",
+   "dataset": "casia_fasd",
+   "protocol": "official",
+   "seed": null,
+   "saved": "2026-09-12 18:28",
+   "test": {
+    "n": 2091,
+    "acer": 0.45704060913705585,
+    "eer": 0.40419966159052456,
+    "auc": 0.618613649182177
+   }
+  },
+  {
+   "card": "AttackNetV2_1__celeba_spoof.json",
+   "weights_file": "AttackNetV2_1__celeba_spoof.keras",
+   "sha256": "a78a8e964722a121eb5ee3680bd5827c54f2874cb637297df392e0148513e1ee",
+   "arch": "AttackNetV2_1",
+   "dataset": "celeba_spoof",
+   "protocol": "official",
+   "seed": null,
+   "saved": "2026-09-12 18:17",
+   "test": {
+    "n": 900,
+    "acer": 0.5544444444444445,
+    "eer": 0.5533333333333333,
+    "auc": 0.4225629629629629
+   }
+  },
+  {
+   "card": "AttackNetV2_1__nuaa-pooled.json",
+   "weights_file": "AttackNetV2_1__nuaa-pooled.keras",
+   "sha256": "7315b59dc7b3153f3427c92beea123ad610c4a7b7f7dd74fa6860bf01d4abf1a",
+   "arch": "AttackNetV2_1",
+   "dataset": "nuaa",
+   "protocol": "pooled",
+   "seed": null,
+   "saved": "2026-09-12 19:07",
+   "test": {
+    "n": 1200,
+    "acer": 0.17416666666666666,
+    "eer": 0.13583333333333333,
+    "auc": 0.9569152777777777
+   }
+  },
+  {
+   "card": "AttackNetV2_1__nuaa.json",
+   "weights_file": "AttackNetV2_1__nuaa.keras",
+   "sha256": "67d9138d6c43e33164d4510b4b34868c2fdc0a637f27664816c388c4e059f8dc",
+   "arch": "AttackNetV2_1",
+   "dataset": "nuaa",
+   "protocol": "official",
+   "seed": null,
+   "saved": "2026-09-12 17:57",
+   "test": {
+    "n": 3000,
+    "acer": 0.41533333333333333,
+    "eer": 0.3573333333333333,
+    "auc": 0.7088411111111113
+   }
+  },
+  {
+   "card": "AttackNetV2_1__synthaspoof.json",
+   "weights_file": "AttackNetV2_1__synthaspoof.keras",
+   "sha256": "ce0c39cd29b1092b50b30bd35d97d573926fde5bc854ac94a70a5feca12490e9",
+   "arch": "AttackNetV2_1",
+   "dataset": "synthaspoof",
+   "protocol": "official",
+   "seed": 42,
+   "saved": "2026-09-25 20:10",
+   "test": {
+    "n": 3000,
+    "acer": 0.24533333333333335,
+    "eer": 0.21933333333333335,
+    "auc": 0.8570851111111111
+   }
+  },
+  {
+   "card": "AttackNetV2_2__casia_fasd-pooled.json",
+   "weights_file": "AttackNetV2_2__casia_fasd-pooled.keras",
+   "sha256": "4e6ab99ace1ed6a68dbc389ce0b6bd8406524a07f37f425e36b6d88fa58aeac0",
+   "arch": "AttackNetV2_2",
+   "dataset": "casia_fasd",
+   "protocol": "pooled",
+   "seed": null,
+   "saved": "2026-09-12 19:31",
+   "test": {
+    "n": 750,
+    "acer": 0.4708980474058131,
+    "eer": 0.45480578938248417,
+    "auc": 0.5823628122463498
+   }
+  },
+  {
+   "card": "AttackNetV2_2__casia_fasd.json",
+   "weights_file": "AttackNetV2_2__casia_fasd.keras",
+   "sha256": "1b3ba1700505ab14fb180115b0f91d11ecd8bfffc43f886c318f427c6d62366a",
+   "arch": "AttackNetV2_2",
+   "dataset": "casia_fasd",
+   "protocol": "official",
+   "seed": null,
+   "saved": "2026-09-12 13:03",
+   "test": {
+    "n": 2091,
+    "acer": 0.5,
+    "eer": 0.6183637901861252,
+    "auc": 0.37803327693175415
+   }
+  },
+  {
+   "card": "AttackNetV2_2__celeba_spoof-pooled.json",
+   "weights_file": "AttackNetV2_2__celeba_spoof-pooled.keras",
+   "sha256": "fd813458862f8f187fb6b68a06cb2cd1d3780066f3cc31e094947c7a069b812a",
+   "arch": "AttackNetV2_2",
+   "dataset": "celeba_spoof",
+   "protocol": "pooled",
+   "seed": null,
+   "saved": "2026-09-12 19:44",
+   "test": {
+    "n": 780,
+    "acer": 0.4987179487179487,
+    "eer": 0.4012820512820513,
+    "auc": 0.6116732412886259
+   }
+  },
+  {
+   "card": "AttackNetV2_2__celeba_spoof.json",
+   "weights_file": "AttackNetV2_2__celeba_spoof.keras",
+   "sha256": "b9e4db69dd6873c1bb1c61d6db340a2749f8f9d20467769d64ae5ace42926e6a",
+   "arch": "AttackNetV2_2",
+   "dataset": "celeba_spoof",
+   "protocol": "official",
+   "seed": null,
+   "saved": "2026-09-12 13:19",
+   "test": {
+    "n": 900,
+    "acer": 0.3288888888888889,
+    "eer": 0.33444444444444443,
+    "auc": 0.7339012345679014
+   }
+  },
+  {
+   "card": "AttackNetV2_2__nuaa-pooled.json",
+   "weights_file": "AttackNetV2_2__nuaa-pooled.keras",
+   "sha256": "9570f88523921805b73333ad0115c7348135f41356935dde12a9bc544d56a7a5",
+   "arch": "AttackNetV2_2",
+   "dataset": "nuaa",
+   "protocol": "pooled",
+   "seed": null,
+   "saved": "2026-09-12 19:16",
+   "test": {
+    "n": 1200,
+    "acer": 0.16916666666666666,
+    "eer": 0.1525,
+    "auc": 0.9226194444444442
+   }
+  },
+  {
+   "card": "AttackNetV2_2__nuaa.json",
+   "weights_file": "AttackNetV2_2__nuaa.keras",
+   "sha256": "0258b72597a205017bf1654755550fea3830cc2556649a52f56161e11b2d29d2",
+   "arch": "AttackNetV2_2",
+   "dataset": "nuaa",
+   "protocol": "official",
+   "seed": null,
+   "saved": "2026-09-12 12:43",
+   "test": {
+    "n": 3000,
+    "acer": 0.4716666666666667,
+    "eer": 0.4873333333333333,
+    "auc": 0.5147844444444445
+   }
+  },
+  {
+   "card": "AttackNetV2_2__synthaspoof.json",
+   "weights_file": "AttackNetV2_2__synthaspoof.keras",
+   "sha256": "821aa1b28b63a1910ca8ec05affe6aa599015ceaac8e065a4df896da2c68f3f9",
+   "arch": "AttackNetV2_2",
+   "dataset": "synthaspoof",
+   "protocol": "official",
+   "seed": 42,
+   "saved": "2026-09-25 20:21",
+   "test": {
+    "n": 3000,
+    "acer": 0.21100000000000002,
+    "eer": 0.20966666666666667,
+    "auc": 0.8629768888888888
+   }
+  },
+  {
+   "card": "LivenessNet__casia_fasd-pooled.json",
+   "weights_file": "LivenessNet__casia_fasd-pooled.keras",
+   "sha256": "c7cb5bf8aa8ca854fbe6d19edfb03371d555497983cf261f264f5ccd2e10dfc0",
+   "arch": "LivenessNet",
+   "dataset": "casia_fasd",
+   "protocol": "pooled",
+   "seed": null,
+   "saved": "2026-09-12 19:22",
+   "test": {
+    "n": 750,
+    "acer": 0.09652618810933068,
+    "eer": 0.08717817763955896,
+    "auc": 0.9622613977327654
+   }
+  },
+  {
+   "card": "LivenessNet__casia_fasd.json",
+   "weights_file": "LivenessNet__casia_fasd.keras",
+   "sha256": "38152229e814638fa1dbe991fbd2138557a3b91bb465299059c7f3df5e88ca81",
+   "arch": "LivenessNet",
+   "dataset": "casia_fasd",
+   "protocol": "official",
+   "seed": null,
+   "saved": "2026-09-12 12:58",
+   "test": {
+    "n": 2091,
+    "acer": 0.5,
+    "eer": 0.4503756345177665,
+    "auc": 0.5503147208121827
+   }
+  },
+  {
+   "card": "LivenessNet__celeba_spoof-pooled.json",
+   "weights_file": "LivenessNet__celeba_spoof-pooled.keras",
+   "sha256": "4f7553343edabc31d382a6bbd6fe1dff664b1727010737a2c94c89bf22bcc48d",
+   "arch": "LivenessNet",
+   "dataset": "celeba_spoof",
+   "protocol": "pooled",
+   "seed": null,
+   "saved": "2026-09-12 19:38",
+   "test": {
+    "n": 780,
+    "acer": 0.26794871794871794,
+    "eer": 0.22564102564102562,
+    "auc": 0.8481065088757396
+   }
+  },
+  {
+   "card": "LivenessNet__celeba_spoof.json",
+   "weights_file": "LivenessNet__celeba_spoof.keras",
+   "sha256": "f2cac7ce396409049511be12cb2b855e647487966a06fdd7a30f49a0ba382ffd",
+   "arch": "LivenessNet",
+   "dataset": "celeba_spoof",
+   "protocol": "official",
+   "seed": null,
+   "saved": "2026-09-12 13:10",
+   "test": {
+    "n": 900,
+    "acer": 0.2677777777777778,
+    "eer": 0.23222222222222225,
+    "auc": 0.8441283950617284
+   }
+  },
+  {
+   "card": "LivenessNet__nuaa-pooled.json",
+   "weights_file": "LivenessNet__nuaa-pooled.keras",
+   "sha256": "2456c9f3bda446badf519de2b2d80ba99b99add32c5c9e452e0d7a208023ba9b",
+   "arch": "LivenessNet",
+   "dataset": "nuaa",
+   "protocol": "pooled",
+   "seed": null,
+   "saved": "2026-09-12 12:56",
+   "test": {
+    "n": 1200,
+    "acer": 0.0025,
+    "eer": 0.0,
+    "auc": 1.0
+   }
+  },
+  {
+   "card": "LivenessNet__nuaa.json",
+   "weights_file": "LivenessNet__nuaa.keras",
+   "sha256": "d861c5969f24376aff5aaac30c2b2b8793e0cd142dd016756dc82f188ccd99a5",
+   "arch": "LivenessNet",
+   "dataset": "nuaa",
+   "protocol": "official",
+   "seed": null,
+   "saved": "2026-09-12 12:31",
+   "test": {
+    "n": 3000,
+    "acer": 0.4043333333333333,
+    "eer": 0.43566666666666665,
+    "auc": 0.6023304444444444
+   }
+  },
+  {
+   "card": "LivenessNet__synthaspoof.json",
+   "weights_file": "LivenessNet__synthaspoof.keras",
+   "sha256": "8af2d94faa12fd87b77806a348a357a697221ea7d118a56ea0816b5a1971bda9",
+   "arch": "LivenessNet",
+   "dataset": "synthaspoof",
+   "protocol": "official",
+   "seed": 42,
+   "saved": "2026-09-25 19:46",
+   "test": {
+    "n": 3000,
+    "acer": 0.123,
+    "eer": 0.126,
+    "auc": 0.9436564444444443
+   }
+  },
+  {
+   "card": "clip_probe_clf.json",
+   "weights_file": "clip_probe_clf.joblib",
+   "sha256": "d4251b391ca86b9954555005cf9e8f820d84da352bbf83c06218f24592e8d755",
+   "arch": "clip_probe",
+   "dataset": "nuaa",
+   "protocol": "official",
+   "seed": 42,
+   "saved": null,
+   "test": {
+    "n": 3000,
+    "acer": 0.013666666666666667,
+    "eer": 0.002000000000000001,
+    "auc": 0.9999862222222222
+   }
+  },
+  {
+   "card": "dinov2_probe_clf.json",
+   "weights_file": "dinov2_probe_clf.joblib",
+   "sha256": "5b105bb846414f9cc9d7fa25502f42c7b68dc292f4d81751812c73513b0c7674",
+   "arch": "dinov2_probe",
+   "dataset": "nuaa",
+   "protocol": "official",
+   "seed": 42,
+   "saved": null,
+   "test": {
+    "n": 3000,
+    "acer": 0.0013333333333333333,
+    "eer": 0.002000000000000001,
+    "auc": 0.9999871111111112
+   }
+  },
+  {
+   "card": "dog_clf.json",
+   "weights_file": "dog_clf.joblib",
+   "sha256": "6cbc5cafcfb4dbd31a1cca1e0a438259093a9c5d1b20830f54bcd3a13f02a0bf",
+   "arch": "dog",
+   "dataset": "nuaa",
+   "protocol": "official",
+   "seed": 42,
+   "saved": null,
+   "test": {
+    "n": 3000,
+    "acer": 0.37266666666666665,
+    "eer": 0.37433333333333335,
+    "auc": 0.6852164444444444
+   }
+  },
+  {
+   "card": "ida_clf.json",
+   "weights_file": "ida_clf.joblib",
+   "sha256": "297b069ec5c3e57a1f61156cbfca06fa3814492a2ae3aaa0f820f9c7fc3a8d57",
+   "arch": "ida",
+   "dataset": "nuaa",
+   "protocol": "official",
+   "seed": 42,
+   "saved": null,
+   "test": {
+    "n": 3000,
+    "acer": 0.3433333333333333,
+    "eer": 0.29333333333333333,
+    "auc": 0.8053626666666667
+   }
+  },
+  {
+   "card": "iqa_clf.json",
+   "weights_file": "iqa_clf.joblib",
+   "sha256": "657fa4ba31ca4cb3fa1c5b2c4ac3ff66c911bad5c1e2db9241730a76b1688074",
+   "arch": "iqa",
+   "dataset": "nuaa",
+   "protocol": "official",
+   "seed": 42,
+   "saved": null,
+   "test": {
+    "n": 3000,
+    "acer": 0.3463333333333333,
+    "eer": 0.32733333333333337,
+    "auc": 0.7370644444444445
+   }
+  },
+  {
+   "card": "lbp_clf.json",
+   "weights_file": "lbp_clf.joblib",
+   "sha256": "94d1f595e36f7677ca1b0316ba4ddb0047c85717ea4bab5c2f1f944553c3a57e",
+   "arch": "lbp",
+   "dataset": "nuaa",
+   "protocol": "official",
+   "seed": 42,
+   "saved": null,
+   "test": {
+    "n": 3000,
+    "acer": 0.311,
+    "eer": 0.31233333333333335,
+    "auc": 0.79556
+   }
+  }
+ ]
+}
