@@ -1,0 +1,55 @@
+# Ambiente tesi - macOS Apple Silicon (arm64), Python 3.11
+# Derivato da src/livedetection/requirements.txt (che è UTF-16 e contiene pacchetti solo Windows).
+# Versioni allineate al repo del docente (TensorFlow 2.15 / Keras 2.15).
+
+# Deep learning
+tensorflow==2.15.0
+tensorflow-metal==1.1.0        # accelerazione GPU Apple Metal
+keras==2.15.0
+
+# Elaborazione dati / immagini
+numpy==1.26.4
+opencv-python==4.11.0.86
+albumentations==1.3.1
+scikit-image==0.25.2
+scipy==1.16.1
+pillow==11.3.0
+h5py==3.14.0                   # necessario per leggere i file .hdf5 di 3DMAD
+imageio==2.37.0
+
+# ML / analisi
+scikit-learn==1.3.2
+pandas==2.1.4
+optuna
+
+# Visualizzazione
+matplotlib==3.8.2
+seaborn==0.13.0
+
+# Utilità
+tqdm==4.66.1
+psutil==7.0.0
+GPUtil==1.4.0
+PyYAML==6.0.2
+
+# Notebook (opzionale, usato anche da PyCharm)
+jupyter==1.0.0
+ipykernel
+
+# --- App web LivenessLab (aggiunte 2026-09-11) ---
+fastapi>=0.115
+uvicorn[standard]
+websockets
+joblib
+
+# Modelli PyTorch / Hugging Face (MiniFASNet, CLIP zero-shot, Depth Anything V2)
+torch==2.14.0
+torchvision
+transformers==5.17.0
+huggingface_hub
+
+# MediaPipe Face Landmarker. NOTA: la 1.0.x va in crash su macOS (servizio Metal); la 0.10.14 funziona
+# ma trascina jax/jaxlib e ml-dtypes>=0.6 che rompono TensorFlow 2.15. Dopo l'installazione eseguire:
+#   pip uninstall -y jax jaxlib && pip install "ml-dtypes==0.2.0" "numpy==1.26.4"
+mediapipe==0.10.14
+ml-dtypes==0.2.0

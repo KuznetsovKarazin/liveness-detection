@@ -1,0 +1,2 @@
+# Le icone della PWA fanno parte dell'applicazione consegnata (il .gitignore di radice esclude *.png)
+!livenesslab/src/tesi_app/static/icons/*.png
