@@ -1,0 +1,38 @@
+{
+ "analyzer": "lbp",
+ "dataset": "nuaa",
+ "protocol": "official",
+ "classifier": "svm",
+ "per_class": 1500,
+ "n_train": 3000,
+ "n_test": 3000,
+ "feature_dim": 178,
+ "seed": 42,
+ "train_seconds": 94.2,
+ "hyperparameters": {
+  "C": 3.0,
+  "gamma": 0.003,
+  "cv_auc": 0.9998,
+  "cv": "per soggetto"
+ },
+ "created": "2026-09-25T21:30:40",
+ "script_sha256": "064b44aa3ae91ef58dc9cc4254fa409a898e0fb0ccf9c63fafc2418fd13dc948",
+ "clf_sha256": "94d1f595e36f7677ca1b0316ba4ddb0047c85717ea4bab5c2f1f944553c3a57e",
+ "test": {
+  "n": 3000,
+  "n_real": 1500,
+  "n_attack": 1500,
+  "threshold": 0.5,
+  "apcer": 0.28933333333333333,
+  "bpcer": 0.33266666666666667,
+  "acer": 0.311,
+  "accuracy": 0.689,
+  "eer": 0.31233333333333335,
+  "eer_threshold": 0.5627441809211288,
+  "bpcer_at_apcer10": 0.568,
+  "auc": 0.79556,
+  "apcer_at_eer": 0.31266666666666665,
+  "bpcer_at_eer": 0.312
+ },
+ "note": "Feature estratte sul ritaglio RetinaFace con il CROP dell'analizzatore; split ufficiale train/test del dataset."
+}

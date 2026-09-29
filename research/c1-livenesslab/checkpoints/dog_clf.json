@@ -1,0 +1,37 @@
+{
+ "analyzer": "dog",
+ "dataset": "nuaa",
+ "protocol": "official",
+ "classifier": "logreg",
+ "per_class": 1500,
+ "n_train": 3000,
+ "n_test": 3000,
+ "feature_dim": 1076,
+ "seed": 42,
+ "train_seconds": 3.4,
+ "hyperparameters": {
+  "C": 0.1,
+  "cv_auc": 0.9837,
+  "cv": "per soggetto"
+ },
+ "created": "2026-09-25T21:33:09",
+ "script_sha256": "064b44aa3ae91ef58dc9cc4254fa409a898e0fb0ccf9c63fafc2418fd13dc948",
+ "clf_sha256": "6cbc5cafcfb4dbd31a1cca1e0a438259093a9c5d1b20830f54bcd3a13f02a0bf",
+ "test": {
+  "n": 3000,
+  "n_real": 1500,
+  "n_attack": 1500,
+  "threshold": 0.5,
+  "apcer": 0.012,
+  "bpcer": 0.7333333333333333,
+  "acer": 0.37266666666666665,
+  "accuracy": 0.6273333333333333,
+  "eer": 0.37433333333333335,
+  "eer_threshold": 0.9938950748778322,
+  "bpcer_at_apcer10": 0.5553333333333333,
+  "auc": 0.6852164444444444,
+  "apcer_at_eer": 0.37466666666666665,
+  "bpcer_at_eer": 0.374
+ },
+ "note": "Feature estratte sul ritaglio RetinaFace con il CROP dell'analizzatore; split ufficiale train/test del dataset."
+}
