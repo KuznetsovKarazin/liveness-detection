@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LivenessLab · Face Anti-Spoofing spiegato passo per passo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/style.css">
+<!-- PWA: manifest, colore della barra, icona e modalità a schermo intero su iOS -->
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#0b0e17">
+<link rel="icon" type="image/png" sizes="192x192" href="/static/icons/icon-192.png">
+<link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="LivenessLab">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <div class="logo"><svg viewBox="0 0 32 32" width="28" height="28"><defs><linearGradient id="lg" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#8b7cff"/><stop offset="1" stop-color="#22c9a8"/></linearGradient></defs><circle cx="16" cy="16" r="14" fill="none" stroke="url(#lg)" stroke-width="2.5"/><circle cx="16" cy="13" r="4.5" fill="url(#lg)"/><path d="M7 26c2-5 6-7 9-7s7 2 9 7" fill="none" stroke="url(#lg)" stroke-width="2.5" stroke-linecap="round"/></svg></div>
+    <div>
+      <h1>LivenessLab <span class="version" title="Versione dell'applicazione (anno.mese.giorno)">v{{VERSION}}</span></h1>
+      <p>Face anti-spoofing spiegato passo per passo · tesi di Valerio Cassano</p>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <label class="pace">Ritmo
+      <select id="pace">
+        <option value="900">Lento</option>
+        <option value="450" selected>Normale</option>
+        <option value="150">Veloce</option>
+        <option value="0">Istantaneo</option>
+      </select>
+    </label>
+    <button id="btn-glossary" class="btn small ghost" title="Glossario dei termini">📖 <span class="lbl">Glossario</span></button>
+    <button id="btn-install" class="btn small ghost" title="Installa LivenessLab come app" hidden>📲 <span class="lbl">Installa</span></button>
+    <span id="conn" class="pill pill-off" aria-live="polite">offline</span>
+  </div>
+</header>
+
+<!-- avviso di installazione della PWA: compare su Android (installazione diretta) e su iPhone/iPad (guida) -->
+<div id="install-banner" class="install-banner" role="dialog" aria-label="Installa LivenessLab" hidden>
+  <img src="/static/icons/icon-192.png" alt="" width="44" height="44">
+  <div class="install-text">
+    <b>Vuoi installare LivenessLab sul tuo dispositivo?</b>
+    <span id="install-sub">Si apre a schermo intero come un'app, con la sua icona nella schermata Home.</span>
+  </div>
+  <div class="install-actions">
+    <button id="install-yes" class="btn small primary">Installa</button>
+    <button id="install-no" class="btn small ghost">Non ora</button>
+  </div>
+</div>
+
+<main class="layout">
+  <aside class="left">
+    <!-- 1. configurazione: card di partenza (idle) oppure barra di missione (analisi in corso / completata) -->
+    <section class="panel setup-panel" id="setup">
+      <h2 class="panel-title"><span id="setup-title">Nuova analisi</span></h2>
+      <div id="setup-idle">
+        <p class="setup-lead">Scegli l'immagine o il dataset, gli algoritmi e le opzioni, poi avvia: ogni algoritmo viene eseguito passo per passo, con le immagini intermedie e la spiegazione di ogni fase.</p>
+        <div class="setup-rows">
+          <button type="button" class="setup-row" data-step="1"><span class="sr-k">Sorgente</span><span class="sr-v" id="sr-source">nessuna immagine</span><span class="sr-go">›</span></button>
+          <button type="button" class="setup-row" data-step="2"><span class="sr-k">Algoritmi</span><span class="sr-v" id="sr-algos">—</span><span class="sr-go">›</span></button>
+          <button type="button" class="setup-row" data-step="3"><span class="sr-k">Opzioni</span><span class="sr-v" id="sr-opts">ritmo normale</span><span class="sr-go">›</span></button>
+        </div>
+        <button id="btn-configure" class="btn primary big">⚙ Configura e avvia</button>
+      </div>
+      <div id="mission" hidden>
+        <div class="mission-head">
+          <img id="mission-thumb" alt="" hidden>
+          <div class="mission-text"><div id="mission-title">Analisi in corso…</div><div id="mission-sub" class="muted"></div></div>
+        </div>
+        <div class="progress"><div id="progress-bar"></div></div>
+        <div id="mission-groups" class="mission-groups"></div>
+        <div class="row gap">
+          <button id="btn-stop" class="btn small ghost">■ Ferma</button>
+          <button id="btn-new" class="btn small">＋ Nuova analisi</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. viewer -->
+    <section class="panel viewer-panel">
+      <h2 class="panel-title"><span id="viewer-title">Cosa sta guardando adesso</span></h2>
+      <div id="viewer-live">
+        <div class="viewer">
+          <img id="view-a" class="view-img show" alt="">
+          <img id="view-b" class="view-img" alt="">
+          <div id="view-empty" class="view-empty">In attesa di un'analisi…</div>
+        </div>
+        <div class="viewer-caption">
+          <div class="vc-top"><span id="vc-analyzer" class="vc-analyzer">—</span><span id="vc-step" class="vc-step"></span></div>
+          <p id="vc-desc" class="vc-desc"></p>
+        </div>
+      </div>
+      <!-- a fine analisi: consenso, verdetto e collegamento ai risultati -->
+      <div id="final" class="final" hidden>
+        <div class="gauge-wrap"><svg id="gauge-final" viewBox="0 0 200 120"></svg><div class="gauge-label"><b id="gauge-final-value">—</b><span>consenso "reale"</span></div></div>
+        <div class="final-verdict"><b id="final-title">—</b><p id="final-desc" class="muted"></p></div>
+        <button id="btn-goto-results" class="btn primary big">Vai ai risultati →</button>
+      </div>
+    </section>
+  </aside>
+
+  <section class="right">
+    <div id="ctrl" class="ctrl" hidden>
+      <span id="ctrl-dot" class="ctrl-dot"></span>
+      <span id="ctrl-status" class="ctrl-status">Analisi in corso…</span>
+      <span class="ctrl-spacer"></span>
+      <button id="btn-follow" class="btn small primary" hidden>▶ Riprendi dal punto attuale</button>
+      <button id="btn-reset" class="btn small ghost">↺ Reset</button>
+    </div>
+    <nav id="tabs" class="tabs" role="tablist" aria-label="Schede dei risultati">
+      <button class="tab active" role="tab" aria-selected="true" data-tab="summary">Riepilogo</button>
+      <button class="tab tab-catalog" role="tab" aria-selected="false" data-tab="catalog">🧩 Algoritmi</button>
+      <button class="tab tab-eval" role="tab" aria-selected="false" data-tab="eval">📊 Valutazione dataset</button>
+    </nav>
+    <div id="tab-panes" class="panes">
+      <section class="pane active" data-pane="summary">
+        <div class="summary-empty" id="summary-empty">
+          <h3>Come funziona</h3>
+          <p>Premi <b>Configura e avvia</b>: scegli una foto (o un dataset), gli algoritmi e le opzioni. Ogni algoritmo viene eseguito passo per passo: il diagramma a blocchi si illumina, ogni passo produce una card con l'immagine intermedia, i numeri calcolati e la spiegazione di cosa sta succedendo.</p>
+          <ul>
+            <li><b>CNN del docente</b> — le quattro reti di Kuznetsov et al. (LivenessNet, AttackNet V1, V2.1, V2.2) con il loro preprocessing originale, in una variante per ogni dataset di addestramento.</li>
+            <li><b>Pre-addestrati</b> — MiniFASNet, CLIP zero-shot e le sonde lineari su CLIP e DINOv2, Depth Anything: modelli generali applicati al nostro problema.</li>
+            <li><b>Classici spiegabili</b> — micro-texture LBP, DoG, spettro di Fourier, distorsioni IDA, qualità d'immagine, geometria Face Mesh: metodi della letteratura, interpretabili.</li>
+          </ul>
+          <p class="muted">La scheda <b>Algoritmi</b> è il catalogo completo: per ognuno cosa fa, quando funziona, limiti, passi e riferimenti. La scheda <b>Valutazione dataset</b> mostra le metriche ISO/IEC 30107-3 sui dataset pubblici.</p>
+        </div>
+        <div id="summary" hidden>
+          <div class="consensus">
+            <div class="gauge-wrap"><svg id="gauge" viewBox="0 0 200 120"></svg><div class="gauge-label"><b id="gauge-value">—</b><span>consenso "reale"</span></div></div>
+            <div class="consensus-text"><h3 id="consensus-title">In corso…</h3><p id="consensus-desc"></p></div>
+          </div>
+          <table class="results"><thead><tr><th>Algoritmo</th><th>Famiglia</th><th>Affidabilità</th><th>Verdetto</th><th>P(reale)</th><th>Tempo</th></tr></thead><tbody id="results-body"></tbody></table>
+        </div>
+      </section>
+
+      <!-- catalogo degli algoritmi -->
+      <section class="pane" data-pane="catalog">
+        <div class="eval-head cat-head">
+          <div>
+            <h3>Catalogo degli algoritmi</h3>
+            <p class="muted">Tutti gli analizzatori disponibili, con famiglia, affidabilità e dataset di addestramento. La spunta li include nella prossima analisi; <b>Scheda</b> apre cosa fa, quando funziona, limiti, passi della pipeline e riferimenti.</p>
+          </div>
+        </div>
+        <div class="cat-tools">
+          <div class="seg" id="cat-family"><button type="button" data-f="" class="on">Tutti</button><button type="button" data-f="docente">CNN del docente</button><button type="button" data-f="pretrained">Pre-addestrati</button><button type="button" data-f="classico">Classici</button></div>
+          <input id="cat-search" type="search" placeholder="Cerca per nome, dataset, riferimento…" class="search-in" aria-label="Cerca un algoritmo">
+          <span id="cat-count" class="muted"></span>
+        </div>
+        <div id="catalog" class="cat-grid"></div>
+      </section>
+
+      <!-- valutazione su dataset: risultati (i controlli sono nella finestra di configurazione) -->
+      <section class="pane" data-pane="eval">
+        <div class="eval-head">
+          <div>
+            <h3>Valutazione su dataset: le metriche richieste dal docente</h3>
+            <p class="muted">Ogni algoritmo analizza tutte le immagini etichettate di un dataset; dai punteggi si calcolano <b>APCER</b> (attacchi accettati come reali), <b>BPCER</b> (persone vere rifiutate), <b>ACER</b> (media), <b>EER</b>, BPCER@APCER=10% e AUC, con le formule di <code>evaluation_utils.py</code> del docente (con tre differenze documentate: la BPCER@APCER, che nell'originale conta i bona fide accettati invece dei rifiutati; i valori non calcolabili, che qui sono \"—\" e non 0; l'EER, cercato sulla curva ROC completa). Convenzione ISO/IEC 30107-3: punteggio = probabilità di attacco, soglia 0,5. HTER non è riportato perché coinciderebbe con ACER finché la soglia non viene scelta su un set di sviluppo separato.</p>
+          </div>
+        </div>
+        <div class="eval-controls">
+          <div class="eval-actions">
+            <button id="btn-eval-new" class="btn primary">⚙ Nuova valutazione</button>
+            <button id="btn-eval-stop" class="btn ghost" hidden>■ Ferma</button>
+            <div id="ds-chips" class="ds-chips" title="Mostra i risultati già calcolati di un dataset"></div>
+          </div>
+          <div id="eval-progress" class="eval-progress" hidden><div class="progress"><div id="eval-bar"></div></div><span id="eval-status" class="muted"></span></div>
+        </div>
+        <div id="eval-results"></div>
+        <div id="eval-compare"></div>
+        <div id="print-all"></div>
+      </section>
+    </div>
+  </section>
+</main>
+
+<!-- finestra di configurazione (quattro passi) -->
+<dialog id="wizard" class="wizard" aria-label="Configura l'analisi">
+  <div class="wz">
+    <header class="wz-head">
+      <div class="wz-steps" id="wz-steps">
+        <button type="button" class="wz-step" data-step="1"><i>1</i><span>Sorgente</span></button>
+        <button type="button" class="wz-step" data-step="2"><i>2</i><span>Algoritmi</span></button>
+        <button type="button" class="wz-step" data-step="3"><i>3</i><span>Opzioni</span></button>
+        <button type="button" class="wz-step" data-step="4"><i>4</i><span>Riepilogo</span></button>
+      </div>
+      <button type="button" class="wz-close" id="wz-close" title="Chiudi (Esc)">✕</button>
+    </header>
+    <div class="wz-body">
+      <div class="wz-main">
+        <!-- passo 1: sorgente -->
+        <section class="wz-pane" data-step="1">
+          <h3 id="wz-title" class="wz-h">Cosa vuoi analizzare?</h3>
+          <div class="seg" id="wz-mode"><button type="button" data-mode="image" class="on">🖼 Una singola immagine</button><button type="button" data-mode="dataset">📊 Un intero dataset</button></div>
+          <div id="wz-image">
+            <div id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="Scegli un'immagine: trascina, clicca, incolla o usa la webcam">
+              <img id="drop-preview" alt="" hidden>
+              <div class="drop-hint">
+                <svg viewBox="0 0 24 24" width="34" height="34"><path fill="currentColor" d="M19 13v6H5v-6H3v8h18v-8zM12 3 6.5 8.5l1.4 1.4L11 6.8V16h2V6.8l3.1 3.1 1.4-1.4z"/></svg>
+                <b>Trascina qui una foto</b><span>oppure clicca, incolla (⌘V) o usa la webcam</span>
+              </div>
+              <input id="file" type="file" accept="image/*" hidden>
+            </div>
+            <div class="row gap">
+              <button id="btn-webcam" class="btn ghost">📷 Webcam</button>
+              <button id="btn-clear" class="btn ghost" disabled>✕ Rimuovi</button>
+            </div>
+            <div id="webcam-box" class="webcam" hidden>
+              <video id="video" autoplay playsinline muted></video>
+              <div class="row gap"><button id="btn-shot" class="btn">Scatta</button><button id="btn-webcam-stop" class="btn ghost">Chiudi</button></div>
+            </div>
+            <p class="label">Immagini di prova</p>
+            <div id="samples" class="samples"></div>
+          </div>
+          <div id="wz-dataset" hidden>
+            <p class="muted">Scegli il dataset: ogni algoritmo selezionato analizzerà le sue immagini etichettate e dai punteggi si calcolano le metriche ISO/IEC 30107-3.</p>
+            <div id="ds-list" class="ds-list"></div>
+          </div>
+        </section>
+        <!-- passo 2: algoritmi -->
+        <section class="wz-pane" data-step="2">
+          <h3 class="wz-h">Quali algoritmi?</h3>
+          <div class="wz-tools">
+            <div class="presets">
+              <button type="button" class="btn tiny" data-preset="all">Tutti</button>
+              <button type="button" class="btn tiny" data-preset="none">Nessuno</button>
+              <button type="button" class="btn tiny" data-preset="verdict">Solo con verdetto</button>
+              <button type="button" class="btn tiny" data-preset="official">CNN solo split ufficiale</button>
+              <button type="button" class="btn tiny" data-preset="fast">Veloce (senza CNN)</button>
+            </div>
+            <label class="switch"><input type="checkbox" id="wz-byarch"> raggruppa le CNN per architettura</label>
+            <span id="wz-algo-count" class="muted"></span>
+          </div>
+          <div id="wz-algos" class="acc"></div>
+        </section>
+        <!-- passo 3: opzioni -->
+        <section class="wz-pane" data-step="3">
+          <h3 class="wz-h">Opzioni</h3>
+          <div class="opt-grid">
+            <label class="opt"><span class="opt-k">Ritmo dell'animazione</span><select id="wz-pace"><option value="900">Lento</option><option value="450" selected>Normale</option><option value="150">Veloce</option><option value="0">Istantaneo</option></select><span class="opt-h">Quanto tempo resta visibile ogni passo. Con "Istantaneo" i risultati arrivano subito, senza animazione.</span></label>
+            <label class="opt" id="opt-limit"><span class="opt-k">Immagini per classe</span><input id="eval-limit" type="number" min="1" max="5000" value="150" class="num-in"><span class="opt-h">Il massimo è il numero di immagini per classe del dataset scelto; un numero più basso per una prova rapida.</span></label>
+            <label class="opt opt-check" id="opt-force"><input id="eval-force" type="checkbox"> <span><span class="opt-k">Ricalcola anche i risultati già in cache</span><span class="opt-h">Nuova inferenza su tutte le immagini invece di riusare i punteggi salvati.</span></span></label>
+          </div>
+        </section>
+        <!-- passo 4: riepilogo -->
+        <section class="wz-pane" data-step="4">
+          <h3 class="wz-h">Riepilogo</h3>
+          <div id="wz-summary" class="wz-summary"></div>
+        </section>
+      </div>
+      <!-- scheda informativa a fianco (desktop) o sovrapposta (telefono) -->
+      <aside id="wz-doc" class="wz-doc" hidden>
+        <button type="button" class="wz-doc-close" id="wz-doc-close" title="Chiudi la scheda">✕</button>
+        <div id="wz-doc-body" class="doc"></div>
+      </aside>
+    </div>
+    <footer class="wz-foot">
+      <button type="button" id="wz-back" class="btn ghost">‹ Indietro</button>
+      <span id="wz-hint" class="muted wz-hint"></span>
+      <button type="button" id="wz-next" class="btn primary">Avanti ›</button>
+    </footer>
+  </div>
+</dialog>
+<script src="/static/app.js"></script>
+</body>
+</html>
