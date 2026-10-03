@@ -1,0 +1,2 @@
+Row-by-row comparison of m1/nuaa_table.md with the C1 table (results/c1/nuaa_table.md)
+rows: C1 35, M1 35 (expected 35); rows that differ: 0; exported CSV byte-identical to the C1 one: yes
