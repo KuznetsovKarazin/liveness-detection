@@ -404,6 +404,107 @@ class TestApplyRefusals(Base):
         self.assert_refused(self.w.apply(), "not found with sha256")
 
 
+class TestWeights(unittest.TestCase):
+    """Controllo dei pesi prima dell'inferenza (score-dev): file presente, SHA-256 uguale all'impronta della cache C1,
+    cache C1 riconosciuta dal suo SHA-256. Pesi e cache finti in una cartella temporanea; nessun modello caricato."""
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp(prefix="check_weights_"))
+        self.files = {}
+        for i, aid in enumerate(ELIGIBLE):
+            f = self.tmp / f"{aid}.h5"; f.write_bytes(f"weights-{i}".encode()); self.files[aid] = f
+        self.cache = self.tmp / "nuaa.json"
+        self.write_cache({aid: sha(f) for aid, f in self.files.items()})
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def write_cache(self, fps):
+        self.cache.write_text(json.dumps({"dataset": "nuaa", "scores": {}, "fingerprints": fps}), encoding="utf-8")
+
+    def check(self, resolve=None, expected=None):
+        return ST.weight_problems(ELIGIBLE, c1_cache=self.cache, expected_c1_sha=expected or sha(self.cache),
+                                  resolve=resolve or (lambda aid: self.files[aid]))
+
+    def test_identical_weights_pass(self):
+        problems, weights = self.check()
+        self.assertEqual(problems, [])
+        self.assertEqual(sorted(weights), sorted(ELIGIBLE))
+        self.assertEqual(weights["attacknet_v1__nuaa"], {"weights_file": "attacknet_v1__nuaa.h5",
+                                                          "sha256": sha(self.files["attacknet_v1__nuaa"])})
+
+    def test_changed_weights_refused(self):
+        self.files["attacknet_v2_1__nuaa"].write_bytes(b"retrained")
+        problems, _ = self.check()
+        self.assertEqual(len(problems), 1)
+        self.assertIn("attacknet_v2_1__nuaa", problems[0]); self.assertIn("differs from the C1 fingerprint", problems[0])
+
+    def test_missing_weights_refused(self):
+        problems, weights = self.check(resolve=lambda aid: "weights file for X not found" if aid == "livenessnet__nuaa" else self.files[aid])
+        self.assertEqual(problems, ["livenessnet__nuaa: weights file for X not found"])
+        self.assertNotIn("livenessnet__nuaa", weights)
+
+    def test_missing_fingerprint_refused(self):
+        fps = {aid: sha(f) for aid, f in self.files.items()}; del fps["attacknet_v2_2__nuaa"]
+        self.write_cache(fps)
+        problems, _ = self.check()
+        self.assertEqual(len(problems), 1); self.assertIn("attacknet_v2_2__nuaa", problems[0])
+
+    def test_unrecognised_c1_cache_refused(self):
+        problems, weights = self.check(expected="0" * 64)
+        self.assertEqual(len(problems), 1); self.assertIn("differs from the C1 delivery", problems[0])
+        self.assertEqual(weights, {})
+
+    def run_score_dev(self, dry_run, problems):
+        """cmd_score_dev nel processo, su un dev sintetico: weight_problems restituisce `problems`; collegamenti e
+        sottoprocessi sono sostituiti da registratori, così l'ordine delle chiamate è verificabile senza inferenza."""
+        (self.tmp / "world").mkdir(); w = World(self.tmp / "world")
+        calls = []
+        saved = (ST.weight_problems, ST.clear_link_dirs, ST.subprocess.run, ST.DEV_CACHE)
+        # cache del dev in una cartella temporanea: il test non dipende dall'esistenza di results/eval/nuaa_dev.json
+        # (dopo il calcolo autorizzato sul dev score-dev si fermerebbe lì, prima dei sottoprocessi)
+        ST.DEV_CACHE = self.tmp / "eval" / "nuaa_dev.json"
+        ST.weight_problems = lambda ids: (calls.append("weights"), (problems, {} if problems else
+                                          {a: {"weights_file": f"{a}.h5", "sha256": "0" * 64} for a in ids}))[1]
+        ST.clear_link_dirs = lambda *a, **k: calls.append("links")
+        def fake_run(*a, **k):
+            calls.append("subprocess"); raise RuntimeError("stop here: no subprocess in the test")
+        ST.subprocess.run = fake_run
+        args = argparse.Namespace(analyzers=None, manifest=str(w.man), summary=str(w.summary), dev_root=str(self.tmp / "devroot"),
+                                  dry_run=dry_run, i_am_authorized=True)
+        try:
+            with contextlib.redirect_stdout(io.StringIO()), redirect_stderr():
+                try:
+                    ST.cmd_score_dev(args); code = 0
+                except SystemExit as e:
+                    code = e.code
+                except RuntimeError:
+                    code = "reached subprocess"
+        finally:
+            ST.weight_problems, ST.clear_link_dirs, ST.subprocess.run, ST.DEV_CACHE = saved
+        return code, calls
+
+    def test_score_dev_stops_before_inference_on_weight_problems(self):
+        code, calls = self.run_score_dev(dry_run=False, problems=["attacknet_v1__nuaa: weights file for X not found"])
+        self.assertEqual(code, 1)
+        self.assertEqual(calls, ["weights"])
+
+    def test_score_dev_dry_run_only_reports_weight_problems(self):
+        code, calls = self.run_score_dev(dry_run=True, problems=["attacknet_v1__nuaa: weights file for X not found"])
+        self.assertEqual(code, 0)
+        self.assertEqual(calls, ["weights"])
+
+    def test_score_dev_checks_weights_before_separation_and_links(self):
+        code, calls = self.run_score_dev(dry_run=False, problems=[])
+        self.assertEqual(code, "reached subprocess")
+        self.assertEqual(calls, ["weights", "subprocess"])
+
+    def test_missing_c1_cache_refused(self):
+        self.cache.unlink()
+        problems, _ = self.check(expected="0" * 64)
+        self.assertEqual(len(problems), 1); self.assertIn("missing", problems[0])
+
+
 class TestFunctions(unittest.TestCase):
     """Funzioni pure del modulo, senza sottoprocessi."""
 
@@ -650,7 +751,7 @@ def main() -> int:
     ap.add_argument("--verbose", action="store_true", help="stampa il log completo di unittest")
     args = ap.parse_args()
     suite = unittest.TestSuite(unittest.defaultTestLoader.loadTestsFromTestCase(c)
-                               for c in (TestFunctions, TestSelector, TestFlow, TestSelectRefusals, TestApplyRefusals))
+                               for c in (TestFunctions, TestSelector, TestWeights, TestFlow, TestSelectRefusals, TestApplyRefusals))
     log = io.StringIO()
     result = unittest.TextTestRunner(stream=log, verbosity=2).run(suite)
     if args.verbose or not result.wasSuccessful():

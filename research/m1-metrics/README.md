@@ -3,20 +3,20 @@
 Task **M1** of the PAD research workflow (`research/README.md`): verify the metric module of LivenessLab with
 diagnostic cases whose expected values are derived by hand, fix the conventions for edge cases (constant and
 near-constant scores, missing class, ties at the threshold, EER, BPCER@APCER10), define a threshold protocol on the
-source development set only, and recompute the C1 table with the verified module. No new training; no development-set
-score was computed for the delivered materials or appears in them: dev scoring is pending authorisation.
+source development set only, recompute the C1 table with the verified module, and apply the threshold chosen on the
+source development set to the 300 test images next to the fixed threshold 0.5. No new training. The only new inference
+is the authorised scoring of the 574 source-dev images by the 4 eligible CNNs; the per-image dev scores stay in the
+restricted folder.
 
-This folder is a filtered export of the operator's development repository (private; development commit `acf6fda`,
-run `20261003-M1-seed42-acf6fda`): the metric module and the scripts needed to rerun the checks, the documents, the configuration and
+This folder is a filtered export of the operator's development repository (private; development commit `e67ecc7`,
+run `20261003-M1-seed42-e67ecc7`): the metric module and the scripts needed to rerun the checks, the documents, the configuration and
 the aggregate tables, without data, weights, per-subject records or working notes. As in C1, one file is redacted:
 `src/tesi_app/usage_report.py` has its list of the operator's IP addresses emptied. The web application front end
 (`src/tesi_app/static/`) is not repeated here: it is in `research/c1-livenesslab/`. Code comments, command-line
 help and progress messages are in Italian by the developer's convention; reports, error messages and every document
 of this folder are in English.
 
-**Status of the source-dev threshold: protocol and code delivered, dev scoring pending authorisation.** The dev set
-is built and its separation checks pass (see below); computing its scores is new inference on images and waits for
-explicit authorisation, so `config/threshold.json` does not exist yet (`config/threshold.md` says so).
+**Status of the source-dev threshold: computed in this run.** After the approval of PR #2 the dev scoring was authorised and run once by the operator (commit `00e3455`, 2026-10-03): 574 dev images, 4 eligible CNNs, weights checked before inference, 0 errors. Thresholds (criterion `eer`, attack if score > threshold): `livenessnet__nuaa` 0.181055; `attacknet_v1__nuaa` 0.329237; `attacknet_v2_1__nuaa` 0.870329; `attacknet_v2_2__nuaa` 0.696933 (full values in `config/threshold.json`). Comparison with the threshold 0.5 and sensitivity analysis in `tables/nuaa_test_dev_threshold_table.md`; without the test images of the two dev subjects (278 images: 150 bona fide, 128 attacks; 22 attacks and 0 bona fide of the two dev subjects removed), ACER at the dev threshold: `livenessnet__nuaa` 0.4051; `attacknet_v1__nuaa` 0.2678; `attacknet_v2_1__nuaa` 0.3346; `attacknet_v2_2__nuaa` 0.4827. On the dev set every eligible CNN separates the two classes completely (dev AUC 1, ROC EER 0, no error at the selected threshold); interval between the highest bona fide and the lowest attack dev score: `livenessnet__nuaa` [0.181055, 0.472926); `attacknet_v1__nuaa` [0.329237, 0.629226); `attacknet_v2_1__nuaa` [0.870329, 0.954174); `attacknet_v2_2__nuaa` [0.696933, 0.732437). On the 300 test images (capture session 03) the same CNNs do not separate the classes (test AUC 0.3782–0.7547, test EER 0.2800–0.6600), and the dev threshold changes ACER by at most 0.0533; ACER at 0.5 → at the dev threshold: `livenessnet__nuaa` 0.4433 → 0.4100 (lower); `attacknet_v1__nuaa` 0.2733 → 0.2700 (about equal); `attacknet_v2_1__nuaa` 0.3933 → 0.3400 (lower); `attacknet_v2_2__nuaa` 0.4667 → 0.5000 (higher). The dev images come from capture sessions 01–02, the sessions of the training images, and were already used for early stopping, which makes the dev result optimistic; the test images come from session 03 and from more subjects. The result is consistent with a shift between dev and test (capture session and subjects), which this run does not isolate. This is an exploratory calibration with declared limits, not an independent validation. Limit: The dev scores separate the classes completely, so every threshold in [highest bona fide score, lowest attack score) has zero dev error and the dev set does not identify a unique threshold. Under the rule declared before the data (candidates = the distinct dev scores plus one value below the minimum, attack if score > threshold, ties to the highest candidate) the only zero-error candidate is the highest bona fide dev score, so the selected value is the lower edge of that interval; this is reported as a limitation, the rule is not changed.
 
 Contents of this folder:
 
@@ -27,16 +27,18 @@ Contents of this folder:
 | `metric_cases.md` | the diagnostic cases of `scripts/check_metrics.py` with the hand derivation of every expected value |
 | `table_diff.md` | row-by-row comparison of the recomputed NUAA table with the C1 table, with the explanation of every difference |
 | `config/nuaa_config.json` | the C1 evaluation configuration (unchanged) |
-| `config/threshold.md` | status of the source-dev threshold (`threshold.json` after the authorised dev scoring) |
+| `config/threshold.json` | the frozen source-dev threshold of the 4 eligible CNNs (criterion, value, dev counts, dev manifest and dev cache hashes, commit, date), verified by the export by rerunning `select` |
 | `manifests/` | counts and SHA-256 of the source-dev manifest (the per-image file is a per-subject record and stays in the restricted folder) |
-| `tables/` | the NUAA table recomputed with the verified module, the APCER by attack type, the automatic row comparison with C1 |
+| `tables/` | the NUAA table recomputed with the verified module, the APCER by attack type, the automatic row comparison with C1, and `nuaa_test_dev_threshold_table.md`: the 300 test images at 0.5 and at the source-dev threshold, with the sensitivity analysis without the test images of the two dev subjects |
 | `livenesslab/` | `src/tesi_app` (metric module in `evaluation.py`), `scripts/check_metrics.py`, `scripts/select_threshold.py`, `scripts/check_select_threshold.py`, `scripts/check_c1_consistency.py`, `scripts/eval_dataset.py`, `requirements*.txt` |
 | `SHA256SUMS` | SHA-256 of every other file of this folder, `livenesslab/` included |
 
-Per-sample scores (`scores.csv` in the schema of `research/templates/score-schema.json`), the per-image dev manifest,
-the dev summary and separation report, the logs and the check reports stay out of this public repository: they are
-in the project workspace under `02_Experiments/M1/20261003-M1-seed42-acf6fda/`, with the SHA-256 listed in `run-report.md` and in
-`SHA256SUMS` of that folder. The run report is kept only in this public folder.
+Per-sample scores (`scores.csv` of the test and `scores_dev.csv` of the dev, in the schema of
+`research/templates/score-schema.json`), the per-image dev manifest, the dev score cache and its provenance, the dev
+summary and separation report, the logs (including the operator logs of `score-dev`, `select` and `apply` in
+`logs/`, which name the dev subjects) and the check reports stay out of this public repository: they are in the project
+workspace under `02_Experiments/M1/20261003-M1-seed42-e67ecc7/`, with the SHA-256 listed in `run-report.md` and in `SHA256SUMS` of that
+folder. The run report is kept only in this public folder.
 
 ## Integrity
 
@@ -77,9 +79,9 @@ front end and the checkpoint cards exist only in the C1 folder. Files of `livene
 |---|---|---|---|
 | `scripts/check_c1_consistency.py` | changed | `99f56ca0c08b36883230448ea27ab8b9a1c4af27ca21744324578064263550df` | `c0676623ab215eca4e48748aabc635ae2ee64b2f0f80f28a40791680d88ddd13` |
 | `scripts/check_metrics.py` | new in M1 | — | `01c0ffef74f2b7f9b237c272365212890230eca0cf35ce25b964418f3ec34817` |
-| `scripts/check_select_threshold.py` | new in M1 | — | `ed9f2b42de0bb2d1a1f789a53a0435c6fea92cfdcf0cec5d19815277f1652fea` |
+| `scripts/check_select_threshold.py` | new in M1 | — | `fdbe0f7fb97b5c04465bc468139903d17f3e99ac8faee88d99d5b5eba11c77dc` |
 | `scripts/eval_dataset.py` | changed | `84ff096b2d2a8dc5ea87e4ec3bdfabfb6b97182c0d8d765b45c696c9a546be89` | `47428dc0cd0c2e3135ba4381278865ce734f270bb323e2296e77894241a5cd24` |
-| `scripts/select_threshold.py` | new in M1 | — | `4cc26cbce9eefaea029750acb3a774d37062d30db0865c1d2758b617c395129e` |
+| `scripts/select_threshold.py` | new in M1 | — | `cacb709672c9c7be5cd68d61923e79bb640e1e8ee77a78864f6786577d07e93c` |
 | `src/tesi_app/evaluation.py` | changed | `2b17f97a395d9ca4acf65ad3da7d459417c9470e004fa0a5337b6c6d984814aa` | `5deb4426538322807878895d5423a336b7a928288393b95e071cb35b783fa94e` |
 
 6 files changed or new; 26 files identical to C1.
@@ -121,7 +123,7 @@ integrity first, then copy exactly these files (nothing else is needed for comma
 
 ```bash
 C1_RUN=/path/to/02_Experiments/C1/20260928-C1-seed42-a80f6f9
-M1_RUN=/path/to/02_Experiments/M1/20261003-M1-seed42-acf6fda
+M1_RUN=/path/to/02_Experiments/M1/20261003-M1-seed42-e67ecc7
 (cd "$C1_RUN" && shasum -a 256 -c SHA256SUMS)
 (cd "$M1_RUN" && shasum -a 256 -c SHA256SUMS && test -z "$(find . -type l)" && diff <(awk '{print $2}' SHA256SUMS | sed 's|^\*||' | sort) <(find . -type f ! -type l ! -name SHA256SUMS | sed 's|^\./||' | sort) && echo COMPLETE)
 (cd .. && shasum -a 256 -c "$M1_RUN/public_SHA256SUMS.sha256") && echo MATCH || echo MISMATCH   # anchor of this public folder: must print MATCH
@@ -130,7 +132,15 @@ cp "$C1_RUN/nuaa_score_cache.json" results/eval/nuaa.json
 cp "$C1_RUN/nuaa_manifest.csv" "$C1_RUN/nuaa_table.md" results/c1/
 cp ../../c1-livenesslab/checkpoints/*.json models/weights/
 cp "$M1_RUN/nuaa_dev_manifest.csv" "$M1_RUN/nuaa_dev_summary.json" results/m1/
-cp -R "$M1_RUN" results/m1/20261003-M1-seed42-acf6fda
+cp -R "$M1_RUN" results/m1/20261003-M1-seed42-e67ecc7
+```
+
+For step 3 (rerun of `select` and `apply` on the delivered dev scores) also copy the dev score cache, its provenance
+and the separation report:
+
+```bash
+cp "$M1_RUN/nuaa_dev_score_cache.json" results/eval/nuaa_dev.json
+cp "$M1_RUN/nuaa_dev_cache_provenance.json" "$M1_RUN/nuaa_dev_separation.json" results/m1/
 ```
 
 The last line makes a working copy of the M1 run folder: the consistency check writes its report into the run
@@ -172,8 +182,8 @@ Compare the rows with the table of this folder (the header lines carry date and 
 diff <(grep '^| ' results/m1/nuaa_table.md) <(grep '^| ' ../tables/nuaa_table.md) && echo "table rows identical"
 ```
 
-**3. Source-dev threshold** (`metrics.md`, "Threshold selection protocol"). Apart from `score-dev`, which runs
-only after authorisation, no command of this step computes a score on an image. `build-dev` lists and hashes the
+**3. Source-dev threshold** (`metrics.md`, "Threshold selection protocol"). Apart from `score-dev`, which ran
+once after authorisation, no command of this step computes a score on an image. `build-dev` lists and hashes the
 NUAA training images; `check-separation` lists and hashes the training and the test images; `select` and `synthetic-trial` list the file names of the official test split (and apply the
 rule on the fifth field of the name) only to refuse any test image. `build-dev` and `check-separation` need the
 official NUAA folders (`NUAA/images/{bonafide,attack}_{training,validation}`) under `LIVENESSLAB_DATA_DIR`. `synthetic-trial`,
@@ -204,30 +214,49 @@ python scripts/select_threshold.py build-dev
 python scripts/select_threshold.py check-separation
 ```
 
-The plan of the dev scoring can be printed without images, from the two files copied in step 0:
+The authorised dev scoring was run once by the operator, before the export of this run: `score-dev
+--i-am-authorized` is new inference on the 574 dev images with the 4 eligible CNNs (images and weights required).
+Before any inference it stops if the weights file of an analyzer is missing or its SHA-256 differs from the
+fingerprint recorded in the C1 score cache (itself recognised by its SHA-256), then reruns the separation checks and
+verifies every linked image by hash; after the inference the fingerprints of the dev cache must equal the checked
+weights, which are listed in the provenance file. `select` froze `results/m1/threshold.json` (here
+`config/threshold.json`), `apply` recomputed the 300 test images at the dev threshold next to the table at 0.5
+(`results/m1/nuaa_test_dev_threshold_table.md`, here in `tables/`). The commands, for the record (their logs are in
+`logs/` of the restricted run folder):
 
 ```bash
-python scripts/select_threshold.py score-dev --dry-run
-```
-
-The next steps run only after authorisation: `score-dev --i-am-authorized` is new inference on the 574 dev images
-with the 4 eligible CNNs (images and weights required), `select` freezes `results/m1/threshold.json`, `apply`
-recomputes the 300 test images at the dev threshold next to the table at 0.5
-(`results/m1/nuaa_test_dev_threshold_table.md`):
-
-```bash
-# after authorisation only:
+# run once, after authorisation (not to be repeated):
 # python scripts/select_threshold.py score-dev --i-am-authorized
 # python scripts/select_threshold.py select
 # python scripts/select_threshold.py apply
 ```
 
-Until then, `select` and `apply` are exercised only on synthetic dev scores. The trial below builds a deterministic
-fake dev cache (seed 42; bona fide ~ Beta(2, 5), attacks ~ Beta(5, 2); fingerprints copied from the C1 cache), runs
-`select --synthetic` and `apply` on it and writes everything to a folder outside `results/`; its outputs are **not
-results**. It needs the dev manifest, summary and separation report of the M1 run folder and the C1 score cache and
-manifest of step 0; the official NUAA folders are optional (see above). The copy delivered
-with this run is in `02_Experiments/M1/20261003-M1-seed42-acf6fda/synthetic_threshold_trial/`.
+`score-dev` refuses to start if the dev score cache `results/eval/nuaa_dev.json` already exists, so every dev score
+comes from one run; its plan can be printed without images (`EXISTS: the run will refuse to start` once the cache of
+step 0 is in place; without the weights, the weight check is only reported as a note):
+
+```bash
+python scripts/select_threshold.py score-dev --dry-run
+```
+
+`select` and `apply` can be rerun on the delivered dev scores without any inference (dev score cache, provenance and
+separation report copied in step 0; the official NUAA folders are needed, as for every real `select` or `apply`),
+writing to a temporary folder. The export of this run did the same and required identical threshold entries, table
+rows and per-image CSV:
+
+```bash
+python scripts/select_threshold.py select --out "${TMPDIR:-/tmp}/m1-threshold.json"
+python -c 'import json, sys; a, b = (json.load(open(f))["analyzers"] for f in sys.argv[1:]); print("threshold entries identical" if a == b else "DIFFERENT")' "${TMPDIR:-/tmp}/m1-threshold.json" ../config/threshold.json
+python scripts/select_threshold.py apply --threshold ../config/threshold.json --out-dir "${TMPDIR:-/tmp}/m1-apply"
+diff <(grep '^|' "${TMPDIR:-/tmp}/m1-apply/nuaa_test_dev_threshold_table.md") <(grep '^|' ../tables/nuaa_test_dev_threshold_table.md) && echo "apply table rows identical"
+```
+
+Before the authorised run, `select` and `apply` were exercised only on synthetic dev scores. The trial below builds a
+deterministic fake dev cache (seed 42; bona fide ~ Beta(2, 5), attacks ~ Beta(5, 2); fingerprints copied from the C1
+cache), runs `select --synthetic` and `apply` on it and writes everything to a folder outside `results/`; its outputs
+are **not results**. It needs the dev manifest, summary and separation report of the M1 run folder and the C1 score
+cache and manifest of step 0; the official NUAA folders are optional (see above). The copy delivered with this run is
+in `02_Experiments/M1/20261003-M1-seed42-e67ecc7/synthetic_threshold_trial/`.
 
 ```bash
 cp "$M1_RUN/nuaa_dev_separation.json" results/m1/
@@ -241,7 +270,7 @@ folder, table), after steps 0 and 2:
 
 ```bash
 python scripts/check_c1_consistency.py --dataset nuaa --c1 results/m1 \
-    --run-dir results/m1/20261003-M1-seed42-acf6fda \
+    --run-dir results/m1/20261003-M1-seed42-e67ecc7 \
     --by-type-table results/m1/nuaa_table_by_attack_type.md \
     --expected-cache-sha256 9b2b63b467e5e413c1fd5051e7c1c478f482301dc17070d60950d2e1daa34e65 \
     --expected-config-sha256 f0dfdb90a1f61b86fa21e1519a742f180c632bdf677a6c9c45b022526ca8fa89 \
@@ -284,9 +313,9 @@ written under `results/`):
 python scripts/check_select_threshold.py
 ```
 
-Expected: `tests run: 54, failures: 0, errors: 0, skipped: 0` and `RESULT: PASS`. They include the selector cases
-with hand-derived values of `metrics.md` and a comparison with an independent exact (fraction) reference on 400
-seeded random cases with many ties.
+Expected: `tests run: 63, failures: 0, errors: 0, skipped: 0` and `RESULT: PASS`. They include the selector cases
+with hand-derived values of `metrics.md`, a comparison with an independent exact (fraction) reference on 400
+seeded random cases with many ties, and the weight check of `score-dev` on fake weights, including its place before any link or inference.
 
 ## Differences
 
@@ -316,9 +345,14 @@ From C1 (`research/c1-livenesslab/`, merged at `7731076`):
   each with its expected message. On the valid C1 artefacts the result is unchanged (no inconsistency); the report
   has one line per check, so it is longer than the C1 one.
 - Threshold script: `scripts/select_threshold.py` (new) and its offline tests `scripts/check_select_threshold.py`
-  (54 tests on synthetic data). After the review of PR #2 the selector picks the threshold with the operational
+  (63 tests on synthetic data). After the review of PR #2 the selector picks the threshold with the operational
   rule `>` (no ROC point, no quantile), with a declared tie-break and a JSON round-trip check (`metrics.md`,
   "Amendment (2 October 2026 …)").
+- Source-dev threshold (new in this run, after the approval of PR #2 and the authorisation of the dev scoring):
+  `config/threshold.json` and `tables/nuaa_test_dev_threshold_table.md` (test images at 0.5 and at the dev threshold,
+  sensitivity block). The protocol and the code are those of PR #2: no rule was changed after the dev scores were
+  computed. The export reruns `select` and `apply` on the verified dev cache and delivers the operator logs of
+  `score-dev`, `select` and `apply` in the restricted folder.
 - Table header: the commit of an external code folder is reported only if the folder is the root of its own git
   repository; otherwise `n/d` (never the commit of the enclosing repository).
 
@@ -332,7 +366,7 @@ From C1 (`research/c1-livenesslab/`, merged at `7731076`):
   image hash with the C1 manifest, with the official test split or with the images of the fitted subjects; no dev
   subject among the fitted subjects.
 - Of the 574 dev images, 493 were used only for early stopping and 81 were never read by the training; none was used
-  to fit the weights. With only two dev subjects, the dev threshold will carry high uncertainty.
+  to fit the weights. With only two dev subjects, the dev threshold carries high uncertainty.
 - NUAA's official protocol is not subject-disjoint between train and test: the two dev subjects also appear among the
   300 C1 test images (as attacks of session 03), with no shared image but a shared identity. The separation from the
   test set is by official split, acquisition session (fifth field of the NUAA file name: 01/02 in training, 03 in test;
@@ -341,5 +375,10 @@ From C1 (`research/c1-livenesslab/`, merged at `7731076`):
   name, not the acquisition session (fifth field). The correction is planned for M2; it is not made here, so that
   `scores.csv` stays identical to the C1 one except for `run_id`.
 - The source-dev threshold applies only to the 4 CNNs trained on NUAA with subject-wise validation; all other rows
-  stay at 0.5. It is not computed yet: the selection code was verified on synthetic scores only (see the synthetic
-  trial in step 3), and the dev scoring waits for authorisation.
+  stay at 0.5. It is an exploratory calibration, not an independent validation: the dev images come from the capture
+  sessions of the training images (01–02) and were already used for early stopping, while the test images come from
+  session 03. On the dev images the 4 CNNs separate the two classes completely, so every threshold between the
+  highest bona fide and the lowest attack dev score has zero dev error and the dev set does not identify a unique
+  threshold; the rule declared before the data selects the lower edge of that interval (the highest bona fide dev
+  score, the only zero-error candidate). This is reported as a limitation; the rule was not changed. Values and the
+  effect on the test images: "Status of the source-dev threshold" above and `run-report.md`.

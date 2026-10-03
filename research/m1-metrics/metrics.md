@@ -221,3 +221,7 @@ The review of PR #2 found that the selector chose the threshold on the inclusive
   6. Bona fide 0.2, 0.6, attacks 0.4, 0.8, 0.9 (`n_attack = 3 < 10`) → `apcer10`: `fn = 0`, `t = 0.2`, APCER 0, BPCER 1/2.
   7. Constant scores 0.3 (2 + 2) → `eer`: `t = 0.3` (APCER 1, BPCER 0); `apcer10`: `t = 0.29999999999999993` (APCER 0, BPCER 1). Constant scores 0.0: `eer` gives `t = 0.0` (APCER 1), `apcer10` has no feasible candidate.
   8. Bona fide 0.3, 0.7, 0.8, attacks 0.2, 0.9 (`n_attack = 2`, `n_bona_fide = 3`) → `eer`, objective `|2 · fp − 3 · fn|`: 0.9 (fn 2, fp 0) → 6; 0.8 (1, 0) → 3; 0.7 (1, 1) → 1; 0.3 (1, 2) → 1; 0.2 (1, 3) → 3; `t_low` (0, 3) → 6. Exact tie 0.7 / 0.3 → `t = 0.7`, APCER 1/2, BPCER 1/3. The objective must be compared on integers: in floating point `|fp/3 − fn/2|` is 1/6 at both points but rounds differently and would pick 0.3.
+
+### Note (3 October 2026, after the authorised dev scoring)
+
+The authorised dev scoring (point 6) was run on 3 October 2026 under this protocol as amended on 2 October 2026, with criterion `eer`; no rule, criterion or candidate set was changed after the dev scores were computed. The resulting values, the test table at 0.5 and at the source-dev threshold and the limits of this calibration are in `config/threshold.json`, `tables/nuaa_test_dev_threshold_table.md` and `run-report.md`.

@@ -1,0 +1,126 @@
+{
+ "synthetic": false,
+ "protocol": "metrics.md, Threshold selection protocol",
+ "criterion": "eer",
+ "dev_set": "NUAA official training split, validation subjects of the NUAA official CNN training",
+ "dev_manifest_sha256": "d4637ea67f30da2bb0e6ddcdec688c97aa3833c41709417ac3e93ee00b6fa938",
+ "dev_cache": "results/eval/nuaa_dev.json",
+ "dev_cache_sha256": "b1691aa697cb07db0b639614a3be9e182a7ca68b037b8f2747e6af3df642c874",
+ "analyzers": {
+  "livenessnet__nuaa": {
+   "criterion": "eer",
+   "value": 0.181054949760437,
+   "decision_rule": "attack if score > value (tie = bona fide)",
+   "selection_rule": "candidates = distinct dev scores plus one value below the minimum; attack if score > value; eer: min |fp*n_a - fn*n_b|, ties \u2192 highest value; apcer10: max value with APCER <= 0.10",
+   "fingerprint": "d861c5969f24376aff5aaac30c2b2b8793e0cd142dd016756dc82f188ccd99a5",
+   "dev": {
+    "at_value_operational_rule_gt": {
+     "n": 574,
+     "n_bona_fide": 180,
+     "n_attack": 394,
+     "accepted_attacks": 0,
+     "rejected_bona_fide": 0,
+     "apcer": 0.0,
+     "bpcer": 0.0,
+     "acer": 0.0,
+     "ties_at_value": 1
+    },
+    "dev_balanced_error_at_value": 0.0,
+    "roc_eer_information_only": 0.0,
+    "auc": 1.0,
+    "bpcer_at_apcer10_metric": 0.0
+   },
+   "note": "eer: balance of APCER and BPCER on the dev scores under the operational rule (attack if score > value): candidate minimising |fp*n_a - fn*n_b|, ties broken towards the highest value"
+  },
+  "attacknet_v1__nuaa": {
+   "criterion": "eer",
+   "value": 0.32923662662506104,
+   "decision_rule": "attack if score > value (tie = bona fide)",
+   "selection_rule": "candidates = distinct dev scores plus one value below the minimum; attack if score > value; eer: min |fp*n_a - fn*n_b|, ties \u2192 highest value; apcer10: max value with APCER <= 0.10",
+   "fingerprint": "0cbc46cc56ba76931324ad252177a4912aad3044780fa7dd847c609b5098f12f",
+   "dev": {
+    "at_value_operational_rule_gt": {
+     "n": 574,
+     "n_bona_fide": 180,
+     "n_attack": 394,
+     "accepted_attacks": 0,
+     "rejected_bona_fide": 0,
+     "apcer": 0.0,
+     "bpcer": 0.0,
+     "acer": 0.0,
+     "ties_at_value": 1
+    },
+    "dev_balanced_error_at_value": 0.0,
+    "roc_eer_information_only": 0.0,
+    "auc": 1.0,
+    "bpcer_at_apcer10_metric": 0.0
+   },
+   "note": "eer: balance of APCER and BPCER on the dev scores under the operational rule (attack if score > value): candidate minimising |fp*n_a - fn*n_b|, ties broken towards the highest value"
+  },
+  "attacknet_v2_1__nuaa": {
+   "criterion": "eer",
+   "value": 0.8703288733959198,
+   "decision_rule": "attack if score > value (tie = bona fide)",
+   "selection_rule": "candidates = distinct dev scores plus one value below the minimum; attack if score > value; eer: min |fp*n_a - fn*n_b|, ties \u2192 highest value; apcer10: max value with APCER <= 0.10",
+   "fingerprint": "67d9138d6c43e33164d4510b4b34868c2fdc0a637f27664816c388c4e059f8dc",
+   "dev": {
+    "at_value_operational_rule_gt": {
+     "n": 574,
+     "n_bona_fide": 180,
+     "n_attack": 394,
+     "accepted_attacks": 0,
+     "rejected_bona_fide": 0,
+     "apcer": 0.0,
+     "bpcer": 0.0,
+     "acer": 0.0,
+     "ties_at_value": 1
+    },
+    "dev_balanced_error_at_value": 0.0,
+    "roc_eer_information_only": 0.0,
+    "auc": 1.0,
+    "bpcer_at_apcer10_metric": 0.0
+   },
+   "note": "eer: balance of APCER and BPCER on the dev scores under the operational rule (attack if score > value): candidate minimising |fp*n_a - fn*n_b|, ties broken towards the highest value"
+  },
+  "attacknet_v2_2__nuaa": {
+   "criterion": "eer",
+   "value": 0.6969330608844757,
+   "decision_rule": "attack if score > value (tie = bona fide)",
+   "selection_rule": "candidates = distinct dev scores plus one value below the minimum; attack if score > value; eer: min |fp*n_a - fn*n_b|, ties \u2192 highest value; apcer10: max value with APCER <= 0.10",
+   "fingerprint": "0258b72597a205017bf1654755550fea3830cc2556649a52f56161e11b2d29d2",
+   "dev": {
+    "at_value_operational_rule_gt": {
+     "n": 574,
+     "n_bona_fide": 180,
+     "n_attack": 394,
+     "accepted_attacks": 0,
+     "rejected_bona_fide": 0,
+     "apcer": 0.0,
+     "bpcer": 0.0,
+     "acer": 0.0,
+     "ties_at_value": 1
+    },
+    "dev_balanced_error_at_value": 0.0,
+    "roc_eer_information_only": 0.0,
+    "auc": 1.0,
+    "bpcer_at_apcer10_metric": 0.0
+   },
+   "note": "eer: balance of APCER and BPCER on the dev scores under the operational rule (attack if score > value): candidate minimising |fp*n_a - fn*n_b|, ties broken towards the highest value"
+  }
+ },
+ "not_eligible": {
+  "lbp": "trained on all 3000 sampled images of the NUAA training split (models/weights/lbp_clf.json: n_train 3000); the dev images were used to fit it",
+  "dog": "trained on all 3000 sampled images of the NUAA training split (models/weights/dog_clf.json: n_train 3000); the dev images were used to fit it",
+  "iqa": "trained on all 3000 sampled images of the NUAA training split (models/weights/iqa_clf.json: n_train 3000); the dev images were used to fit it",
+  "ida": "trained on all 3000 sampled images of the NUAA training split (models/weights/ida_clf.json: n_train 3000); the dev images were used to fit it",
+  "clip_probe": "trained on all 3000 sampled images of the NUAA training split (models/weights/clip_probe_clf.json: n_train 3000); the dev images were used to fit it",
+  "dinov2_probe": "trained on all 3000 sampled images of the NUAA training split (models/weights/dinov2_probe_clf.json: n_train 3000); the dev images were used to fit it",
+  "nuaa-pooled CNNs (livenessnet__nuaa-pooled, attacknet_v1__nuaa-pooled, attacknet_v2_1__nuaa-pooled, attacknet_v2_2__nuaa-pooled)": "trained on NUAA with the 80/20 per-image pooled split of the reference code, which includes the official test split: excluded from the NUAA evaluation and from the source-dev threshold",
+  "other analyzers": "source dataset is not NUAA: reported at the fixed threshold 0.5 only"
+ },
+ "select_threshold_py_sha256": "cacb709672c9c7be5cd68d61923e79bb640e1e8ee77a78864f6786577d07e93c",
+ "evaluation_py_sha256": "5deb4426538322807878895d5423a336b7a928288393b95e071cb35b783fa94e",
+ "commit": "00e34556e54a13f28402a055a6ea293c520251de",
+ "dirty": false,
+ "date": "2026-10-03T15:41:20+0200"
+}
