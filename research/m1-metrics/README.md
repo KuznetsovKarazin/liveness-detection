@@ -6,8 +6,8 @@ near-constant scores, missing class, ties at the threshold, EER, BPCER@APCER10),
 source development set only, and recompute the C1 table with the verified module. No new training; no development-set
 score was computed for the delivered materials or appears in them: dev scoring is pending authorisation.
 
-This folder is a filtered export of the operator's development repository (private; development commit `7e3b461`,
-run `20261003-M1-seed42-7e3b461`): the metric module and the scripts needed to rerun the checks, the documents, the configuration and
+This folder is a filtered export of the operator's development repository (private; development commit `acf6fda`,
+run `20261003-M1-seed42-acf6fda`): the metric module and the scripts needed to rerun the checks, the documents, the configuration and
 the aggregate tables, without data, weights, per-subject records or working notes. As in C1, one file is redacted:
 `src/tesi_app/usage_report.py` has its list of the operator's IP addresses emptied. The web application front end
 (`src/tesi_app/static/`) is not repeated here: it is in `research/c1-livenesslab/`. Code comments, command-line
@@ -35,7 +35,7 @@ Contents of this folder:
 
 Per-sample scores (`scores.csv` in the schema of `research/templates/score-schema.json`), the per-image dev manifest,
 the dev summary and separation report, the logs and the check reports stay out of this public repository: they are
-in the project workspace under `02_Experiments/M1/20261003-M1-seed42-7e3b461/`, with the SHA-256 listed in `run-report.md` and in
+in the project workspace under `02_Experiments/M1/20261003-M1-seed42-acf6fda/`, with the SHA-256 listed in `run-report.md` and in
 `SHA256SUMS` of that folder. The run report is kept only in this public folder.
 
 ## Integrity
@@ -121,7 +121,7 @@ integrity first, then copy exactly these files (nothing else is needed for comma
 
 ```bash
 C1_RUN=/path/to/02_Experiments/C1/20260928-C1-seed42-a80f6f9
-M1_RUN=/path/to/02_Experiments/M1/20261003-M1-seed42-7e3b461
+M1_RUN=/path/to/02_Experiments/M1/20261003-M1-seed42-acf6fda
 (cd "$C1_RUN" && shasum -a 256 -c SHA256SUMS)
 (cd "$M1_RUN" && shasum -a 256 -c SHA256SUMS && test -z "$(find . -type l)" && diff <(awk '{print $2}' SHA256SUMS | sed 's|^\*||' | sort) <(find . -type f ! -type l ! -name SHA256SUMS | sed 's|^\./||' | sort) && echo COMPLETE)
 (cd .. && shasum -a 256 -c "$M1_RUN/public_SHA256SUMS.sha256") && echo MATCH || echo MISMATCH   # anchor of this public folder: must print MATCH
@@ -130,7 +130,7 @@ cp "$C1_RUN/nuaa_score_cache.json" results/eval/nuaa.json
 cp "$C1_RUN/nuaa_manifest.csv" "$C1_RUN/nuaa_table.md" results/c1/
 cp ../../c1-livenesslab/checkpoints/*.json models/weights/
 cp "$M1_RUN/nuaa_dev_manifest.csv" "$M1_RUN/nuaa_dev_summary.json" results/m1/
-cp -R "$M1_RUN" results/m1/20261003-M1-seed42-7e3b461
+cp -R "$M1_RUN" results/m1/20261003-M1-seed42-acf6fda
 ```
 
 The last line makes a working copy of the M1 run folder: the consistency check writes its report into the run
@@ -227,7 +227,7 @@ fake dev cache (seed 42; bona fide ~ Beta(2, 5), attacks ~ Beta(5, 2); fingerpri
 `select --synthetic` and `apply` on it and writes everything to a folder outside `results/`; its outputs are **not
 results**. It needs the dev manifest, summary and separation report of the M1 run folder and the C1 score cache and
 manifest of step 0; the official NUAA folders are optional (see above). The copy delivered
-with this run is in `02_Experiments/M1/20261003-M1-seed42-7e3b461/synthetic_threshold_trial/`.
+with this run is in `02_Experiments/M1/20261003-M1-seed42-acf6fda/synthetic_threshold_trial/`.
 
 ```bash
 cp "$M1_RUN/nuaa_dev_separation.json" results/m1/
@@ -241,7 +241,7 @@ folder, table), after steps 0 and 2:
 
 ```bash
 python scripts/check_c1_consistency.py --dataset nuaa --c1 results/m1 \
-    --run-dir results/m1/20261003-M1-seed42-7e3b461 \
+    --run-dir results/m1/20261003-M1-seed42-acf6fda \
     --by-type-table results/m1/nuaa_table_by_attack_type.md \
     --expected-cache-sha256 9b2b63b467e5e413c1fd5051e7c1c478f482301dc17070d60950d2e1daa34e65 \
     --expected-config-sha256 f0dfdb90a1f61b86fa21e1519a742f180c632bdf677a6c9c45b022526ca8fa89 \
