@@ -6,8 +6,8 @@ near-constant scores, missing class, ties at the threshold, EER, BPCER@APCER10),
 source development set only, and recompute the C1 table with the verified module. No new training; no development-set
 score was computed for the delivered materials or appears in them: dev scoring is pending authorisation.
 
-This folder is a filtered export of the operator's development repository (private; development commit `980ca52`,
-run `20261001-M1-seed42-980ca52`): the metric module and the scripts needed to rerun the checks, the documents, the configuration and
+This folder is a filtered export of the operator's development repository (private; development commit `7e3b461`,
+run `20261003-M1-seed42-7e3b461`): the metric module and the scripts needed to rerun the checks, the documents, the configuration and
 the aggregate tables, without data, weights, per-subject records or working notes. As in C1, one file is redacted:
 `src/tesi_app/usage_report.py` has its list of the operator's IP addresses emptied. The web application front end
 (`src/tesi_app/static/`) is not repeated here: it is in `research/c1-livenesslab/`. Code comments, command-line
@@ -35,7 +35,7 @@ Contents of this folder:
 
 Per-sample scores (`scores.csv` in the schema of `research/templates/score-schema.json`), the per-image dev manifest,
 the dev summary and separation report, the logs and the check reports stay out of this public repository: they are
-in the project workspace under `02_Experiments/M1/20261001-M1-seed42-980ca52/`, with the SHA-256 listed in `run-report.md` and in
+in the project workspace under `02_Experiments/M1/20261003-M1-seed42-7e3b461/`, with the SHA-256 listed in `run-report.md` and in
 `SHA256SUMS` of that folder. The run report is kept only in this public folder.
 
 ## Integrity
@@ -77,9 +77,9 @@ front end and the checkpoint cards exist only in the C1 folder. Files of `livene
 |---|---|---|---|
 | `scripts/check_c1_consistency.py` | changed | `99f56ca0c08b36883230448ea27ab8b9a1c4af27ca21744324578064263550df` | `c0676623ab215eca4e48748aabc635ae2ee64b2f0f80f28a40791680d88ddd13` |
 | `scripts/check_metrics.py` | new in M1 | — | `01c0ffef74f2b7f9b237c272365212890230eca0cf35ce25b964418f3ec34817` |
-| `scripts/check_select_threshold.py` | new in M1 | — | `0ce70ccd71657bc23990928aed8dfbfa37c320995493a6ef470726e250a36374` |
+| `scripts/check_select_threshold.py` | new in M1 | — | `ed9f2b42de0bb2d1a1f789a53a0435c6fea92cfdcf0cec5d19815277f1652fea` |
 | `scripts/eval_dataset.py` | changed | `84ff096b2d2a8dc5ea87e4ec3bdfabfb6b97182c0d8d765b45c696c9a546be89` | `47428dc0cd0c2e3135ba4381278865ce734f270bb323e2296e77894241a5cd24` |
-| `scripts/select_threshold.py` | new in M1 | — | `690fa4dcc40f9895bf09dee2e7d321d4f97735fea79486f4b405a497e8072a9b` |
+| `scripts/select_threshold.py` | new in M1 | — | `4cc26cbce9eefaea029750acb3a774d37062d30db0865c1d2758b617c395129e` |
 | `src/tesi_app/evaluation.py` | changed | `2b17f97a395d9ca4acf65ad3da7d459417c9470e004fa0a5337b6c6d984814aa` | `5deb4426538322807878895d5423a336b7a928288393b95e071cb35b783fa94e` |
 
 6 files changed or new; 26 files identical to C1.
@@ -121,7 +121,7 @@ integrity first, then copy exactly these files (nothing else is needed for comma
 
 ```bash
 C1_RUN=/path/to/02_Experiments/C1/20260928-C1-seed42-a80f6f9
-M1_RUN=/path/to/02_Experiments/M1/20261001-M1-seed42-980ca52
+M1_RUN=/path/to/02_Experiments/M1/20261003-M1-seed42-7e3b461
 (cd "$C1_RUN" && shasum -a 256 -c SHA256SUMS)
 (cd "$M1_RUN" && shasum -a 256 -c SHA256SUMS && test -z "$(find . -type l)" && diff <(awk '{print $2}' SHA256SUMS | sed 's|^\*||' | sort) <(find . -type f ! -type l ! -name SHA256SUMS | sed 's|^\./||' | sort) && echo COMPLETE)
 (cd .. && shasum -a 256 -c "$M1_RUN/public_SHA256SUMS.sha256") && echo MATCH || echo MISMATCH   # anchor of this public folder: must print MATCH
@@ -130,7 +130,7 @@ cp "$C1_RUN/nuaa_score_cache.json" results/eval/nuaa.json
 cp "$C1_RUN/nuaa_manifest.csv" "$C1_RUN/nuaa_table.md" results/c1/
 cp ../../c1-livenesslab/checkpoints/*.json models/weights/
 cp "$M1_RUN/nuaa_dev_manifest.csv" "$M1_RUN/nuaa_dev_summary.json" results/m1/
-cp -R "$M1_RUN" results/m1/20261001-M1-seed42-980ca52
+cp -R "$M1_RUN" results/m1/20261003-M1-seed42-7e3b461
 ```
 
 The last line makes a working copy of the M1 run folder: the consistency check writes its report into the run
@@ -184,13 +184,19 @@ them; the file-name rule and the C1 manifest are applied in every case. The outp
 folder (`nuaa_dev_manifest.csv`, `nuaa_dev_summary.json`, `nuaa_dev_separation.json`); the export rebuilds them at
 its own commit and requires the same manifest and the same separation outcome. `check-separation` also verifies the
 dev manifest row by row against the reconstruction of the training split and against the files on disk, and refuses
-any dev image whose name carries the test session `03` in the fifth field. `select` accepts a real (non-synthetic)
+any dev image whose name carries the test session `03` in the fifth field. `select` chooses the threshold with the same rule
+with which it is applied (attack if `score > threshold`): the candidates are the distinct dev scores plus one value
+just below the minimum; criterion `eer` (primary) takes the candidate with the smallest `|fp · n_attack − fn · n_bona_fide|`,
+ties to the highest value; criterion `apcer10` (alternative) takes the highest candidate with APCER <= 0.10 under
+that rule (`metrics.md`, "Amendment (2 October 2026 …)"). After writing `threshold.json`, `select` reads it back from
+disk and recomputes the dev counts with `>`, and stops if any differs. `select` accepts a real (non-synthetic)
 dev cache only with the provenance file written by `score-dev`; `apply` validates `threshold.json` and recomputes the
 selection from the dev cache before using it, refuses a C1 score cache whose SHA-256 differs from the value recorded at
 the C1 delivery (`--expected-c1-cache-sha256`, default `9b2b63b467e5e413c1fd5051e7c1c478f482301dc17070d60950d2e1daa34e65`;
 an empty or malformed value is an error before any step, upper case is accepted),
-flags as `non-informative` a row whose dev AUC is below 0.5 or whose dev EER is above 0.5 (with the reason; no score
-inversion), and adds a sensitivity block (test metrics without the 22 attacks of the two dev subjects; no subject
+flags as `non-informative` a row whose dev AUC is below 0.5 or whose balanced error (APCER + BPCER)/2 at the
+selected threshold with `>` is above 0.5 (labelled operational dev EER with criterion `eer`, dev ACER at the threshold
+with `apcer10`; with the reason; no score inversion), and adds a sensitivity block (test metrics without the 22 attacks of the two dev subjects; no subject
 identifier is written in the table).
 
 ```bash
@@ -221,7 +227,7 @@ fake dev cache (seed 42; bona fide ~ Beta(2, 5), attacks ~ Beta(5, 2); fingerpri
 `select --synthetic` and `apply` on it and writes everything to a folder outside `results/`; its outputs are **not
 results**. It needs the dev manifest, summary and separation report of the M1 run folder and the C1 score cache and
 manifest of step 0; the official NUAA folders are optional (see above). The copy delivered
-with this run is in `02_Experiments/M1/20261001-M1-seed42-980ca52/synthetic_threshold_trial/`.
+with this run is in `02_Experiments/M1/20261003-M1-seed42-7e3b461/synthetic_threshold_trial/`.
 
 ```bash
 cp "$M1_RUN/nuaa_dev_separation.json" results/m1/
@@ -235,7 +241,7 @@ folder, table), after steps 0 and 2:
 
 ```bash
 python scripts/check_c1_consistency.py --dataset nuaa --c1 results/m1 \
-    --run-dir results/m1/20261001-M1-seed42-980ca52 \
+    --run-dir results/m1/20261003-M1-seed42-7e3b461 \
     --by-type-table results/m1/nuaa_table_by_attack_type.md \
     --expected-cache-sha256 9b2b63b467e5e413c1fd5051e7c1c478f482301dc17070d60950d2e1daa34e65 \
     --expected-config-sha256 f0dfdb90a1f61b86fa21e1519a742f180c632bdf677a6c9c45b022526ca8fa89 \
@@ -278,7 +284,9 @@ written under `results/`):
 python scripts/check_select_threshold.py
 ```
 
-Expected: `tests run: 39, failures: 0, errors: 0, skipped: 0` and `RESULT: PASS`.
+Expected: `tests run: 54, failures: 0, errors: 0, skipped: 0` and `RESULT: PASS`. They include the selector cases
+with hand-derived values of `metrics.md` and a comparison with an independent exact (fraction) reference on 400
+seeded random cases with many ties.
 
 ## Differences
 
@@ -308,7 +316,9 @@ From C1 (`research/c1-livenesslab/`, merged at `7731076`):
   each with its expected message. On the valid C1 artefacts the result is unchanged (no inconsistency); the report
   has one line per check, so it is longer than the C1 one.
 - Threshold script: `scripts/select_threshold.py` (new) and its offline tests `scripts/check_select_threshold.py`
-  (39 tests on synthetic data).
+  (54 tests on synthetic data). After the review of PR #2 the selector picks the threshold with the operational
+  rule `>` (no ROC point, no quantile), with a declared tie-break and a JSON round-trip check (`metrics.md`,
+  "Amendment (2 October 2026 …)").
 - Table header: the commit of an external code folder is reported only if the folder is the root of its own git
   repository; otherwise `n/d` (never the commit of the enclosing repository).
 

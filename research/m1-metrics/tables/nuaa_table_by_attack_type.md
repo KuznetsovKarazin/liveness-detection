@@ -1,7 +1,7 @@
-# Evaluation `nuaa` · 2026-10-01 18:18
+# Evaluation `nuaa` · 2026-10-03 10:28
 
 Command: `scripts/eval_dataset.py --dataset nuaa --from-cache --lang en --by-attack-type --manifest results/c1/nuaa_manifest.csv --table results/m1/nuaa_table_by_attack_type.md`  
-Commit: `980ca52e5213522446ce0c814f51f21991ce1bfb` · livedetection `4334db59` · Silent-Face `b6d5f04a`  
+Commit: `7e3b461e56c9da7f6df701bd93a66ee33de1496f` · livedetection `4334db59` · Silent-Face `b6d5f04a`  
 Python 3.11.16 · TensorFlow 2.15.0 · Keras 2.15.0 · torch 2.14.0 · transformers 5.17.0 · numpy 1.26.4 · scikit-learn 1.3.2 · OpenCV 4.11.0 · TF devices ['CPU', 'GPU']  
 Threshold 0.5 on the attack score (tie = bona fide); labels 0 = bona fide, 1 = attack; unit = image; APCER = accepted attacks / n_attack, BPCER = rejected bona fide / n_bona_fide, ACER = their mean; BPCER@APCER10 at the 0.1 quantile of the attack scores; EER on the full ROC curve, no interpolation; non-computable values = —. Model fingerprints (SHA-256 of the weights or pinned revision): see the CSV.
 Cache mode: metrics recomputed from the saved scores; fingerprints read from the cache, not verified against local model files.

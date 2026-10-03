@@ -20,8 +20,11 @@ Sottocomandi:
   score-dev          punteggi degli analizzatori ammessi sulle immagini del dev, in una cache SEPARATA
                      (eval/nuaa_dev.json della cartella dei risultati, mai nuaa.json). È nuova inferenza su immagini: parte solo con
                      --i-am-authorized; --dry-run mostra cosa farebbe senza toccare nulla.
-  select             legge una cache del dev, applica il criterio (EER del dev; alternativa --criterion apcer10) e scrive
-                     threshold.json. Rifiuta una cache che contenga immagini del test (nome del test ufficiale, sessione 03
+  select             legge una cache del dev, sceglie la soglia con la stessa regola con cui si applica (attacco se
+                     s > soglia; candidati = punteggi distinti del dev più un valore sotto il minimo; criterio eer:
+                     minimo di |fp·n_a − fn·n_b|, a pari merito la soglia più alta; alternativa --criterion apcer10:
+                     la soglia più alta con APCER <= 0,10 con la regola >), scrive threshold.json, lo rilegge dal disco e
+                     ricalcola i conteggi con > (errore se differiscono). Rifiuta una cache che contenga immagini del test (nome del test ufficiale, sessione 03
                      nel nome, chiave del manifest C1), analizzatori non ammessi o voci non valide.
   apply              verifica threshold.json (criterio, valori in [0, 1], synthetic vero o falso, i quattro analizzatori
                      ammessi, valori uguali a un ricalcolo di select sulla cache del dev a cui rimanda), controlla lo SHA-256
@@ -30,7 +33,7 @@ Sottocomandi:
                      caratteri esadecimali, altrimenti errore prima di qualsiasi passo, anche in synthetic-trial),
                      applica la soglia ai 300 di test della cache C1 (sola lettura) e scrive la tabella alla soglia 0,5 e
                      alla soglia dev affiancate, con lo SHA-256 di threshold.json, la segnalazione "non-informative" (AUC del
-                     dev < 0,5 oppure EER del dev > 0,5, con il motivo) e un blocco di sensibilità senza le immagini dei
+                     dev < 0,5 oppure errore bilanciato del dev alla soglia > 0,5, con il motivo) e un blocco di sensibilità senza le immagini dei
                      soggetti del dev (nessun identificativo di soggetto nella tabella).
   synthetic-trial    prova di select + apply su una cache dev SINTETICA e deterministica (seed 42, Beta(2,5) per i bona
                      fide e Beta(5,2) per gli attacchi), in una cartella fuori dai risultati: non sono risultati. Se le
@@ -798,69 +801,136 @@ def threshold_counts(y, s, value):
             "ties_at_value": int(np.sum(s == value))}
 
 
-def apcer10_threshold(y, s):
-    """Soglia BPCER@APCER10 della convenzione: punteggio di attacco all'indice floor(n_attack·0,10) dell'elenco crescente.
-    None (soglia non definita) con meno di 10 attacchi, senza bona fide o con punteggi costanti (max - min == 0 esatto:
-    ogni soglia dà APCER 0 o 1, stessa regola di BPCER@APCER10 nel modulo delle metriche)."""
-    att = np.sort(s[y == 1])
-    if len(att) * 0.10 < 1 or not np.any(y == 0) or float(np.ptp(s)) == 0.0:
+SELECTION_RULE = ("candidates = distinct dev scores plus one value below the minimum; attack if score > value; "
+                  "eer: min |fp*n_a - fn*n_b|, ties → highest value; apcer10: max value with APCER <= 0.10")
+CRITERION_NOTE = {
+    "eer": "eer: balance of APCER and BPCER on the dev scores under the operational rule (attack if score > value): "
+           "candidate minimising |fp*n_a - fn*n_b|, ties broken towards the highest value",
+    "apcer10": "apcer10: APCER <= 0.10 under the operational rule (attack if score > value) on the dev scores, lowest BPCER, "
+               "ties broken towards the highest value (the largest feasible candidate); not the quantile threshold of the "
+               "BPCER@APCER10 metric",
+}
+
+
+def candidate_thresholds(s):
+    """Soglie candidate, in ordine decrescente: ogni punteggio distinto del dev (di entrambe le classi) più un valore
+    appena sotto il minimo, nextafter(min, -inf), solo se resta >= 0 (i valori di threshold.json stanno in [0, 1]):
+    con il minimo uguale a 0.0 il candidato sotto il minimo non è rappresentabile e si omette."""
+    vals = sorted({float(v) for v in s}, reverse=True)
+    low = float(np.nextafter(vals[-1], -np.inf))
+    if low >= 0.0:
+        vals.append(low)
+    return vals
+
+
+def select_threshold(y, s, criterion: str) -> dict:
+    """Sceglie la soglia sui punteggi del dev con la stessa regola con cui si applica (attacco se s > t, pareggio = bona
+    fide). fn(t) = attacchi con s <= t (accettati), fp(t) = bona fide con s > t (rifiutati), conteggi interi.
+    eer: minimo di |fp·n_a − fn·n_b| (interi Python, esatto), a pari merito la soglia più alta.
+    apcer10: tra i candidati con 10·fn <= n_a (APCER <= 0,10 con la regola >), minimo di fp, a pari merito la più alta.
+    Restituisce {"value", "fp", "fn", "n_attack", "n_bona_fide"}; None se nessun candidato soddisfa il vincolo di apcer10
+    (possibile solo con punteggi di attacco uguali a 0.0, dove il candidato sotto il minimo manca)."""
+    y = np.asarray(y); s = np.asarray(s, dtype=float)
+    att, bf = np.sort(s[y == 1]), np.sort(s[y == 0])
+    n_a, n_b = int(len(att)), int(len(bf))
+    if n_a == 0 or n_b == 0:
+        raise ValueError("both classes are required to select a threshold")
+    best = None
+    # ordine decrescente: a pari merito resta il primo trovato, cioè la soglia più alta
+    for t in candidate_thresholds(s):
+        fn = int(np.searchsorted(att, t, side="right"))
+        fp = n_b - int(np.searchsorted(bf, t, side="right"))
+        if criterion == "eer":
+            key = abs(fp * n_a - fn * n_b)
+        elif criterion == "apcer10":
+            if 10 * fn > n_a:
+                continue
+            key = fp
+        else:
+            raise ValueError(f"unknown criterion {criterion!r}")
+        if best is None or key < best[0]:
+            best = (key, t, fp, fn)
+    if best is None:
         return None
-    return float(att[int(np.floor(len(att) * 0.10))])
+    return {"value": best[1], "fp": best[2], "fn": best[3], "n_attack": n_a, "n_bona_fide": n_b}
+
+
+def dev_arrays(cache: dict, man_lab: dict, aid: str):
+    """Etichette e punteggi del dev di un analizzatore (chiavi in ordine), dopo i controlli contro il manifest."""
+    per = cache.get("scores", {}).get(aid)
+    if not per:
+        fail(f"{aid}: no dev scores in the cache")
+    missing = sorted(set(man_lab) - set(per))
+    if missing:
+        fail(f"{aid}: {len(missing)} dev images without score (e.g. {missing[:3]})")
+    extra = sorted(set(per) - set(man_lab))
+    if extra:
+        fail(f"{aid}: {len(extra)} scored images outside the dev manifest (e.g. {extra[:3]})")
+    wrong = [k for k, v in per.items() if v["y"] != man_lab[k]]
+    if wrong:
+        fail(f"{aid}: {len(wrong)} labels differ from the dev manifest (e.g. {examples(wrong)})")
+    keys = sorted(per)
+    y = np.array([man_lab[k] for k in keys]); s = np.array([float(per[k]["s"]) for k in keys])
+    if not (np.any(y == 0) and np.any(y == 1)):
+        fail(f"{aid}: the dev scores contain a single class: no threshold can be selected")
+    return y, s
 
 
 def compute_entries(cache: dict, man_lab: dict, ids, criterion: str, verbose: bool = True) -> dict:
     """Soglie di select per ogni analizzatore (criterio dichiarato), con le voci di threshold.json. Usata da select e,
     in memoria, da apply per rifiutare un threshold.json modificato a mano."""
     from tesi_app.evaluation import compute_metrics
+    if criterion not in CRITERIA:
+        fail(f"criterion {criterion!r} is not one of {list(CRITERIA)}")
     entries = {}
     for aid in ids:
-        per = cache.get("scores", {}).get(aid)
-        if not per:
-            fail(f"{aid}: no dev scores in the cache")
-        missing = sorted(set(man_lab) - set(per))
-        if missing:
-            fail(f"{aid}: {len(missing)} dev images without score (e.g. {missing[:3]})")
-        extra = sorted(set(per) - set(man_lab))
-        if extra:
-            fail(f"{aid}: {len(extra)} scored images outside the dev manifest (e.g. {extra[:3]})")
-        wrong = [k for k, v in per.items() if v["y"] != man_lab[k]]
-        if wrong:
-            fail(f"{aid}: {len(wrong)} labels differ from the dev manifest (e.g. {examples(wrong)})")
-        keys = sorted(per)
-        y = np.array([man_lab[k] for k in keys]); s = np.array([float(per[k]["s"]) for k in keys])
+        y, s = dev_arrays(cache, man_lab, aid)
         m = compute_metrics(y, s)
-        if criterion == "eer":
-            value = m.get("eer_threshold")
-            crit = "eer: EER threshold of the dev scores (full ROC, no interpolation), applied with the operational rule"
-        else:
-            value = apcer10_threshold(y, s)
-            crit = "apcer10: attack score at index floor(0.10 * n_attack) of the sorted dev attack scores (BPCER@APCER10 threshold)"
-            if value is not None and m.get("bpcer_at_apcer10") is not None:
-                # stessa soglia della metrica del modulo: i bona fide con s >= soglia devono dare la stessa BPCER
-                if abs(float(np.mean(s[y == 0] >= value)) - m["bpcer_at_apcer10"]) >= 1e-12:
-                    fail(f"{aid}: apcer10 threshold {value!r} inconsistent with the BPCER@APCER10 of the metric module")
-        if value is None:
-            fail(f"{aid}: threshold not defined on the dev scores (constant scores, missing class or too few attacks)")
-        value = float(value)
+        sel = select_threshold(y, s, criterion)
+        if sel is None:
+            fail(f"{aid}: no candidate threshold gives APCER <= 0.10 under the operational rule "
+                 "(attack scores equal to 0.0: the candidate below the minimum is not representable)")
+        value = float(sel["value"])
         op = threshold_counts(y, s, value)
-        # punto ROC (regola s >= value), solo informativo: la soglia si applica con s > value
-        acc_ge, rej_ge = int(np.sum(s[y == 1] < value)), int(np.sum(s[y == 0] >= value))
-        inclusive = {"accepted_attacks": acc_ge, "rejected_bona_fide": rej_ge,
-                     "apcer": acc_ge / op["n_attack"], "bpcer": rej_ge / op["n_bona_fide"]}
+        if (op["accepted_attacks"], op["rejected_bona_fide"]) != (sel["fn"], sel["fp"]):
+            fail(f"{aid}: counts at the selected value {value!r} differ from the selection")
         entries[aid] = {
             "criterion": criterion, "value": value, "decision_rule": "attack if score > value (tie = bona fide)",
+            "selection_rule": SELECTION_RULE,
             "fingerprint": cache.get("fingerprints", {}).get(aid),
-            "dev": {"eer": m.get("eer"), "eer_threshold": m.get("eer_threshold"), "auc": m.get("auc"),
-                    "bpcer_at_apcer10": m.get("bpcer_at_apcer10"),
-                    "at_value_operational_rule_gt": op,
-                    "at_value_roc_point_rule_ge": inclusive},
-            "note": crit,
+            "dev": {"at_value_operational_rule_gt": op,
+                    # errore bilanciato (APCER + BPCER)/2 alla soglia scelta, con la regola operativa: è l'EER
+                    # operativo con il criterio eer, l'ACER alla soglia con apcer10 (etichetta: balanced_error_label)
+                    "dev_balanced_error_at_value": op["acer"],
+                    # EER della ROC del modulo delle metriche (regola inclusiva >=): solo informativo, non è la base della scelta
+                    "roc_eer_information_only": m.get("eer"),
+                    "auc": m.get("auc"),
+                    "bpcer_at_apcer10_metric": m.get("bpcer_at_apcer10")},
+            "note": CRITERION_NOTE[criterion],
         }
         if verbose:
-            print(f"== {aid}: {criterion} threshold {value!r} | dev EER {m.get('eer')} | at threshold APCER {op['apcer']} "
+            print(f"== {aid}: {criterion} threshold {value!r} | at threshold (score > value) APCER {op['apcer']} "
                   f"({op['accepted_attacks']}/{op['n_attack']}) BPCER {op['bpcer']} ({op['rejected_bona_fide']}/{op['n_bona_fide']}), "
-                  f"ties {op['ties_at_value']}", flush=True)
+                  f"{balanced_error_label(criterion)} {op['acer']}, ties {op['ties_at_value']} | ROC EER (information only) {m.get('eer')}", flush=True)
     return entries
+
+
+def check_round_trip(out_p: Path, cache: dict, man_lab: dict, entries: dict) -> None:
+    """Rilegge threshold.json dal disco (andata e ritorno JSON) e ricalcola i conteggi con la regola > per ogni
+    analizzatore: devono coincidere con quelli della selezione, altrimenti errore."""
+    doc = load_json(out_p)
+    for aid, e in entries.items():
+        de = (doc.get("analyzers") or {}).get(aid) or {}
+        v = de.get("value")
+        if not isinstance(v, float) or v != e["value"]:
+            fail(f"{out_p}: {aid}: value {v!r} read back differs from the selected value {e['value']!r}")
+        y, s = dev_arrays(cache, man_lab, aid)
+        got = threshold_counts(y, s, v)
+        want = e["dev"]["at_value_operational_rule_gt"]
+        if got != want or (de.get("dev") or {}).get("at_value_operational_rule_gt") != want:
+            fail(f"{out_p}: {aid}: counts recomputed with score > value after the JSON round trip differ from the selection")
+    print(f"== {out_p}: counts of {len(entries)} analyzers recomputed with score > value after the JSON round trip: "
+          "equal to the selection (counts verified after the JSON round trip)", flush=True)
 
 
 def cmd_select(a) -> None:
@@ -910,6 +980,7 @@ def cmd_select(a) -> None:
     }
     out_p.parent.mkdir(parents=True, exist_ok=True)
     out_p.write_text(json.dumps(doc, indent=1) + "\n", encoding="utf-8")
+    check_round_trip(out_p, cache, man_lab, entries)
     print(f"== written {out_p}" + (" (SYNTHETIC)" if synthetic else ""), flush=True)
 
 
@@ -921,13 +992,23 @@ def fmt(v):
     return f"{v:.4f}" if isinstance(v, float) else str(v)
 
 
+def balanced_error_label(criterion) -> str:
+    """Nome di (APCER + BPCER)/2 alla soglia scelta: EER operativo con il criterio eer (soglia di bilanciamento),
+    ACER alla soglia con apcer10 (la soglia non bilancia APCER e BPCER, quindi non è un EER)."""
+    return "operational dev EER" if criterion == "eer" else "dev ACER at the threshold"
+
+
 def dev_flag(e) -> str:
-    """Segnalazione di una riga di apply: "non-informative (motivi)" se l'AUC del dev è sotto 0,5 oppure l'EER del dev è
-    sopra 0,5 (nessuna inversione dei punteggi: la soglia si applica comunque), stringa vuota altrimenti."""
+    """Segnalazione di una riga di apply: "non-informative (motivi)" se l'AUC del dev è sotto 0,5 oppure l'errore
+    bilanciato (APCER + BPCER)/2 alla soglia scelta, con la regola >, è sopra 0,5 (dev_balanced_error_at_value: EER
+    operativo con eer, ACER alla soglia con apcer10; mai l'EER della ROC). Oltre 0,5 la soglia fa peggio, in media sulle
+    due classi, della regola che accetta tutto (APCER 1, BPCER 0). Nessuna inversione dei punteggi: la soglia si applica
+    comunque. Stringa vuota se nessuna condizione vale."""
     dev = e.get("dev", {}) if isinstance(e, dict) else {}
-    auc, eer = dev.get("auc"), dev.get("eer")
+    auc, bal = dev.get("auc"), dev.get("dev_balanced_error_at_value")
     num = lambda v: isinstance(v, (int, float)) and not isinstance(v, bool)
-    reasons = ([] if not (num(auc) and auc < 0.5) else ["dev AUC < 0.5"]) + ([] if not (num(eer) and eer > 0.5) else ["dev EER > 0.5"])
+    label = balanced_error_label(e.get("criterion") if isinstance(e, dict) else None)
+    reasons = ([] if not (num(auc) and auc < 0.5) else ["dev AUC < 0.5"]) + ([] if not (num(bal) and bal > 0.5) else [f"{label} > 0.5"])
     return f"non-informative ({', '.join(reasons)})" if reasons else ""
 
 
@@ -1059,11 +1140,11 @@ def cmd_apply(a) -> None:
         return fmt(float(v)) if isinstance(v, (int, float)) else "—"
 
     head_cols = ("| analyzer | n | n_bona_fide | n_attack | APCER@0.5 | BPCER@0.5 | ACER@0.5 | accepted attacks@0.5 | rejected bona fide@0.5 | "
-                 "dev threshold | APCER@dev | BPCER@dev | ACER@dev | accepted attacks@dev | rejected bona fide@dev | test EER | test AUC | dev EER | dev AUC | dev flag |")
+                 "dev threshold | APCER@dev | BPCER@dev | ACER@dev | accepted attacks@dev | rejected bona fide@dev | test EER | test AUC | " + balanced_error_label(thr["criterion"]) + " | dev AUC | dev flag |")
     sep_cols = "|---|" + "---|" * 19
 
     def line(aid, e, base, cb, cd):
-        dev_eer = e.get("dev", {}).get("eer")
+        dev_eer = e.get("dev", {}).get("dev_balanced_error_at_value")
         return (f"| {aid} | {cb['n']} | {cb['n_bona_fide']} | {cb['n_attack']} | {fmt(cb['apcer'])} | {fmt(cb['bpcer'])} | {fmt(cb['acer'])} | "
                 f"{cb['accepted_attacks']} | {cb['rejected_bona_fide']} | {e['value']:.6g} | {fmt(cd['apcer'])} | {fmt(cd['bpcer'])} | {fmt(cd['acer'])} | "
                 f"{cd['accepted_attacks']} | {cd['rejected_bona_fide']} | {fmt(base.get('eer'))} | {fmt(base.get('auc'))} | "
@@ -1073,16 +1154,20 @@ def cmd_apply(a) -> None:
           "",
           f"{tag}Criterion `{thr['criterion']}`; threshold.json sha256 `{thr_sha}`, commit `{thr.get('commit')}`, date {thr.get('date')}; "
           f"dev manifest sha256 `{thr.get('dev_manifest_sha256')}`; dev cache sha256 `{thr.get('dev_cache_sha256')}`; C1 cache sha256 `{c1_sha}` (equal to the expected value). "
-          "Decision: attack if score > threshold (tie = bona fide). The source-dev threshold was chosen on the dev set only and applied "
+          "Decision: attack if score > threshold (tie = bona fide). The source-dev threshold was chosen on the dev set only, with the same rule, and applied "
           "unchanged (its values were recomputed from the dev cache before this table was written). NUAA is not subject-disjoint between "
           "official train and test (dev subjects appear in the test split, different capture session).",
           "",
           "No score inversion is applied: when the dev AUC is below 0.5 the scores are used as they are. The threshold is applied in every "
-          "case; a row whose dev AUC is below 0.5 or whose dev EER is above 0.5 is flagged `non-informative` in the `dev flag` column, "
-          "with the reason (`dev AUC < 0.5`, `dev EER > 0.5`, or both).",
+          f"case; a row whose dev AUC is below 0.5 or whose {balanced_error_label(thr['criterion'])} is above 0.5 is flagged `non-informative` "
+          f"in the `dev flag` column, with the reason (`dev AUC < 0.5`, `{balanced_error_label(thr['criterion'])} > 0.5`, or both); above 0.5 the "
+          "threshold does worse, averaged over the two classes, than accepting every sample.",
           "",
           "Columns `@0.5`: fixed threshold 0.5; columns `@dev`: source-dev threshold; `test EER` and `test AUC` do not depend on the threshold; "
-          "`dev EER` and `dev AUC` are those of threshold.json.",
+          f"`{balanced_error_label(thr['criterion'])}` is (APCER + BPCER)/2 on the dev set at the selected threshold with the rule "
+          "score > threshold (`dev_balanced_error_at_value` of threshold.json: the operational dev EER with criterion `eer`, the dev ACER at "
+          "the threshold with criterion `apcer10`; the ROC EER of the dev scores is recorded in threshold.json for information only); "
+          "`dev AUC` is that of threshold.json.",
           "",
           head_cols, sep_cols]
     md += [line(*r) for r in rows]
@@ -1202,7 +1287,7 @@ def main() -> None:
     p.add_argument("--separation", default=str(DEV_SEPARATION), help="rapporto dei controlli di separazione (passed = true, problems vuoto)")
     p.add_argument("--provenance", default=str(DEV_PROVENANCE), help="provenienza della cache scritta da score-dev (obbligatoria se non sintetica)")
     p.add_argument("--c1-manifest", default=str(C1_MANIFEST), help="manifest dei 300 di test di C1")
-    p.add_argument("--criterion", choices=CRITERIA, default="eer", help="criterio: eer (principale) o apcer10 (alternativa)")
+    p.add_argument("--criterion", choices=CRITERIA, default="eer", help="criterio: eer (principale, bilanciamento di APCER e BPCER con la regola >) o apcer10 (alternativa, APCER <= 0,10 con la regola >)")
     p.add_argument("--analyzers", nargs="*", default=None, help=f"sottoinsieme di {ELIGIBLE} (apply richiede tutti e quattro)")
     p.add_argument("--out", default=str(M1_DIR / "threshold.json"), help="file threshold.json da scrivere")
     p.add_argument("--synthetic", action="store_true",
