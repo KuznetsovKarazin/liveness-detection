@@ -9,7 +9,7 @@ Inputs (not modified by M1):
 - score cache `results/eval/nuaa.json` (30 analyzers with a score x 300 images, 150 bona fide and 150 attacks);
 - C1 table `results/c1/nuaa_table.md`, exported CSV `results/c1/nuaa_scores.csv`, manifest `results/c1/nuaa_manifest.csv`, configuration `results/c1/nuaa_config.json`, group-schema scores `results/c1/20260928-C1-seed42-a80f6f9/scores.csv`. The C1 table was produced at commit `a80f6f9` (see its header).
 
-No new training; no development-set score was computed for the delivered materials or appears in them: dev scoring is pending authorisation. Every number below comes from the cached scores.
+No new training. Every number below comes from the cached C1 scores of the 300 test images; the source-dev scores and threshold of this run are reported in `run-report.md`, `config/threshold.json` and `tables/nuaa_test_dev_threshold_table.md`, not here.
 
 ## Commands
 

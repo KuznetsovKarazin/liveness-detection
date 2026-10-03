@@ -19,7 +19,11 @@ Sottocomandi:
                      (soggetti del dev presenti anche nel test) e commit e stato del repository.
   score-dev          punteggi degli analizzatori ammessi sulle immagini del dev, in una cache SEPARATA
                      (eval/nuaa_dev.json della cartella dei risultati, mai nuaa.json). È nuova inferenza su immagini: parte solo con
-                     --i-am-authorized; --dry-run mostra cosa farebbe senza toccare nulla.
+                     --i-am-authorized; --dry-run mostra cosa farebbe senza toccare nulla. Prima dell'inferenza verifica
+                     che il file dei pesi di ogni analizzatore esista e abbia lo SHA-256 registrato come impronta nella
+                     cache C1 (riconosciuta dal suo SHA-256; con --dry-run l'esito è solo riportato), poi rifà
+                     check-separation e verifica per hash ogni immagine collegata. Dopo l'inferenza le impronte della
+                     cache del dev devono coincidere con i pesi verificati.
   select             legge una cache del dev, sceglie la soglia con la stessa regola con cui si applica (attacco se
                      s > soglia; candidati = punteggi distinti del dev più un valore sotto il minimo; criterio eer:
                      minimo di |fp·n_a − fn·n_b|, a pari merito la soglia più alta; alternativa --criterion apcer10:
@@ -703,6 +707,42 @@ def clear_link_dirs(link_dir: Path) -> int:
     return n
 
 
+def registered_weights_file(aid: str):
+    """File dei pesi che l'analizzatore `aid` userebbe (stessa funzione dell'applicazione, nessun modello caricato),
+    oppure una stringa con il motivo se l'analizzatore non è registrato o il file manca (nessun ripiego sulla scheda JSON)."""
+    import tesi_app.analyzers  # noqa: F401  registra gli analizzatori
+    from tesi_app.analyzers.kuznetsov import weights_file
+    from tesi_app.core import registry
+    if aid not in registry.ids():
+        return "analyzer not registered"
+    key = getattr(registry.get(aid), "weights_key", None)
+    f = weights_file(key) if key else None
+    return f if f is not None else f"weights file for {key} not found"
+
+
+def weight_problems(ids, c1_cache: Path = None, expected_c1_sha: str = C1_CACHE_SHA256, resolve=registered_weights_file):
+    """Controllo dei pesi prima dell'inferenza: per ogni analizzatore il file dei pesi deve esistere e il suo SHA-256
+    deve coincidere con l'impronta registrata nella cache C1, a sua volta riconosciuta dal suo SHA-256.
+    Restituisce (problemi, pesi) con pesi = {id: {"weights_file", "sha256"}}; solo lettura."""
+    c1_cache = Path(c1_cache) if c1_cache is not None else C1_CACHE
+    problems, weights = [], {}
+    if not c1_cache.exists():
+        return [f"{relpath(c1_cache)} missing: the weights cannot be compared with C1"], weights
+    if sha256(c1_cache) != expected_c1_sha:
+        return [f"{relpath(c1_cache)} differs from the C1 delivery (SHA-256 {expected_c1_sha[:12]}… expected)"], weights
+    fps = load_json(c1_cache).get("fingerprints", {})
+    fps = fps if isinstance(fps, dict) else {}
+    for aid in ids:
+        f = resolve(aid)
+        if not isinstance(f, Path):
+            problems.append(f"{aid}: {f}"); continue
+        h = sha256(f)
+        weights[aid] = {"weights_file": f.name, "sha256": h}
+        if not isinstance(fps.get(aid), str) or h != fps[aid]:
+            problems.append(f"{aid}: SHA-256 of {f.name} ({h[:12]}…) differs from the C1 fingerprint ({str(fps.get(aid))[:12]}…)")
+    return problems, weights
+
+
 def cmd_score_dev(a) -> None:
     ids = a.analyzers or ELIGIBLE
     bad = [i for i in ids if i not in ELIGIBLE]
@@ -737,6 +777,15 @@ def cmd_score_dev(a) -> None:
             "command": f"cd <repository> && LIVENESSLAB_DATA_DIR={relpath(dev_root)} {py} " + " ".join(cmd),
             "never_written": [relpath(C1_CACHE), relpath(RESULTS / "c1")]}
     print("== score-dev plan:\n" + json.dumps(plan, indent=1), flush=True)
+    # pesi verificati prima di qualunque inferenza: stessi file, byte per byte, delle impronte di C1. Con --dry-run l'esito
+    # è solo riportato (il pacchetto esportato non contiene i pesi); senza --dry-run un problema ferma tutto.
+    w_problems, weights = weight_problems(ids)
+    if w_problems and a.dry_run:
+        note("weight checks would fail here (the run stops on them before inference): " + "; ".join(w_problems))
+    elif w_problems:
+        fail("weight checks failed, dev scoring not started: " + "; ".join(w_problems))
+    else:
+        print(f"== weight checks passed: {len(weights)} weights files identical to the C1 fingerprints", flush=True)
     if a.dry_run:
         print("== dry run: nothing executed", flush=True)
         return
@@ -775,12 +824,16 @@ def cmd_score_dev(a) -> None:
     cache = load_json(DEV_CACHE)
     check_dev_cache(cache, relpath(DEV_CACHE))
     wanted = {r["file"] for r in man}
+    moved = [aid for aid in ids if cache.get("fingerprints", {}).get(aid) != weights[aid]["sha256"]]
+    if moved:
+        fail(f"fingerprints of the dev cache differ from the weights checked before inference: {moved}")
     for aid in ids:
         per = cache["scores"].get(aid, {})
         if set(per) != wanted:
             fail(f"{aid}: dev cache keys differ from the manifest ({len(per)} vs {len(wanted)})")
     prov = {"cache": relpath(DEV_CACHE), "cache_sha256": sha256(DEV_CACHE), "dev_manifest_sha256": man_sha, "analyzers": ids,
             "fingerprints": {aid: cache.get("fingerprints", {}).get(aid) for aid in ids},
+            "weights_checked_before_inference": weights,
             "command": plan["command"], **repo_state(), "date": now()}
     DEV_PROVENANCE.parent.mkdir(parents=True, exist_ok=True)
     DEV_PROVENANCE.write_text(json.dumps(prov, indent=1) + "\n", encoding="utf-8")
