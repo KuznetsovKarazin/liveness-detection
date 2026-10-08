@@ -1,0 +1,3023 @@
+{
+ "dataset": "casia_fasd",
+ "rules_file": "delivery/m2/rgb/casia_fasd_overlap_rules.json",
+ "rules_sha256": "54288b13796b126c3c54aad6698356676fef6ec89e28cc522b9b5edc12b83512",
+ "manifests_dir": "results/m2_rgb/casia_fasd/manifests",
+ "manifests": {
+  "mirror_train": {
+   "file": "casia_mirror_train.csv",
+   "sha256": "659f36a0b7c9d9feca1a6509bff5abd8db0da33b9c230c38b3f762291419997d",
+   "rows": 1655
+  },
+  "mirror_test": {
+   "file": "casia_mirror_test.csv",
+   "sha256": "c84357167228b6850fd195e02625b2f859b1c4698ac3f1585b2dd87bb6c62fc8",
+   "rows": 2408
+  },
+  "prepared_training": {
+   "file": "casia_prepared_training.csv",
+   "sha256": "659f36a0b7c9d9feca1a6509bff5abd8db0da33b9c230c38b3f762291419997d",
+   "rows": 1655
+  },
+  "prepared_validation": {
+   "file": "casia_prepared_validation.csv",
+   "sha256": "c84357167228b6850fd195e02625b2f859b1c4698ac3f1585b2dd87bb6c62fc8",
+   "rows": 2408
+  },
+  "eval": {
+   "file": "casia_eval.csv",
+   "sha256": "3452745f844a4bc51c90d25748e5ea2468a12d53c07c38062496aafbc7a835f9",
+   "rows": 300
+  },
+  "cnn_train": {
+   "file": "casia_cnn_train.csv",
+   "sha256": "a1d5ec4c1fea5c2fa854fe780fff53d9e61fa6e2a29f74ca95bee1f58c8a195d",
+   "rows": 1339
+  },
+  "cnn_es": {
+   "file": "casia_cnn_early_stopping.csv",
+   "sha256": "3d6b601dd8a3d38f7dcea37f6b1cdbcde555d88b6b3164cbbc269f6cfb9c8d39",
+   "rows": 316
+  },
+  "cnn_test": {
+   "file": "casia_cnn_test.csv",
+   "sha256": "20b6915145fb2dfa490b80e5ff8128ed05a86eef3298ce18bd4501b291ec304a",
+   "rows": 2091
+  },
+  "pooled_train": {
+   "file": "casia_pooled_train.csv",
+   "sha256": "5861e2d1424893b6c105053ef4753f8f9b710e144faf23f0f547b94bf5c6c60e",
+   "rows": 2696
+  },
+  "pooled_es": {
+   "file": "casia_pooled_early_stopping.csv",
+   "sha256": "264dc2d5c4c6fe826231726442c14a715a36a078581c5075e06efc5e7023d5be",
+   "rows": 300
+  },
+  "pooled_test": {
+   "file": "casia_pooled_test.csv",
+   "sha256": "22aa9fa1435efe7deed5a55d6291aa7f3ba71a3e3f9fc1b840e744971a32fba1",
+   "rows": 750
+  }
+ },
+ "row_validation_failed": false,
+ "rules": [
+  {
+   "id": "C01-internal-duplicates",
+   "kind": "no_internal_duplicates",
+   "severity": "must",
+   "by": [
+    "key",
+    "hash"
+   ],
+   "description": "no manifest lists the same key twice or the same image content (file SHA-256) under two keys",
+   "verdict": "pass",
+   "checks": [
+    {
+     "manifest": "mirror_train",
+     "by": "key",
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "mirror_train",
+     "by": "hash",
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "mirror_test",
+     "by": "key",
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "mirror_test",
+     "by": "hash",
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "prepared_training",
+     "by": "key",
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "prepared_training",
+     "by": "hash",
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "prepared_validation",
+     "by": "key",
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "prepared_validation",
+     "by": "hash",
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "eval",
+     "by": "key",
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "eval",
+     "by": "hash",
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "cnn_train",
+     "by": "key",
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "cnn_train",
+     "by": "hash",
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "cnn_es",
+     "by": "key",
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "cnn_es",
+     "by": "hash",
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "cnn_test",
+     "by": "key",
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "cnn_test",
+     "by": "hash",
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "pooled_train",
+     "by": "key",
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "pooled_train",
+     "by": "hash",
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "pooled_es",
+     "by": "key",
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "pooled_es",
+     "by": "hash",
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "pooled_test",
+     "by": "key",
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "pooled_test",
+     "by": "hash",
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    }
+   ]
+  },
+  {
+   "id": "C02-mirror-train-vs-test",
+   "kind": "disjoint",
+   "severity": "must",
+   "by": [
+    "key",
+    "hash"
+   ],
+   "description": "no frame of `train_img` is in `test_img`, by key or by content hash",
+   "verdict": "pass",
+   "checks": [
+    {
+     "a": "mirror_train",
+     "b": "mirror_test",
+     "by": "key",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "mirror_train",
+     "b": "mirror_test",
+     "by": "hash",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    }
+   ]
+  },
+  {
+   "id": "C03-identity-train-vs-test",
+   "kind": "declared_not_checkable",
+   "severity": "report",
+   "by": [],
+   "description": "train/test subject disjointness by protocol (documented, not verifiable on the copy)",
+   "verdict": "not checkable",
+   "checks": [
+    {
+     "by": "-",
+     "outcome": "not checkable",
+     "reason": "subject numbers are local to the mirror split and the copy has no identity field: that the 20 subjects of `train_img` and the 30 of `test_img` are different persons is documented by the protocol of the reference publication (ICB 2012) [DOC-EXT] and cannot be verified on the copy"
+    }
+   ]
+  },
+  {
+   "id": "C04-local-numbers-train-vs-test",
+   "kind": "disjoint",
+   "severity": "report",
+   "by": [
+    "local_subject"
+   ],
+   "description": "the subject numbers 1-20 occur in both splits because the numbering is local to the split; reported to show why every subject comparison uses the key <mirror split>:<number> (not evidence of shared persons)",
+   "verdict": "reported",
+   "checks": [
+    {
+     "a": "mirror_train",
+     "b": "mirror_test",
+     "by": "local_subject",
+     "n_shared": 20,
+     "rows_a": 1655,
+     "rows_b": 1574,
+     "outcome": "reported"
+    }
+   ]
+  },
+  {
+   "id": "C05-prepared-training-equals-mirror",
+   "kind": "partition",
+   "severity": "must",
+   "by": [
+    "key"
+   ],
+   "description": "the prepared `_training` folders are exactly the colour frames of `train_img`",
+   "verdict": "pass",
+   "checks": [
+    {
+     "a": "prepared_training",
+     "b": "mirror_train",
+     "by": "key",
+     "derivation": "partition",
+     "n_expected": 1655,
+     "n_rows": 1655,
+     "n_missing": 0,
+     "n_extra": 0,
+     "outcome": "pass"
+    }
+   ]
+  },
+  {
+   "id": "C06-prepared-validation-equals-mirror",
+   "kind": "partition",
+   "severity": "must",
+   "by": [
+    "key"
+   ],
+   "description": "the prepared `_validation` folders are exactly the colour frames of `test_img`",
+   "verdict": "pass",
+   "checks": [
+    {
+     "a": "prepared_validation",
+     "b": "mirror_test",
+     "by": "key",
+     "derivation": "partition",
+     "n_expected": 2408,
+     "n_rows": 2408,
+     "n_missing": 0,
+     "n_extra": 0,
+     "outcome": "pass"
+    }
+   ]
+  },
+  {
+   "id": "C07-cnn-split-partition",
+   "kind": "spread_partition",
+   "severity": "must",
+   "by": [
+    "key"
+   ],
+   "description": "official CNN fitting and early-stopping images are disjoint and together equal spread(train_img, 1500) per class (all 1,655 frames)",
+   "verdict": "pass",
+   "checks": [
+    {
+     "a": "cnn_train + cnn_es",
+     "b": "mirror_train",
+     "by": "key",
+     "derivation": "spread_partition (1500 per class)",
+     "n_expected": 1655,
+     "n_rows": 1655,
+     "n_missing": 0,
+     "n_extra": 0,
+     "outcome": "pass"
+    }
+   ]
+  },
+  {
+   "id": "C08-fit-vs-es",
+   "kind": "disjoint",
+   "severity": "must",
+   "by": [
+    "key",
+    "hash",
+    "subject",
+    "video"
+   ],
+   "description": "the early-stopping images of the official CNNs share no image, subject or video with the images that fitted the weights",
+   "verdict": "pass",
+   "checks": [
+    {
+     "a": "cnn_train",
+     "b": "cnn_es",
+     "by": "key",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_train",
+     "b": "cnn_es",
+     "by": "hash",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_train",
+     "b": "cnn_es",
+     "by": "subject",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_train",
+     "b": "cnn_es",
+     "by": "video",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    }
+   ]
+  },
+  {
+   "id": "C09-train-side-vs-test-side",
+   "kind": "disjoint",
+   "severity": "must",
+   "by": [
+    "key",
+    "hash",
+    "subject",
+    "video"
+   ],
+   "description": "no training-side image appears on the test side by key or content hash; subject and video keys differ by construction (they include the mirror split), identity is C03",
+   "verdict": "pass",
+   "checks": [
+    {
+     "a": "mirror_train",
+     "b": "mirror_test",
+     "by": "key",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "mirror_train",
+     "b": "prepared_validation",
+     "by": "key",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "mirror_train",
+     "b": "cnn_test",
+     "by": "key",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "mirror_train",
+     "b": "eval",
+     "by": "key",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "prepared_training",
+     "b": "mirror_test",
+     "by": "key",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "prepared_training",
+     "b": "prepared_validation",
+     "by": "key",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "prepared_training",
+     "b": "cnn_test",
+     "by": "key",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "prepared_training",
+     "b": "eval",
+     "by": "key",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_train",
+     "b": "mirror_test",
+     "by": "key",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_train",
+     "b": "prepared_validation",
+     "by": "key",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_train",
+     "b": "cnn_test",
+     "by": "key",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_train",
+     "b": "eval",
+     "by": "key",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_es",
+     "b": "mirror_test",
+     "by": "key",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_es",
+     "b": "prepared_validation",
+     "by": "key",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_es",
+     "b": "cnn_test",
+     "by": "key",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_es",
+     "b": "eval",
+     "by": "key",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "mirror_train",
+     "b": "mirror_test",
+     "by": "hash",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "mirror_train",
+     "b": "prepared_validation",
+     "by": "hash",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "mirror_train",
+     "b": "cnn_test",
+     "by": "hash",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "mirror_train",
+     "b": "eval",
+     "by": "hash",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "prepared_training",
+     "b": "mirror_test",
+     "by": "hash",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "prepared_training",
+     "b": "prepared_validation",
+     "by": "hash",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "prepared_training",
+     "b": "cnn_test",
+     "by": "hash",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "prepared_training",
+     "b": "eval",
+     "by": "hash",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_train",
+     "b": "mirror_test",
+     "by": "hash",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_train",
+     "b": "prepared_validation",
+     "by": "hash",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_train",
+     "b": "cnn_test",
+     "by": "hash",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_train",
+     "b": "eval",
+     "by": "hash",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_es",
+     "b": "mirror_test",
+     "by": "hash",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_es",
+     "b": "prepared_validation",
+     "by": "hash",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_es",
+     "b": "cnn_test",
+     "by": "hash",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_es",
+     "b": "eval",
+     "by": "hash",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "mirror_train",
+     "b": "mirror_test",
+     "by": "subject",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "mirror_train",
+     "b": "prepared_validation",
+     "by": "subject",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "mirror_train",
+     "b": "cnn_test",
+     "by": "subject",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "mirror_train",
+     "b": "eval",
+     "by": "subject",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "prepared_training",
+     "b": "mirror_test",
+     "by": "subject",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "prepared_training",
+     "b": "prepared_validation",
+     "by": "subject",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "prepared_training",
+     "b": "cnn_test",
+     "by": "subject",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "prepared_training",
+     "b": "eval",
+     "by": "subject",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_train",
+     "b": "mirror_test",
+     "by": "subject",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_train",
+     "b": "prepared_validation",
+     "by": "subject",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_train",
+     "b": "cnn_test",
+     "by": "subject",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_train",
+     "b": "eval",
+     "by": "subject",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_es",
+     "b": "mirror_test",
+     "by": "subject",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_es",
+     "b": "prepared_validation",
+     "by": "subject",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_es",
+     "b": "cnn_test",
+     "by": "subject",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_es",
+     "b": "eval",
+     "by": "subject",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "mirror_train",
+     "b": "mirror_test",
+     "by": "video",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "mirror_train",
+     "b": "prepared_validation",
+     "by": "video",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "mirror_train",
+     "b": "cnn_test",
+     "by": "video",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "mirror_train",
+     "b": "eval",
+     "by": "video",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "prepared_training",
+     "b": "mirror_test",
+     "by": "video",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "prepared_training",
+     "b": "prepared_validation",
+     "by": "video",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "prepared_training",
+     "b": "cnn_test",
+     "by": "video",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "prepared_training",
+     "b": "eval",
+     "by": "video",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_train",
+     "b": "mirror_test",
+     "by": "video",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_train",
+     "b": "prepared_validation",
+     "by": "video",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_train",
+     "b": "cnn_test",
+     "by": "video",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_train",
+     "b": "eval",
+     "by": "video",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_es",
+     "b": "mirror_test",
+     "by": "video",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_es",
+     "b": "prepared_validation",
+     "by": "video",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_es",
+     "b": "cnn_test",
+     "by": "video",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_es",
+     "b": "eval",
+     "by": "video",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    }
+   ]
+  },
+  {
+   "id": "C10-cnn-test-spread",
+   "kind": "equals_spread",
+   "severity": "must",
+   "by": [
+    "key"
+   ],
+   "description": "the official CNN test images are exactly spread(test_img, 1500) per class (591 bona fide, 1,500 of the 1,817 attacks)",
+   "verdict": "pass",
+   "checks": [
+    {
+     "a": "cnn_test",
+     "b": "mirror_test",
+     "by": "key",
+     "derivation": "equals_spread (1500 per class)",
+     "n_expected": 2091,
+     "n_rows": 2091,
+     "n_missing": 0,
+     "n_extra": 0,
+     "outcome": "pass"
+    }
+   ]
+  },
+  {
+   "id": "C11-eval-spread",
+   "kind": "equals_spread",
+   "severity": "must",
+   "by": [
+    "key"
+   ],
+   "description": "the 300 evaluation images of the application are exactly spread(test_img, 150) per class",
+   "verdict": "pass",
+   "checks": [
+    {
+     "a": "eval",
+     "b": "mirror_test",
+     "by": "key",
+     "derivation": "equals_spread (150 per class)",
+     "n_expected": 300,
+     "n_rows": 300,
+     "n_missing": 0,
+     "n_extra": 0,
+     "outcome": "pass"
+    }
+   ]
+  },
+  {
+   "id": "C12-eval-in-cnn-test",
+   "kind": "subset",
+   "severity": "must",
+   "by": [
+    "key",
+    "hash"
+   ],
+   "description": "the 300 evaluation images are official CNN test images",
+   "verdict": "pass",
+   "checks": [
+    {
+     "a": "eval",
+     "b": "cnn_test",
+     "by": "key",
+     "n_not_in_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "eval",
+     "b": "cnn_test",
+     "by": "hash",
+     "n_not_in_b": 0,
+     "outcome": "pass"
+    }
+   ]
+  },
+  {
+   "id": "C13-pooled-partition",
+   "kind": "partition",
+   "severity": "must",
+   "by": [
+    "key"
+   ],
+   "description": "the pooled fitting, early-stopping and test images are disjoint and together equal the frames of the training cache (official train, early stopping and test)",
+   "verdict": "pass",
+   "checks": [
+    {
+     "a": "pooled_train + pooled_es + pooled_test",
+     "b": "cnn_train + cnn_es + cnn_test",
+     "by": "key",
+     "derivation": "partition",
+     "n_expected": 3746,
+     "n_rows": 3746,
+     "n_missing": 0,
+     "n_extra": 0,
+     "outcome": "pass"
+    }
+   ]
+  },
+  {
+   "id": "C14-pooled-sides-by-hash",
+   "kind": "disjoint",
+   "severity": "must",
+   "by": [
+    "key",
+    "hash"
+   ],
+   "description": "no pooled test image is a pooled fitting or early-stopping image, by key or content hash",
+   "verdict": "pass",
+   "checks": [
+    {
+     "a": "pooled_train",
+     "b": "pooled_test",
+     "by": "key",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "pooled_es",
+     "b": "pooled_test",
+     "by": "key",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "pooled_train",
+     "b": "pooled_test",
+     "by": "hash",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "pooled_es",
+     "b": "pooled_test",
+     "by": "hash",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    }
+   ]
+  },
+  {
+   "id": "C15-pooled-eval-leak",
+   "kind": "intersection",
+   "severity": "must",
+   "by": [
+    "key",
+    "hash"
+   ],
+   "description": "declared leak: 235 of the 300 evaluation images were used to fit or early-stop the pooled CNNs",
+   "verdict": "pass",
+   "checks": [
+    {
+     "a": "eval",
+     "b": "pooled_train + pooled_es",
+     "by": "key",
+     "n_shared": 235,
+     "expected": 235,
+     "rows_a": 235,
+     "rows_b": 235,
+     "outcome": "pass"
+    },
+    {
+     "a": "eval",
+     "b": "pooled_train + pooled_es",
+     "by": "hash",
+     "n_shared": 235,
+     "expected": 235,
+     "rows_a": 235,
+     "rows_b": 235,
+     "outcome": "pass"
+    }
+   ]
+  },
+  {
+   "id": "C16-pooled-subject-video-leak",
+   "kind": "intersection",
+   "severity": "must",
+   "by": [
+    "subject",
+    "video"
+   ],
+   "description": "declared leak of the per-frame pooled split: all 50 subjects and 444 of the 600 videos are on both the training side and the test side of the pooled CNNs",
+   "verdict": "pass",
+   "checks": [
+    {
+     "a": "pooled_train + pooled_es",
+     "b": "pooled_test",
+     "by": "subject",
+     "n_shared": 50,
+     "expected": 50,
+     "rows_a": 2996,
+     "rows_b": 750,
+     "outcome": "pass"
+    },
+    {
+     "a": "pooled_train + pooled_es",
+     "b": "pooled_test",
+     "by": "video",
+     "n_shared": 444,
+     "expected": 444,
+     "rows_a": 2179,
+     "rows_b": 745,
+     "outcome": "pass"
+    }
+   ]
+  },
+  {
+   "id": "C17-key-consistency",
+   "kind": "key_consistency",
+   "severity": "must",
+   "by": [
+    "key"
+   ],
+   "description": "every key present in several manifests has the same label, mirror_split, subject, subject_key, video, video_key, frame, sha256 and bytes in all of them",
+   "verdict": "pass",
+   "checks": [
+    {
+     "manifest": "all",
+     "by": "key->label",
+     "keys_in_several_manifests": 4063,
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "all",
+     "by": "key->mirror_split",
+     "keys_in_several_manifests": 4063,
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "all",
+     "by": "key->subject",
+     "keys_in_several_manifests": 4063,
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "all",
+     "by": "key->subject_key",
+     "keys_in_several_manifests": 4063,
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "all",
+     "by": "key->video",
+     "keys_in_several_manifests": 4063,
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "all",
+     "by": "key->video_key",
+     "keys_in_several_manifests": 4063,
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "all",
+     "by": "key->frame",
+     "keys_in_several_manifests": 4063,
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "all",
+     "by": "key->sha256",
+     "keys_in_several_manifests": 4063,
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "all",
+     "by": "key->bytes",
+     "keys_in_several_manifests": 4063,
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    }
+   ]
+  },
+  {
+   "id": "C18-declared-counts",
+   "kind": "counts",
+   "severity": "must",
+   "by": [
+    "key"
+   ],
+   "description": "declared counts of every manifest (rows, bona fide, attacks, subjects and videos), checked without scikit-learn: a subject moved between fitting and early stopping changes them; a swap of rows of the same class between two manifests does not (pinned only by the declared SHA-256 and by `reconstruct`)",
+   "verdict": "pass",
+   "checks": [
+    {
+     "manifest": "mirror_train",
+     "by": "n",
+     "expected": 1655,
+     "count": 1655,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "mirror_train",
+     "by": "n_bona_fide",
+     "expected": 404,
+     "count": 404,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "mirror_train",
+     "by": "n_attack",
+     "expected": 1251,
+     "count": 1251,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "mirror_train",
+     "by": "n_subjects",
+     "expected": 20,
+     "count": 20,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "mirror_train",
+     "by": "n_videos",
+     "expected": 240,
+     "count": 240,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "mirror_test",
+     "by": "n",
+     "expected": 2408,
+     "count": 2408,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "mirror_test",
+     "by": "n_bona_fide",
+     "expected": 591,
+     "count": 591,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "mirror_test",
+     "by": "n_attack",
+     "expected": 1817,
+     "count": 1817,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "mirror_test",
+     "by": "n_subjects",
+     "expected": 30,
+     "count": 30,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "mirror_test",
+     "by": "n_videos",
+     "expected": 360,
+     "count": 360,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "prepared_training",
+     "by": "n",
+     "expected": 1655,
+     "count": 1655,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "prepared_training",
+     "by": "n_bona_fide",
+     "expected": 404,
+     "count": 404,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "prepared_training",
+     "by": "n_attack",
+     "expected": 1251,
+     "count": 1251,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "prepared_training",
+     "by": "n_subjects",
+     "expected": 20,
+     "count": 20,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "prepared_training",
+     "by": "n_videos",
+     "expected": 240,
+     "count": 240,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "prepared_validation",
+     "by": "n",
+     "expected": 2408,
+     "count": 2408,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "prepared_validation",
+     "by": "n_bona_fide",
+     "expected": 591,
+     "count": 591,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "prepared_validation",
+     "by": "n_attack",
+     "expected": 1817,
+     "count": 1817,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "prepared_validation",
+     "by": "n_subjects",
+     "expected": 30,
+     "count": 30,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "prepared_validation",
+     "by": "n_videos",
+     "expected": 360,
+     "count": 360,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "eval",
+     "by": "n",
+     "expected": 300,
+     "count": 300,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "eval",
+     "by": "n_bona_fide",
+     "expected": 150,
+     "count": 150,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "eval",
+     "by": "n_attack",
+     "expected": 150,
+     "count": 150,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "eval",
+     "by": "n_subjects",
+     "expected": 30,
+     "count": 30,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "eval",
+     "by": "n_videos",
+     "expected": 239,
+     "count": 239,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "cnn_train",
+     "by": "n",
+     "expected": 1339,
+     "count": 1339,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "cnn_train",
+     "by": "n_bona_fide",
+     "expected": 333,
+     "count": 333,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "cnn_train",
+     "by": "n_attack",
+     "expected": 1006,
+     "count": 1006,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "cnn_train",
+     "by": "n_subjects",
+     "expected": 16,
+     "count": 16,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "cnn_train",
+     "by": "n_videos",
+     "expected": 192,
+     "count": 192,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "cnn_es",
+     "by": "n",
+     "expected": 316,
+     "count": 316,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "cnn_es",
+     "by": "n_bona_fide",
+     "expected": 71,
+     "count": 71,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "cnn_es",
+     "by": "n_attack",
+     "expected": 245,
+     "count": 245,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "cnn_es",
+     "by": "n_subjects",
+     "expected": 4,
+     "count": 4,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "cnn_es",
+     "by": "n_videos",
+     "expected": 48,
+     "count": 48,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "cnn_test",
+     "by": "n",
+     "expected": 2091,
+     "count": 2091,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "cnn_test",
+     "by": "n_bona_fide",
+     "expected": 591,
+     "count": 591,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "cnn_test",
+     "by": "n_attack",
+     "expected": 1500,
+     "count": 1500,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "cnn_test",
+     "by": "n_subjects",
+     "expected": 30,
+     "count": 30,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "cnn_test",
+     "by": "n_videos",
+     "expected": 360,
+     "count": 360,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "pooled_train",
+     "by": "n",
+     "expected": 2696,
+     "count": 2696,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "pooled_train",
+     "by": "n_bona_fide",
+     "expected": 716,
+     "count": 716,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "pooled_train",
+     "by": "n_attack",
+     "expected": 1980,
+     "count": 1980,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "pooled_train",
+     "by": "n_subjects",
+     "expected": 50,
+     "count": 50,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "pooled_train",
+     "by": "n_videos",
+     "expected": 598,
+     "count": 598,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "pooled_es",
+     "by": "n",
+     "expected": 300,
+     "count": 300,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "pooled_es",
+     "by": "n_bona_fide",
+     "expected": 80,
+     "count": 80,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "pooled_es",
+     "by": "n_attack",
+     "expected": 220,
+     "count": 220,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "pooled_es",
+     "by": "n_subjects",
+     "expected": 50,
+     "count": 50,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "pooled_es",
+     "by": "n_videos",
+     "expected": 240,
+     "count": 240,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "pooled_test",
+     "by": "n",
+     "expected": 750,
+     "count": 750,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "pooled_test",
+     "by": "n_bona_fide",
+     "expected": 199,
+     "count": 199,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "pooled_test",
+     "by": "n_attack",
+     "expected": 551,
+     "count": 551,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "pooled_test",
+     "by": "n_subjects",
+     "expected": 50,
+     "count": 50,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "pooled_test",
+     "by": "n_videos",
+     "expected": 445,
+     "count": 445,
+     "outcome": "pass"
+    }
+   ]
+  }
+ ],
+ "matrix": {
+  "manifests": [
+   "mirror_train",
+   "mirror_test",
+   "prepared_training",
+   "prepared_validation",
+   "eval",
+   "cnn_train",
+   "cnn_es",
+   "cnn_test",
+   "pooled_train",
+   "pooled_es",
+   "pooled_test"
+  ],
+  "dimensions": [
+   "key",
+   "hash",
+   "subject",
+   "video"
+  ],
+  "distinct": {
+   "mirror_train": {
+    "key": 1655,
+    "hash": 1655,
+    "subject": 20,
+    "video": 240,
+    "rows": 1655
+   },
+   "mirror_test": {
+    "key": 2408,
+    "hash": 2408,
+    "subject": 30,
+    "video": 360,
+    "rows": 2408
+   },
+   "prepared_training": {
+    "key": 1655,
+    "hash": 1655,
+    "subject": 20,
+    "video": 240,
+    "rows": 1655
+   },
+   "prepared_validation": {
+    "key": 2408,
+    "hash": 2408,
+    "subject": 30,
+    "video": 360,
+    "rows": 2408
+   },
+   "eval": {
+    "key": 300,
+    "hash": 300,
+    "subject": 30,
+    "video": 239,
+    "rows": 300
+   },
+   "cnn_train": {
+    "key": 1339,
+    "hash": 1339,
+    "subject": 16,
+    "video": 192,
+    "rows": 1339
+   },
+   "cnn_es": {
+    "key": 316,
+    "hash": 316,
+    "subject": 4,
+    "video": 48,
+    "rows": 316
+   },
+   "cnn_test": {
+    "key": 2091,
+    "hash": 2091,
+    "subject": 30,
+    "video": 360,
+    "rows": 2091
+   },
+   "pooled_train": {
+    "key": 2696,
+    "hash": 2696,
+    "subject": 50,
+    "video": 598,
+    "rows": 2696
+   },
+   "pooled_es": {
+    "key": 300,
+    "hash": 300,
+    "subject": 50,
+    "video": 240,
+    "rows": 300
+   },
+   "pooled_test": {
+    "key": 750,
+    "hash": 750,
+    "subject": 50,
+    "video": 445,
+    "rows": 750
+   }
+  },
+  "pairs": {
+   "mirror_train|mirror_test": {
+    "key": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "hash": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "subject": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "video": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    }
+   },
+   "mirror_train|prepared_training": {
+    "key": {
+     "n_shared": 1655,
+     "rows_a": 1655,
+     "rows_b": 1655
+    },
+    "hash": {
+     "n_shared": 1655,
+     "rows_a": 1655,
+     "rows_b": 1655
+    },
+    "subject": {
+     "n_shared": 20,
+     "rows_a": 1655,
+     "rows_b": 1655
+    },
+    "video": {
+     "n_shared": 240,
+     "rows_a": 1655,
+     "rows_b": 1655
+    }
+   },
+   "mirror_train|prepared_validation": {
+    "key": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "hash": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "subject": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "video": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    }
+   },
+   "mirror_train|eval": {
+    "key": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "hash": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "subject": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "video": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    }
+   },
+   "mirror_train|cnn_train": {
+    "key": {
+     "n_shared": 1339,
+     "rows_a": 1339,
+     "rows_b": 1339
+    },
+    "hash": {
+     "n_shared": 1339,
+     "rows_a": 1339,
+     "rows_b": 1339
+    },
+    "subject": {
+     "n_shared": 16,
+     "rows_a": 1339,
+     "rows_b": 1339
+    },
+    "video": {
+     "n_shared": 192,
+     "rows_a": 1339,
+     "rows_b": 1339
+    }
+   },
+   "mirror_train|cnn_es": {
+    "key": {
+     "n_shared": 316,
+     "rows_a": 316,
+     "rows_b": 316
+    },
+    "hash": {
+     "n_shared": 316,
+     "rows_a": 316,
+     "rows_b": 316
+    },
+    "subject": {
+     "n_shared": 4,
+     "rows_a": 316,
+     "rows_b": 316
+    },
+    "video": {
+     "n_shared": 48,
+     "rows_a": 316,
+     "rows_b": 316
+    }
+   },
+   "mirror_train|cnn_test": {
+    "key": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "hash": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "subject": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "video": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    }
+   },
+   "mirror_train|pooled_train": {
+    "key": {
+     "n_shared": 1177,
+     "rows_a": 1177,
+     "rows_b": 1177
+    },
+    "hash": {
+     "n_shared": 1177,
+     "rows_a": 1177,
+     "rows_b": 1177
+    },
+    "subject": {
+     "n_shared": 20,
+     "rows_a": 1655,
+     "rows_b": 1177
+    },
+    "video": {
+     "n_shared": 240,
+     "rows_a": 1655,
+     "rows_b": 1177
+    }
+   },
+   "mirror_train|pooled_es": {
+    "key": {
+     "n_shared": 154,
+     "rows_a": 154,
+     "rows_b": 154
+    },
+    "hash": {
+     "n_shared": 154,
+     "rows_a": 154,
+     "rows_b": 154
+    },
+    "subject": {
+     "n_shared": 20,
+     "rows_a": 1655,
+     "rows_b": 154
+    },
+    "video": {
+     "n_shared": 115,
+     "rows_a": 857,
+     "rows_b": 154
+    }
+   },
+   "mirror_train|pooled_test": {
+    "key": {
+     "n_shared": 324,
+     "rows_a": 324,
+     "rows_b": 324
+    },
+    "hash": {
+     "n_shared": 324,
+     "rows_a": 324,
+     "rows_b": 324
+    },
+    "subject": {
+     "n_shared": 20,
+     "rows_a": 1655,
+     "rows_b": 324
+    },
+    "video": {
+     "n_shared": 183,
+     "rows_a": 1316,
+     "rows_b": 324
+    }
+   },
+   "mirror_test|prepared_training": {
+    "key": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "hash": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "subject": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "video": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    }
+   },
+   "mirror_test|prepared_validation": {
+    "key": {
+     "n_shared": 2408,
+     "rows_a": 2408,
+     "rows_b": 2408
+    },
+    "hash": {
+     "n_shared": 2408,
+     "rows_a": 2408,
+     "rows_b": 2408
+    },
+    "subject": {
+     "n_shared": 30,
+     "rows_a": 2408,
+     "rows_b": 2408
+    },
+    "video": {
+     "n_shared": 360,
+     "rows_a": 2408,
+     "rows_b": 2408
+    }
+   },
+   "mirror_test|eval": {
+    "key": {
+     "n_shared": 300,
+     "rows_a": 300,
+     "rows_b": 300
+    },
+    "hash": {
+     "n_shared": 300,
+     "rows_a": 300,
+     "rows_b": 300
+    },
+    "subject": {
+     "n_shared": 30,
+     "rows_a": 2408,
+     "rows_b": 300
+    },
+    "video": {
+     "n_shared": 239,
+     "rows_a": 1687,
+     "rows_b": 300
+    }
+   },
+   "mirror_test|cnn_train": {
+    "key": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "hash": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "subject": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "video": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    }
+   },
+   "mirror_test|cnn_es": {
+    "key": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "hash": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "subject": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "video": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    }
+   },
+   "mirror_test|cnn_test": {
+    "key": {
+     "n_shared": 2091,
+     "rows_a": 2091,
+     "rows_b": 2091
+    },
+    "hash": {
+     "n_shared": 2091,
+     "rows_a": 2091,
+     "rows_b": 2091
+    },
+    "subject": {
+     "n_shared": 30,
+     "rows_a": 2408,
+     "rows_b": 2091
+    },
+    "video": {
+     "n_shared": 360,
+     "rows_a": 2408,
+     "rows_b": 2091
+    }
+   },
+   "mirror_test|pooled_train": {
+    "key": {
+     "n_shared": 1519,
+     "rows_a": 1519,
+     "rows_b": 1519
+    },
+    "hash": {
+     "n_shared": 1519,
+     "rows_a": 1519,
+     "rows_b": 1519
+    },
+    "subject": {
+     "n_shared": 30,
+     "rows_a": 2408,
+     "rows_b": 1519
+    },
+    "video": {
+     "n_shared": 358,
+     "rows_a": 2398,
+     "rows_b": 1519
+    }
+   },
+   "mirror_test|pooled_es": {
+    "key": {
+     "n_shared": 146,
+     "rows_a": 146,
+     "rows_b": 146
+    },
+    "hash": {
+     "n_shared": 146,
+     "rows_a": 146,
+     "rows_b": 146
+    },
+    "subject": {
+     "n_shared": 30,
+     "rows_a": 2408,
+     "rows_b": 146
+    },
+    "video": {
+     "n_shared": 125,
+     "rows_a": 913,
+     "rows_b": 146
+    }
+   },
+   "mirror_test|pooled_test": {
+    "key": {
+     "n_shared": 426,
+     "rows_a": 426,
+     "rows_b": 426
+    },
+    "hash": {
+     "n_shared": 426,
+     "rows_a": 426,
+     "rows_b": 426
+    },
+    "subject": {
+     "n_shared": 30,
+     "rows_a": 2408,
+     "rows_b": 426
+    },
+    "video": {
+     "n_shared": 262,
+     "rows_a": 1857,
+     "rows_b": 426
+    }
+   },
+   "prepared_training|prepared_validation": {
+    "key": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "hash": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "subject": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "video": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    }
+   },
+   "prepared_training|eval": {
+    "key": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "hash": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "subject": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "video": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    }
+   },
+   "prepared_training|cnn_train": {
+    "key": {
+     "n_shared": 1339,
+     "rows_a": 1339,
+     "rows_b": 1339
+    },
+    "hash": {
+     "n_shared": 1339,
+     "rows_a": 1339,
+     "rows_b": 1339
+    },
+    "subject": {
+     "n_shared": 16,
+     "rows_a": 1339,
+     "rows_b": 1339
+    },
+    "video": {
+     "n_shared": 192,
+     "rows_a": 1339,
+     "rows_b": 1339
+    }
+   },
+   "prepared_training|cnn_es": {
+    "key": {
+     "n_shared": 316,
+     "rows_a": 316,
+     "rows_b": 316
+    },
+    "hash": {
+     "n_shared": 316,
+     "rows_a": 316,
+     "rows_b": 316
+    },
+    "subject": {
+     "n_shared": 4,
+     "rows_a": 316,
+     "rows_b": 316
+    },
+    "video": {
+     "n_shared": 48,
+     "rows_a": 316,
+     "rows_b": 316
+    }
+   },
+   "prepared_training|cnn_test": {
+    "key": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "hash": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "subject": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "video": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    }
+   },
+   "prepared_training|pooled_train": {
+    "key": {
+     "n_shared": 1177,
+     "rows_a": 1177,
+     "rows_b": 1177
+    },
+    "hash": {
+     "n_shared": 1177,
+     "rows_a": 1177,
+     "rows_b": 1177
+    },
+    "subject": {
+     "n_shared": 20,
+     "rows_a": 1655,
+     "rows_b": 1177
+    },
+    "video": {
+     "n_shared": 240,
+     "rows_a": 1655,
+     "rows_b": 1177
+    }
+   },
+   "prepared_training|pooled_es": {
+    "key": {
+     "n_shared": 154,
+     "rows_a": 154,
+     "rows_b": 154
+    },
+    "hash": {
+     "n_shared": 154,
+     "rows_a": 154,
+     "rows_b": 154
+    },
+    "subject": {
+     "n_shared": 20,
+     "rows_a": 1655,
+     "rows_b": 154
+    },
+    "video": {
+     "n_shared": 115,
+     "rows_a": 857,
+     "rows_b": 154
+    }
+   },
+   "prepared_training|pooled_test": {
+    "key": {
+     "n_shared": 324,
+     "rows_a": 324,
+     "rows_b": 324
+    },
+    "hash": {
+     "n_shared": 324,
+     "rows_a": 324,
+     "rows_b": 324
+    },
+    "subject": {
+     "n_shared": 20,
+     "rows_a": 1655,
+     "rows_b": 324
+    },
+    "video": {
+     "n_shared": 183,
+     "rows_a": 1316,
+     "rows_b": 324
+    }
+   },
+   "prepared_validation|eval": {
+    "key": {
+     "n_shared": 300,
+     "rows_a": 300,
+     "rows_b": 300
+    },
+    "hash": {
+     "n_shared": 300,
+     "rows_a": 300,
+     "rows_b": 300
+    },
+    "subject": {
+     "n_shared": 30,
+     "rows_a": 2408,
+     "rows_b": 300
+    },
+    "video": {
+     "n_shared": 239,
+     "rows_a": 1687,
+     "rows_b": 300
+    }
+   },
+   "prepared_validation|cnn_train": {
+    "key": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "hash": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "subject": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "video": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    }
+   },
+   "prepared_validation|cnn_es": {
+    "key": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "hash": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "subject": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "video": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    }
+   },
+   "prepared_validation|cnn_test": {
+    "key": {
+     "n_shared": 2091,
+     "rows_a": 2091,
+     "rows_b": 2091
+    },
+    "hash": {
+     "n_shared": 2091,
+     "rows_a": 2091,
+     "rows_b": 2091
+    },
+    "subject": {
+     "n_shared": 30,
+     "rows_a": 2408,
+     "rows_b": 2091
+    },
+    "video": {
+     "n_shared": 360,
+     "rows_a": 2408,
+     "rows_b": 2091
+    }
+   },
+   "prepared_validation|pooled_train": {
+    "key": {
+     "n_shared": 1519,
+     "rows_a": 1519,
+     "rows_b": 1519
+    },
+    "hash": {
+     "n_shared": 1519,
+     "rows_a": 1519,
+     "rows_b": 1519
+    },
+    "subject": {
+     "n_shared": 30,
+     "rows_a": 2408,
+     "rows_b": 1519
+    },
+    "video": {
+     "n_shared": 358,
+     "rows_a": 2398,
+     "rows_b": 1519
+    }
+   },
+   "prepared_validation|pooled_es": {
+    "key": {
+     "n_shared": 146,
+     "rows_a": 146,
+     "rows_b": 146
+    },
+    "hash": {
+     "n_shared": 146,
+     "rows_a": 146,
+     "rows_b": 146
+    },
+    "subject": {
+     "n_shared": 30,
+     "rows_a": 2408,
+     "rows_b": 146
+    },
+    "video": {
+     "n_shared": 125,
+     "rows_a": 913,
+     "rows_b": 146
+    }
+   },
+   "prepared_validation|pooled_test": {
+    "key": {
+     "n_shared": 426,
+     "rows_a": 426,
+     "rows_b": 426
+    },
+    "hash": {
+     "n_shared": 426,
+     "rows_a": 426,
+     "rows_b": 426
+    },
+    "subject": {
+     "n_shared": 30,
+     "rows_a": 2408,
+     "rows_b": 426
+    },
+    "video": {
+     "n_shared": 262,
+     "rows_a": 1857,
+     "rows_b": 426
+    }
+   },
+   "eval|cnn_train": {
+    "key": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "hash": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "subject": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "video": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    }
+   },
+   "eval|cnn_es": {
+    "key": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "hash": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "subject": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "video": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    }
+   },
+   "eval|cnn_test": {
+    "key": {
+     "n_shared": 300,
+     "rows_a": 300,
+     "rows_b": 300
+    },
+    "hash": {
+     "n_shared": 300,
+     "rows_a": 300,
+     "rows_b": 300
+    },
+    "subject": {
+     "n_shared": 30,
+     "rows_a": 300,
+     "rows_b": 2091
+    },
+    "video": {
+     "n_shared": 239,
+     "rows_a": 300,
+     "rows_b": 1499
+    }
+   },
+   "eval|pooled_train": {
+    "key": {
+     "n_shared": 217,
+     "rows_a": 217,
+     "rows_b": 217
+    },
+    "hash": {
+     "n_shared": 217,
+     "rows_a": 217,
+     "rows_b": 217
+    },
+    "subject": {
+     "n_shared": 30,
+     "rows_a": 300,
+     "rows_b": 1519
+    },
+    "video": {
+     "n_shared": 238,
+     "rows_a": 299,
+     "rows_b": 1086
+    }
+   },
+   "eval|pooled_es": {
+    "key": {
+     "n_shared": 18,
+     "rows_a": 18,
+     "rows_b": 18
+    },
+    "hash": {
+     "n_shared": 18,
+     "rows_a": 18,
+     "rows_b": 18
+    },
+    "subject": {
+     "n_shared": 30,
+     "rows_a": 300,
+     "rows_b": 146
+    },
+    "video": {
+     "n_shared": 86,
+     "rows_a": 119,
+     "rows_b": 101
+    }
+   },
+   "eval|pooled_test": {
+    "key": {
+     "n_shared": 65,
+     "rows_a": 65,
+     "rows_b": 65
+    },
+    "hash": {
+     "n_shared": 65,
+     "rows_a": 65,
+     "rows_b": 65
+    },
+    "subject": {
+     "n_shared": 30,
+     "rows_a": 300,
+     "rows_b": 426
+    },
+    "video": {
+     "n_shared": 183,
+     "rows_a": 231,
+     "rows_b": 312
+    }
+   },
+   "cnn_train|cnn_es": {
+    "key": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "hash": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "subject": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "video": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    }
+   },
+   "cnn_train|cnn_test": {
+    "key": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "hash": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "subject": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "video": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    }
+   },
+   "cnn_train|pooled_train": {
+    "key": {
+     "n_shared": 947,
+     "rows_a": 947,
+     "rows_b": 947
+    },
+    "hash": {
+     "n_shared": 947,
+     "rows_a": 947,
+     "rows_b": 947
+    },
+    "subject": {
+     "n_shared": 16,
+     "rows_a": 1339,
+     "rows_b": 947
+    },
+    "video": {
+     "n_shared": 192,
+     "rows_a": 1339,
+     "rows_b": 947
+    }
+   },
+   "cnn_train|pooled_es": {
+    "key": {
+     "n_shared": 126,
+     "rows_a": 126,
+     "rows_b": 126
+    },
+    "hash": {
+     "n_shared": 126,
+     "rows_a": 126,
+     "rows_b": 126
+    },
+    "subject": {
+     "n_shared": 16,
+     "rows_a": 1339,
+     "rows_b": 126
+    },
+    "video": {
+     "n_shared": 93,
+     "rows_a": 697,
+     "rows_b": 126
+    }
+   },
+   "cnn_train|pooled_test": {
+    "key": {
+     "n_shared": 266,
+     "rows_a": 266,
+     "rows_b": 266
+    },
+    "hash": {
+     "n_shared": 266,
+     "rows_a": 266,
+     "rows_b": 266
+    },
+    "subject": {
+     "n_shared": 16,
+     "rows_a": 1339,
+     "rows_b": 266
+    },
+    "video": {
+     "n_shared": 148,
+     "rows_a": 1081,
+     "rows_b": 266
+    }
+   },
+   "cnn_es|cnn_test": {
+    "key": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "hash": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "subject": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "video": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    }
+   },
+   "cnn_es|pooled_train": {
+    "key": {
+     "n_shared": 230,
+     "rows_a": 230,
+     "rows_b": 230
+    },
+    "hash": {
+     "n_shared": 230,
+     "rows_a": 230,
+     "rows_b": 230
+    },
+    "subject": {
+     "n_shared": 4,
+     "rows_a": 316,
+     "rows_b": 230
+    },
+    "video": {
+     "n_shared": 48,
+     "rows_a": 316,
+     "rows_b": 230
+    }
+   },
+   "cnn_es|pooled_es": {
+    "key": {
+     "n_shared": 28,
+     "rows_a": 28,
+     "rows_b": 28
+    },
+    "hash": {
+     "n_shared": 28,
+     "rows_a": 28,
+     "rows_b": 28
+    },
+    "subject": {
+     "n_shared": 4,
+     "rows_a": 316,
+     "rows_b": 28
+    },
+    "video": {
+     "n_shared": 22,
+     "rows_a": 160,
+     "rows_b": 28
+    }
+   },
+   "cnn_es|pooled_test": {
+    "key": {
+     "n_shared": 58,
+     "rows_a": 58,
+     "rows_b": 58
+    },
+    "hash": {
+     "n_shared": 58,
+     "rows_a": 58,
+     "rows_b": 58
+    },
+    "subject": {
+     "n_shared": 4,
+     "rows_a": 316,
+     "rows_b": 58
+    },
+    "video": {
+     "n_shared": 35,
+     "rows_a": 235,
+     "rows_b": 58
+    }
+   },
+   "cnn_test|pooled_train": {
+    "key": {
+     "n_shared": 1519,
+     "rows_a": 1519,
+     "rows_b": 1519
+    },
+    "hash": {
+     "n_shared": 1519,
+     "rows_a": 1519,
+     "rows_b": 1519
+    },
+    "subject": {
+     "n_shared": 30,
+     "rows_a": 2091,
+     "rows_b": 1519
+    },
+    "video": {
+     "n_shared": 358,
+     "rows_a": 2082,
+     "rows_b": 1519
+    }
+   },
+   "cnn_test|pooled_es": {
+    "key": {
+     "n_shared": 146,
+     "rows_a": 146,
+     "rows_b": 146
+    },
+    "hash": {
+     "n_shared": 146,
+     "rows_a": 146,
+     "rows_b": 146
+    },
+    "subject": {
+     "n_shared": 30,
+     "rows_a": 2091,
+     "rows_b": 146
+    },
+    "video": {
+     "n_shared": 125,
+     "rows_a": 804,
+     "rows_b": 146
+    }
+   },
+   "cnn_test|pooled_test": {
+    "key": {
+     "n_shared": 426,
+     "rows_a": 426,
+     "rows_b": 426
+    },
+    "hash": {
+     "n_shared": 426,
+     "rows_a": 426,
+     "rows_b": 426
+    },
+    "subject": {
+     "n_shared": 30,
+     "rows_a": 2091,
+     "rows_b": 426
+    },
+    "video": {
+     "n_shared": 262,
+     "rows_a": 1613,
+     "rows_b": 426
+    }
+   },
+   "pooled_train|pooled_es": {
+    "key": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "hash": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "subject": {
+     "n_shared": 50,
+     "rows_a": 2696,
+     "rows_b": 300
+    },
+    "video": {
+     "n_shared": 239,
+     "rows_a": 1044,
+     "rows_b": 299
+    }
+   },
+   "pooled_train|pooled_test": {
+    "key": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "hash": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "subject": {
+     "n_shared": 50,
+     "rows_a": 2696,
+     "rows_b": 750
+    },
+    "video": {
+     "n_shared": 443,
+     "rows_a": 1954,
+     "rows_b": 742
+    }
+   },
+   "pooled_es|pooled_test": {
+    "key": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "hash": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "subject": {
+     "n_shared": 50,
+     "rows_a": 300,
+     "rows_b": 750
+    },
+    "video": {
+     "n_shared": 181,
+     "rows_a": 225,
+     "rows_b": 317
+    }
+   }
+  }
+ },
+ "n_must_failed": 0,
+ "n_reported": 1,
+ "n_not_checkable": 1,
+ "passed": true,
+ "note": "public version: counts and verdicts only, no keys, no subject or video identifiers",
+ "commit": "532731eda25dd58939a1f969d15a92c7804d304e",
+ "dirty": false,
+ "checked": "2026-10-08T17:58:31+0200"
+}
