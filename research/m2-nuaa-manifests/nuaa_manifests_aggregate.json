@@ -1,0 +1,1400 @@
+{
+ "schema": "nuaa-m2/1",
+ "source": {
+  "dataset": "NUAA Photograph Imposter Database (Tan, Li, Liu, Jiang, ECCV 2010)",
+  "mirror": "Hugging Face dataset akahana/anti-spoofing-nuaaaa",
+  "revision": "6dd1ec237710732f92e73ca7653e695fd47c7a86",
+  "archive": "nuaaaa.tar.gz",
+  "archive_sha256": "c0780c6f1e581b720eb3c48faaeef7713748b174233d3fcafa8da716b5c81a3e",
+  "archive_sha256_equals_hf_etag": true,
+  "official_readme_in_mirror": false,
+  "source_declarations": {
+   "Original source": "NUAA Photograph Imposter Database, Nanjing University of Aeronautics and Astronautics; reference publication: X. Tan, Y. Li, J. Liu, L. Jiang, \"Face Liveness Detection from a Single Image with Sparse Low Rank Bilinear Discriminative Model\", ECCV 2010.",
+   "Documented": "the field order `ID_glasses_pos_session_picNo`, from the README of the original release as reported by the coordinator on the M2 task card (3 October 2026); that README is not in the mirror and was not available to us.",
+   "Verified in the mirror": "the structure of the names (five numeric fields), that ID equals the subject folder, and that the session field separates the splits (01\u201302 train, 03 test).",
+   "Not verified": "the meaning of the glasses and pos codes, carried as opaque two-digit codes.",
+   "Split lists": "the mirror's lists carry the path prefix `/kaggle/input/nuaaaa/raw/`, added by the mirror author: they are the mirror's version of the official lists. Only file names are compared. We did not verify their equivalence with the lists of the original release; the coordinator rebuilt the 300 C1 images from the official source with identical hashes (M1 card, 2 October 2026). `build` accepts only the mirror's list format.",
+   "Subjects": "the 4-digit IDs of the official folders and file names. No identity is inferred from image content or from groups of images. Treating the same ID in ClientRaw and ImposterRaw as the same person follows the naming of the release and is not verified on the images."
+  },
+  "naming_schema": "delivery/m2/naming_schema.md (field order from the M2 task card, 3 October 2026; the README of the original release was not available)"
+ },
+ "official_lists": {
+  "client_train_raw.txt": {
+   "sha256": "281ba6da0213acd7d78d5ae5b82c0e4e71867ca8394472f6b9b88b7944ac8535",
+   "n_entries": 1743,
+   "split": "train",
+   "label": 0,
+   "prepared_folder": "bonafide_training",
+   "n_prepared": 1743,
+   "equal_to_prepared_folder": true
+  },
+  "imposter_train_raw.txt": {
+   "sha256": "66e63279e0f52e8f4e7b6a64ed2a53ebe20f7678ac5ea432561500f137ea1743",
+   "n_entries": 1748,
+   "split": "train",
+   "label": 1,
+   "prepared_folder": "attack_training",
+   "n_prepared": 1748,
+   "equal_to_prepared_folder": true
+  },
+  "client_test_raw.txt": {
+   "sha256": "0becf410835ffcc4488dd09a45fb21e680180df29c3437e0c0ed6ffdb97d7f95",
+   "n_entries": 3362,
+   "split": "test",
+   "label": 0,
+   "prepared_folder": "bonafide_validation",
+   "n_prepared": 3362,
+   "equal_to_prepared_folder": true
+  },
+  "imposter_test_raw.txt": {
+   "sha256": "8954b9fd75f535d8241ef2134565a055dfa9909fbbff914c988f6db3ea85659e",
+   "n_entries": 5761,
+   "split": "test",
+   "label": 1,
+   "prepared_folder": "attack_validation",
+   "n_prepared": 5761,
+   "equal_to_prepared_folder": true
+  }
+ },
+ "prepared_vs_archive": {
+  "hard_linked": 12614,
+  "identical_by_hash": 0,
+  "different": 0,
+  "raw_missing": 0
+ },
+ "reconstruction": {
+  "function": "scripts/select_threshold.py reconstruct_split / check_reconstruction (copies of scripts/train_cnn.py build_arrays and train)",
+  "sampling": "spread(sorted file list, 1500) per class, bona fide first",
+  "split": "GroupShuffleSplit(n_splits=1, test_size=0.2, random_state=42) on the subject prefix",
+  "n_sampled": 3000,
+  "n_train": 2507,
+  "n_val": 493,
+  "matches_checkpoint_cards": true,
+  "training_cache": {
+   "file": "data/processed/nuaa_1500.npz",
+   "present": true,
+   "members": [
+    "X_test",
+    "X_train",
+    "s_test",
+    "s_train",
+    "y_test",
+    "y_train"
+   ],
+   "matches_training_cache_groups": true,
+   "matches_test_cache_groups": true,
+   "n_train": 3000,
+   "n_test": 3000,
+   "sha256": "dc286dc371e61d638da1842c062a38c5368a9ec4da07ccbc36b7fff6f3177920",
+   "file_times": {
+    "created": "2026-09-12 12:19:40",
+    "modified": "2026-09-12 12:20:32",
+    "note": "file-system times of the local copy (metadata, not evidence)"
+   },
+   "linkage": "by subject and label arrays in sampling order (group counts and order), not by per-image path or hash: the cache stores preprocessed arrays and subject prefixes only",
+   "derived_frames": {
+    "hash": "SHA-256 of each preprocessed frame as stored in the cache (dtype, shape, C-order bytes)",
+    "train": {
+     "n_frames": 3000,
+     "shape": [
+      3000,
+      256,
+      256,
+      3
+     ],
+     "distinct": 3000,
+     "duplicated_values": 0,
+     "duplicated_rows": 0
+    },
+    "test": {
+     "n_frames": 3000,
+     "shape": [
+      3000,
+      256,
+      256,
+      3
+     ],
+     "distinct": 3000,
+     "duplicated_values": 0,
+     "duplicated_rows": 0
+    },
+    "train_test_shared": 0,
+    "fit_vs_validation_shared": 0,
+    "linkage": "frames are linked to the image files by sampling order, subject and label arrays (s_*, y_*), not by per-image path or hash: the cache stores no file names"
+   }
+  },
+  "validation_pair_uniqueness": {
+   "n_training_subjects": 9,
+   "n_held_out_subjects": 2,
+   "n_pairs": 36,
+   "n_pairs_with_card_n_val": 1,
+   "unique_pair_is_the_reconstructed_one": true,
+   "note": "independently of the scikit-learn version, only one pair of training subjects gives the validation count of the cards"
+  },
+  "original_file_list_recorded": false,
+  "note": "the training run did not save its file list; the list is rebuilt from the sorted directory listing and verified against the card counts and the subject/label arrays of the training cache"
+ },
+ "checkpoints": {
+  "LivenessNet": {
+   "card": "LivenessNet__nuaa.json",
+   "weights_file": "LivenessNet__nuaa.h5",
+   "weights_sha256": "d861c5969f24376aff5aaac30c2b2b8793e0cd142dd016756dc82f188ccd99a5",
+   "weights_sha256_verified": true,
+   "c1_config_sha256_equal": true,
+   "keras_copy": {
+    "file": "LivenessNet__nuaa.keras",
+    "sha256": "5d503ea2acf76a0f64578df420063db8470be5810a41e586219cdce249427606"
+   },
+   "protocol": "official",
+   "val_split": "by subject",
+   "val_split_note": "English translation of the value recorded in the card",
+   "saved": "2026-09-12 12:31",
+   "epochs_run": 12,
+   "early_stopping_fired": false,
+   "weights_epoch": "last epoch (epoch limit 12 reached, C1 checkpoints/PROVENANCE.md)",
+   "card_counts": {
+    "n_train": 2507,
+    "n_val": 493,
+    "n_test": 3000
+   },
+   "card_test_by_class": {
+    "n_bona_fide": 1500,
+    "n_attack": 1500
+   },
+   "manifests": {
+    "n_train": "cnn_train",
+    "n_val": "cnn_es",
+    "n_test": "cnn_test"
+   },
+   "counts_match_manifests": true
+  },
+  "AttackNetV1": {
+   "card": "AttackNetV1__nuaa.json",
+   "weights_file": "AttackNetV1__nuaa.h5",
+   "weights_sha256": "0cbc46cc56ba76931324ad252177a4912aad3044780fa7dd847c609b5098f12f",
+   "weights_sha256_verified": true,
+   "c1_config_sha256_equal": true,
+   "keras_copy": {
+    "file": "AttackNetV1__nuaa.keras",
+    "sha256": "6a43c9328a5f232d272c1e9cfb75c4927596edc9355d83e1cb83111eaa647332"
+   },
+   "protocol": "official",
+   "val_split": "by subject",
+   "val_split_note": "English translation of the value recorded in the card",
+   "saved": "2026-09-12 17:49",
+   "epochs_run": 11,
+   "early_stopping_fired": true,
+   "weights_epoch": "best val_loss epoch (early stopping fired, restore_best_weights)",
+   "card_counts": {
+    "n_train": 2507,
+    "n_val": 493,
+    "n_test": 3000
+   },
+   "card_test_by_class": {
+    "n_bona_fide": 1500,
+    "n_attack": 1500
+   },
+   "manifests": {
+    "n_train": "cnn_train",
+    "n_val": "cnn_es",
+    "n_test": "cnn_test"
+   },
+   "counts_match_manifests": true
+  },
+  "AttackNetV2_1": {
+   "card": "AttackNetV2_1__nuaa.json",
+   "weights_file": "AttackNetV2_1__nuaa.h5",
+   "weights_sha256": "67d9138d6c43e33164d4510b4b34868c2fdc0a637f27664816c388c4e059f8dc",
+   "weights_sha256_verified": true,
+   "c1_config_sha256_equal": true,
+   "keras_copy": {
+    "file": "AttackNetV2_1__nuaa.keras",
+    "sha256": "e5fab6b978b15801e256fbb40b09d12f7d4f6d6433cfa7222ea3f3552b3dec2a"
+   },
+   "protocol": "official",
+   "val_split": "by subject",
+   "val_split_note": "English translation of the value recorded in the card",
+   "saved": "2026-09-12 17:57",
+   "epochs_run": 7,
+   "early_stopping_fired": true,
+   "weights_epoch": "best val_loss epoch (early stopping fired, restore_best_weights)",
+   "card_counts": {
+    "n_train": 2507,
+    "n_val": 493,
+    "n_test": 3000
+   },
+   "card_test_by_class": {
+    "n_bona_fide": 1500,
+    "n_attack": 1500
+   },
+   "manifests": {
+    "n_train": "cnn_train",
+    "n_val": "cnn_es",
+    "n_test": "cnn_test"
+   },
+   "counts_match_manifests": true
+  },
+  "AttackNetV2_2": {
+   "card": "AttackNetV2_2__nuaa.json",
+   "weights_file": "AttackNetV2_2__nuaa.h5",
+   "weights_sha256": "0258b72597a205017bf1654755550fea3830cc2556649a52f56161e11b2d29d2",
+   "weights_sha256_verified": true,
+   "c1_config_sha256_equal": true,
+   "keras_copy": {
+    "file": "AttackNetV2_2__nuaa.keras",
+    "sha256": "1b4c66dfc710b57eb74bd69d1b9f8eee0f7094a94c4a93a91f2f4289f5fcda3f"
+   },
+   "protocol": "official",
+   "val_split": "by subject",
+   "val_split_note": "English translation of the value recorded in the card",
+   "saved": "2026-09-12 12:43",
+   "epochs_run": 7,
+   "early_stopping_fired": true,
+   "weights_epoch": "best val_loss epoch (early stopping fired, restore_best_weights)",
+   "card_counts": {
+    "n_train": 2507,
+    "n_val": 493,
+    "n_test": 3000
+   },
+   "card_test_by_class": {
+    "n_bona_fide": 1500,
+    "n_attack": 1500
+   },
+   "manifests": {
+    "n_train": "cnn_train",
+    "n_val": "cnn_es",
+    "n_test": "cnn_test"
+   },
+   "counts_match_manifests": true
+  }
+ },
+ "c1_correction": {
+  "v1": {
+   "file": "results/c1/nuaa_manifest.csv",
+   "sha256": "86095da1531b1f24b1233c9668ac1ab37714978e444b313456732c028ccfb40c",
+   "frozen": true,
+   "registered_sha256_at_c1_delivery": "86095da1531b1f24b1233c9668ac1ab37714978e444b313456732c028ccfb40c",
+   "session_column": "3rd field of the file name on disk, i.e. the glasses field (2nd field of the original name), parsed by make_c1_manifest.py with ^(\\d{4})_\\d{4}_(\\d{2})_",
+   "session_values": {
+    "00": 62,
+    "01": 238
+   }
+  },
+  "n": 300,
+  "v1_session_equals_glasses": 300,
+  "v1_session_equals_official_session": 0,
+  "official_session_values": {
+   "03": 300
+  },
+  "equals_sampling_rule": true,
+  "eval_folder_mismatches": 0,
+  "n_from_dev_subjects": 22,
+  "n_from_dev_subjects_by_class": {
+   "attack": 22
+  },
+  "sessions_from_dev_subjects": [
+   "03"
+  ]
+ },
+ "m1_dev_cross_check": {
+  "file": "results/m1/nuaa_dev_manifest.csv",
+  "present": true,
+  "sha256": "d4637ea67f30da2bb0e6ddcdec688c97aa3833c41709417ac3e93ee00b6fa938",
+  "same_keys": true,
+  "same_hashes": true,
+  "in_training_sample_equals_early_stopping": true
+ },
+ "declarations": {
+  "early_stopping_reuse": "493 of the 574 M1 dev images are the validation images (`cnn_es`) of the four CNNs",
+  "validation_use": "Validation images (`cnn_es`, 493): never used for gradient updates; their `val_loss` controlled early stopping (patience 4, best weights restored), hence which epoch's weights were saved, and the learning-rate reduction (ReduceLROnPlateau, factor 0.5, patience 2)",
+  "validation_use_source": "scripts/train_cnn.py (train: callbacks EarlyStopping and ReduceLROnPlateau on val_loss); research/c1-livenesslab/checkpoints/PROVENANCE.md (the 12/09 weights come from an earlier version of the script with the same hyper-parameters; it restored the best weights only when early stopping fired)",
+  "c1_from_dev_subjects": "22 C1 test images come from the two validation subjects of the CNN training (session 03; the dev images of those subjects are sessions 01/02)"
+ },
+ "checks": {
+  "archive_present": true,
+  "archive_matches_hf_metadata": true,
+  "list_equals_folder:client_train_raw.txt": true,
+  "list_equals_folder:imposter_train_raw.txt": true,
+  "list_equals_folder:client_test_raw.txt": true,
+  "list_equals_folder:imposter_test_raw.txt": true,
+  "prepared_images_equal_archive_files": true,
+  "official_train_count": true,
+  "official_test_count": true,
+  "training_cache_groups": true,
+  "test_cache_groups": true,
+  "derived_frames_no_duplicates": true,
+  "m1_dev_manifest_consistent": true,
+  "c1_v1_is_delivered_manifest": true,
+  "c1_v1_rows_valid": true,
+  "c1_rows_match_official_test_images": true,
+  "c1_equals_sampling_rule": true,
+  "c1_eval_folder_matches": true,
+  "all_keys_in_official_lists": true,
+  "manifests_equal_declared_in_rules": true,
+  "weights_sha256:LivenessNet": true,
+  "card_counts:LivenessNet": true,
+  "protocol_official:LivenessNet": true,
+  "c1_config_checkpoint:LivenessNet": true,
+  "weights_sha256:AttackNetV1": true,
+  "card_counts:AttackNetV1": true,
+  "protocol_official:AttackNetV1": true,
+  "c1_config_checkpoint:AttackNetV1": true,
+  "weights_sha256:AttackNetV2_1": true,
+  "card_counts:AttackNetV2_1": true,
+  "protocol_official:AttackNetV2_1": true,
+  "c1_config_checkpoint:AttackNetV2_1": true,
+  "weights_sha256:AttackNetV2_2": true,
+  "card_counts:AttackNetV2_2": true,
+  "protocol_official:AttackNetV2_2": true,
+  "c1_config_checkpoint:AttackNetV2_2": true,
+  "unique_validation_pair": true
+ },
+ "passed": true,
+ "problems": [],
+ "commit": "2a24188ec31d508328ad7e703f7a937e1522fb97",
+ "dirty": false,
+ "created": "2026-10-08T09:19:31+0200",
+ "manifests": {
+  "official_train": {
+   "file": "manifests/nuaa_official_train.csv",
+   "description": "official training split (all images of the client/imposter train lists)",
+   "sha256": "2a7e8906f98b8e3cf0c42cd0a2cf10e15868750b1ac82e85b62a9e0b59aad648",
+   "n": 3491,
+   "n_bona_fide": 1743,
+   "n_attack": 1748,
+   "n_subjects": 9,
+   "n_subjects_bona_fide": 9,
+   "n_subjects_attack": 9,
+   "by_session": {
+    "01": {
+     "bona_fide": 889,
+     "attack": 855
+    },
+    "02": {
+     "bona_fide": 854,
+     "attack": 893
+    }
+   },
+   "by_glasses": {
+    "00": {
+     "bona_fide": 908,
+     "attack": 765
+    },
+    "01": {
+     "bona_fide": 835,
+     "attack": 983
+    }
+   },
+   "by_pos": {
+    "00": {
+     "bona_fide": 1743,
+     "attack": 855
+    },
+    "01": {
+     "bona_fide": 0,
+     "attack": 223
+    },
+    "02": {
+     "bona_fide": 0,
+     "attack": 223
+    },
+    "03": {
+     "bona_fide": 0,
+     "attack": 223
+    },
+    "04": {
+     "bona_fide": 0,
+     "attack": 224
+    }
+   }
+  },
+  "official_test": {
+   "file": "manifests/nuaa_official_test.csv",
+   "description": "official test split (all images of the client/imposter test lists)",
+   "sha256": "2fad23ff295cb2c1d3d0be238deef02faad252aa717933c30588bd5a9c4106c7",
+   "n": 9123,
+   "n_bona_fide": 3362,
+   "n_attack": 5761,
+   "n_subjects": 16,
+   "n_subjects_bona_fide": 9,
+   "n_subjects_attack": 15,
+   "by_session": {
+    "03": {
+     "bona_fide": 3362,
+     "attack": 5761
+    }
+   },
+   "by_glasses": {
+    "00": {
+     "bona_fide": 492,
+     "attack": 1501
+    },
+    "01": {
+     "bona_fide": 2870,
+     "attack": 4260
+    }
+   },
+   "by_pos": {
+    "01": {
+     "bona_fide": 0,
+     "attack": 1216
+    },
+    "02": {
+     "bona_fide": 0,
+     "attack": 1022
+    },
+    "03": {
+     "bona_fide": 0,
+     "attack": 1167
+    },
+    "04": {
+     "bona_fide": 0,
+     "attack": 1152
+    },
+    "05": {
+     "bona_fide": 624,
+     "attack": 0
+    },
+    "06": {
+     "bona_fide": 1422,
+     "attack": 0
+    },
+    "07": {
+     "bona_fide": 1316,
+     "attack": 0
+    },
+    "08": {
+     "bona_fide": 0,
+     "attack": 1204
+    }
+   }
+  },
+  "cnn_train": {
+   "file": "manifests/nuaa_cnn_train.csv",
+   "description": "images that fitted the weights of the four NUAA official CNNs",
+   "sha256": "6d46ec7da7bfc32b1cce9ed3e331f8ed4377e5fc2df31e1b77ac7f6a0c2bc33c",
+   "n": 2507,
+   "n_bona_fide": 1345,
+   "n_attack": 1162,
+   "n_subjects": 7,
+   "n_subjects_bona_fide": 7,
+   "n_subjects_attack": 7,
+   "by_session": {
+    "01": {
+     "bona_fide": 717,
+     "attack": 568
+    },
+    "02": {
+     "bona_fide": 628,
+     "attack": 594
+    }
+   },
+   "by_glasses": {
+    "00": {
+     "bona_fide": 677,
+     "attack": 491
+    },
+    "01": {
+     "bona_fide": 668,
+     "attack": 671
+    }
+   },
+   "by_pos": {
+    "00": {
+     "bona_fide": 1345,
+     "attack": 568
+    },
+    "01": {
+     "bona_fide": 0,
+     "attack": 148
+    },
+    "02": {
+     "bona_fide": 0,
+     "attack": 148
+    },
+    "03": {
+     "bona_fide": 0,
+     "attack": 149
+    },
+    "04": {
+     "bona_fide": 0,
+     "attack": 149
+    }
+   }
+  },
+  "cnn_es": {
+   "file": "manifests/nuaa_cnn_early_stopping.csv",
+   "description": "validation images of the four NUAA official CNNs (early stopping, best-epoch selection and learning-rate reduction on val_loss)",
+   "sha256": "17282be8ef300e5e178ae87cd137ffd875786f1b353924e7cfb6eb14db1584c1",
+   "n": 493,
+   "n_bona_fide": 155,
+   "n_attack": 338,
+   "n_subjects": 2,
+   "n_subjects_bona_fide": 2,
+   "n_subjects_attack": 2,
+   "by_session": {
+    "01": {
+     "bona_fide": 49,
+     "attack": 166
+    },
+    "02": {
+     "bona_fide": 106,
+     "attack": 172
+    }
+   },
+   "by_glasses": {
+    "00": {
+     "bona_fide": 106,
+     "attack": 166
+    },
+    "01": {
+     "bona_fide": 49,
+     "attack": 172
+    }
+   },
+   "by_pos": {
+    "00": {
+     "bona_fide": 155,
+     "attack": 166
+    },
+    "01": {
+     "bona_fide": 0,
+     "attack": 43
+    },
+    "02": {
+     "bona_fide": 0,
+     "attack": 43
+    },
+    "03": {
+     "bona_fide": 0,
+     "attack": 43
+    },
+    "04": {
+     "bona_fide": 0,
+     "attack": 43
+    }
+   }
+  },
+  "cnn_test": {
+   "file": "manifests/nuaa_cnn_test.csv",
+   "description": "test images of the checkpoint cards (spread(..., 1500) per class of the official test split)",
+   "sha256": "ce9669dccae37041e778ff7bcba5f4cef08fa79f50d65be84806b084c5d95748",
+   "n": 3000,
+   "n_bona_fide": 1500,
+   "n_attack": 1500,
+   "n_subjects": 16,
+   "n_subjects_bona_fide": 9,
+   "n_subjects_attack": 15,
+   "by_session": {
+    "03": {
+     "bona_fide": 1500,
+     "attack": 1500
+    }
+   },
+   "by_glasses": {
+    "00": {
+     "bona_fide": 219,
+     "attack": 392
+    },
+    "01": {
+     "bona_fide": 1281,
+     "attack": 1108
+    }
+   },
+   "by_pos": {
+    "01": {
+     "bona_fide": 0,
+     "attack": 317
+    },
+    "02": {
+     "bona_fide": 0,
+     "attack": 266
+    },
+    "03": {
+     "bona_fide": 0,
+     "attack": 304
+    },
+    "04": {
+     "bona_fide": 0,
+     "attack": 299
+    },
+    "05": {
+     "bona_fide": 278,
+     "attack": 0
+    },
+    "06": {
+     "bona_fide": 635,
+     "attack": 0
+    },
+    "07": {
+     "bona_fide": 587,
+     "attack": 0
+    },
+    "08": {
+     "bona_fide": 0,
+     "attack": 314
+    }
+   }
+  },
+  "m1_dev": {
+   "file": "manifests/nuaa_m1_dev.csv",
+   "description": "M1 source-dev set: all official training images of the two validation subjects of the CNN training",
+   "sha256": "1e4e49c4e541d0c401a590392230238412407cc9cf754ce79f7824406c940ead",
+   "n": 574,
+   "n_bona_fide": 180,
+   "n_attack": 394,
+   "n_subjects": 2,
+   "n_subjects_bona_fide": 2,
+   "n_subjects_attack": 2,
+   "by_session": {
+    "01": {
+     "bona_fide": 57,
+     "attack": 194
+    },
+    "02": {
+     "bona_fide": 123,
+     "attack": 200
+    }
+   },
+   "by_glasses": {
+    "00": {
+     "bona_fide": 123,
+     "attack": 194
+    },
+    "01": {
+     "bona_fide": 57,
+     "attack": 200
+    }
+   },
+   "by_pos": {
+    "00": {
+     "bona_fide": 180,
+     "attack": 194
+    },
+    "01": {
+     "bona_fide": 0,
+     "attack": 50
+    },
+    "02": {
+     "bona_fide": 0,
+     "attack": 50
+    },
+    "03": {
+     "bona_fide": 0,
+     "attack": 50
+    },
+    "04": {
+     "bona_fide": 0,
+     "attack": 50
+    }
+   }
+  },
+  "c1": {
+   "file": "manifests/nuaa_c1_v2.csv",
+   "description": "the 300 C1 test images, manifest version 2 (corrected session field)",
+   "sha256": "1c2cf97cb7115e7ae98640103670c628a3910a37c25b89f76369cc7ecad87426",
+   "n": 300,
+   "n_bona_fide": 150,
+   "n_attack": 150,
+   "n_subjects": 16,
+   "n_subjects_bona_fide": 9,
+   "n_subjects_attack": 15,
+   "by_session": {
+    "03": {
+     "bona_fide": 150,
+     "attack": 150
+    }
+   },
+   "by_glasses": {
+    "00": {
+     "bona_fide": 22,
+     "attack": 40
+    },
+    "01": {
+     "bona_fide": 128,
+     "attack": 110
+    }
+   },
+   "by_pos": {
+    "01": {
+     "bona_fide": 0,
+     "attack": 33
+    },
+    "02": {
+     "bona_fide": 0,
+     "attack": 27
+    },
+    "03": {
+     "bona_fide": 0,
+     "attack": 31
+    },
+    "04": {
+     "bona_fide": 0,
+     "attack": 29
+    },
+    "05": {
+     "bona_fide": 27,
+     "attack": 0
+    },
+    "06": {
+     "bona_fide": 64,
+     "attack": 0
+    },
+    "07": {
+     "bona_fide": 59,
+     "attack": 0
+    },
+    "08": {
+     "bona_fide": 0,
+     "attack": 30
+    }
+   }
+  }
+ },
+ "recount": {
+  "manifest_counts": {
+   "official_train": {
+    "n": 3491,
+    "n_bona_fide": 1743,
+    "n_attack": 1748,
+    "n_subjects": 9,
+    "n_subjects_bona_fide": 9,
+    "n_subjects_attack": 9,
+    "by_session": {
+     "01": {
+      "bona_fide": 889,
+      "attack": 855
+     },
+     "02": {
+      "bona_fide": 854,
+      "attack": 893
+     }
+    },
+    "by_glasses": {
+     "00": {
+      "bona_fide": 908,
+      "attack": 765
+     },
+     "01": {
+      "bona_fide": 835,
+      "attack": 983
+     }
+    },
+    "by_pos": {
+     "00": {
+      "bona_fide": 1743,
+      "attack": 855
+     },
+     "01": {
+      "bona_fide": 0,
+      "attack": 223
+     },
+     "02": {
+      "bona_fide": 0,
+      "attack": 223
+     },
+     "03": {
+      "bona_fide": 0,
+      "attack": 223
+     },
+     "04": {
+      "bona_fide": 0,
+      "attack": 224
+     }
+    }
+   },
+   "official_test": {
+    "n": 9123,
+    "n_bona_fide": 3362,
+    "n_attack": 5761,
+    "n_subjects": 16,
+    "n_subjects_bona_fide": 9,
+    "n_subjects_attack": 15,
+    "by_session": {
+     "03": {
+      "bona_fide": 3362,
+      "attack": 5761
+     }
+    },
+    "by_glasses": {
+     "00": {
+      "bona_fide": 492,
+      "attack": 1501
+     },
+     "01": {
+      "bona_fide": 2870,
+      "attack": 4260
+     }
+    },
+    "by_pos": {
+     "01": {
+      "bona_fide": 0,
+      "attack": 1216
+     },
+     "02": {
+      "bona_fide": 0,
+      "attack": 1022
+     },
+     "03": {
+      "bona_fide": 0,
+      "attack": 1167
+     },
+     "04": {
+      "bona_fide": 0,
+      "attack": 1152
+     },
+     "05": {
+      "bona_fide": 624,
+      "attack": 0
+     },
+     "06": {
+      "bona_fide": 1422,
+      "attack": 0
+     },
+     "07": {
+      "bona_fide": 1316,
+      "attack": 0
+     },
+     "08": {
+      "bona_fide": 0,
+      "attack": 1204
+     }
+    }
+   },
+   "cnn_train": {
+    "n": 2507,
+    "n_bona_fide": 1345,
+    "n_attack": 1162,
+    "n_subjects": 7,
+    "n_subjects_bona_fide": 7,
+    "n_subjects_attack": 7,
+    "by_session": {
+     "01": {
+      "bona_fide": 717,
+      "attack": 568
+     },
+     "02": {
+      "bona_fide": 628,
+      "attack": 594
+     }
+    },
+    "by_glasses": {
+     "00": {
+      "bona_fide": 677,
+      "attack": 491
+     },
+     "01": {
+      "bona_fide": 668,
+      "attack": 671
+     }
+    },
+    "by_pos": {
+     "00": {
+      "bona_fide": 1345,
+      "attack": 568
+     },
+     "01": {
+      "bona_fide": 0,
+      "attack": 148
+     },
+     "02": {
+      "bona_fide": 0,
+      "attack": 148
+     },
+     "03": {
+      "bona_fide": 0,
+      "attack": 149
+     },
+     "04": {
+      "bona_fide": 0,
+      "attack": 149
+     }
+    }
+   },
+   "cnn_es": {
+    "n": 493,
+    "n_bona_fide": 155,
+    "n_attack": 338,
+    "n_subjects": 2,
+    "n_subjects_bona_fide": 2,
+    "n_subjects_attack": 2,
+    "by_session": {
+     "01": {
+      "bona_fide": 49,
+      "attack": 166
+     },
+     "02": {
+      "bona_fide": 106,
+      "attack": 172
+     }
+    },
+    "by_glasses": {
+     "00": {
+      "bona_fide": 106,
+      "attack": 166
+     },
+     "01": {
+      "bona_fide": 49,
+      "attack": 172
+     }
+    },
+    "by_pos": {
+     "00": {
+      "bona_fide": 155,
+      "attack": 166
+     },
+     "01": {
+      "bona_fide": 0,
+      "attack": 43
+     },
+     "02": {
+      "bona_fide": 0,
+      "attack": 43
+     },
+     "03": {
+      "bona_fide": 0,
+      "attack": 43
+     },
+     "04": {
+      "bona_fide": 0,
+      "attack": 43
+     }
+    }
+   },
+   "cnn_test": {
+    "n": 3000,
+    "n_bona_fide": 1500,
+    "n_attack": 1500,
+    "n_subjects": 16,
+    "n_subjects_bona_fide": 9,
+    "n_subjects_attack": 15,
+    "by_session": {
+     "03": {
+      "bona_fide": 1500,
+      "attack": 1500
+     }
+    },
+    "by_glasses": {
+     "00": {
+      "bona_fide": 219,
+      "attack": 392
+     },
+     "01": {
+      "bona_fide": 1281,
+      "attack": 1108
+     }
+    },
+    "by_pos": {
+     "01": {
+      "bona_fide": 0,
+      "attack": 317
+     },
+     "02": {
+      "bona_fide": 0,
+      "attack": 266
+     },
+     "03": {
+      "bona_fide": 0,
+      "attack": 304
+     },
+     "04": {
+      "bona_fide": 0,
+      "attack": 299
+     },
+     "05": {
+      "bona_fide": 278,
+      "attack": 0
+     },
+     "06": {
+      "bona_fide": 635,
+      "attack": 0
+     },
+     "07": {
+      "bona_fide": 587,
+      "attack": 0
+     },
+     "08": {
+      "bona_fide": 0,
+      "attack": 314
+     }
+    }
+   },
+   "m1_dev": {
+    "n": 574,
+    "n_bona_fide": 180,
+    "n_attack": 394,
+    "n_subjects": 2,
+    "n_subjects_bona_fide": 2,
+    "n_subjects_attack": 2,
+    "by_session": {
+     "01": {
+      "bona_fide": 57,
+      "attack": 194
+     },
+     "02": {
+      "bona_fide": 123,
+      "attack": 200
+     }
+    },
+    "by_glasses": {
+     "00": {
+      "bona_fide": 123,
+      "attack": 194
+     },
+     "01": {
+      "bona_fide": 57,
+      "attack": 200
+     }
+    },
+    "by_pos": {
+     "00": {
+      "bona_fide": 180,
+      "attack": 194
+     },
+     "01": {
+      "bona_fide": 0,
+      "attack": 50
+     },
+     "02": {
+      "bona_fide": 0,
+      "attack": 50
+     },
+     "03": {
+      "bona_fide": 0,
+      "attack": 50
+     },
+     "04": {
+      "bona_fide": 0,
+      "attack": 50
+     }
+    }
+   },
+   "c1": {
+    "n": 300,
+    "n_bona_fide": 150,
+    "n_attack": 150,
+    "n_subjects": 16,
+    "n_subjects_bona_fide": 9,
+    "n_subjects_attack": 15,
+    "by_session": {
+     "03": {
+      "bona_fide": 150,
+      "attack": 150
+     }
+    },
+    "by_glasses": {
+     "00": {
+      "bona_fide": 22,
+      "attack": 40
+     },
+     "01": {
+      "bona_fide": 128,
+      "attack": 110
+     }
+    },
+    "by_pos": {
+     "01": {
+      "bona_fide": 0,
+      "attack": 33
+     },
+     "02": {
+      "bona_fide": 0,
+      "attack": 27
+     },
+     "03": {
+      "bona_fide": 0,
+      "attack": 31
+     },
+     "04": {
+      "bona_fide": 0,
+      "attack": 29
+     },
+     "05": {
+      "bona_fide": 27,
+      "attack": 0
+     },
+     "06": {
+      "bona_fide": 64,
+      "attack": 0
+     },
+     "07": {
+      "bona_fide": 59,
+      "attack": 0
+     },
+     "08": {
+      "bona_fide": 0,
+      "attack": 30
+     }
+    }
+   }
+  },
+  "exclusions": {
+   "official_train_not_sampled": {
+    "n": 491,
+    "n_bona_fide": 243,
+    "n_attack": 248,
+    "n_subjects": 9,
+    "n_subjects_bona_fide": 9,
+    "n_subjects_attack": 9,
+    "by_session": {
+     "01": {
+      "bona_fide": 123,
+      "attack": 121
+     },
+     "02": {
+      "bona_fide": 120,
+      "attack": 127
+     }
+    },
+    "by_glasses": {
+     "00": {
+      "bona_fide": 125,
+      "attack": 108
+     },
+     "01": {
+      "bona_fide": 118,
+      "attack": 140
+     }
+    },
+    "by_pos": {
+     "00": {
+      "bona_fide": 243,
+      "attack": 121
+     },
+     "01": {
+      "bona_fide": 0,
+      "attack": 32
+     },
+     "02": {
+      "bona_fide": 0,
+      "attack": 32
+     },
+     "03": {
+      "bona_fide": 0,
+      "attack": 31
+     },
+     "04": {
+      "bona_fide": 0,
+      "attack": 32
+     }
+    }
+   },
+   "official_test_not_sampled": {
+    "n": 6123,
+    "n_bona_fide": 1862,
+    "n_attack": 4261,
+    "n_subjects": 16,
+    "n_subjects_bona_fide": 9,
+    "n_subjects_attack": 15,
+    "by_session": {
+     "03": {
+      "bona_fide": 1862,
+      "attack": 4261
+     }
+    },
+    "by_glasses": {
+     "00": {
+      "bona_fide": 273,
+      "attack": 1109
+     },
+     "01": {
+      "bona_fide": 1589,
+      "attack": 3152
+     }
+    },
+    "by_pos": {
+     "01": {
+      "bona_fide": 0,
+      "attack": 899
+     },
+     "02": {
+      "bona_fide": 0,
+      "attack": 756
+     },
+     "03": {
+      "bona_fide": 0,
+      "attack": 863
+     },
+     "04": {
+      "bona_fide": 0,
+      "attack": 853
+     },
+     "05": {
+      "bona_fide": 346,
+      "attack": 0
+     },
+     "06": {
+      "bona_fide": 787,
+      "attack": 0
+     },
+     "07": {
+      "bona_fide": 729,
+      "attack": 0
+     },
+     "08": {
+      "bona_fide": 0,
+      "attack": 890
+     }
+    }
+   }
+  },
+  "test_from_subjects_absent_from_official_train": {
+   "official_test": {
+    "bona_fide": {
+     "n": 3362,
+     "from_subjects_absent_from_official_train": 1987
+    },
+    "attack": {
+     "n": 5761,
+     "from_subjects_absent_from_official_train": 2216
+    }
+   },
+   "cnn_test": {
+    "bona_fide": {
+     "n": 1500,
+     "from_subjects_absent_from_official_train": 886
+    },
+    "attack": {
+     "n": 1500,
+     "from_subjects_absent_from_official_train": 576
+    }
+   },
+   "c1": {
+    "bona_fide": {
+     "n": 150,
+     "from_subjects_absent_from_official_train": 88
+    },
+    "attack": {
+     "n": 150,
+     "from_subjects_absent_from_official_train": 57
+    }
+   }
+  },
+  "declaration_counts": {
+   "m1_dev_rows": 574,
+   "m1_dev_rows_that_are_validation_images": 493,
+   "c1_rows_from_validation_subjects": 22,
+   "c1_rows_from_validation_subjects_bona_fide": 0,
+   "c1_rows_from_validation_subjects_attack": 22
+  }
+ },
+ "exclusions": {
+  "official_train_not_sampled": {
+   "n": 491,
+   "n_bona_fide": 243,
+   "n_attack": 248,
+   "n_subjects": 9,
+   "n_subjects_bona_fide": 9,
+   "n_subjects_attack": 9,
+   "by_session": {
+    "01": {
+     "bona_fide": 123,
+     "attack": 121
+    },
+    "02": {
+     "bona_fide": 120,
+     "attack": 127
+    }
+   },
+   "by_glasses": {
+    "00": {
+     "bona_fide": 125,
+     "attack": 108
+    },
+    "01": {
+     "bona_fide": 118,
+     "attack": 140
+    }
+   },
+   "by_pos": {
+    "00": {
+     "bona_fide": 243,
+     "attack": 121
+    },
+    "01": {
+     "bona_fide": 0,
+     "attack": 32
+    },
+    "02": {
+     "bona_fide": 0,
+     "attack": 32
+    },
+    "03": {
+     "bona_fide": 0,
+     "attack": 31
+    },
+    "04": {
+     "bona_fide": 0,
+     "attack": 32
+    }
+   }
+  },
+  "official_test_not_sampled": {
+   "n": 6123,
+   "n_bona_fide": 1862,
+   "n_attack": 4261,
+   "n_subjects": 16,
+   "n_subjects_bona_fide": 9,
+   "n_subjects_attack": 15,
+   "by_session": {
+    "03": {
+     "bona_fide": 1862,
+     "attack": 4261
+    }
+   },
+   "by_glasses": {
+    "00": {
+     "bona_fide": 273,
+     "attack": 1109
+    },
+    "01": {
+     "bona_fide": 1589,
+     "attack": 3152
+    }
+   },
+   "by_pos": {
+    "01": {
+     "bona_fide": 0,
+     "attack": 899
+    },
+    "02": {
+     "bona_fide": 0,
+     "attack": 756
+    },
+    "03": {
+     "bona_fide": 0,
+     "attack": 863
+    },
+    "04": {
+     "bona_fide": 0,
+     "attack": 853
+    },
+    "05": {
+     "bona_fide": 346,
+     "attack": 0
+    },
+    "06": {
+     "bona_fide": 787,
+     "attack": 0
+    },
+    "07": {
+     "bona_fide": 729,
+     "attack": 0
+    },
+    "08": {
+     "bona_fide": 0,
+     "attack": 890
+    }
+   }
+  },
+  "rule": "spread(sorted file list, 1500) per class (scripts/train_cnn.py build_arrays); the split lists are otherwise complete"
+ },
+ "early_stopping_subjects": {
+  "n": 2
+ },
+ "fitted_subjects": {
+  "n": 7
+ },
+ "private": false,
+ "note": "aggregate counts only: per-image manifests and per-subject counts are restricted (summary JSON in the private folder)"
+}

@@ -1,0 +1,1698 @@
+{
+ "rules_file": "delivery/m2/nuaa_overlap_rules.json",
+ "rules_sha256": "c6825d1c6e9e49d6b22dccbda4445312397c227e1052d3df7a726dbd3f4a9c34",
+ "manifests_dir": "results/m2/manifests",
+ "manifests": {
+  "official_train": {
+   "file": "nuaa_official_train.csv",
+   "sha256": "2a7e8906f98b8e3cf0c42cd0a2cf10e15868750b1ac82e85b62a9e0b59aad648",
+   "rows": 3491
+  },
+  "official_test": {
+   "file": "nuaa_official_test.csv",
+   "sha256": "2fad23ff295cb2c1d3d0be238deef02faad252aa717933c30588bd5a9c4106c7",
+   "rows": 9123
+  },
+  "cnn_train": {
+   "file": "nuaa_cnn_train.csv",
+   "sha256": "6d46ec7da7bfc32b1cce9ed3e331f8ed4377e5fc2df31e1b77ac7f6a0c2bc33c",
+   "rows": 2507
+  },
+  "cnn_es": {
+   "file": "nuaa_cnn_early_stopping.csv",
+   "sha256": "17282be8ef300e5e178ae87cd137ffd875786f1b353924e7cfb6eb14db1584c1",
+   "rows": 493
+  },
+  "cnn_test": {
+   "file": "nuaa_cnn_test.csv",
+   "sha256": "ce9669dccae37041e778ff7bcba5f4cef08fa79f50d65be84806b084c5d95748",
+   "rows": 3000
+  },
+  "m1_dev": {
+   "file": "nuaa_m1_dev.csv",
+   "sha256": "1e4e49c4e541d0c401a590392230238412407cc9cf754ce79f7824406c940ead",
+   "rows": 574
+  },
+  "c1": {
+   "file": "nuaa_c1_v2.csv",
+   "sha256": "1c2cf97cb7115e7ae98640103670c628a3910a37c25b89f76369cc7ecad87426",
+   "rows": 300
+  }
+ },
+ "rules": [
+  {
+   "id": "R01-internal-duplicates",
+   "kind": "no_internal_duplicates",
+   "severity": "must",
+   "by": [
+    "key",
+    "hash"
+   ],
+   "description": "no manifest lists the same key twice or the same image content (file SHA-256) under two keys",
+   "verdict": "pass",
+   "checks": [
+    {
+     "manifest": "official_train",
+     "by": "key",
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "official_train",
+     "by": "hash",
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "official_test",
+     "by": "key",
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "official_test",
+     "by": "hash",
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "cnn_train",
+     "by": "key",
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "cnn_train",
+     "by": "hash",
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "cnn_es",
+     "by": "key",
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "cnn_es",
+     "by": "hash",
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "cnn_test",
+     "by": "key",
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "cnn_test",
+     "by": "hash",
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "m1_dev",
+     "by": "key",
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "m1_dev",
+     "by": "hash",
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "c1",
+     "by": "key",
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "c1",
+     "by": "hash",
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    }
+   ]
+  },
+  {
+   "id": "R02-train-vs-es",
+   "kind": "disjoint",
+   "severity": "must",
+   "by": [
+    "key",
+    "hash",
+    "subject"
+   ],
+   "description": "the validation (early-stopping) images share no image and no subject with the images that fitted the weights",
+   "verdict": "pass",
+   "checks": [
+    {
+     "a": "cnn_train",
+     "b": "cnn_es",
+     "by": "key",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_train",
+     "b": "cnn_es",
+     "by": "hash",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_train",
+     "b": "cnn_es",
+     "by": "subject",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    }
+   ]
+  },
+  {
+   "id": "R03-train-vs-dev",
+   "kind": "disjoint",
+   "severity": "must",
+   "by": [
+    "key",
+    "hash",
+    "subject"
+   ],
+   "description": "the M1 dev set shares no image and no subject with the images that fitted the weights",
+   "verdict": "pass",
+   "checks": [
+    {
+     "a": "cnn_train",
+     "b": "m1_dev",
+     "by": "key",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_train",
+     "b": "m1_dev",
+     "by": "hash",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_train",
+     "b": "m1_dev",
+     "by": "subject",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    }
+   ]
+  },
+  {
+   "id": "R04-train-side-vs-test-side",
+   "kind": "disjoint",
+   "severity": "must",
+   "by": [
+    "key",
+    "hash",
+    "subject_session"
+   ],
+   "description": "no training, validation (early-stopping) or dev image appears in any test manifest, by key or content hash; the (subject, session) part holds by construction of the NUAA protocol (sessions 01-02 vs 03) and is kept for the other datasets",
+   "verdict": "pass",
+   "checks": [
+    {
+     "a": "official_train",
+     "b": "official_test",
+     "by": "key",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "official_train",
+     "b": "official_test",
+     "by": "hash",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "official_train",
+     "b": "official_test",
+     "by": "subject_session",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "official_train",
+     "b": "cnn_test",
+     "by": "key",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "official_train",
+     "b": "cnn_test",
+     "by": "hash",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "official_train",
+     "b": "cnn_test",
+     "by": "subject_session",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "official_train",
+     "b": "c1",
+     "by": "key",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "official_train",
+     "b": "c1",
+     "by": "hash",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "official_train",
+     "b": "c1",
+     "by": "subject_session",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_train",
+     "b": "official_test",
+     "by": "key",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_train",
+     "b": "official_test",
+     "by": "hash",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_train",
+     "b": "official_test",
+     "by": "subject_session",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_train",
+     "b": "cnn_test",
+     "by": "key",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_train",
+     "b": "cnn_test",
+     "by": "hash",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_train",
+     "b": "cnn_test",
+     "by": "subject_session",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_train",
+     "b": "c1",
+     "by": "key",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_train",
+     "b": "c1",
+     "by": "hash",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_train",
+     "b": "c1",
+     "by": "subject_session",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_es",
+     "b": "official_test",
+     "by": "key",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_es",
+     "b": "official_test",
+     "by": "hash",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_es",
+     "b": "official_test",
+     "by": "subject_session",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_es",
+     "b": "cnn_test",
+     "by": "key",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_es",
+     "b": "cnn_test",
+     "by": "hash",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_es",
+     "b": "cnn_test",
+     "by": "subject_session",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_es",
+     "b": "c1",
+     "by": "key",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_es",
+     "b": "c1",
+     "by": "hash",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_es",
+     "b": "c1",
+     "by": "subject_session",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "m1_dev",
+     "b": "official_test",
+     "by": "key",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "m1_dev",
+     "b": "official_test",
+     "by": "hash",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "m1_dev",
+     "b": "official_test",
+     "by": "subject_session",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "m1_dev",
+     "b": "cnn_test",
+     "by": "key",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "m1_dev",
+     "b": "cnn_test",
+     "by": "hash",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "m1_dev",
+     "b": "cnn_test",
+     "by": "subject_session",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "m1_dev",
+     "b": "c1",
+     "by": "key",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "m1_dev",
+     "b": "c1",
+     "by": "hash",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "m1_dev",
+     "b": "c1",
+     "by": "subject_session",
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0,
+     "outcome": "pass"
+    }
+   ]
+  },
+  {
+   "id": "R05-subjects-train-vs-test",
+   "kind": "disjoint",
+   "severity": "report",
+   "by": [
+    "subject"
+   ],
+   "description": "known limit: NUAA is not subject-disjoint between the official train and test splits (different capture session); shared subjects are reported",
+   "verdict": "reported",
+   "checks": [
+    {
+     "a": "official_train",
+     "b": "official_test",
+     "by": "subject",
+     "n_shared": 9,
+     "rows_a": 3491,
+     "rows_b": 4920,
+     "outcome": "reported"
+    },
+    {
+     "a": "official_train",
+     "b": "cnn_test",
+     "by": "subject",
+     "n_shared": 9,
+     "rows_a": 3491,
+     "rows_b": 1538,
+     "outcome": "reported"
+    },
+    {
+     "a": "official_train",
+     "b": "c1",
+     "by": "subject",
+     "n_shared": 9,
+     "rows_a": 3491,
+     "rows_b": 155,
+     "outcome": "reported"
+    },
+    {
+     "a": "cnn_train",
+     "b": "official_test",
+     "by": "subject",
+     "n_shared": 7,
+     "rows_a": 2507,
+     "rows_b": 4106,
+     "outcome": "reported"
+    },
+    {
+     "a": "cnn_train",
+     "b": "cnn_test",
+     "by": "subject",
+     "n_shared": 7,
+     "rows_a": 2507,
+     "rows_b": 1325,
+     "outcome": "reported"
+    },
+    {
+     "a": "cnn_train",
+     "b": "c1",
+     "by": "subject",
+     "n_shared": 7,
+     "rows_a": 2507,
+     "rows_b": 133,
+     "outcome": "reported"
+    },
+    {
+     "a": "cnn_es",
+     "b": "official_test",
+     "by": "subject",
+     "n_shared": 2,
+     "rows_a": 493,
+     "rows_b": 814,
+     "outcome": "reported"
+    },
+    {
+     "a": "cnn_es",
+     "b": "cnn_test",
+     "by": "subject",
+     "n_shared": 2,
+     "rows_a": 493,
+     "rows_b": 213,
+     "outcome": "reported"
+    },
+    {
+     "a": "cnn_es",
+     "b": "c1",
+     "by": "subject",
+     "n_shared": 2,
+     "rows_a": 493,
+     "rows_b": 22,
+     "outcome": "reported"
+    },
+    {
+     "a": "m1_dev",
+     "b": "official_test",
+     "by": "subject",
+     "n_shared": 2,
+     "rows_a": 574,
+     "rows_b": 814,
+     "outcome": "reported"
+    },
+    {
+     "a": "m1_dev",
+     "b": "cnn_test",
+     "by": "subject",
+     "n_shared": 2,
+     "rows_a": 574,
+     "rows_b": 213,
+     "outcome": "reported"
+    },
+    {
+     "a": "m1_dev",
+     "b": "c1",
+     "by": "subject",
+     "n_shared": 2,
+     "rows_a": 574,
+     "rows_b": 22,
+     "outcome": "reported"
+    }
+   ]
+  },
+  {
+   "id": "R06-train-side-in-official-train",
+   "kind": "subset",
+   "severity": "must",
+   "by": [
+    "key",
+    "hash"
+   ],
+   "description": "CNN training, validation (early-stopping) and dev images all belong to the official training split",
+   "verdict": "pass",
+   "checks": [
+    {
+     "a": "cnn_train",
+     "b": "official_train",
+     "by": "key",
+     "n_shared": 2507,
+     "rows_a": 2507,
+     "rows_b": 2507,
+     "n_not_in_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_train",
+     "b": "official_train",
+     "by": "hash",
+     "n_shared": 2507,
+     "rows_a": 2507,
+     "rows_b": 2507,
+     "n_not_in_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_es",
+     "b": "official_train",
+     "by": "key",
+     "n_shared": 493,
+     "rows_a": 493,
+     "rows_b": 493,
+     "n_not_in_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_es",
+     "b": "official_train",
+     "by": "hash",
+     "n_shared": 493,
+     "rows_a": 493,
+     "rows_b": 493,
+     "n_not_in_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "m1_dev",
+     "b": "official_train",
+     "by": "key",
+     "n_shared": 574,
+     "rows_a": 574,
+     "rows_b": 574,
+     "n_not_in_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "m1_dev",
+     "b": "official_train",
+     "by": "hash",
+     "n_shared": 574,
+     "rows_a": 574,
+     "rows_b": 574,
+     "n_not_in_b": 0,
+     "outcome": "pass"
+    }
+   ]
+  },
+  {
+   "id": "R07-es-in-dev",
+   "kind": "subset",
+   "severity": "must",
+   "by": [
+    "key"
+   ],
+   "description": "every validation (early-stopping) image is in the M1 dev set (declared reuse)",
+   "verdict": "pass",
+   "checks": [
+    {
+     "a": "cnn_es",
+     "b": "m1_dev",
+     "by": "key",
+     "n_shared": 493,
+     "rows_a": 493,
+     "rows_b": 493,
+     "n_not_in_b": 0,
+     "outcome": "pass"
+    }
+   ]
+  },
+  {
+   "id": "R08-dev-es-reuse",
+   "kind": "intersection",
+   "severity": "must",
+   "by": [
+    "key",
+    "hash"
+   ],
+   "description": "declared reuse: 493 of the M1 dev images were the validation images of the CNNs (early stopping, best-epoch selection, learning-rate reduction)",
+   "verdict": "pass",
+   "checks": [
+    {
+     "a": "m1_dev",
+     "b": "cnn_es",
+     "by": "key",
+     "n_shared": 493,
+     "rows_a": 493,
+     "rows_b": 493,
+     "expected": 493,
+     "outcome": "pass"
+    },
+    {
+     "a": "m1_dev",
+     "b": "cnn_es",
+     "by": "hash",
+     "n_shared": 493,
+     "rows_a": 493,
+     "rows_b": 493,
+     "expected": 493,
+     "outcome": "pass"
+    }
+   ]
+  },
+  {
+   "id": "R09-test-chain",
+   "kind": "subset",
+   "severity": "must",
+   "by": [
+    "key",
+    "hash"
+   ],
+   "description": "C1 and the CNN test images belong to the official test split",
+   "verdict": "pass",
+   "checks": [
+    {
+     "a": "c1",
+     "b": "official_test",
+     "by": "key",
+     "n_shared": 300,
+     "rows_a": 300,
+     "rows_b": 300,
+     "n_not_in_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "c1",
+     "b": "official_test",
+     "by": "hash",
+     "n_shared": 300,
+     "rows_a": 300,
+     "rows_b": 300,
+     "n_not_in_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_test",
+     "b": "official_test",
+     "by": "key",
+     "n_shared": 3000,
+     "rows_a": 3000,
+     "rows_b": 3000,
+     "n_not_in_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_test",
+     "b": "official_test",
+     "by": "hash",
+     "n_shared": 3000,
+     "rows_a": 3000,
+     "rows_b": 3000,
+     "n_not_in_b": 0,
+     "outcome": "pass"
+    }
+   ]
+  },
+  {
+   "id": "R10-c1-in-cnn-test",
+   "kind": "subset",
+   "severity": "must",
+   "by": [
+    "key",
+    "hash"
+   ],
+   "description": "the 300 C1 images are a subset of the 3,000 test images of the checkpoint cards",
+   "verdict": "pass",
+   "checks": [
+    {
+     "a": "c1",
+     "b": "cnn_test",
+     "by": "key",
+     "n_shared": 300,
+     "rows_a": 300,
+     "rows_b": 300,
+     "n_not_in_b": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "c1",
+     "b": "cnn_test",
+     "by": "hash",
+     "n_shared": 300,
+     "rows_a": 300,
+     "rows_b": 300,
+     "n_not_in_b": 0,
+     "outcome": "pass"
+    }
+   ]
+  },
+  {
+   "id": "R11-cnn-split-partition",
+   "kind": "spread_partition",
+   "severity": "must",
+   "by": [
+    "key"
+   ],
+   "description": "CNN train and validation are disjoint and together equal spread(official train, 1500) per class (the 3,000 sampled training images)",
+   "verdict": "pass",
+   "checks": [
+    {
+     "a": "cnn_train + cnn_es",
+     "b": "official_train",
+     "by": "key",
+     "derivation": "spread_partition",
+     "n_expected": 3000,
+     "n_rows": 3000,
+     "n_missing": 0,
+     "n_extra": 0,
+     "outcome": "pass"
+    },
+    {
+     "a": "cnn_train + cnn_es",
+     "b": "-",
+     "by": "key",
+     "derivation": "parts_disjoint",
+     "n_shared": 0,
+     "outcome": "pass"
+    }
+   ]
+  },
+  {
+   "id": "R12-dev-subject-closure",
+   "kind": "subject_closure",
+   "severity": "must",
+   "by": [
+    "key"
+   ],
+   "description": "the M1 dev set is exactly the official training images of the validation subjects",
+   "verdict": "pass",
+   "checks": [
+    {
+     "a": "m1_dev",
+     "b": "official_train",
+     "by": "key",
+     "derivation": "subject_closure",
+     "n_expected": 574,
+     "n_rows": 574,
+     "n_missing": 0,
+     "n_extra": 0,
+     "outcome": "pass"
+    }
+   ]
+  },
+  {
+   "id": "R13-cnn-test-spread",
+   "kind": "equals_spread",
+   "severity": "must",
+   "by": [
+    "key"
+   ],
+   "description": "the CNN test images are exactly spread(official test, 1500) per class",
+   "verdict": "pass",
+   "checks": [
+    {
+     "a": "cnn_test",
+     "b": "official_test",
+     "by": "key",
+     "derivation": "equals_spread",
+     "n_expected": 3000,
+     "n_rows": 3000,
+     "n_missing": 0,
+     "n_extra": 0,
+     "outcome": "pass"
+    }
+   ]
+  },
+  {
+   "id": "R14-c1-spread",
+   "kind": "equals_spread",
+   "severity": "must",
+   "by": [
+    "key"
+   ],
+   "description": "the C1 images are exactly spread(official test, 150) per class",
+   "verdict": "pass",
+   "checks": [
+    {
+     "a": "c1",
+     "b": "official_test",
+     "by": "key",
+     "derivation": "equals_spread",
+     "n_expected": 300,
+     "n_rows": 300,
+     "n_missing": 0,
+     "n_extra": 0,
+     "outcome": "pass"
+    }
+   ]
+  },
+  {
+   "id": "R15-key-consistency",
+   "kind": "key_consistency",
+   "severity": "must",
+   "by": [
+    "key"
+   ],
+   "description": "every key present in several manifests has the same sha256, bytes, label, subject, glasses, pos, session, pic and official_split in all of them",
+   "verdict": "pass",
+   "checks": [
+    {
+     "manifest": "all",
+     "by": "key->label",
+     "keys_in_several_manifests": 6081,
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "all",
+     "by": "key->subject",
+     "keys_in_several_manifests": 6081,
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "all",
+     "by": "key->glasses",
+     "keys_in_several_manifests": 6081,
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "all",
+     "by": "key->pos",
+     "keys_in_several_manifests": 6081,
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "all",
+     "by": "key->session",
+     "keys_in_several_manifests": 6081,
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "all",
+     "by": "key->pic",
+     "keys_in_several_manifests": 6081,
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "all",
+     "by": "key->official_split",
+     "keys_in_several_manifests": 6081,
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "all",
+     "by": "key->sha256",
+     "keys_in_several_manifests": 6081,
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "all",
+     "by": "key->bytes",
+     "keys_in_several_manifests": 6081,
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    }
+   ]
+  }
+ ],
+ "matrix": {
+  "manifests": [
+   "official_train",
+   "official_test",
+   "cnn_train",
+   "cnn_es",
+   "cnn_test",
+   "m1_dev",
+   "c1"
+  ],
+  "distinct": {
+   "official_train": {
+    "key": 3491,
+    "hash": 3491,
+    "subject": 9,
+    "subject_session": 18,
+    "rows": 3491
+   },
+   "official_test": {
+    "key": 9123,
+    "hash": 9123,
+    "subject": 16,
+    "subject_session": 16,
+    "rows": 9123
+   },
+   "cnn_train": {
+    "key": 2507,
+    "hash": 2507,
+    "subject": 7,
+    "subject_session": 14,
+    "rows": 2507
+   },
+   "cnn_es": {
+    "key": 493,
+    "hash": 493,
+    "subject": 2,
+    "subject_session": 4,
+    "rows": 493
+   },
+   "cnn_test": {
+    "key": 3000,
+    "hash": 3000,
+    "subject": 16,
+    "subject_session": 16,
+    "rows": 3000
+   },
+   "m1_dev": {
+    "key": 574,
+    "hash": 574,
+    "subject": 2,
+    "subject_session": 4,
+    "rows": 574
+   },
+   "c1": {
+    "key": 300,
+    "hash": 300,
+    "subject": 16,
+    "subject_session": 16,
+    "rows": 300
+   }
+  },
+  "pairs": {
+   "official_train|official_test": {
+    "key": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "hash": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "subject": {
+     "n_shared": 9,
+     "rows_a": 3491,
+     "rows_b": 4920
+    },
+    "subject_session": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    }
+   },
+   "official_train|cnn_train": {
+    "key": {
+     "n_shared": 2507,
+     "rows_a": 2507,
+     "rows_b": 2507
+    },
+    "hash": {
+     "n_shared": 2507,
+     "rows_a": 2507,
+     "rows_b": 2507
+    },
+    "subject": {
+     "n_shared": 7,
+     "rows_a": 2917,
+     "rows_b": 2507
+    },
+    "subject_session": {
+     "n_shared": 14,
+     "rows_a": 2917,
+     "rows_b": 2507
+    }
+   },
+   "official_train|cnn_es": {
+    "key": {
+     "n_shared": 493,
+     "rows_a": 493,
+     "rows_b": 493
+    },
+    "hash": {
+     "n_shared": 493,
+     "rows_a": 493,
+     "rows_b": 493
+    },
+    "subject": {
+     "n_shared": 2,
+     "rows_a": 574,
+     "rows_b": 493
+    },
+    "subject_session": {
+     "n_shared": 4,
+     "rows_a": 574,
+     "rows_b": 493
+    }
+   },
+   "official_train|cnn_test": {
+    "key": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "hash": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "subject": {
+     "n_shared": 9,
+     "rows_a": 3491,
+     "rows_b": 1538
+    },
+    "subject_session": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    }
+   },
+   "official_train|m1_dev": {
+    "key": {
+     "n_shared": 574,
+     "rows_a": 574,
+     "rows_b": 574
+    },
+    "hash": {
+     "n_shared": 574,
+     "rows_a": 574,
+     "rows_b": 574
+    },
+    "subject": {
+     "n_shared": 2,
+     "rows_a": 574,
+     "rows_b": 574
+    },
+    "subject_session": {
+     "n_shared": 4,
+     "rows_a": 574,
+     "rows_b": 574
+    }
+   },
+   "official_train|c1": {
+    "key": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "hash": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "subject": {
+     "n_shared": 9,
+     "rows_a": 3491,
+     "rows_b": 155
+    },
+    "subject_session": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    }
+   },
+   "official_test|cnn_train": {
+    "key": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "hash": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "subject": {
+     "n_shared": 7,
+     "rows_a": 4106,
+     "rows_b": 2507
+    },
+    "subject_session": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    }
+   },
+   "official_test|cnn_es": {
+    "key": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "hash": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "subject": {
+     "n_shared": 2,
+     "rows_a": 814,
+     "rows_b": 493
+    },
+    "subject_session": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    }
+   },
+   "official_test|cnn_test": {
+    "key": {
+     "n_shared": 3000,
+     "rows_a": 3000,
+     "rows_b": 3000
+    },
+    "hash": {
+     "n_shared": 3000,
+     "rows_a": 3000,
+     "rows_b": 3000
+    },
+    "subject": {
+     "n_shared": 16,
+     "rows_a": 9123,
+     "rows_b": 3000
+    },
+    "subject_session": {
+     "n_shared": 16,
+     "rows_a": 9123,
+     "rows_b": 3000
+    }
+   },
+   "official_test|m1_dev": {
+    "key": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "hash": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "subject": {
+     "n_shared": 2,
+     "rows_a": 814,
+     "rows_b": 574
+    },
+    "subject_session": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    }
+   },
+   "official_test|c1": {
+    "key": {
+     "n_shared": 300,
+     "rows_a": 300,
+     "rows_b": 300
+    },
+    "hash": {
+     "n_shared": 300,
+     "rows_a": 300,
+     "rows_b": 300
+    },
+    "subject": {
+     "n_shared": 16,
+     "rows_a": 9123,
+     "rows_b": 300
+    },
+    "subject_session": {
+     "n_shared": 16,
+     "rows_a": 9123,
+     "rows_b": 300
+    }
+   },
+   "cnn_train|cnn_es": {
+    "key": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "hash": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "subject": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "subject_session": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    }
+   },
+   "cnn_train|cnn_test": {
+    "key": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "hash": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "subject": {
+     "n_shared": 7,
+     "rows_a": 2507,
+     "rows_b": 1325
+    },
+    "subject_session": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    }
+   },
+   "cnn_train|m1_dev": {
+    "key": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "hash": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "subject": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "subject_session": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    }
+   },
+   "cnn_train|c1": {
+    "key": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "hash": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "subject": {
+     "n_shared": 7,
+     "rows_a": 2507,
+     "rows_b": 133
+    },
+    "subject_session": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    }
+   },
+   "cnn_es|cnn_test": {
+    "key": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "hash": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "subject": {
+     "n_shared": 2,
+     "rows_a": 493,
+     "rows_b": 213
+    },
+    "subject_session": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    }
+   },
+   "cnn_es|m1_dev": {
+    "key": {
+     "n_shared": 493,
+     "rows_a": 493,
+     "rows_b": 493
+    },
+    "hash": {
+     "n_shared": 493,
+     "rows_a": 493,
+     "rows_b": 493
+    },
+    "subject": {
+     "n_shared": 2,
+     "rows_a": 493,
+     "rows_b": 574
+    },
+    "subject_session": {
+     "n_shared": 4,
+     "rows_a": 493,
+     "rows_b": 574
+    }
+   },
+   "cnn_es|c1": {
+    "key": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "hash": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "subject": {
+     "n_shared": 2,
+     "rows_a": 493,
+     "rows_b": 22
+    },
+    "subject_session": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    }
+   },
+   "cnn_test|m1_dev": {
+    "key": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "hash": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "subject": {
+     "n_shared": 2,
+     "rows_a": 213,
+     "rows_b": 574
+    },
+    "subject_session": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    }
+   },
+   "cnn_test|c1": {
+    "key": {
+     "n_shared": 300,
+     "rows_a": 300,
+     "rows_b": 300
+    },
+    "hash": {
+     "n_shared": 300,
+     "rows_a": 300,
+     "rows_b": 300
+    },
+    "subject": {
+     "n_shared": 16,
+     "rows_a": 3000,
+     "rows_b": 300
+    },
+    "subject_session": {
+     "n_shared": 16,
+     "rows_a": 3000,
+     "rows_b": 300
+    }
+   },
+   "m1_dev|c1": {
+    "key": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "hash": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    },
+    "subject": {
+     "n_shared": 2,
+     "rows_a": 574,
+     "rows_b": 22
+    },
+    "subject_session": {
+     "n_shared": 0,
+     "rows_a": 0,
+     "rows_b": 0
+    }
+   }
+  },
+  "internal_duplicates": {
+   "official_train": {
+    "key": {
+     "n_values": 0,
+     "n_rows": 0
+    },
+    "hash": {
+     "n_values": 0,
+     "n_rows": 0
+    }
+   },
+   "official_test": {
+    "key": {
+     "n_values": 0,
+     "n_rows": 0
+    },
+    "hash": {
+     "n_values": 0,
+     "n_rows": 0
+    }
+   },
+   "cnn_train": {
+    "key": {
+     "n_values": 0,
+     "n_rows": 0
+    },
+    "hash": {
+     "n_values": 0,
+     "n_rows": 0
+    }
+   },
+   "cnn_es": {
+    "key": {
+     "n_values": 0,
+     "n_rows": 0
+    },
+    "hash": {
+     "n_values": 0,
+     "n_rows": 0
+    }
+   },
+   "cnn_test": {
+    "key": {
+     "n_values": 0,
+     "n_rows": 0
+    },
+    "hash": {
+     "n_values": 0,
+     "n_rows": 0
+    }
+   },
+   "m1_dev": {
+    "key": {
+     "n_values": 0,
+     "n_rows": 0
+    },
+    "hash": {
+     "n_values": 0,
+     "n_rows": 0
+    }
+   },
+   "c1": {
+    "key": {
+     "n_values": 0,
+     "n_rows": 0
+    },
+    "hash": {
+     "n_values": 0,
+     "n_rows": 0
+    }
+   }
+  }
+ },
+ "n_must_failed": 0,
+ "n_reported": 1,
+ "passed": true,
+ "note": "public version: counts and verdicts only, no keys and no subject identifiers",
+ "commit": "2a24188ec31d508328ad7e703f7a937e1522fb97",
+ "dirty": false,
+ "checked": "2026-10-08T09:19:31+0200"
+}

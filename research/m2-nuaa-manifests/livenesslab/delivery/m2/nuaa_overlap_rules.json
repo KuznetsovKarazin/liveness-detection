@@ -1,0 +1,30 @@
+{
+ "schema": "nuaa-overlap-rules/4",
+ "description": "Declared overlap rules for the NUAA manifests of M2. Each manifest is declared with its expected number of rows and SHA-256 (as written by `nuaa_manifests.py build`); a different or truncated manifest stops the check. Severity 'must': a failure makes check-overlap exit with code 1. Severity 'report': the overlap is allowed and only reported. The key-consistency rule requires the same SHA-256, bytes and metadata for a key wherever it appears. Derivation rules (spread_partition, equals_spread, subject_closure) compare keys with those derived from a source manifest. Dimensions: key (real/<name> or attack/<name>), hash (SHA-256 of the file content), subject (4-digit subject id), subject_session (subject id and 5th field of the file name).",
+ "manifests": {
+  "official_train": {"file": "nuaa_official_train.csv", "expected_rows": 3491, "expected_sha256": "2a7e8906f98b8e3cf0c42cd0a2cf10e15868750b1ac82e85b62a9e0b59aad648"},
+  "official_test": {"file": "nuaa_official_test.csv", "expected_rows": 9123, "expected_sha256": "2fad23ff295cb2c1d3d0be238deef02faad252aa717933c30588bd5a9c4106c7"},
+  "cnn_train": {"file": "nuaa_cnn_train.csv", "expected_rows": 2507, "expected_sha256": "6d46ec7da7bfc32b1cce9ed3e331f8ed4377e5fc2df31e1b77ac7f6a0c2bc33c"},
+  "cnn_es": {"file": "nuaa_cnn_early_stopping.csv", "expected_rows": 493, "expected_sha256": "17282be8ef300e5e178ae87cd137ffd875786f1b353924e7cfb6eb14db1584c1"},
+  "cnn_test": {"file": "nuaa_cnn_test.csv", "expected_rows": 3000, "expected_sha256": "ce9669dccae37041e778ff7bcba5f4cef08fa79f50d65be84806b084c5d95748"},
+  "m1_dev": {"file": "nuaa_m1_dev.csv", "expected_rows": 574, "expected_sha256": "1e4e49c4e541d0c401a590392230238412407cc9cf754ce79f7824406c940ead"},
+  "c1": {"file": "nuaa_c1_v2.csv", "expected_rows": 300, "expected_sha256": "1c2cf97cb7115e7ae98640103670c628a3910a37c25b89f76369cc7ecad87426"}
+ },
+ "rules": [
+  {"id": "R01-internal-duplicates", "kind": "no_internal_duplicates", "manifests": "*", "by": ["key", "hash"], "severity": "must", "description": "no manifest lists the same key twice or the same image content (file SHA-256) under two keys"},
+  {"id": "R02-train-vs-es", "kind": "disjoint", "a": "cnn_train", "b": "cnn_es", "by": ["key", "hash", "subject"], "severity": "must", "description": "the validation (early-stopping) images share no image and no subject with the images that fitted the weights"},
+  {"id": "R03-train-vs-dev", "kind": "disjoint", "a": "cnn_train", "b": "m1_dev", "by": ["key", "hash", "subject"], "severity": "must", "description": "the M1 dev set shares no image and no subject with the images that fitted the weights"},
+  {"id": "R04-train-side-vs-test-side", "kind": "disjoint", "a": ["official_train", "cnn_train", "cnn_es", "m1_dev"], "b": ["official_test", "cnn_test", "c1"], "by": ["key", "hash", "subject_session"], "severity": "must", "description": "no training, validation (early-stopping) or dev image appears in any test manifest, by key or content hash; the (subject, session) part holds by construction of the NUAA protocol (sessions 01-02 vs 03) and is kept for the other datasets"},
+  {"id": "R05-subjects-train-vs-test", "kind": "disjoint", "a": ["official_train", "cnn_train", "cnn_es", "m1_dev"], "b": ["official_test", "cnn_test", "c1"], "by": ["subject"], "severity": "report", "description": "known limit: NUAA is not subject-disjoint between the official train and test splits (different capture session); shared subjects are reported"},
+  {"id": "R06-train-side-in-official-train", "kind": "subset", "a": ["cnn_train", "cnn_es", "m1_dev"], "b": "official_train", "by": ["key", "hash"], "severity": "must", "description": "CNN training, validation (early-stopping) and dev images all belong to the official training split"},
+  {"id": "R07-es-in-dev", "kind": "subset", "a": "cnn_es", "b": "m1_dev", "by": ["key"], "severity": "must", "description": "every validation (early-stopping) image is in the M1 dev set (declared reuse)"},
+  {"id": "R08-dev-es-reuse", "kind": "intersection", "a": "m1_dev", "b": "cnn_es", "by": ["key", "hash"], "expected": 493, "severity": "must", "description": "declared reuse: 493 of the M1 dev images were the validation images of the CNNs (early stopping, best-epoch selection, learning-rate reduction)"},
+  {"id": "R09-test-chain", "kind": "subset", "a": ["c1", "cnn_test"], "b": "official_test", "by": ["key", "hash"], "severity": "must", "description": "C1 and the CNN test images belong to the official test split"},
+  {"id": "R10-c1-in-cnn-test", "kind": "subset", "a": "c1", "b": "cnn_test", "by": ["key", "hash"], "severity": "must", "description": "the 300 C1 images are a subset of the 3,000 test images of the checkpoint cards"},
+  {"id": "R11-cnn-split-partition", "kind": "spread_partition", "source": "official_train", "parts": ["cnn_train", "cnn_es"], "per_class": 1500, "by": ["key"], "severity": "must", "description": "CNN train and validation are disjoint and together equal spread(official train, 1500) per class (the 3,000 sampled training images)"},
+  {"id": "R12-dev-subject-closure", "kind": "subject_closure", "a": "m1_dev", "source": "official_train", "subjects_of": "cnn_es", "by": ["key"], "severity": "must", "description": "the M1 dev set is exactly the official training images of the validation subjects"},
+  {"id": "R13-cnn-test-spread", "kind": "equals_spread", "a": "cnn_test", "source": "official_test", "per_class": 1500, "by": ["key"], "severity": "must", "description": "the CNN test images are exactly spread(official test, 1500) per class"},
+  {"id": "R14-c1-spread", "kind": "equals_spread", "a": "c1", "source": "official_test", "per_class": 150, "by": ["key"], "severity": "must", "description": "the C1 images are exactly spread(official test, 150) per class"},
+  {"id": "R15-key-consistency", "kind": "key_consistency", "manifests": "*", "by": ["key"], "severity": "must", "description": "every key present in several manifests has the same sha256, bytes, label, subject, glasses, pos, session, pic and official_split in all of them"}
+ ]
+}
