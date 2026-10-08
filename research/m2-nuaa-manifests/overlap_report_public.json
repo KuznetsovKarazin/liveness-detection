@@ -1,6 +1,6 @@
 {
  "rules_file": "delivery/m2/nuaa_overlap_rules.json",
- "rules_sha256": "e4c95a13cc22b259593bf492399e9357a033227ee41edc30d303e62c0c2ef30c",
+ "rules_sha256": "c6825d1c6e9e49d6b22dccbda4445312397c227e1052d3df7a726dbd3f4a9c34",
  "manifests_dir": "results/m2/manifests",
  "manifests": {
   "official_train": {
@@ -1004,6 +1004,90 @@
      "outcome": "pass"
     }
    ]
+  },
+  {
+   "id": "R15-key-consistency",
+   "kind": "key_consistency",
+   "severity": "must",
+   "by": [
+    "key"
+   ],
+   "description": "every key present in several manifests has the same sha256, bytes, label, subject, glasses, pos, session, pic and official_split in all of them",
+   "verdict": "pass",
+   "checks": [
+    {
+     "manifest": "all",
+     "by": "key->label",
+     "keys_in_several_manifests": 6081,
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "all",
+     "by": "key->subject",
+     "keys_in_several_manifests": 6081,
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "all",
+     "by": "key->glasses",
+     "keys_in_several_manifests": 6081,
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "all",
+     "by": "key->pos",
+     "keys_in_several_manifests": 6081,
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "all",
+     "by": "key->session",
+     "keys_in_several_manifests": 6081,
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "all",
+     "by": "key->pic",
+     "keys_in_several_manifests": 6081,
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "all",
+     "by": "key->official_split",
+     "keys_in_several_manifests": 6081,
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "all",
+     "by": "key->sha256",
+     "keys_in_several_manifests": 6081,
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    },
+    {
+     "manifest": "all",
+     "by": "key->bytes",
+     "keys_in_several_manifests": 6081,
+     "duplicated_values": 0,
+     "rows": 0,
+     "outcome": "pass"
+    }
+   ]
   }
  ],
  "matrix": {
@@ -1608,7 +1692,7 @@
  "n_reported": 1,
  "passed": true,
  "note": "public version: counts and verdicts only, no keys and no subject identifiers",
- "commit": "36c677aaa937d2997f727188878f1080706d12d3",
+ "commit": "2a24188ec31d508328ad7e703f7a937e1522fb97",
  "dirty": false,
- "checked": "2026-10-06T20:07:05+0200"
+ "checked": "2026-10-08T09:19:31+0200"
 }

@@ -8,9 +8,14 @@
   "archive_sha256": "c0780c6f1e581b720eb3c48faaeef7713748b174233d3fcafa8da716b5c81a3e",
   "archive_sha256_equals_hf_etag": true,
   "official_readme_in_mirror": false,
-  "field_order_source": "`ID_glasses_pos_session_picNo`, as stated on the M2 task card (3 October 2026), where the coordinator took it from the README of the original release; that README is not in the mirror and was not available to us. The reference publication of the database is Tan et al., ECCV 2010. On the data we verified the structure (five numeric fields), that ID equals the subject folder, and that the session field separates the official splits (01\u201302 train, 03 test); the meaning of the glasses and pos codes is not verified and they are carried as opaque codes.",
-  "split_lists_source": "the mirror's lists carry the path prefix `/kaggle/input/nuaaaa/raw/`, added by the mirror author: they are the mirror's version of the official lists. Only file names are compared. We did not verify their equivalence with the lists of the original release; the coordinator rebuilt the 300 C1 images from the official source with identical hashes (M1 card, 2 October 2026). `build` accepts only the mirror's list format.",
-  "subjects_source": "the 4-digit IDs of the official folders and file names. No identity is inferred from image content or from groups of images. Treating the same ID in ClientRaw and ImposterRaw as the same person follows the naming of the release and is not verified on the images.",
+  "source_declarations": {
+   "Original source": "NUAA Photograph Imposter Database, Nanjing University of Aeronautics and Astronautics; reference publication: X. Tan, Y. Li, J. Liu, L. Jiang, \"Face Liveness Detection from a Single Image with Sparse Low Rank Bilinear Discriminative Model\", ECCV 2010.",
+   "Documented": "the field order `ID_glasses_pos_session_picNo`, from the README of the original release as reported by the coordinator on the M2 task card (3 October 2026); that README is not in the mirror and was not available to us.",
+   "Verified in the mirror": "the structure of the names (five numeric fields), that ID equals the subject folder, and that the session field separates the splits (01\u201302 train, 03 test).",
+   "Not verified": "the meaning of the glasses and pos codes, carried as opaque two-digit codes.",
+   "Split lists": "the mirror's lists carry the path prefix `/kaggle/input/nuaaaa/raw/`, added by the mirror author: they are the mirror's version of the official lists. Only file names are compared. We did not verify their equivalence with the lists of the original release; the coordinator rebuilt the 300 C1 images from the official source with identical hashes (M1 card, 2 October 2026). `build` accepts only the mirror's list format.",
+   "Subjects": "the 4-digit IDs of the official folders and file names. No identity is inferred from image content or from groups of images. Treating the same ID in ClientRaw and ImposterRaw as the same person follows the naming of the release and is not verified on the images."
+  },
   "naming_schema": "delivery/m2/naming_schema.md (field order from the M2 task card, 3 October 2026; the README of the original release was not available)"
  },
  "official_lists": {
@@ -346,9 +351,9 @@
  },
  "passed": true,
  "problems": [],
- "commit": "36c677aaa937d2997f727188878f1080706d12d3",
+ "commit": "2a24188ec31d508328ad7e703f7a937e1522fb97",
  "dirty": false,
- "created": "2026-10-06T20:07:05+0200",
+ "created": "2026-10-08T09:19:31+0200",
  "manifests": {
   "official_train": {
    "file": "manifests/nuaa_official_train.csv",

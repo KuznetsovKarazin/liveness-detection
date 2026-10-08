@@ -5,10 +5,10 @@ transformations and per-split counts, and a repeatable check of overlaps and dup
 This first tranche covers **NUAA** only (CASIA-FASD and CelebA-Spoof follow). No training and no inference: the
 scripts list and hash files and read the training cache (subject, label and frame arrays; the frames are only hashed).
 
-This folder is a filtered export of the operator's development repository (private; development commit `36c677a`,
-run `20261006-M2-seed42-36c677a`): the scripts needed to rerun the checks, the documents, the declared rules and the aggregate results,
+This folder is a filtered export of the operator's development repository (private; development commit `2a24188`,
+run `20261008-M2-seed42-2a24188`): the scripts needed to rerun the checks, the documents, the declared rules and the aggregate results,
 without data, weights, per-image manifests or per-subject records. The per-image manifests, the private summary, the
-restricted overlap and short reports and the logs are in the project workspace under `02_Experiments/M2/20261006-M2-seed42-36c677a/`,
+restricted overlap and short reports and the logs are in the project workspace under `02_Experiments/M2/20261008-M2-seed42-2a24188/`,
 with their SHA-256 listed in the public aggregate and in `run-report.md`. Code comments, command-line help and progress
 messages are in Italian by the developer's convention; reports, error messages and every document of this folder are
 in English.
@@ -17,6 +17,10 @@ Per-subject counts (by class and by subject and session) and the identifiers of 
 the restricted summary `nuaa_manifests_summary.json` (`by_subject`, `by_subject_session`), because `research/README.md`
 keeps per-subject records out of the public repository. The public aggregate gives counts per class, session, glasses
 and pos, the number of subjects per class, and counts of rows of shared subjects without identifiers.
+
+## Delivery status
+
+Restricted folder `02_Experiments/M2/20261006-M2-seed42-36c677a/` uploaded to Drive on 2026-10-08 (declared by the operator). This revision changes only code and documents: the 7 manifests are byte-identical to that upload (SHA-256 compared with its `SHA256SUMS`). The restricted folder of this run (`20261008-M2-seed42-2a24188`) is ready locally and not uploaded yet; it is uploaded to `02_Experiments/M2/20261008-M2-seed42-2a24188/` only after review.
 
 ## Glossary
 
@@ -30,11 +34,14 @@ and pos, the number of subjects per class, and counts of rows of shared subjects
 
 ## Source and field names
 
-- Field order: `ID_glasses_pos_session_picNo`, as stated on the M2 task card (3 October 2026), where the coordinator
-  took it from the README of the original release; that README is not in the mirror and was not available to us. The
-  reference publication of the database is Tan et al., ECCV 2010. On the data we verified the structure (five numeric
-  fields), that ID equals the subject folder, and that the session field separates the official splits (01–02 train,
-  03 test); the meaning of the glasses and pos codes is not verified and they are carried as opaque codes.
+- Original source: NUAA Photograph Imposter Database, Nanjing University of Aeronautics and Astronautics; reference
+  publication: X. Tan, Y. Li, J. Liu, L. Jiang, "Face Liveness Detection from a Single Image with Sparse Low Rank
+  Bilinear Discriminative Model", ECCV 2010.
+- Documented: the field order `ID_glasses_pos_session_picNo`, from the README of the original release as reported by
+  the coordinator on the M2 task card (3 October 2026); that README is not in the mirror and was not available to us.
+- Verified in the mirror: the structure of the names (five numeric fields), that ID equals the subject folder, and
+  that the session field separates the splits (01–02 train, 03 test).
+- Not verified: the meaning of the glasses and pos codes, carried as opaque two-digit codes.
 - Split lists: the mirror's lists carry the path prefix `/kaggle/input/nuaaaa/raw/`, added by the mirror author: they
   are the mirror's version of the official lists. Only file names are compared. We did not verify their equivalence
   with the lists of the original release; the coordinator rebuilt the 300 C1 images from the official source with
@@ -49,7 +56,7 @@ Details in `naming_schema.md`.
 
 | file | what it is | where |
 |---|---|---|
-| `naming_schema.md` | NUAA file naming schema (field order from the M2 card, structure checked on the data), parsing, checks against the split lists, C1 session correction and versioning | public |
+| `naming_schema.md` | NUAA file naming schema (original source; what is documented, what is only verified in the mirror, what is not verified), parsing, checks against the split lists, C1 session correction and versioning | public |
 | `transformations.md` | transformations from the image files to the derived frames of the training cache and to the CNN inputs (preprocessing, augmentation, use of the validation images), from the code | public |
 | `nuaa_overlap_rules.json` | the declared manifests (file, expected rows, expected SHA-256) and the overlap and derivation rules (must-hold and report-only) | public |
 | `nuaa_manifests_aggregate.json` | source and revision, SHA-256 of the archive and of the four split lists, per-manifest SHA-256 and counts per class, session, glasses and pos and number of subjects, checkpoint linkage, reconstruction checks, derived-frame duplicate check, exclusions, C1 correction counts, recountable block (`recount`) | public |
@@ -126,12 +133,12 @@ Data, results and weights folders can be moved with `LIVENESSLAB_DATA_DIR`, `LIV
 
 With `M2_RUN` pointing at the restricted run folder and `C1_RUN` at the restricted C1 run folder (it holds the C1
 manifest version 1, `nuaa_manifest.csv`), from inside `livenesslab/`. Without the images, content hashes are taken as
-recorded: a changed hash of an image outside every derived manifest is not detected; only `build` checks the hashes
-against the files.
+recorded: a changed hash of an image that appears in only one manifest, or a hash changed consistently in every manifest
+where the key appears, is not detected; only `build` checks the hashes against the files.
 
 1. completeness and anchor of the two folders (section "Integrity");
 2. overlap rules and self-test on the restricted manifests (numpy only); the verdicts must equal those of
-   `overlap_report_public.json` and the self-test must reject 7 of 7 faulty copies:
+   `overlap_report_public.json` and the self-test must reject 8 of 8 faulty copies:
 
    ```bash
    python scripts/nuaa_manifests.py check-overlap --self-test --manifests-dir "$M2_RUN/manifests" --out /tmp/m2-overlap
@@ -188,7 +195,8 @@ circular).
 Every manifest is declared in `nuaa_overlap_rules.json` with its expected number of rows and SHA-256: a missing,
 truncated or different manifest stops `check-overlap` with code 1 before any rule. Every row is validated against its
 key: label from the `real/`/`attack/` prefix, subject, glasses, pos, session and picture number from the file name,
-official split from the session, compared as exact text (a row with a lost leading zero, a space or an empty field is
+official split from the session (01–02 train, 03 test; any other session, and an official split other than `train` or
+`test`, is refused: there is no fallback), compared as exact text (a row with a lost leading zero, a space or an empty field is
 refused, so no rule, not even a report-only one, runs on inconsistent data). Every pair of manifests is compared by
 key, content hash, subject and (subject, session), and each manifest is checked for internal duplicates by key and by
 hash. A rule on an empty manifest fails instead of passing vacuously. Duplicates are exact (file SHA-256, or frame
@@ -209,14 +217,16 @@ not establish absence of leakage.
 | R12 | M1 dev = all official training images of the validation subjects | must |
 | R13 | CNN test = `spread(official test, 1500)` per class | must |
 | R14 | C1 = `spread(official test, 150)` per class | must |
+| R15 | key consistency: a key present in several manifests has the same SHA-256, bytes, label, subject, glasses, pos, session, pic and official split in all of them (comparing the sets of keys and of hashes separately is not enough: two SHA-256 swapped between rows keep both sets equal) | must |
 
 `check-overlap` exits with code 1 when a must-hold rule fails; it lists up to three example keys for the failed checks
 in the restricted report only; the public report has counts and verdicts only and is scanned for forbidden content
-(subject identifiers, paths, addresses, credentials). `check-overlap --self-test` then repeats the check on seven
+(subject identifiers, paths, addresses, credentials). `check-overlap --self-test` then repeats the check on eight
 faulty copies of the real manifests, with their rows and SHA-256 re-declared, and requires each to fail exactly the
 expected rules: a dev row removed (R12), a train row removed (R11), a validation row added to the train (R02, R03,
-R11), a train row added to C1 (R04, R09, R10, R14), a train image's SHA-256 under a test name (R04, R09), a duplicated
-test row (R01, R13), a C1 row removed from the official test (R09, R13, R14). The offline tests cover the same rules on
+R11), a train row added to C1 (R04, R09, R10, R14), a train image's SHA-256 under a test name (R04, R09, R15), a duplicated
+test row (R01, R13), a C1 row removed from the official test (R09, R13, R14), two SHA-256 swapped between C1 rows with
+the official test and the CNN test unchanged (R15 only). The offline tests cover the same rules on
 synthetic manifests with known overlaps, plus inconsistent rows, truncated or altered manifests, byte-order marks,
 duplicated columns, malformed or vacuous rules, the public report and duplicated derived frames.
 

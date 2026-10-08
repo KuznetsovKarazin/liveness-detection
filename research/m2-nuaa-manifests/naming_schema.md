@@ -5,20 +5,20 @@ from, what was checked on the data, and why the C1 manifest gets a new version.
 
 ## Source
 
-- Dataset: NUAA Photograph Imposter Database. Reference publication: X. Tan, Y. Li, J. Liu, L. Jiang, "Face Liveness
-  Detection from a Single Image with Sparse Low Rank Bilinear Discriminative Model", European Conference on Computer
-  Vision (ECCV) 2010.
 - Copy used: public Hugging Face mirror `akahana/anti-spoofing-nuaaaa`, revision
   `6dd1ec237710732f92e73ca7653e695fd47c7a86`, archive `nuaaaa.tar.gz` with SHA-256
   `c0780c6f1e581b720eb3c48faaeef7713748b174233d3fcafa8da716b5c81a3e`.
 - The archive contains the images (`raw/ClientRaw/<ID>/`, `raw/ImposterRaw/<ID>/`) and four split lists
   (`raw/client_train_raw.txt`, `raw/imposter_train_raw.txt`, `raw/client_test_raw.txt`,
   `raw/imposter_test_raw.txt`), but **no README**.
-- Field order: `ID_glasses_pos_session_picNo`, as stated on the M2 task card (3 October 2026), where the coordinator
-  took it from the README of the original release; that README is not in the mirror and was not available to us. The
-  reference publication of the database is Tan et al., ECCV 2010. On the data we verified the structure (five numeric
-  fields), that ID equals the subject folder, and that the session field separates the official splits (01–02 train,
-  03 test); the meaning of the glasses and pos codes is not verified and they are carried as opaque codes.
+- Original source: NUAA Photograph Imposter Database, Nanjing University of Aeronautics and Astronautics; reference
+  publication: X. Tan, Y. Li, J. Liu, L. Jiang, "Face Liveness Detection from a Single Image with Sparse Low Rank
+  Bilinear Discriminative Model", ECCV 2010.
+- Documented: the field order `ID_glasses_pos_session_picNo`, from the README of the original release as reported by
+  the coordinator on the M2 task card (3 October 2026); that README is not in the mirror and was not available to us.
+- Verified in the mirror: the structure of the names (five numeric fields), that ID equals the subject folder, and
+  that the session field separates the splits (01–02 train, 03 test).
+- Not verified: the meaning of the glasses and pos codes, carried as opaque two-digit codes.
 - Split lists: the mirror's lists carry the path prefix `/kaggle/input/nuaaaa/raw/`, added by the mirror author: they
   are the mirror's version of the official lists. Only file names are compared. We did not verify their equivalence
   with the lists of the original release; the coordinator rebuilt the 300 C1 images from the official source with

@@ -104,11 +104,14 @@ KEY_DIR_OF_LABEL = {lab: kd for _, lab, kd in CLASS_DIRS}      # 0 -> real, 1 ->
 
 COLUMNS = ["key", "label", "subject", "glasses", "pos", "session", "pic", "official_split", "sha256", "bytes"]
 # dichiarazioni sulla fonte (stesso testo in naming_schema.md, README.md e report.md.tmpl)
-FIELD_ORDER_SOURCE = ("`ID_glasses_pos_session_picNo`, as stated on the M2 task card (3 October 2026), where the coordinator took it "
-                      "from the README of the original release; that README is not in the mirror and was not available to us. The "
-                      "reference publication of the database is Tan et al., ECCV 2010. On the data we verified the structure (five "
-                      "numeric fields), that ID equals the subject folder, and that the session field separates the official splits "
-                      "(01–02 train, 03 test); the meaning of the glasses and pos codes is not verified and they are carried as opaque codes.")
+ORIGINAL_SOURCE = ("NUAA Photograph Imposter Database, Nanjing University of Aeronautics and Astronautics; reference publication: X. Tan, "
+                   "Y. Li, J. Liu, L. Jiang, \"Face Liveness Detection from a Single Image with Sparse Low Rank Bilinear Discriminative "
+                   "Model\", ECCV 2010.")
+DOCUMENTED_SOURCE = ("the field order `ID_glasses_pos_session_picNo`, from the README of the original release as reported by the "
+                     "coordinator on the M2 task card (3 October 2026); that README is not in the mirror and was not available to us.")
+VERIFIED_SOURCE = ("the structure of the names (five numeric fields), that ID equals the subject folder, and that the session field "
+                   "separates the splits (01–02 train, 03 test).")
+NOT_VERIFIED_SOURCE = "the meaning of the glasses and pos codes, carried as opaque two-digit codes."
 SPLIT_LISTS_SOURCE = ("the mirror's lists carry the path prefix `/kaggle/input/nuaaaa/raw/`, added by the mirror author: they are the "
                       "mirror's version of the official lists. Only file names are compared. We did not verify their equivalence with "
                       "the lists of the original release; the coordinator rebuilt the 300 C1 images from the official source with identical "
@@ -116,7 +119,10 @@ SPLIT_LISTS_SOURCE = ("the mirror's lists carry the path prefix `/kaggle/input/n
 SUBJECTS_SOURCE = ("the 4-digit IDs of the official folders and file names. No identity is inferred from image content or from groups of "
                    "images. Treating the same ID in ClientRaw and ImposterRaw as the same person follows the naming of the release and is "
                    "not verified on the images.")
-# nei documenti: "- Field order: " + FIELD_ORDER_SOURCE, "- Split lists: " + SPLIT_LISTS_SOURCE, "- Subjects: " + SUBJECTS_SOURCE
+# nei documenti, in quest'ordine: "- Original source: ", "- Documented: ", "- Verified in the mirror: ", "- Not verified: ",
+# "- Split lists: ", "- Subjects: " seguiti dalle costanti
+SOURCE_DECLARATIONS = (("Original source", ORIGINAL_SOURCE), ("Documented", DOCUMENTED_SOURCE), ("Verified in the mirror", VERIFIED_SOURCE),
+                       ("Not verified", NOT_VERIFIED_SOURCE), ("Split lists", SPLIT_LISTS_SOURCE), ("Subjects", SUBJECTS_SOURCE))
 SESSION_SPLIT = {"01": "train", "02": "train", "03": "test"}   # quinto campo -> split ufficiale (verificato da build sulle liste)
 MAX_EPOCHS = 12                                     # limite di epoche dell'addestramento del 12/09 (C1 checkpoints/PROVENANCE.md)
 # uso delle immagini di validazione nell'addestramento (scripts/train_cnn.py, train): nessun aggiornamento dei pesi;
@@ -257,7 +263,12 @@ def manifest_problems(rows) -> list:
             f = parse_name(name_of(k))
         except ValueError:
             bad["keys that are not NUAA file names <subject>_<ID>_<glasses>_<pos>_<session>_<picNo>.jpg"].append(k); continue
-        expected = {"label": str(st.KEY_LABEL[k.split("/", 1)[0]]), **f, "official_split": SESSION_SPLIT.get(f["session"], "")}
+        # nessun ripiego silenzioso: una sessione fuori da 01/02/03 o uno split diverso da train/test sono errori
+        if f["session"] not in SESSION_SPLIT:
+            bad[f"session values outside {sorted(SESSION_SPLIT)}"].append(k); continue
+        if r.get("official_split") not in ("train", "test"):
+            bad["official_split values other than train/test"].append(k)
+        expected = {"label": str(st.KEY_LABEL[k.split("/", 1)[0]]), **f, "official_split": SESSION_SPLIT[f["session"]]}
         for c, v in expected.items():
             if r.get(c) != v:
                 bad[f"{c} values not consistent with the key"].append(k)
@@ -451,8 +462,7 @@ def cmd_build(a) -> None:
               "mirror": f"Hugging Face dataset {MIRROR}", "revision": meta["revision"] if meta else None,
               "archive": ARCHIVE.name, "archive_sha256": archive_sha,
               "archive_sha256_equals_hf_etag": (meta is not None and archive_sha is not None and meta["etag"] == archive_sha),
-              "official_readme_in_mirror": False, "field_order_source": FIELD_ORDER_SOURCE, "split_lists_source": SPLIT_LISTS_SOURCE,
-              "subjects_source": SUBJECTS_SOURCE,
+              "official_readme_in_mirror": False, "source_declarations": {label: text for label, text in SOURCE_DECLARATIONS},
               "naming_schema": "delivery/m2/naming_schema.md (field order from the M2 task card, 3 October 2026; the README of the original release was not available)"}
     check("archive_present", archive_sha is not None, f"missing {relpath(ARCHIVE)}")
     check("archive_matches_hf_metadata", source["archive_sha256_equals_hf_etag"],
@@ -736,7 +746,9 @@ def cmd_build(a) -> None:
 # ----------------------------------------------------------------------------- check-overlap
 
 DIMENSIONS = ("key", "hash", "subject", "subject_session")
-KINDS = ("disjoint", "subset", "intersection", "no_internal_duplicates", "spread_partition", "equals_spread", "subject_closure")
+KINDS = ("disjoint", "subset", "intersection", "no_internal_duplicates", "spread_partition", "equals_spread", "subject_closure",
+         "key_consistency")
+CONSISTENT_FIELDS = ("label", "subject", "glasses", "pos", "session", "pic", "official_split", "sha256", "bytes")
 DERIVATIONS = ("spread_partition", "equals_spread", "subject_closure")   # regole di derivazione, sempre per chiave
 SEVERITIES = ("must", "report")
 
@@ -810,7 +822,9 @@ def rule_problems(doc: dict, names) -> list:
         if r.get("kind") in DERIVATIONS:
             problems += derivation_problems(r, rid, names)
             continue
-        sides = ("manifests",) if r.get("kind") == "no_internal_duplicates" else ("a", "b")
+        sides = ("manifests",) if r.get("kind") in ("no_internal_duplicates", "key_consistency") else ("a", "b")
+        if r.get("kind") == "key_consistency" and r.get("by") != ["key"]:
+            problems.append(f"{rid}: key_consistency rules compare by key ('by': ['key'])")
         for s in sides:
             v = r.get(s)
             vals = names if v == "*" else as_list(v)
@@ -897,6 +911,28 @@ def derivation_check(r: dict, mans: dict) -> list:
     return checks
 
 
+def key_consistency_check(r: dict, mans: dict) -> list:
+    """Ogni chiave presente in più manifest deve avere gli stessi sha256, bytes e metadati ovunque: confrontare a parte gli
+    insiemi delle chiavi e degli hash non basta (due SHA scambiati fra righe dello stesso manifest lasciano gli insiemi
+    uguali). Una verifica per campo, con il numero di chiavi i cui valori differiscono fra i manifest."""
+    names = list(mans) if r["manifests"] == "*" else as_list(r["manifests"])
+    seen = defaultdict(dict)                      # chiave -> {manifest: riga}
+    for n in names:
+        for row in mans[n]:
+            seen[row["key"]].setdefault(n, row)
+    shared = {k: v for k, v in seen.items() if len(v) > 1}
+    checks = []
+    for field in CONSISTENT_FIELDS:
+        bad = sorted(k for k, by_man in shared.items() if len({str(x.get(field)) for x in by_man.values()}) > 1)
+        c = {"manifest": "+".join(names) if r["manifests"] != "*" else "all", "by": f"key->{field}",
+             "keys_in_several_manifests": len(shared), "duplicated_values": len(bad), "rows": len(bad)}
+        c["outcome"] = "pass" if not bad else ("FAIL" if r["severity"] == "must" else "reported")
+        if bad and r["severity"] == "must":
+            c["examples"] = bad[:3]
+        checks.append(c)
+    return checks
+
+
 def examples_of(shared, k=3):
     return [("/".join(v) if isinstance(v, tuple) else v) for v in sorted(shared)[:k]]
 
@@ -910,6 +946,8 @@ def evaluate_rules(mans: dict, rules: list) -> list:
         checks = []
         if r["kind"] in DERIVATIONS:
             checks = derivation_check(r, mans)
+        elif r["kind"] == "key_consistency":
+            checks = key_consistency_check(r, mans)
         elif r["kind"] == "no_internal_duplicates":
             names = list(mans) if r["manifests"] == "*" else as_list(r["manifests"])
             for n, dim in product(names, r["by"]):
@@ -945,7 +983,7 @@ def evaluate_rules(mans: dict, rules: list) -> list:
         # nessuna regola passa a vuoto: un manifest senza righe o una regola senza verifiche è un fallimento
         if r["kind"] in DERIVATIONS:
             involved = [n for f in ("a", "parts", "source", "subjects_of") if f in r for n in as_list(r[f])]
-        elif r["kind"] == "no_internal_duplicates":
+        elif r["kind"] in ("no_internal_duplicates", "key_consistency"):
             involved = list(mans) if r.get("manifests") == "*" else as_list(r["manifests"])
         else:
             involved = as_list(r["a"]) + as_list(r["b"])
@@ -1063,12 +1101,15 @@ def self_test_faults(m: dict) -> list:
          {"R04-train-side-vs-test-side", "R09-test-chain", "R10-c1-in-cnn-test", "R14-c1-spread"}),
         ("F5-train-hash-under-test-name", "a CNN test row outside C1 gets the SHA-256 of the first CNN train image",
          {"cnn_test": [dict(r, sha256=m["cnn_train"][0]["sha256"]) if r is test_row else r for r in m["cnn_test"]]},
-         {"R04-train-side-vs-test-side", "R09-test-chain"}),
+         {"R04-train-side-vs-test-side", "R09-test-chain", "R15-key-consistency"}),
         ("F6-duplicated-row", "first CNN test row duplicated", {"cnn_test": m["cnn_test"] + [m["cnn_test"][0]]},
          {"R01-internal-duplicates", "R13-cnn-test-spread"}),
         ("F7-c1-row-removed-from-official-test", "first C1 row removed from the official test",
          {"official_test": [r for r in m["official_test"] if r["key"] != m["c1"][0]["key"]]},
          {"R09-test-chain", "R13-cnn-test-spread", "R14-c1-spread"}),
+        ("F8-sha-swapped-in-c1", "SHA-256 of the first two C1 rows swapped (official test and CNN test unchanged)",
+         {"c1": [dict(r, sha256=m["c1"][1 - i]["sha256"]) if i < 2 else r for i, r in enumerate(m["c1"])]},
+         {"R15-key-consistency"}),
     ]
 
 

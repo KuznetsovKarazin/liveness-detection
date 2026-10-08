@@ -9,11 +9,14 @@ list and hash files and read the training cache (subject, label and frame arrays
 - Dataset: NUAA Photograph Imposter Database (Tan, Li, Liu, Jiang, ECCV 2010), from the {mirror},
   revision `{revision}`; archive `nuaaaa.tar.gz`, SHA-256 `{archive_sha256}` (equal to the etag recorded by the
   Hugging Face download cache).
-- Field order: `ID_glasses_pos_session_picNo`, as stated on the M2 task card (3 October 2026), where the coordinator
-  took it from the README of the original release; that README is not in the mirror and was not available to us. The
-  reference publication of the database is Tan et al., ECCV 2010. On the data we verified the structure (five numeric
-  fields), that ID equals the subject folder, and that the session field separates the official splits (01–02 train,
-  03 test); the meaning of the glasses and pos codes is not verified and they are carried as opaque codes. Details:
+- Original source: NUAA Photograph Imposter Database, Nanjing University of Aeronautics and Astronautics; reference
+  publication: X. Tan, Y. Li, J. Liu, L. Jiang, "Face Liveness Detection from a Single Image with Sparse Low Rank
+  Bilinear Discriminative Model", ECCV 2010.
+- Documented: the field order `ID_glasses_pos_session_picNo`, from the README of the original release as reported by
+  the coordinator on the M2 task card (3 October 2026); that README is not in the mirror and was not available to us.
+- Verified in the mirror: the structure of the names (five numeric fields), that ID equals the subject folder, and
+  that the session field separates the splits (01–02 train, 03 test).
+- Not verified: the meaning of the glasses and pos codes, carried as opaque two-digit codes. Details:
   `naming_schema.md`.
 - Split lists: the mirror's lists carry the path prefix `/kaggle/input/nuaaaa/raw/`, added by the mirror author: they
   are the mirror's version of the official lists. Only file names are compared. We did not verify their equivalence

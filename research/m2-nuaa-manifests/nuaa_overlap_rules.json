@@ -1,6 +1,6 @@
 {
- "schema": "nuaa-overlap-rules/3",
- "description": "Declared overlap rules for the NUAA manifests of M2. Each manifest is declared with its expected number of rows and SHA-256 (as written by `nuaa_manifests.py build`); a different or truncated manifest stops the check. Severity 'must': a failure makes check-overlap exit with code 1. Severity 'report': the overlap is allowed and only reported. Derivation rules (spread_partition, equals_spread, subject_closure) compare keys with those derived from a source manifest. Dimensions: key (real/<name> or attack/<name>), hash (SHA-256 of the file content), subject (4-digit subject id), subject_session (subject id and 5th field of the file name).",
+ "schema": "nuaa-overlap-rules/4",
+ "description": "Declared overlap rules for the NUAA manifests of M2. Each manifest is declared with its expected number of rows and SHA-256 (as written by `nuaa_manifests.py build`); a different or truncated manifest stops the check. Severity 'must': a failure makes check-overlap exit with code 1. Severity 'report': the overlap is allowed and only reported. The key-consistency rule requires the same SHA-256, bytes and metadata for a key wherever it appears. Derivation rules (spread_partition, equals_spread, subject_closure) compare keys with those derived from a source manifest. Dimensions: key (real/<name> or attack/<name>), hash (SHA-256 of the file content), subject (4-digit subject id), subject_session (subject id and 5th field of the file name).",
  "manifests": {
   "official_train": {"file": "nuaa_official_train.csv", "expected_rows": 3491, "expected_sha256": "2a7e8906f98b8e3cf0c42cd0a2cf10e15868750b1ac82e85b62a9e0b59aad648"},
   "official_test": {"file": "nuaa_official_test.csv", "expected_rows": 9123, "expected_sha256": "2fad23ff295cb2c1d3d0be238deef02faad252aa717933c30588bd5a9c4106c7"},
@@ -24,6 +24,7 @@
   {"id": "R11-cnn-split-partition", "kind": "spread_partition", "source": "official_train", "parts": ["cnn_train", "cnn_es"], "per_class": 1500, "by": ["key"], "severity": "must", "description": "CNN train and validation are disjoint and together equal spread(official train, 1500) per class (the 3,000 sampled training images)"},
   {"id": "R12-dev-subject-closure", "kind": "subject_closure", "a": "m1_dev", "source": "official_train", "subjects_of": "cnn_es", "by": ["key"], "severity": "must", "description": "the M1 dev set is exactly the official training images of the validation subjects"},
   {"id": "R13-cnn-test-spread", "kind": "equals_spread", "a": "cnn_test", "source": "official_test", "per_class": 1500, "by": ["key"], "severity": "must", "description": "the CNN test images are exactly spread(official test, 1500) per class"},
-  {"id": "R14-c1-spread", "kind": "equals_spread", "a": "c1", "source": "official_test", "per_class": 150, "by": ["key"], "severity": "must", "description": "the C1 images are exactly spread(official test, 150) per class"}
+  {"id": "R14-c1-spread", "kind": "equals_spread", "a": "c1", "source": "official_test", "per_class": 150, "by": ["key"], "severity": "must", "description": "the C1 images are exactly spread(official test, 150) per class"},
+  {"id": "R15-key-consistency", "kind": "key_consistency", "manifests": "*", "by": ["key"], "severity": "must", "description": "every key present in several manifests has the same sha256, bytes, label, subject, glasses, pos, session, pic and official_split in all of them"}
  ]
 }

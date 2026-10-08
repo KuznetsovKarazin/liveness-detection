@@ -251,6 +251,9 @@ class TestRules(unittest.TestCase):
                           "m1_dev": 574, "c1": 300})
         ids = {r["id"]: r for r in doc["rules"]}
         self.assertEqual(ids["R08-dev-es-reuse"]["expected"], 493)
+        # R15: coerenza per chiave su tutti i manifest, obbligatoria
+        self.assertEqual({k: ids["R15-key-consistency"][k] for k in ("kind", "manifests", "by", "severity")},
+                         {"kind": "key_consistency", "manifests": "*", "by": ["key"], "severity": "must"})
         self.assertEqual(ids["R05-subjects-train-vs-test"]["severity"], "report")
         self.assertTrue(all(r["severity"] == "must" for i, r in ids.items() if i != "R05-subjects-train-vs-test"))
 
@@ -262,8 +265,13 @@ class TestRules(unittest.TestCase):
         self.assertIn("report.md.tmpl", [p.name for p in files])
         for p in files:
             t = norm(p.read_text(encoding="utf-8"))
-            for decl in (NM.FIELD_ORDER_SOURCE, NM.SPLIT_LISTS_SOURCE, NM.SUBJECTS_SOURCE):
-                self.assertIn(decl, t, p.name)
+            for label, decl in NM.SOURCE_DECLARATIONS:
+                self.assertIn(decl, t, f"{p.name}: {label}")
+                if p.name != "report.md.tmpl":                    # nello schema e nel README come voce con etichetta
+                    self.assertIn(f"- {label}: {decl}", t, f"{p.name}: {label}")
+        # documentato e verificato restano distinti: il significato di glasses e pos non è mai detto verificato
+        self.assertIn("not verified", NM.NOT_VERIFIED_SOURCE + " not verified")
+        self.assertNotIn("glasses", NM.VERIFIED_SOURCE)
 
     def test_rule_problems(self):
         names = ["a", "b"]
@@ -492,6 +500,22 @@ class TestManifestValidation(unittest.TestCase):
             self.assertIn(what.strip(), " ".join(problems), what)
         self.assertEqual(NM.manifest_problems([{k: str(v) for k, v in r.items()} for r in clean_world()["train"]]), [])
 
+    def test_session_99_and_empty_split_are_refused(self):
+        # regressione della revisione: prima il ripiego SESSION_SPLIT.get(..., "") accettava session=99 con split vuoto
+        r99 = dict(row(0, "0001", "99", 1), official_split="")
+        problems = " ".join(NM.manifest_problems([{k: str(v) for k, v in r99.items()}]))
+        self.assertIn("session values outside", problems)
+        empty = dict(row(0, "0001", "01", 1), official_split="")
+        problems = " ".join(NM.manifest_problems([{k: str(v) for k, v in empty.items()}]))
+        self.assertIn("official_split values other than train/test", problems)
+        for split in ("validation", "Train", " train"):
+            bad = dict(row(0, "0001", "01", 1), official_split=split)
+            self.assertTrue(NM.manifest_problems([{k: str(v) for k, v in bad.items()}]), split)
+        w = clean_world(); w["test"][0] = r99
+        r, rep = run_overlap(self.d, w)
+        self.assertCleanError(r, "session values outside")
+        self.assertIsNone(rep)
+
     def test_wrong_rows_stop_report_rules_too(self):
         # una riga incoerente ferma check-overlap prima di qualsiasi regola, anche se l'unica regola è "report"
         w = clean_world(); w["test"][0] = dict(w["test"][0], subject="0004")
@@ -711,6 +735,66 @@ class TestDerivations(unittest.TestCase):
             self.assertTrue(NM.rule_problems({**base, "rules": [bad]}, names), bad)
 
 
+class TestKeyConsistency(unittest.TestCase):
+    """Scenario della revisione: due SHA scambiati fra righe di C1, test ufficiale e test delle CNN invariati, righe e
+    SHA-256 dichiarati aggiornati. Le regole per insiemi di chiavi e di hash passano tutte; solo la coerenza per chiave
+    lo rileva."""
+
+    RULES = {"manifests": DERIV_RULES["manifests"],
+             "rules": DERIV_RULES["rules"] + [
+                 {"id": "S-c1-in-test", "kind": "subset", "a": ["c1", "cnn_test"], "b": "official_test", "by": ["key", "hash"], "severity": "must"},
+                 {"id": "S-c1-in-cnn-test", "kind": "subset", "a": "c1", "b": "cnn_test", "by": ["key", "hash"], "severity": "must"},
+                 {"id": "S-internal", "kind": "no_internal_duplicates", "manifests": "*", "by": ["key", "hash"], "severity": "must"}]}
+    CONSISTENCY = {"id": "S-key-consistency", "kind": "key_consistency", "manifests": "*", "by": ["key"], "severity": "must"}
+
+    def swapped(self):
+        w = derivation_world()
+        a, b = w["c1"][0], w["c1"][1]
+        w["c1"] = [dict(a, sha256=b["sha256"]), dict(b, sha256=a["sha256"])] + w["c1"][2:]
+        return w
+
+    def test_swap_passes_set_rules_and_fails_key_consistency(self):
+        with tempfile.TemporaryDirectory() as d:
+            r, rep = run_overlap(Path(d) / "sets", self.swapped(), self.RULES)        # checksum della fixture aggiornati
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)                     # il punto della revisione
+            rules = {**self.RULES, "rules": self.RULES["rules"] + [self.CONSISTENCY]}
+            r, rep = run_overlap(Path(d) / "key", self.swapped(), rules)
+            self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+            self.assertNotIn("Traceback", r.stderr)
+            self.assertEqual({v["id"] for v in rep["rules"] if v["verdict"] == "FAIL"}, {"S-key-consistency"})
+            c = [x for x in verdict(rep, "S-key-consistency")["checks"] if x["outcome"] == "FAIL"]
+            self.assertEqual([(x["by"], x["duplicated_values"]) for x in c], [("key->sha256", 2)])
+
+    def test_every_field_is_compared(self):
+        for field, value in (("bytes", "1"), ("glasses", "01"), ("pic", "1"), ("label", "1")):
+            w = derivation_world()
+            mans = strs(w)
+            mans["c1"][0] = dict(mans["c1"][0], **{field: value})            # in process: senza la validazione delle righe
+            v = NM.evaluate_rules(mans, [self.CONSISTENCY])[0]
+            self.assertEqual(v["verdict"], "FAIL", field)
+            self.assertIn(f"key->{field}", {x["by"] for x in v["checks"] if x["outcome"] == "FAIL"})
+
+    def test_key_in_exactly_two_manifests(self):
+        # una chiave presente in due soli manifest (train ufficiale e train delle CNN) con SHA-256 diverso: R15 fallisce
+        mans = strs(derivation_world())
+        k = mans["cnn_train"][0]["key"]
+        self.assertEqual(sum(any(r["key"] == k for r in rows) for rows in mans.values()), 2)
+        mans["cnn_train"][0] = dict(mans["cnn_train"][0], sha256=fake_hash("other"))
+        v = NM.evaluate_rules(mans, [self.CONSISTENCY])[0]
+        self.assertEqual(v["verdict"], "FAIL")
+        self.assertEqual([(x["by"], x["duplicated_values"]) for x in v["checks"] if x["outcome"] == "FAIL"], [("key->sha256", 1)])
+
+    def test_clean_world_and_rule_problems(self):
+        v = NM.evaluate_rules(strs(derivation_world()), [self.CONSISTENCY])[0]
+        self.assertEqual(v["verdict"], "pass")
+        self.assertGreater(v["checks"][0]["keys_in_several_manifests"], 0)
+        names = list(DERIV_RULES["manifests"])
+        base = {"manifests": {n: {"file": f"{n}.csv", "expected_rows": 1, "expected_sha256": fake_hash(n)} for n in names}}
+        self.assertEqual(NM.rule_problems({**base, "rules": [self.CONSISTENCY]}, names), [])
+        self.assertTrue(NM.rule_problems({**base, "rules": [{**self.CONSISTENCY, "by": ["hash"]}]}, names))
+        self.assertTrue(NM.rule_problems({**base, "rules": [{**self.CONSISTENCY, "manifests": ["c1", "nope"]}]}, names))
+
+
 class TestRecountCompare(unittest.TestCase):
     def test_recount_block_detects_changes(self):
         w = strs(derivation_world())
@@ -765,7 +849,7 @@ class TestRealData(unittest.TestCase):
             r = self.run_nm("check-overlap", "--self-test", "--manifests-dir", man_dir, "--out", d)
             self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
             st_rep = json.loads((Path(d) / "overlap_self_test.json").read_text())
-        self.assertEqual((st_rep["n_faults"], st_rep["n_detected_as_expected"]), (7, 7))
+        self.assertEqual((st_rep["n_faults"], st_rep["n_detected_as_expected"]), (8, 8))
 
     def test_real_reconstruct(self):
         man_dir = need_real(self)
@@ -826,7 +910,7 @@ def main() -> int:
     REQUIRE_REAL, REAL_DIR, REAL_AGGREGATE, C1_V1 = args.require_real, args.real_dir, args.real_aggregate, args.c1_v1
     suite = unittest.TestSuite(unittest.defaultTestLoader.loadTestsFromTestCase(c)
                                for c in (TestParser, TestRules, TestPackageRules, TestOverlapCases, TestManifestValidation, TestDerivedFrames,
-                                         TestDerivations, TestRecountCompare, TestBuildWithoutData, TestRealData))
+                                         TestDerivations, TestKeyConsistency, TestRecountCompare, TestBuildWithoutData, TestRealData))
     log = io.StringIO()
     result = unittest.TextTestRunner(stream=log, verbosity=2).run(suite)
     if args.verbose or not result.wasSuccessful():
