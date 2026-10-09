@@ -339,6 +339,26 @@ class TestWording(unittest.TestCase):
         self.assertTrue(wording_problems("is not verified (no network access)"))
         self.assertEqual(wording_problems("the mirror's `test` split (correspondence with the official test split not verified)"), [])
 
+    def test_official_and_authorisation_notes(self):
+        """Note del 9/10: per CelebA-Spoof "official" è solo il nome del protocollo nelle schede; per CASIA-FASD il protocollo
+        viene da ICB 2012; documenti di licenza distinti dalle autorizzazioni gestite dal coordinatore."""
+        norm = lambda t: re.sub(r"\s+", " ", t)   # noqa: E731
+        texts = {p.name: norm(p.read_text(encoding="utf-8")) for p in sorted(RM.RULES_DIR.glob("*")) if p.suffix in (".md", ".json", ".tmpl")}
+        texts["rgb_manifests.py (declarations)"] = norm(json.dumps([RM.SOURCE_DECLARATIONS, RM.LIMITS, RM.SUPPORTED]))
+        for name, t in texts.items():
+            self.assertNotIn("registered authorisation", t, name)
+            self.assertNotIn("none received", t, name)
+        self.assertIn("{dataset_note}", texts["report.md.tmpl"])
+        self.assertIn("{authorisation_note}", texts.get("run-report.md.tmpl", "{authorisation_note}"))
+        readme = next((norm(p.read_text(encoding="utf-8")) for p in (RM.RULES_DIR / "README.md", ROOT.parent / "README.md") if p.is_file()), None)
+        if readme is None:
+            self.skipTest("README.md not found next to the code: notes not compared")
+        for note in (RM.CELEBA_OFFICIAL_NOTE, RM.CASIA_PROTOCOL_NOTE, RM.AUTHORISATION_NOTE):
+            self.assertIn(note, readme)
+        self.assertGreaterEqual(readme.count(RM.CELEBA_OFFICIAL_NOTE), 3)              # in testa alle sezioni CelebA-Spoof
+        self.assertIn("ICB 2012", RM.CASIA_PROTOCOL_NOTE)
+        self.assertIn("not the original CelebA-Spoof protocol", RM.CELEBA_OFFICIAL_NOTE)
+
 
 class TestRuleEngine(unittest.TestCase):
     def test_clean_world(self):

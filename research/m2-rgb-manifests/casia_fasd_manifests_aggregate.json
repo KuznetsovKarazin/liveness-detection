@@ -36,7 +36,7 @@
  },
  "source_declarations": {
   "Original source": "CASIA Face Anti-Spoofing Database (CASIA-FASD), Institute of Automation, Chinese Academy of Sciences; reference publication: Z. Zhang, J. Yan, S. Liu, Z. Lei, D. Yi, S. Z. Li, \"A face antispoofing database with diverse attacks\", ICB 2012.",
-  "Documented [DOC-EXT]": "50 subjects, 20 in the training set and 30 in the test set, disjoint by protocol; 12 videos per subject (genuine, warped photo, cut photo and video replay, each at low, normal and high quality), from the reference publication; the mapping of the video tokens to attack type and quality is not in the mirror and is not applied: the manifests carry the token as an opaque code.",
+  "Documented [DOC-EXT]": "cited from the reference publication (ICB 2012) as the protocol source, not verified on the copy: 50 subjects, 20 in the training set and 30 in the test set, disjoint by protocol; 12 videos per subject (genuine, warped photo, cut photo and video replay, each at low, normal and high quality); the mapping of the video tokens to attack type and quality is not in the mirror and is not applied: the manifests carry the token as an opaque code.",
   "Verified on the copy": "the downloaded archive holds only extracted JPEG frames, without videos, README or split lists (the mirror also holds two file-name/label lists, `train/` and `test/`, which were not downloaded): `train_img` 1,655 and `test_img` 2,408 colour frames named `<subject>_<video>.avi_<frame>_<real|fake>.jpg`; subject numbers 1\u201320 in `train_img` and 1\u201330 in `test_img` (the numbering is local to the split: the same numbers occur in both); 12 video tokens per subject, none missing; tokens 1, 2 and HR_1 always `real`, the others always `fake`; in the archive the frames are dated 15 November 2022 and the folders 4 June 2025 (the same day as the mirror upload), so the frames predate the mirror.",
   "Mirror": "verified on 9 October 2026 (Hugging Face API): revision `4ea8ec45dee3765e17bb3efedfdcd7af39a3ebfe` is still the mirror's HEAD and the LFS object of `casiafasd.tar.gz` equals our SHA-256 (69,265,514 bytes); the mirror card states no licence and no source. Correspondence with the official release is not verified.",
   "Not verified": "that the subjects of `train_img` and of `test_img` are different persons; the attack type and quality of each token; who extracted and cropped the frames, and from which copy; the origin of the `depth/` maps (not used); the correspondence of the copy with the official release.",
@@ -343,9 +343,9 @@
  },
  "passed": true,
  "problems": [],
- "commit": "13cb49fd4a59c74077d55e022aceba0799c3f3b5",
+ "commit": "80b7d141bbbd93e019d4aac8d42cd4fa1d8cced9",
  "dirty": false,
- "created": "2026-10-09T15:32:13+0200",
+ "created": "2026-10-09T19:12:03+0200",
  "manifests": {
   "mirror_train": {
    "file": "manifests/casia_mirror_train.csv",

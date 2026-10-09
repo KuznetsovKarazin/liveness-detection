@@ -193,9 +193,9 @@ SPEC = {
             "prepared_training": ("celeba_prepared_training.csv", "prepared folders `{bonafide,attack}_training` (files byte-identical to the parquet PNG bytes)"),
             "prepared_validation": ("celeba_prepared_validation.csv", "prepared folders `{bonafide,attack}_validation` (byte-identical files; the 300 evaluation images included)"),
             "eval": ("celeba_eval.csv", "the 300 images of the application evaluation set `data/eval/celeba_spoof` (frozen, compared only)"),
-            "cnn_train": ("celeba_cnn_train.csv", "images that fitted the weights of the four CelebA-Spoof \"official\" CNNs (our per-image split inside shard 0 of the mirror's `test` split)"),
-            "cnn_es": ("celeba_cnn_early_stopping.csv", "validation images of the four \"official\" CNNs (per image)"),
-            "cnn_test": ("celeba_cnn_test.csv", "test images of the \"official\" checkpoint cards (the prepared `_validation` folders)"),
+            "cnn_train": ("celeba_cnn_train.csv", "images that fitted the weights of the four CelebA-Spoof \"official\" CNNs (card protocol name; our per-image split inside shard 0 of the mirror's `test` split)"),
+            "cnn_es": ("celeba_cnn_early_stopping.csv", "validation images of the four \"official\" CNNs (card protocol name; per-image split by us, not the original protocol)"),
+            "cnn_test": ("celeba_cnn_test.csv", "test images of the \"official\" checkpoint cards (card protocol name; the prepared `_validation` folders, inside the mirror's `test` shard)"),
             "pooled_train": ("celeba_pooled_train.csv", "images that fitted the weights of the two CelebA-Spoof pooled CNNs"),
             "pooled_es": ("celeba_pooled_early_stopping.csv", "validation images of the two pooled CNNs (random, stratified)"),
             "pooled_test": ("celeba_pooled_test.csv", "test images of the pooled checkpoint cards (random 20 % of the pooled images)"),
@@ -203,15 +203,32 @@ SPEC = {
     },
 }
 
+# nome "official" dei checkpoint CelebA-Spoof: nome del protocollo nelle schede, non conformità al protocollo originale
+CELEBA_OFFICIAL_NOTE = ("For CelebA-Spoof, \"official\" is only the protocol name recorded in the checkpoint cards: the split is a "
+                        "per-image split made by us inside shard 0 of the mirror's `test` split, not the original CelebA-Spoof "
+                        "protocol, and identity overlap between fitting, early stopping and test can be neither excluded nor measured.")
+# per CASIA-FASD il protocollo viene dall'articolo ICB 2012, distinto da ciò che è verificato sulla copia
+CASIA_PROTOCOL_NOTE = ("For CASIA-FASD, the protocol (20 training and 30 test subjects, disjoint; 12 videos per subject) is cited from "
+                       "the reference publication (ICB 2012) [DOC-EXT]; what is verified on our copy is listed separately and does "
+                       "not include the identity of the subjects.")
+DATASET_NOTE = {"casia_fasd": CASIA_PROTOCOL_NOTE, "celeba_spoof": CELEBA_OFFICIAL_NOTE}
+# documenti di licenza e autorizzazioni (stesso testo in README.md e nel run report)
+AUTHORISATION_NOTE = ("Licence documents: none in our local copies (the mirror cards state no licence and no source). Authorisations "
+                      "are handled by the coordinator (task D1): for CelebA-Spoof he received on 8 October 2026 the confirmation of "
+                      "the requested use conditions; for CASIA-FASD the agreement arrived on 9 October 2026 and is to be signed "
+                      "through the University. This package does not itself rely on or certify any authorisation; the mirror "
+                      "copies' provenance is documented separately.")
+
 # dichiarazioni sulla fonte (stesso testo in naming_schema.md, README.md e report.md.tmpl di delivery/m2/rgb)
 SOURCE_DECLARATIONS = {
     "casia_fasd": (
         ("Original source", "CASIA Face Anti-Spoofing Database (CASIA-FASD), Institute of Automation, Chinese Academy of Sciences; "
                             "reference publication: Z. Zhang, J. Yan, S. Liu, Z. Lei, D. Yi, S. Z. Li, \"A face antispoofing database "
                             "with diverse attacks\", ICB 2012."),
-        ("Documented [DOC-EXT]", "50 subjects, 20 in the training set and 30 in the test set, disjoint by protocol; 12 videos per "
-                                 "subject (genuine, warped photo, cut photo and video replay, each at low, normal and high quality), from "
-                                 "the reference publication; the mapping of the video tokens to attack type and quality is not in the "
+        ("Documented [DOC-EXT]", "cited from the reference publication (ICB 2012) as the protocol source, not verified on the "
+                                 "copy: 50 subjects, 20 in the training set and 30 in the test set, disjoint by protocol; 12 videos per "
+                                 "subject (genuine, warped photo, cut photo and video replay, each at low, normal and high quality); "
+                                 "the mapping of the video tokens to attack type and quality is not in the "
                                  "mirror and is not applied: the manifests carry the token as an opaque code."),
         ("Verified on the copy", "the downloaded archive holds only extracted JPEG frames, without videos, README or split lists "
                                  "(the mirror also holds two file-name/label lists, `train/` and `test/`, which were not downloaded): "
@@ -271,7 +288,8 @@ LIMITS = {
         "317 test attack frames are not in the test of the official checkpoints (spread(..., 1500) per class); the `depth/` maps are not used.",
     ),
     "celeba_spoof": (
-        "The \"official\" checkpoints are not trained on the official CelebA-Spoof protocol: fitting, early stopping and test images "
+        "The \"official\" checkpoints (protocol name recorded in the cards) are not trained on the original CelebA-Spoof protocol: "
+        "fitting, early stopping and test images "
         "all come from shard 0 of the mirror's `test` split (correspondence with the official test split not verified), "
         "divided by us per image.",
         "No identity is available: fitting, early-stopping and test images are not guaranteed to be identity-disjoint (overlap can "
@@ -299,7 +317,7 @@ SUPPORTED = {
         "and `test_img` as verified.",
     ),
     "celeba_spoof": (
-        "Supported: a descriptive, within-shard comparison of the four \"official\" CNNs on the same per-image split, declared as "
+        "Supported: a descriptive, within-shard comparison of the four \"official\" CNNs (card protocol name) on the same per-image split made by us, declared as "
         "not guaranteed to be identity-disjoint; CelebA-Spoof as a target dataset for models trained elsewhere, declared as shard 0 of the "
         "mirror's `test` split, without identities.",
         "Not supported: conclusions on unseen subjects; comparisons with results on the official CelebA-Spoof protocol; any claim "
@@ -1539,7 +1557,9 @@ def report_fields(ds: str, summ: dict, ov: dict, private: bool, self_test: dict 
     else:
         head = "| manifest | file | images | bona fide | attack | SHA-256 |\n|---|---|---|---|---|---|"
         rows = [f"| {n} | `{x['file']}` | {x['n']:,} | {x['n_bona_fide']:,} | {x['n_attack']:,} | `{x['sha256'][:16]}…` |" for n, x in m.items()]
-    ck = [f"| {n} | {c['protocol']} | `{c['weights_sha256'][:16]}…` | {'yes' if c['weights_sha256_verified'] else 'NO'} | "
+    proto = lambda c: (f"{c['protocol']} (card name; see the note above)" if ds == "celeba_spoof" and c["protocol"] == "official"   # noqa: E731
+                       else c["protocol"])
+    ck = [f"| {n} | {proto(c)} | `{c['weights_sha256'][:16]}…` | {'yes' if c['weights_sha256_verified'] else 'NO'} | "
           f"{c['card_counts']['n_train']:,}/{c['card_counts']['n_val']:,}/{c['card_counts']['n_test']:,} | {'yes' if c['counts_match_manifests'] else 'NO'} | {c['val_split']} |"
           for n, c in summ["checkpoints"].items()]
     verdicts = [f"| {v['id']} | {v['severity']} | {', '.join(v['by']) or '-'} | **{v['verdict']}** | {v['description']} |" for v in ov["rules"]]
@@ -1593,6 +1613,7 @@ def report_fields(ds: str, summ: dict, ov: dict, private: bool, self_test: dict 
     else:
         st_line = "not run (`check-overlap --self-test` writes `overlap_self_test.json`)."
     return {"title": SPEC[ds]["title"], "dataset": ds, "commit": summ.get("commit"), "created": summ.get("created"),
+            "dataset_note": DATASET_NOTE[ds],
             "visibility": ("Restricted version: it may name subject keys and row indices." if private
                            else "Public version: no subject, video or row identifiers and no per-image data."),
             "source": source, "declarations": "\n".join(f"- {k}: {v}" for k, v in SOURCE_DECLARATIONS[ds]),

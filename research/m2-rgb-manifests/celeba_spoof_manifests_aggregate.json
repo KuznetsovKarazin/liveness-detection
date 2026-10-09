@@ -282,7 +282,7 @@
   }
  },
  "limits": [
-  "The \"official\" checkpoints are not trained on the official CelebA-Spoof protocol: fitting, early stopping and test images all come from shard 0 of the mirror's `test` split (correspondence with the official test split not verified), divided by us per image.",
+  "The \"official\" checkpoints (protocol name recorded in the cards) are not trained on the original CelebA-Spoof protocol: fitting, early stopping and test images all come from shard 0 of the mirror's `test` split (correspondence with the official test split not verified), divided by us per image.",
   "No identity is available: fitting, early-stopping and test images are not guaranteed to be identity-disjoint (overlap can neither be excluded nor measured; declared as not checkable); test results say nothing about unseen subjects.",
   "The early-stopping split is rebuilt with the first versioned logic (`GroupShuffleSplit` on file names, one image per group); a stratified split gives the same totals 2,400 / 600 (with 300 / 300 per class in the early stopping instead of 295 / 305). Which of the two the training run used is not verified. The `val_split` field of the four \"official\" cards was 'by subject' in commit `0ac7143` and was rewritten as 'random per image' in commit `4d11e67`; with the logic of `0ac7143` the first value corresponds to `GroupShuffleSplit` on groups of one image.",
   "The procedure that converted the parquet into the prepared folders is not versioned; a rule that reproduces their row sets exactly is checked. 39 rows without image bytes are excluded; 71 live and 2,707 spoof rows are not used.",
@@ -290,7 +290,7 @@
   "The pooled checkpoints use a random split of the same images: 244 of the 300 evaluation images were used to fit or validate them."
  ],
  "supported_comparisons": [
-  "Supported: a descriptive, within-shard comparison of the four \"official\" CNNs on the same per-image split, declared as not guaranteed to be identity-disjoint; CelebA-Spoof as a target dataset for models trained elsewhere, declared as shard 0 of the mirror's `test` split, without identities.",
+  "Supported: a descriptive, within-shard comparison of the four \"official\" CNNs (card protocol name) on the same per-image split made by us, declared as not guaranteed to be identity-disjoint; CelebA-Spoof as a target dataset for models trained elsewhere, declared as shard 0 of the mirror's `test` split, without identities.",
   "Not supported: conclusions on unseen subjects; comparisons with results on the official CelebA-Spoof protocol; any claim on the pooled checkpoints evaluated on the evaluation set."
  ],
  "checks": {
@@ -332,9 +332,9 @@
  },
  "passed": true,
  "problems": [],
- "commit": "13cb49fd4a59c74077d55e022aceba0799c3f3b5",
+ "commit": "80b7d141bbbd93e019d4aac8d42cd4fa1d8cced9",
  "dirty": false,
- "created": "2026-10-09T15:32:27+0200",
+ "created": "2026-10-09T19:12:16+0200",
  "manifests": {
   "parquet": {
    "file": "manifests/celeba_parquet.csv",
@@ -370,7 +370,7 @@
   },
   "cnn_train": {
    "file": "manifests/celeba_cnn_train.csv",
-   "description": "images that fitted the weights of the four CelebA-Spoof \"official\" CNNs (our per-image split inside shard 0 of the mirror's `test` split)",
+   "description": "images that fitted the weights of the four CelebA-Spoof \"official\" CNNs (card protocol name; our per-image split inside shard 0 of the mirror's `test` split)",
    "sha256": "cf20f46ab196e189123d9afcf7c4784ae6f85b921f66faff9c80f9d7043bf3cf",
    "n": 2400,
    "n_bona_fide": 1205,
@@ -378,7 +378,7 @@
   },
   "cnn_es": {
    "file": "manifests/celeba_cnn_early_stopping.csv",
-   "description": "validation images of the four \"official\" CNNs (per image)",
+   "description": "validation images of the four \"official\" CNNs (card protocol name; per-image split by us, not the original protocol)",
    "sha256": "a33ff730f067d08c079d6124b624be97e3df8f4dd38ce795ebf12d712bb9b8a9",
    "n": 600,
    "n_bona_fide": 295,
@@ -386,7 +386,7 @@
   },
   "cnn_test": {
    "file": "manifests/celeba_cnn_test.csv",
-   "description": "test images of the \"official\" checkpoint cards (the prepared `_validation` folders)",
+   "description": "test images of the \"official\" checkpoint cards (card protocol name; the prepared `_validation` folders, inside the mirror's `test` shard)",
    "sha256": "51964b7e7b1ebf63630c7e96b43336439e0ed65b15212d172011c8f1b46e4e5d",
    "n": 900,
    "n_bona_fide": 450,

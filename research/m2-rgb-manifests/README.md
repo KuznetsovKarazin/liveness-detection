@@ -7,28 +7,30 @@ as the accepted NUAA tranche (`research/m2-nuaa-manifests/`), whose code is impo
 inference: the scripts list and hash files and read the training caches (label, group and frame arrays; the frames are
 only hashed).
 
-This folder is a filtered export of the operator's development repository (private; development commit `13cb49f`,
-run `20261009-M2-rgb-seed42-13cb49f`): the scripts needed to rerun the checks, the documents, the declared rules and the aggregate results,
+This folder is a filtered export of the operator's development repository (private; development commit `80b7d14`,
+run `20261009-M2-rgb-seed42-80b7d14`): the scripts needed to rerun the checks, the documents, the declared rules and the aggregate results,
 without data, weights, per-image manifests, subject or video keys, or row indices. The per-image manifests, the private
 summaries, the restricted overlap and short reports, the self-tests, the dataset register drafts and the logs are in the
-restricted run folder `20261009-M2-rgb-seed42-13cb49f` (see "Delivery status"), with their SHA-256 listed in the public aggregates and in
+restricted run folder `20261009-M2-rgb-seed42-80b7d14` (see "Delivery status"), with their SHA-256 listed in the public aggregates and in
 `run-report.md`. Code comments, command-line help and progress messages are in Italian by the developer's convention;
 reports, error messages and every document of this folder are in English.
 
-Neither dataset has a registered authorisation: no request to the official sources and no confirmation of the terms
-by the coordinator are recorded (draft register entries in the restricted folder). This tranche builds manifests of
-copies that already existed; it does not assume that their use in M2 or C2 is authorised.
+Licence documents: none in our local copies (the mirror cards state no licence and no source). Authorisations are
+handled by the coordinator (task D1): for CelebA-Spoof he received on 8 October 2026 the confirmation of the requested
+use conditions; for CASIA-FASD the agreement arrived on 9 October 2026 and is to be signed through the University.
+This package does not itself rely on or certify any authorisation; the mirror copies' provenance is documented
+separately.
 
 ## Delivery status
 
-The restricted folder of this run (`20261009-M2-rgb-seed42-13cb49f`) is kept locally and not uploaded: as requested by the coordinator on 8 October 2026, only the provenance note goes to the private M2 folder for now (its location is to be confirmed by the coordinator); the restricted run folder is uploaded to `02_Experiments/M2/20261009-M2-rgb-seed42-13cb49f/` only when he asks for it. No earlier upload of a CASIA-FASD or CelebA-Spoof restricted folder is declared.
+The restricted folder of this run (`20261009-M2-rgb-seed42-80b7d14`) is kept locally and not uploaded. The provenance note `M2_provenienza_RGB_20261009.pdf` was placed on 9 October 2026 in the shared M2 folder `20261006-M2-seed42-36c677a` as a supplementary document outside the NUAA run (not listed in its `SHA256SUMS`), as indicated in the coordinator's message of 9 October 2026 (email and M2 card); the restricted RGB run folder stays local and is uploaded to `02_Experiments/M2/20261009-M2-rgb-seed42-80b7d14/` only when he asks for it. No earlier upload of a CASIA-FASD or CelebA-Spoof restricted folder is declared.
 
 ## Glossary
 
 - **official** (checkpoint protocol): CASIA-FASD fitting and early stopping inside `train_img`, test on `test_img`;
   CelebA-Spoof fitting, early stopping and test **all inside shard 0 of the mirror's `test` split** (correspondence
-  with the official test split not verified), divided by us per image (the name of the protocol in the cards is
-  misleading for CelebA-Spoof).
+  with the official test split not verified), divided by us per image: for CelebA-Spoof "official" is only the protocol
+  name recorded in the cards, not the original CelebA-Spoof protocol.
 - **pooled**: training and test arrays of the cache concatenated and split at random (per frame or per image).
 - **early stopping** (`cnn_es`, `pooled_es`): images never used for gradient updates; their `val_loss` controlled early
   stopping and the learning-rate reduction.
@@ -40,13 +42,18 @@ The restricted folder of this run (`20261009-M2-rgb-seed42-13cb49f`) is kept loc
 
 ### CASIA-FASD
 
+For CASIA-FASD, the protocol (20 training and 30 test subjects, disjoint; 12 videos per subject) is cited from the
+reference publication (ICB 2012) [DOC-EXT]; what is verified on our copy is listed separately and does not include the
+identity of the subjects.
+
 - Original source: CASIA Face Anti-Spoofing Database (CASIA-FASD), Institute of Automation, Chinese Academy of
   Sciences; reference publication: Z. Zhang, J. Yan, S. Liu, Z. Lei, D. Yi, S. Z. Li, "A face antispoofing database
   with diverse attacks", ICB 2012.
-- Documented [DOC-EXT]: 50 subjects, 20 in the training set and 30 in the test set, disjoint by protocol; 12 videos
-  per subject (genuine, warped photo, cut photo and video replay, each at low, normal and high quality), from the
-  reference publication; the mapping of the video tokens to attack type and quality is not in the mirror and is not
-  applied: the manifests carry the token as an opaque code.
+- Documented [DOC-EXT]: cited from the reference publication (ICB 2012) as the protocol source, not verified on the
+  copy: 50 subjects, 20 in the training set and 30 in the test set, disjoint by protocol; 12 videos per subject
+  (genuine, warped photo, cut photo and video replay, each at low, normal and high quality); the mapping of the video
+  tokens to attack type and quality is not in the mirror and is not applied: the manifests carry the token as an
+  opaque code.
 - Verified on the copy: the downloaded archive holds only extracted JPEG frames, without videos, README or split lists
   (the mirror also holds two file-name/label lists, `train/` and `test/`, which were not downloaded): `train_img`
   1,655 and `test_img` 2,408 colour frames named `<subject>_<video>.avi_<frame>_<real|fake>.jpg`; subject numbers 1–20
@@ -64,6 +71,10 @@ The restricted folder of this run (`20261009-M2-rgb-seed42-13cb49f`) is kept loc
   number alone is never compared across splits as an identity. No identity is inferred from image content.
 
 ### CelebA-Spoof
+
+For CelebA-Spoof, "official" is only the protocol name recorded in the checkpoint cards: the split is a per-image
+split made by us inside shard 0 of the mirror's `test` split, not the original CelebA-Spoof protocol, and identity
+overlap between fitting, early stopping and test can be neither excluded nor measured.
 
 - Original source: CelebA-Spoof; reference publication: Y. Zhang, Z. Yin, Y. Li, G. Yin, J. Yan, J. Shao, Z. Liu,
   "CelebA-Spoof: Large-Scale Face Anti-Spoofing Dataset with Rich Annotations", ECCV 2020; official repository
@@ -127,6 +138,10 @@ Columns: `key` (`<mirror split>/<file name>`), `label`, `mirror_split`, `subject
 | `pooled_train`, `pooled_es`, `pooled_test` | the two pooled CNNs | 2,696, 300, 750 | 50, 50, 50 | 598, 240, 445 |
 
 ### CelebA-Spoof
+
+For CelebA-Spoof, "official" is only the protocol name recorded in the checkpoint cards: the split is a per-image
+split made by us inside shard 0 of the mirror's `test` split, not the original CelebA-Spoof protocol, and identity
+overlap between fitting, early stopping and test can be neither excluded nor measured.
 
 Columns: `key` (`celeba_<row>`), `label`, `label_name`, `row`, `official_split` (always `test`), `sha256`, `bytes`.
 
@@ -207,8 +222,9 @@ of the fitting, early-stopping and pooled manifests is pinned only by their decl
    aggregates are read from this folder, one level above `livenesslab/`); the test
    `test_library_drift_canary` fails with an explicit message if scikit-learn splits a fixed input differently from
    scikit-learn 1.3.2. A test skips, with its reason printed by `--verbose`, only when what it needs is absent: the tests on
-   the real manifests without `--require-real` and the restricted folder, and the comparison of the source declarations
-   when `README.md` and `naming_schema_rgb.md` are not next to `livenesslab/`. Run from this folder with the command
+   the real manifests without `--require-real` and the restricted folder, and the two document checks (comparison of the
+   source declarations, and check of the CelebA-Spoof, CASIA-FASD and licence notes) when `README.md` and
+   `naming_schema_rgb.md` are not next to `livenesslab/`. Run from this folder with the command
    below, no test should skip:
 
    ```bash
@@ -275,6 +291,10 @@ moved to the early stopping (C18 only).
 
 ### CelebA-Spoof (`celeba_spoof_overlap_rules.json`)
 
+For CelebA-Spoof, "official" is only the protocol name recorded in the checkpoint cards: the split is a per-image
+split made by us inside shard 0 of the mirror's `test` split, not the original CelebA-Spoof protocol, and identity
+overlap between fitting, early stopping and test can be neither excluded nor measured.
+
 | rule | relation | severity |
 |---|---|---|
 | S01 | no internal duplicates by key | must |
@@ -310,9 +330,13 @@ fitting row moved to the early stopping (S14 only).
 
 ### CelebA-Spoof
 
-- Supported: a descriptive, within-shard comparison of the four "official" CNNs on the same per-image split, declared
-  as not guaranteed to be identity-disjoint; CelebA-Spoof as a target dataset for models trained elsewhere, declared
-  as shard 0 of the mirror's `test` split, without identities.
+For CelebA-Spoof, "official" is only the protocol name recorded in the checkpoint cards: the split is a per-image
+split made by us inside shard 0 of the mirror's `test` split, not the original CelebA-Spoof protocol, and identity
+overlap between fitting, early stopping and test can be neither excluded nor measured.
+
+- Supported: a descriptive, within-shard comparison of the four "official" CNNs (card protocol name) on the same
+  per-image split made by us, declared as not guaranteed to be identity-disjoint; CelebA-Spoof as a target dataset for
+  models trained elsewhere, declared as shard 0 of the mirror's `test` split, without identities.
 - Not supported: conclusions on unseen subjects; comparisons with results on the official CelebA-Spoof protocol; any
   claim on the pooled checkpoints evaluated on the evaluation set.
 
@@ -337,9 +361,9 @@ fitting row moved to the early stopping (S14 only).
 
 ### CelebA-Spoof
 
-- The "official" checkpoints are not trained on the official CelebA-Spoof protocol: fitting, early stopping and test
-  images all come from shard 0 of the mirror's `test` split (correspondence with the official test split not
-  verified), divided by us per image.
+- The "official" checkpoints (protocol name recorded in the cards) are not trained on the original CelebA-Spoof
+  protocol: fitting, early stopping and test images all come from shard 0 of the mirror's `test` split (correspondence
+  with the official test split not verified), divided by us per image.
 - No identity is available: fitting, early-stopping and test images are not guaranteed to be identity-disjoint
   (overlap can neither be excluded nor measured; declared as not checkable); test results say nothing about unseen
   subjects.
@@ -356,7 +380,7 @@ fitting row moved to the early stopping (S14 only).
 
 ### Both
 
-- Neither dataset has a registered authorisation (no request, no confirmation of the terms); for CelebA-Spoof a
+- Licence documents and authorisations: see the paragraph at the top of this README; for CelebA-Spoof a
   personal-data assessment is also needed (faces of real, identifiable persons; the README of the official CelebA-Spoof
   repository states that the live images come from CelebA).
 - Both copies are unofficial mirrors. Verified on 9 October 2026 (Hugging Face API): each revision is still the

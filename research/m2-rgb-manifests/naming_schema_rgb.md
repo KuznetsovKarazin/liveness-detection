@@ -26,10 +26,11 @@ outside the shard), so that no real image is named.
 - Original source: CASIA Face Anti-Spoofing Database (CASIA-FASD), Institute of Automation, Chinese Academy of
   Sciences; reference publication: Z. Zhang, J. Yan, S. Liu, Z. Lei, D. Yi, S. Z. Li, "A face antispoofing database
   with diverse attacks", ICB 2012.
-- Documented [DOC-EXT]: 50 subjects, 20 in the training set and 30 in the test set, disjoint by protocol; 12 videos
-  per subject (genuine, warped photo, cut photo and video replay, each at low, normal and high quality), from the
-  reference publication; the mapping of the video tokens to attack type and quality is not in the mirror and is not
-  applied: the manifests carry the token as an opaque code.
+- Documented [DOC-EXT]: cited from the reference publication (ICB 2012) as the protocol source, not verified on the
+  copy: 50 subjects, 20 in the training set and 30 in the test set, disjoint by protocol; 12 videos per subject
+  (genuine, warped photo, cut photo and video replay, each at low, normal and high quality); the mapping of the video
+  tokens to attack type and quality is not in the mirror and is not applied: the manifests carry the token as an
+  opaque code.
 - Verified on the copy: the downloaded archive holds only extracted JPEG frames, without videos, README or split lists
   (the mirror also holds two file-name/label lists, `train/` and `test/`, which were not downloaded): `train_img`
   1,655 and `test_img` 2,408 colour frames named `<subject>_<video>.avi_<frame>_<real|fake>.jpg`; subject numbers 1–20

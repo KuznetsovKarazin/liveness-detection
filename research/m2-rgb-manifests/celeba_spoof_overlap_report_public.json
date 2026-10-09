@@ -1,7 +1,7 @@
 {
  "dataset": "celeba_spoof",
  "rules_file": "delivery/m2/rgb/celeba_spoof_overlap_rules.json",
- "rules_sha256": "796a28aab5728fe40ae5ff7fda56b4c31517461c1390ee64e0f9555691a56b6a",
+ "rules_sha256": "51817f5e573b40e73d08ab4dce0a0f2c3e53fd622b9dbd5deab0843f0fe6af66",
  "manifests_dir": "results/m2_rgb/celeba_spoof/manifests",
  "manifests": {
   "parquet": {
@@ -310,7 +310,7 @@
    "by": [
     "key"
    ],
-   "description": "\"official\" CNN fitting and early-stopping images are disjoint and together equal the prepared `_training` folders",
+   "description": "\"official\" (card protocol name; per-image split made by us, not the original protocol) CNN fitting and early-stopping images are disjoint and together equal the prepared `_training` folders",
    "verdict": "pass",
    "checks": [
     {
@@ -1665,7 +1665,7 @@
  "n_not_checkable": 1,
  "passed": true,
  "note": "public version: counts and verdicts only, no keys, no subject or video identifiers",
- "commit": "13cb49fd4a59c74077d55e022aceba0799c3f3b5",
+ "commit": "80b7d141bbbd93e019d4aac8d42cd4fa1d8cced9",
  "dirty": false,
- "checked": "2026-10-09T15:32:27+0200"
+ "checked": "2026-10-09T19:12:16+0200"
 }
