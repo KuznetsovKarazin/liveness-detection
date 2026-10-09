@@ -1,0 +1,1064 @@
+{
+ "schema": "m2-rgb/casia_fasd/1",
+ "dataset": "casia_fasd",
+ "source": {
+  "dataset": "CASIA-FASD (Zhang et al., ICB 2012)",
+  "mirror": "Hugging Face dataset akahana/anti-spoofing-casiafasd",
+  "archive": "casiafasd.tar.gz",
+  "readme_in_mirror": false,
+  "split_lists_in_mirror": false,
+  "videos_in_mirror": false,
+  "revision": "4ea8ec45dee3765e17bb3efedfdcd7af39a3ebfe",
+  "archive_sha256": "76139d96360767adfecc1a8c01c062af14da664f665ba13ba5ce78111d0d9ec9",
+  "archive_bytes": 69265514,
+  "archive_sha256_equals_hf_etag": true,
+  "archive_files_per_folder": {
+   "test_img/color": 2408,
+   "test_img/depth": 2408,
+   "train_img/color": 1655,
+   "train_img/depth": 1655
+  },
+  "depth_maps": {
+   "train": {
+    "n": 1655,
+    "same_names_as_color": true,
+    "used": false
+   },
+   "test": {
+    "n": 2408,
+    "same_names_as_color": true,
+    "used": false
+   }
+  },
+  "prepared_vs_mirror": {
+   "hard_linked": 4063
+  }
+ },
+ "source_declarations": {
+  "Original source": "CASIA Face Anti-Spoofing Database (CASIA-FASD), Institute of Automation, Chinese Academy of Sciences; reference publication: Z. Zhang, J. Yan, S. Liu, Z. Lei, D. Yi, S. Z. Li, \"A face antispoofing database with diverse attacks\", ICB 2012.",
+  "Documented [DOC-EXT]": "cited from the reference publication (ICB 2012) as the protocol source, not verified on the copy: 50 subjects, 20 in the training set and 30 in the test set, disjoint by protocol; 12 videos per subject (genuine, warped photo, cut photo and video replay, each at low, normal and high quality); the mapping of the video tokens to attack type and quality is not in the mirror and is not applied: the manifests carry the token as an opaque code.",
+  "Verified on the copy": "the downloaded archive holds only extracted JPEG frames, without videos, README or split lists (the mirror also holds two file-name/label lists, `train/` and `test/`, which were not downloaded): `train_img` 1,655 and `test_img` 2,408 colour frames named `<subject>_<video>.avi_<frame>_<real|fake>.jpg`; subject numbers 1\u201320 in `train_img` and 1\u201330 in `test_img` (the numbering is local to the split: the same numbers occur in both); 12 video tokens per subject, none missing; tokens 1, 2 and HR_1 always `real`, the others always `fake`; in the archive the frames are dated 15 November 2022 and the folders 4 June 2025 (the same day as the mirror upload), so the frames predate the mirror.",
+  "Mirror": "verified on 9 October 2026 (Hugging Face API): revision `4ea8ec45dee3765e17bb3efedfdcd7af39a3ebfe` is still the mirror's HEAD and the LFS object of `casiafasd.tar.gz` equals our SHA-256 (69,265,514 bytes); the mirror card states no licence and no source. Correspondence with the official release is not verified.",
+  "Not verified": "that the subjects of `train_img` and of `test_img` are different persons; the attack type and quality of each token; who extracted and cropped the frames, and from which copy; the origin of the `depth/` maps (not used); the correspondence of the copy with the official release.",
+  "Subjects and videos": "a subject is keyed `<mirror split>:<number>` and a video `<mirror split>:<number>:<token>`; a number alone is never compared across splits as an identity. No identity is inferred from image content."
+ },
+ "reconstruction": {
+  "logic": "scripts/train_cnn.py at commit 0ac7143 (first versioned version; the training run of 12 September 2026 used an earlier, unversioned version)",
+  "sampling": "spread(sorted file list, 1500) per class, bona fide first, training and test folders",
+  "official": "GroupShuffleSplit(test_size=0.2, random_state=42) on the s_train groups (groups = local subject number)",
+  "pooled": "train_test_split(train_size=0.8, stratify, random_state=42) on train + test of the cache, then train_test_split(test_size=0.1, stratify, random_state=42) on the training part (no groups)",
+  "library_versions": {
+   "numpy": "1.26.4",
+   "scikit-learn": "1.3.2"
+  },
+  "built_with": {
+   "scikit-learn": "1.3.2",
+   "numpy": "1.26.4"
+  },
+  "training_cache": {
+   "file": "data/processed/casia_fasd_1500.npz",
+   "present": true,
+   "members": [
+    "X_test",
+    "X_train",
+    "s_test",
+    "s_train",
+    "y_test",
+    "y_train"
+   ],
+   "sha256": "7d0a2b22146375bc4e629a430f0f5a161655d56ca26bb62a5e160cbff58bf5a6",
+   "matches_train": true,
+   "n_train": 1655,
+   "matches_test": true,
+   "n_test": 2091,
+   "linkage": "by label and group arrays in sampling order (counts and order), not by per-image path or hash",
+   "derived_frames": {
+    "hash": "SHA-256 of each preprocessed frame as stored in the cache (dtype, shape, C-order bytes)",
+    "train": {
+     "n_frames": 1655,
+     "shape": [
+      1655,
+      256,
+      256,
+      3
+     ],
+     "distinct": 1655,
+     "duplicated_values": 0,
+     "duplicated_rows": 0
+    },
+    "test": {
+     "n_frames": 2091,
+     "shape": [
+      2091,
+      256,
+      256,
+      3
+     ],
+     "distinct": 2091,
+     "duplicated_values": 0,
+     "duplicated_rows": 0
+    },
+    "train_test_shared": 0,
+    "fit_vs_validation_shared": 0,
+    "pooled_trainval_vs_test_shared": 0,
+    "linkage": "frames are linked to the image files by sampling order and the label and group arrays (y_*, s_*), not by per-image path or hash: the cache stores no file names; frame bytes are never exported"
+   }
+  },
+  "original_file_list_recorded": false,
+  "held_out_uniqueness": {
+   "n_training_subjects": 20,
+   "k_held_out": 4,
+   "n_combinations": 4845,
+   "n_with_card_n_val": 75,
+   "n_with_card_n_val_and_class_counts": 3,
+   "reconstructed_is_among_them": true,
+   "note": "the card records the total of the validation images only: the held-out subjects are not determined by the counts alone, and the reconstruction relies on GroupShuffleSplit with seed 42 (scikit-learn 1.3.2); `reconstruct` reports any drift of the library explicitly"
+  }
+ },
+ "checkpoints": {
+  "LivenessNet__casia_fasd": {
+   "card": "LivenessNet__casia_fasd.json",
+   "weights_file": "LivenessNet__casia_fasd.h5",
+   "weights_sha256": "38152229e814638fa1dbe991fbd2138557a3b91bb465299059c7f3df5e88ca81",
+   "weights_sha256_verified": true,
+   "weights_manifest_sha256_equal": true,
+   "protocol": "official",
+   "dataset": "casia_fasd",
+   "val_split": "by subject",
+   "val_split_note": "English translation of the value recorded in the card",
+   "saved": "2026-09-12 12:58",
+   "epochs_run": 5,
+   "card_counts": {
+    "n_train": 1339,
+    "n_val": 316,
+    "n_test": 2091
+   },
+   "card_test_by_class": {
+    "n_bona_fide": 591,
+    "n_attack": 1500
+   },
+   "manifests": {
+    "n_train": "cnn_train",
+    "n_val": "cnn_es",
+    "n_test": "cnn_test"
+   },
+   "counts_match_manifests": true
+  },
+  "AttackNetV1__casia_fasd": {
+   "card": "AttackNetV1__casia_fasd.json",
+   "weights_file": "AttackNetV1__casia_fasd.h5",
+   "weights_sha256": "c973c08970b36e74afc2f26cacf5045defe02cccb162f292697131266e7c8909",
+   "weights_sha256_verified": true,
+   "weights_manifest_sha256_equal": true,
+   "protocol": "official",
+   "dataset": "casia_fasd",
+   "val_split": "by subject",
+   "val_split_note": "English translation of the value recorded in the card",
+   "saved": "2026-09-12 18:23",
+   "epochs_run": 12,
+   "card_counts": {
+    "n_train": 1339,
+    "n_val": 316,
+    "n_test": 2091
+   },
+   "card_test_by_class": {
+    "n_bona_fide": 591,
+    "n_attack": 1500
+   },
+   "manifests": {
+    "n_train": "cnn_train",
+    "n_val": "cnn_es",
+    "n_test": "cnn_test"
+   },
+   "counts_match_manifests": true
+  },
+  "AttackNetV2_1__casia_fasd": {
+   "card": "AttackNetV2_1__casia_fasd.json",
+   "weights_file": "AttackNetV2_1__casia_fasd.h5",
+   "weights_sha256": "c50be744cf393ca609446e72e139a01aca3ae7f1ceed3200e9e7a7d04f7ee59c",
+   "weights_sha256_verified": true,
+   "weights_manifest_sha256_equal": true,
+   "protocol": "official",
+   "dataset": "casia_fasd",
+   "val_split": "by subject",
+   "val_split_note": "English translation of the value recorded in the card",
+   "saved": "2026-09-12 18:28",
+   "epochs_run": 7,
+   "card_counts": {
+    "n_train": 1339,
+    "n_val": 316,
+    "n_test": 2091
+   },
+   "card_test_by_class": {
+    "n_bona_fide": 591,
+    "n_attack": 1500
+   },
+   "manifests": {
+    "n_train": "cnn_train",
+    "n_val": "cnn_es",
+    "n_test": "cnn_test"
+   },
+   "counts_match_manifests": true
+  },
+  "AttackNetV2_2__casia_fasd": {
+   "card": "AttackNetV2_2__casia_fasd.json",
+   "weights_file": "AttackNetV2_2__casia_fasd.h5",
+   "weights_sha256": "1b3ba1700505ab14fb180115b0f91d11ecd8bfffc43f886c318f427c6d62366a",
+   "weights_sha256_verified": true,
+   "weights_manifest_sha256_equal": true,
+   "protocol": "official",
+   "dataset": "casia_fasd",
+   "val_split": "by subject",
+   "val_split_note": "English translation of the value recorded in the card",
+   "saved": "2026-09-12 13:03",
+   "epochs_run": 10,
+   "card_counts": {
+    "n_train": 1339,
+    "n_val": 316,
+    "n_test": 2091
+   },
+   "card_test_by_class": {
+    "n_bona_fide": 591,
+    "n_attack": 1500
+   },
+   "manifests": {
+    "n_train": "cnn_train",
+    "n_val": "cnn_es",
+    "n_test": "cnn_test"
+   },
+   "counts_match_manifests": true
+  },
+  "LivenessNet__casia_fasd-pooled": {
+   "card": "LivenessNet__casia_fasd-pooled.json",
+   "weights_file": "LivenessNet__casia_fasd-pooled.h5",
+   "weights_sha256": "c7cb5bf8aa8ca854fbe6d19edfb03371d555497983cf261f264f5ccd2e10dfc0",
+   "weights_sha256_verified": true,
+   "weights_manifest_sha256_equal": true,
+   "protocol": "pooled",
+   "dataset": "casia_fasd",
+   "val_split": "random",
+   "val_split_note": "English translation of the value recorded in the card",
+   "saved": "2026-09-12 19:22",
+   "epochs_run": 7,
+   "card_counts": {
+    "n_train": 2696,
+    "n_val": 300,
+    "n_test": 750
+   },
+   "card_test_by_class": {
+    "n_bona_fide": 199,
+    "n_attack": 551
+   },
+   "manifests": {
+    "n_train": "pooled_train",
+    "n_val": "pooled_es",
+    "n_test": "pooled_test"
+   },
+   "counts_match_manifests": true
+  },
+  "AttackNetV2_2__casia_fasd-pooled": {
+   "card": "AttackNetV2_2__casia_fasd-pooled.json",
+   "weights_file": "AttackNetV2_2__casia_fasd-pooled.h5",
+   "weights_sha256": "4e6ab99ace1ed6a68dbc389ce0b6bd8406524a07f37f425e36b6d88fa58aeac0",
+   "weights_sha256_verified": true,
+   "weights_manifest_sha256_equal": true,
+   "protocol": "pooled",
+   "dataset": "casia_fasd",
+   "val_split": "random",
+   "val_split_note": "English translation of the value recorded in the card",
+   "saved": "2026-09-12 19:31",
+   "epochs_run": 9,
+   "card_counts": {
+    "n_train": 2696,
+    "n_val": 300,
+    "n_test": 750
+   },
+   "card_test_by_class": {
+    "n_bona_fide": 199,
+    "n_attack": 551
+   },
+   "manifests": {
+    "n_train": "pooled_train",
+    "n_val": "pooled_es",
+    "n_test": "pooled_test"
+   },
+   "counts_match_manifests": true
+  }
+ },
+ "limits": [
+  "The downloaded archive has only extracted frames: no original video, README or split list (the mirror's two file-name/label lists were not downloaded). That `train_img` and `test_img` hold different persons is documented by the protocol [DOC-EXT] and cannot be verified on the copy, because subject numbers are local to the split.",
+  "Frames of the same video are not independent samples; every split of this tranche keeps the frames of a video together except the pooled one.",
+  "The pooled checkpoints use a per-frame random split: all 50 subjects and 444 of the 600 videos are on both sides, and 235 of the 300 evaluation images were used to fit or validate them.",
+  "The training run did not save its file list: the splits are rebuilt with the logic of commit `0ac7143` and verified against the card counts and the label and subject arrays of the training cache; the card counts alone do not determine the four held-out subjects (75 combinations of 4 of the 20 training subjects give 316 images), so the official split relies on `GroupShuffleSplit` with seed 42. The training cache is linked to the files by sampling order, not image by image.",
+  "317 test attack frames are not in the test of the official checkpoints (spread(..., 1500) per class); the `depth/` maps are not used."
+ ],
+ "supported_comparisons": [
+  "Supported: a descriptive comparison of the four official CNNs trained on the same split (fitting and early stopping subject-disjoint: verified on the reconstructed split, recorded as 'by subject' in the cards; test on `test_img`, subject-disjoint by protocol, documented), single seed, without an uncertainty estimate.",
+  "Not supported: any claim on the pooled checkpoints evaluated on the evaluation set or on `test_img` (their training includes evaluation images, subjects and videos of the test side); a claim of subject disjointness between `train_img` and `test_img` as verified."
+ ],
+ "checks": {
+  "archive_present": true,
+  "archive_matches_hf_metadata": true,
+  "mirror_names_valid:train": true,
+  "mirror_subjects:train": true,
+  "mirror_videos_complete:train": true,
+  "mirror_names_valid:test": true,
+  "mirror_subjects:test": true,
+  "mirror_videos_complete:test": true,
+  "prepared_equals_mirror:bonafide_training": true,
+  "prepared_equals_mirror:attack_training": true,
+  "prepared_equals_mirror:bonafide_validation": true,
+  "prepared_equals_mirror:attack_validation": true,
+  "eval_class:real": true,
+  "eval_class:attack": true,
+  "training_cache_train": true,
+  "training_cache_test": true,
+  "held_out_combination_consistent": true,
+  "rows_valid": true,
+  "manifests_equal_declared_in_rules": true,
+  "weights_sha256:LivenessNet__casia_fasd": true,
+  "weights_manifest:LivenessNet__casia_fasd": true,
+  "card_counts:LivenessNet__casia_fasd": true,
+  "card_protocol:LivenessNet__casia_fasd": true,
+  "weights_sha256:AttackNetV1__casia_fasd": true,
+  "weights_manifest:AttackNetV1__casia_fasd": true,
+  "card_counts:AttackNetV1__casia_fasd": true,
+  "card_protocol:AttackNetV1__casia_fasd": true,
+  "weights_sha256:AttackNetV2_1__casia_fasd": true,
+  "weights_manifest:AttackNetV2_1__casia_fasd": true,
+  "card_counts:AttackNetV2_1__casia_fasd": true,
+  "card_protocol:AttackNetV2_1__casia_fasd": true,
+  "weights_sha256:AttackNetV2_2__casia_fasd": true,
+  "weights_manifest:AttackNetV2_2__casia_fasd": true,
+  "card_counts:AttackNetV2_2__casia_fasd": true,
+  "card_protocol:AttackNetV2_2__casia_fasd": true,
+  "weights_sha256:LivenessNet__casia_fasd-pooled": true,
+  "weights_manifest:LivenessNet__casia_fasd-pooled": true,
+  "card_counts:LivenessNet__casia_fasd-pooled": true,
+  "card_protocol:LivenessNet__casia_fasd-pooled": true,
+  "weights_sha256:AttackNetV2_2__casia_fasd-pooled": true,
+  "weights_manifest:AttackNetV2_2__casia_fasd-pooled": true,
+  "card_counts:AttackNetV2_2__casia_fasd-pooled": true,
+  "card_protocol:AttackNetV2_2__casia_fasd-pooled": true
+ },
+ "passed": true,
+ "problems": [],
+ "commit": "80b7d141bbbd93e019d4aac8d42cd4fa1d8cced9",
+ "dirty": false,
+ "created": "2026-10-09T19:12:03+0200",
+ "manifests": {
+  "mirror_train": {
+   "file": "manifests/casia_mirror_train.csv",
+   "description": "all colour frames of `train_img` of the mirror (official training split by protocol [DOC-EXT])",
+   "sha256": "659f36a0b7c9d9feca1a6509bff5abd8db0da33b9c230c38b3f762291419997d",
+   "n": 1655,
+   "n_bona_fide": 404,
+   "n_attack": 1251,
+   "n_subjects": 20,
+   "n_videos": 240,
+   "by_mirror_split": {
+    "train": {
+     "bona_fide": 404,
+     "attack": 1251
+    }
+   },
+   "by_video_token": {
+    "1": 116,
+    "2": 116,
+    "3": 141,
+    "4": 143,
+    "5": 115,
+    "6": 140,
+    "7": 157,
+    "8": 113,
+    "HR_1": 172,
+    "HR_2": 189,
+    "HR_3": 88,
+    "HR_4": 165
+   }
+  },
+  "mirror_test": {
+   "file": "manifests/casia_mirror_test.csv",
+   "description": "all colour frames of `test_img` of the mirror (official test split by protocol [DOC-EXT])",
+   "sha256": "c84357167228b6850fd195e02625b2f859b1c4698ac3f1585b2dd87bb6c62fc8",
+   "n": 2408,
+   "n_bona_fide": 591,
+   "n_attack": 1817,
+   "n_subjects": 30,
+   "n_videos": 360,
+   "by_mirror_split": {
+    "test": {
+     "bona_fide": 591,
+     "attack": 1817
+    }
+   },
+   "by_video_token": {
+    "1": 175,
+    "2": 198,
+    "3": 219,
+    "4": 211,
+    "5": 168,
+    "6": 210,
+    "7": 203,
+    "8": 158,
+    "HR_1": 218,
+    "HR_2": 282,
+    "HR_3": 158,
+    "HR_4": 208
+   }
+  },
+  "prepared_training": {
+   "file": "manifests/casia_prepared_training.csv",
+   "description": "prepared folders `{bonafide,attack}_training` (hard links to `train_img`)",
+   "sha256": "659f36a0b7c9d9feca1a6509bff5abd8db0da33b9c230c38b3f762291419997d",
+   "n": 1655,
+   "n_bona_fide": 404,
+   "n_attack": 1251,
+   "n_subjects": 20,
+   "n_videos": 240,
+   "by_mirror_split": {
+    "train": {
+     "bona_fide": 404,
+     "attack": 1251
+    }
+   },
+   "by_video_token": {
+    "1": 116,
+    "2": 116,
+    "3": 141,
+    "4": 143,
+    "5": 115,
+    "6": 140,
+    "7": 157,
+    "8": 113,
+    "HR_1": 172,
+    "HR_2": 189,
+    "HR_3": 88,
+    "HR_4": 165
+   }
+  },
+  "prepared_validation": {
+   "file": "manifests/casia_prepared_validation.csv",
+   "description": "prepared folders `{bonafide,attack}_validation` (hard links to `test_img`; never used as validation)",
+   "sha256": "c84357167228b6850fd195e02625b2f859b1c4698ac3f1585b2dd87bb6c62fc8",
+   "n": 2408,
+   "n_bona_fide": 591,
+   "n_attack": 1817,
+   "n_subjects": 30,
+   "n_videos": 360,
+   "by_mirror_split": {
+    "test": {
+     "bona_fide": 591,
+     "attack": 1817
+    }
+   },
+   "by_video_token": {
+    "1": 175,
+    "2": 198,
+    "3": 219,
+    "4": 211,
+    "5": 168,
+    "6": 210,
+    "7": 203,
+    "8": 158,
+    "HR_1": 218,
+    "HR_2": 282,
+    "HR_3": 158,
+    "HR_4": 208
+   }
+  },
+  "eval": {
+   "file": "manifests/casia_eval.csv",
+   "description": "the 300 images of the application evaluation set `data/eval/casia_fasd` (frozen, compared only)",
+   "sha256": "3452745f844a4bc51c90d25748e5ea2468a12d53c07c38062496aafbc7a835f9",
+   "n": 300,
+   "n_bona_fide": 150,
+   "n_attack": 150,
+   "n_subjects": 30,
+   "n_videos": 239,
+   "by_mirror_split": {
+    "test": {
+     "bona_fide": 150,
+     "attack": 150
+    }
+   },
+   "by_video_token": {
+    "1": 46,
+    "2": 48,
+    "3": 17,
+    "4": 19,
+    "5": 14,
+    "6": 16,
+    "7": 18,
+    "8": 13,
+    "HR_1": 56,
+    "HR_2": 23,
+    "HR_3": 12,
+    "HR_4": 18
+   }
+  },
+  "cnn_train": {
+   "file": "manifests/casia_cnn_train.csv",
+   "description": "images that fitted the weights of the four CASIA-FASD official CNNs",
+   "sha256": "a1d5ec4c1fea5c2fa854fe780fff53d9e61fa6e2a29f74ca95bee1f58c8a195d",
+   "n": 1339,
+   "n_bona_fide": 333,
+   "n_attack": 1006,
+   "n_subjects": 16,
+   "n_videos": 192,
+   "by_mirror_split": {
+    "train": {
+     "bona_fide": 333,
+     "attack": 1006
+    }
+   },
+   "by_video_token": {
+    "1": 95,
+    "2": 96,
+    "3": 108,
+    "4": 113,
+    "5": 91,
+    "6": 112,
+    "7": 130,
+    "8": 90,
+    "HR_1": 142,
+    "HR_2": 153,
+    "HR_3": 72,
+    "HR_4": 137
+   }
+  },
+  "cnn_es": {
+   "file": "manifests/casia_cnn_early_stopping.csv",
+   "description": "validation images of the four official CNNs (early stopping on val_loss, by subject)",
+   "sha256": "3d6b601dd8a3d38f7dcea37f6b1cdbcde555d88b6b3164cbbc269f6cfb9c8d39",
+   "n": 316,
+   "n_bona_fide": 71,
+   "n_attack": 245,
+   "n_subjects": 4,
+   "n_videos": 48,
+   "by_mirror_split": {
+    "train": {
+     "bona_fide": 71,
+     "attack": 245
+    }
+   },
+   "by_video_token": {
+    "1": 21,
+    "2": 20,
+    "3": 33,
+    "4": 30,
+    "5": 24,
+    "6": 28,
+    "7": 27,
+    "8": 23,
+    "HR_1": 30,
+    "HR_2": 36,
+    "HR_3": 16,
+    "HR_4": 28
+   }
+  },
+  "cnn_test": {
+   "file": "manifests/casia_cnn_test.csv",
+   "description": "test images of the official checkpoint cards (spread(..., 1500) per class of `test_img`)",
+   "sha256": "20b6915145fb2dfa490b80e5ff8128ed05a86eef3298ce18bd4501b291ec304a",
+   "n": 2091,
+   "n_bona_fide": 591,
+   "n_attack": 1500,
+   "n_subjects": 30,
+   "n_videos": 360,
+   "by_mirror_split": {
+    "test": {
+     "bona_fide": 591,
+     "attack": 1500
+    }
+   },
+   "by_video_token": {
+    "1": 175,
+    "2": 198,
+    "3": 181,
+    "4": 176,
+    "5": 139,
+    "6": 174,
+    "7": 164,
+    "8": 128,
+    "HR_1": 218,
+    "HR_2": 236,
+    "HR_3": 131,
+    "HR_4": 171
+   }
+  },
+  "pooled_train": {
+   "file": "manifests/casia_pooled_train.csv",
+   "description": "images that fitted the weights of the two CASIA-FASD pooled CNNs",
+   "sha256": "5861e2d1424893b6c105053ef4753f8f9b710e144faf23f0f547b94bf5c6c60e",
+   "n": 2696,
+   "n_bona_fide": 716,
+   "n_attack": 1980,
+   "n_subjects": 50,
+   "n_videos": 598,
+   "by_mirror_split": {
+    "test": {
+     "bona_fide": 434,
+     "attack": 1085
+    },
+    "train": {
+     "bona_fide": 282,
+     "attack": 895
+    }
+   },
+   "by_video_token": {
+    "1": 221,
+    "2": 219,
+    "3": 226,
+    "4": 236,
+    "5": 184,
+    "6": 227,
+    "7": 242,
+    "8": 174,
+    "HR_1": 276,
+    "HR_2": 299,
+    "HR_3": 163,
+    "HR_4": 229
+   }
+  },
+  "pooled_es": {
+   "file": "manifests/casia_pooled_early_stopping.csv",
+   "description": "validation images of the two pooled CNNs (random, stratified)",
+   "sha256": "264dc2d5c4c6fe826231726442c14a715a36a078581c5075e06efc5e7023d5be",
+   "n": 300,
+   "n_bona_fide": 80,
+   "n_attack": 220,
+   "n_subjects": 50,
+   "n_videos": 240,
+   "by_mirror_split": {
+    "test": {
+     "bona_fide": 38,
+     "attack": 108
+    },
+    "train": {
+     "bona_fide": 42,
+     "attack": 112
+    }
+   },
+   "by_video_token": {
+    "1": 21,
+    "2": 27,
+    "3": 23,
+    "4": 25,
+    "5": 16,
+    "6": 29,
+    "7": 25,
+    "8": 20,
+    "HR_1": 32,
+    "HR_2": 34,
+    "HR_3": 18,
+    "HR_4": 30
+   }
+  },
+  "pooled_test": {
+   "file": "manifests/casia_pooled_test.csv",
+   "description": "test images of the pooled checkpoint cards (random 20 % of the pooled frames)",
+   "sha256": "22aa9fa1435efe7deed5a55d6291aa7f3ba71a3e3f9fc1b840e744971a32fba1",
+   "n": 750,
+   "n_bona_fide": 199,
+   "n_attack": 551,
+   "n_subjects": 50,
+   "n_videos": 445,
+   "by_mirror_split": {
+    "test": {
+     "bona_fide": 119,
+     "attack": 307
+    },
+    "train": {
+     "bona_fide": 80,
+     "attack": 244
+    }
+   },
+   "by_video_token": {
+    "1": 49,
+    "2": 68,
+    "3": 73,
+    "4": 58,
+    "5": 54,
+    "6": 58,
+    "7": 54,
+    "8": 47,
+    "HR_1": 82,
+    "HR_2": 92,
+    "HR_3": 38,
+    "HR_4": 77
+   }
+  }
+ },
+ "recount": {
+  "manifest_counts": {
+   "mirror_train": {
+    "n": 1655,
+    "n_bona_fide": 404,
+    "n_attack": 1251,
+    "n_subjects": 20,
+    "n_videos": 240,
+    "by_mirror_split": {
+     "train": {
+      "bona_fide": 404,
+      "attack": 1251
+     }
+    },
+    "by_video_token": {
+     "1": 116,
+     "2": 116,
+     "3": 141,
+     "4": 143,
+     "5": 115,
+     "6": 140,
+     "7": 157,
+     "8": 113,
+     "HR_1": 172,
+     "HR_2": 189,
+     "HR_3": 88,
+     "HR_4": 165
+    }
+   },
+   "mirror_test": {
+    "n": 2408,
+    "n_bona_fide": 591,
+    "n_attack": 1817,
+    "n_subjects": 30,
+    "n_videos": 360,
+    "by_mirror_split": {
+     "test": {
+      "bona_fide": 591,
+      "attack": 1817
+     }
+    },
+    "by_video_token": {
+     "1": 175,
+     "2": 198,
+     "3": 219,
+     "4": 211,
+     "5": 168,
+     "6": 210,
+     "7": 203,
+     "8": 158,
+     "HR_1": 218,
+     "HR_2": 282,
+     "HR_3": 158,
+     "HR_4": 208
+    }
+   },
+   "prepared_training": {
+    "n": 1655,
+    "n_bona_fide": 404,
+    "n_attack": 1251,
+    "n_subjects": 20,
+    "n_videos": 240,
+    "by_mirror_split": {
+     "train": {
+      "bona_fide": 404,
+      "attack": 1251
+     }
+    },
+    "by_video_token": {
+     "1": 116,
+     "2": 116,
+     "3": 141,
+     "4": 143,
+     "5": 115,
+     "6": 140,
+     "7": 157,
+     "8": 113,
+     "HR_1": 172,
+     "HR_2": 189,
+     "HR_3": 88,
+     "HR_4": 165
+    }
+   },
+   "prepared_validation": {
+    "n": 2408,
+    "n_bona_fide": 591,
+    "n_attack": 1817,
+    "n_subjects": 30,
+    "n_videos": 360,
+    "by_mirror_split": {
+     "test": {
+      "bona_fide": 591,
+      "attack": 1817
+     }
+    },
+    "by_video_token": {
+     "1": 175,
+     "2": 198,
+     "3": 219,
+     "4": 211,
+     "5": 168,
+     "6": 210,
+     "7": 203,
+     "8": 158,
+     "HR_1": 218,
+     "HR_2": 282,
+     "HR_3": 158,
+     "HR_4": 208
+    }
+   },
+   "eval": {
+    "n": 300,
+    "n_bona_fide": 150,
+    "n_attack": 150,
+    "n_subjects": 30,
+    "n_videos": 239,
+    "by_mirror_split": {
+     "test": {
+      "bona_fide": 150,
+      "attack": 150
+     }
+    },
+    "by_video_token": {
+     "1": 46,
+     "2": 48,
+     "3": 17,
+     "4": 19,
+     "5": 14,
+     "6": 16,
+     "7": 18,
+     "8": 13,
+     "HR_1": 56,
+     "HR_2": 23,
+     "HR_3": 12,
+     "HR_4": 18
+    }
+   },
+   "cnn_train": {
+    "n": 1339,
+    "n_bona_fide": 333,
+    "n_attack": 1006,
+    "n_subjects": 16,
+    "n_videos": 192,
+    "by_mirror_split": {
+     "train": {
+      "bona_fide": 333,
+      "attack": 1006
+     }
+    },
+    "by_video_token": {
+     "1": 95,
+     "2": 96,
+     "3": 108,
+     "4": 113,
+     "5": 91,
+     "6": 112,
+     "7": 130,
+     "8": 90,
+     "HR_1": 142,
+     "HR_2": 153,
+     "HR_3": 72,
+     "HR_4": 137
+    }
+   },
+   "cnn_es": {
+    "n": 316,
+    "n_bona_fide": 71,
+    "n_attack": 245,
+    "n_subjects": 4,
+    "n_videos": 48,
+    "by_mirror_split": {
+     "train": {
+      "bona_fide": 71,
+      "attack": 245
+     }
+    },
+    "by_video_token": {
+     "1": 21,
+     "2": 20,
+     "3": 33,
+     "4": 30,
+     "5": 24,
+     "6": 28,
+     "7": 27,
+     "8": 23,
+     "HR_1": 30,
+     "HR_2": 36,
+     "HR_3": 16,
+     "HR_4": 28
+    }
+   },
+   "cnn_test": {
+    "n": 2091,
+    "n_bona_fide": 591,
+    "n_attack": 1500,
+    "n_subjects": 30,
+    "n_videos": 360,
+    "by_mirror_split": {
+     "test": {
+      "bona_fide": 591,
+      "attack": 1500
+     }
+    },
+    "by_video_token": {
+     "1": 175,
+     "2": 198,
+     "3": 181,
+     "4": 176,
+     "5": 139,
+     "6": 174,
+     "7": 164,
+     "8": 128,
+     "HR_1": 218,
+     "HR_2": 236,
+     "HR_3": 131,
+     "HR_4": 171
+    }
+   },
+   "pooled_train": {
+    "n": 2696,
+    "n_bona_fide": 716,
+    "n_attack": 1980,
+    "n_subjects": 50,
+    "n_videos": 598,
+    "by_mirror_split": {
+     "test": {
+      "bona_fide": 434,
+      "attack": 1085
+     },
+     "train": {
+      "bona_fide": 282,
+      "attack": 895
+     }
+    },
+    "by_video_token": {
+     "1": 221,
+     "2": 219,
+     "3": 226,
+     "4": 236,
+     "5": 184,
+     "6": 227,
+     "7": 242,
+     "8": 174,
+     "HR_1": 276,
+     "HR_2": 299,
+     "HR_3": 163,
+     "HR_4": 229
+    }
+   },
+   "pooled_es": {
+    "n": 300,
+    "n_bona_fide": 80,
+    "n_attack": 220,
+    "n_subjects": 50,
+    "n_videos": 240,
+    "by_mirror_split": {
+     "test": {
+      "bona_fide": 38,
+      "attack": 108
+     },
+     "train": {
+      "bona_fide": 42,
+      "attack": 112
+     }
+    },
+    "by_video_token": {
+     "1": 21,
+     "2": 27,
+     "3": 23,
+     "4": 25,
+     "5": 16,
+     "6": 29,
+     "7": 25,
+     "8": 20,
+     "HR_1": 32,
+     "HR_2": 34,
+     "HR_3": 18,
+     "HR_4": 30
+    }
+   },
+   "pooled_test": {
+    "n": 750,
+    "n_bona_fide": 199,
+    "n_attack": 551,
+    "n_subjects": 50,
+    "n_videos": 445,
+    "by_mirror_split": {
+     "test": {
+      "bona_fide": 119,
+      "attack": 307
+     },
+     "train": {
+      "bona_fide": 80,
+      "attack": 244
+     }
+    },
+    "by_video_token": {
+     "1": 49,
+     "2": 68,
+     "3": 73,
+     "4": 58,
+     "5": 54,
+     "6": 58,
+     "7": 54,
+     "8": 47,
+     "HR_1": 82,
+     "HR_2": 92,
+     "HR_3": 38,
+     "HR_4": 77
+    }
+   }
+  },
+  "exclusions": {
+   "mirror_train_not_sampled": {
+    "n": 0,
+    "n_bona_fide": 0,
+    "n_attack": 0,
+    "n_subjects": 0,
+    "n_videos": 0,
+    "by_mirror_split": {},
+    "by_video_token": {}
+   },
+   "mirror_test_not_sampled": {
+    "n": 317,
+    "n_bona_fide": 0,
+    "n_attack": 317,
+    "n_subjects": 30,
+    "n_videos": 257,
+    "by_mirror_split": {
+     "test": {
+      "bona_fide": 0,
+      "attack": 317
+     }
+    },
+    "by_video_token": {
+     "3": 38,
+     "4": 35,
+     "5": 29,
+     "6": 36,
+     "7": 39,
+     "8": 30,
+     "HR_2": 46,
+     "HR_3": 27,
+     "HR_4": 37
+    }
+   }
+  },
+  "pooled_overlap": {
+   "eval_images_in_pooled_fit_or_validation": 235,
+   "subjects_on_both_sides": 50,
+   "subjects_total": 50,
+   "videos_on_both_sides": 444,
+   "videos_total": 600,
+   "fit_validation_shared_subjects_official": 0
+  },
+  "exact_duplicates_by_hash": {
+   "mirror_train": 0,
+   "mirror_test": 0,
+   "prepared_training": 0,
+   "prepared_validation": 0,
+   "eval": 0,
+   "cnn_train": 0,
+   "cnn_es": 0,
+   "cnn_test": 0,
+   "pooled_train": 0,
+   "pooled_es": 0,
+   "pooled_test": 0
+  }
+ },
+ "private": false,
+ "note": "aggregate counts only: per-image manifests, subject and video keys and row indices are restricted"
+}

@@ -1,0 +1,498 @@
+{
+ "schema": "m2-rgb/celeba_spoof/1",
+ "dataset": "celeba_spoof",
+ "source": {
+  "dataset": "CelebA-Spoof (Zhang et al., ECCV 2020)",
+  "mirror": "Hugging Face dataset nguyenkhoa/celeba-spoof-for-face-antispoofing-test",
+  "file": "test-00000-of-00010.parquet",
+  "shard": "shard 0 of 10 of the mirror's `test` split",
+  "readme_in_mirror": false,
+  "revision": "f158d9f71d786089d4f8b3b6c16b7bcae5989a3f",
+  "file_sha256": "b5ac612899ebd7a825f86be4dbe3ffb84534b05bbc60172ba73e154b6e83cf09",
+  "file_bytes": 495744415,
+  "file_sha256_equals_hf_etag": true,
+  "columns": [
+   "cropped_image",
+   "labels",
+   "labelNames"
+  ],
+  "rows": 6717,
+  "row_groups": 68,
+  "path_empty_rows": 6717,
+  "rows_without_image": 39,
+  "rows_without_image_by_label": {
+   "bona_fide": 9,
+   "attack": 30
+  },
+  "png_rows": 6678,
+  "prepared_vs_parquet": {
+   "byte_identical_and_same_label": 3900
+  }
+ },
+ "source_declarations": {
+  "Original source": "CelebA-Spoof; reference publication: Y. Zhang, Z. Yin, Y. Li, G. Yin, J. Yan, J. Shao, Z. Liu, \"CelebA-Spoof: Large-Scale Face Anti-Spoofing Dataset with Rich Annotations\", ECCV 2020; official repository `ZhangYuanhan-AI/CelebA-Spoof`.",
+  "Documented [DOC-EXT]": "the original release organises the images by identity, with official training and test splits and annotations of attack type, illumination, environment, sensor and face attributes; its README (official repository) states that the live images come from CelebA.",
+  "Verified on the copy": "shard 0 of 10 of the mirror's `test` split: one parquet file with the columns `cropped_image` (`bytes`, `path`), `labels` (0 live, 1 spoof) and `labelNames`; 6,717 rows (2,030 live, 4,687 spoof), 39 of them without image bytes; `path` empty in every row; every image is a PNG; the prepared files are byte-identical to the PNG bytes of their rows (with a `.jpg` extension).",
+  "Mirror": "verified on 9 October 2026 (Hugging Face API): revision `f158d9f71d786089d4f8b3b6c16b7bcae5989a3f` is still the mirror's HEAD and the LFS object of `data/test-00000-of-00010.parquet` equals our SHA-256 (495,744,415 bytes); the mirror card states no licence and no source, and names the split `test` (67,170 examples). Correspondence of the mirror's `test` split with the official test split is not verified.",
+  "Not verified": "the identity, attack type and acquisition conditions of any row; the order of the rows; how the faces were cropped; how the shard relates to the official test split; the procedure that converted the parquet into the prepared folders (a rule that reproduces them exactly is checked; the procedure itself is not versioned).",
+  "Identities": "none: the copy has no identity, subject or video field, so no split can be checked for identity overlap; no identity is inferred from row order, content or similarity."
+ },
+ "reconstruction": {
+  "logic": "scripts/train_cnn.py at commit 0ac7143 (first versioned version; the training run of 12 September 2026 used an earlier, unversioned version)",
+  "sampling": "spread(sorted file list, 1500) per class, bona fide first, training and test folders",
+  "official": "GroupShuffleSplit(test_size=0.2, random_state=42) on the s_train groups (groups = file names, one image per group: hypothesis 1 of the inventory)",
+  "pooled": "train_test_split(train_size=0.8, stratify, random_state=42) on train + test of the cache, then train_test_split(test_size=0.1, stratify, random_state=42) on the training part (no groups)",
+  "library_versions": {
+   "numpy": "1.26.4",
+   "scikit-learn": "1.3.2"
+  },
+  "built_with": {
+   "scikit-learn": "1.3.2",
+   "numpy": "1.26.4"
+  },
+  "training_cache": {
+   "file": "data/processed/celeba_spoof_1500.npz",
+   "present": true,
+   "members": [
+    "X_test",
+    "X_train",
+    "s_test",
+    "s_train",
+    "y_test",
+    "y_train"
+   ],
+   "sha256": "a085fea43bec3a130329645a52d6444feb2fe78e2d9e27d31fde2d9f8491f823",
+   "matches_train": true,
+   "n_train": 3000,
+   "matches_test": true,
+   "n_test": 900,
+   "linkage": "by label and group arrays in sampling order (counts and order), not by per-image path or hash",
+   "derived_frames": {
+    "hash": "SHA-256 of each preprocessed frame as stored in the cache (dtype, shape, C-order bytes)",
+    "train": {
+     "n_frames": 3000,
+     "shape": [
+      3000,
+      256,
+      256,
+      3
+     ],
+     "distinct": 2999,
+     "duplicated_values": 1,
+     "duplicated_rows": 2
+    },
+    "test": {
+     "n_frames": 900,
+     "shape": [
+      900,
+      256,
+      256,
+      3
+     ],
+     "distinct": 900,
+     "duplicated_values": 0,
+     "duplicated_rows": 0
+    },
+    "train_test_shared": 0,
+    "fit_vs_validation_shared": 0,
+    "pooled_trainval_vs_test_shared": 0,
+    "linkage": "frames are linked to the image files by sampling order and the label and group arrays (y_*, s_*), not by per-image path or hash: the cache stores no file names; frame bytes are never exported"
+   }
+  },
+  "original_file_list_recorded": false,
+  "alternative_hypothesis": {
+   "split": "train_test_split(test_size=0.2, stratify=y, random_state=42) (hypothesis 2 of the inventory)",
+   "n_train": 2400,
+   "n_val": 600,
+   "val_by_class": {
+    "bona_fide": 300,
+    "attack": 300
+   },
+   "note": "gives the same totals as the cards (the cards record no per-class counts of the early stopping); which logic the training run used is not verified"
+  }
+ },
+ "checkpoints": {
+  "LivenessNet__celeba_spoof": {
+   "card": "LivenessNet__celeba_spoof.json",
+   "weights_file": "LivenessNet__celeba_spoof.h5",
+   "weights_sha256": "f2cac7ce396409049511be12cb2b855e647487966a06fdd7a30f49a0ba382ffd",
+   "weights_sha256_verified": true,
+   "weights_manifest_sha256_equal": true,
+   "protocol": "official",
+   "dataset": "celeba_spoof",
+   "val_split": "random per image",
+   "val_split_note": "English translation of the value recorded in the card",
+   "saved": "2026-09-12 13:10",
+   "epochs_run": 12,
+   "card_counts": {
+    "n_train": 2400,
+    "n_val": 600,
+    "n_test": 900
+   },
+   "card_test_by_class": {
+    "n_bona_fide": 450,
+    "n_attack": 450
+   },
+   "manifests": {
+    "n_train": "cnn_train",
+    "n_val": "cnn_es",
+    "n_test": "cnn_test"
+   },
+   "counts_match_manifests": true
+  },
+  "AttackNetV1__celeba_spoof": {
+   "card": "AttackNetV1__celeba_spoof.json",
+   "weights_file": "AttackNetV1__celeba_spoof.h5",
+   "weights_sha256": "ddd4b19446621cd843714a7a87c7d9cf155498c94c88c80d0e123b4444e4cbcd",
+   "weights_sha256_verified": true,
+   "weights_manifest_sha256_equal": true,
+   "protocol": "official",
+   "dataset": "celeba_spoof",
+   "val_split": "random per image",
+   "val_split_note": "English translation of the value recorded in the card",
+   "saved": "2026-09-12 18:11",
+   "epochs_run": 12,
+   "card_counts": {
+    "n_train": 2400,
+    "n_val": 600,
+    "n_test": 900
+   },
+   "card_test_by_class": {
+    "n_bona_fide": 450,
+    "n_attack": 450
+   },
+   "manifests": {
+    "n_train": "cnn_train",
+    "n_val": "cnn_es",
+    "n_test": "cnn_test"
+   },
+   "counts_match_manifests": true
+  },
+  "AttackNetV2_1__celeba_spoof": {
+   "card": "AttackNetV2_1__celeba_spoof.json",
+   "weights_file": "AttackNetV2_1__celeba_spoof.h5",
+   "weights_sha256": "a78a8e964722a121eb5ee3680bd5827c54f2874cb637297df392e0148513e1ee",
+   "weights_sha256_verified": true,
+   "weights_manifest_sha256_equal": true,
+   "protocol": "official",
+   "dataset": "celeba_spoof",
+   "val_split": "random per image",
+   "val_split_note": "English translation of the value recorded in the card",
+   "saved": "2026-09-12 18:17",
+   "epochs_run": 6,
+   "card_counts": {
+    "n_train": 2400,
+    "n_val": 600,
+    "n_test": 900
+   },
+   "card_test_by_class": {
+    "n_bona_fide": 450,
+    "n_attack": 450
+   },
+   "manifests": {
+    "n_train": "cnn_train",
+    "n_val": "cnn_es",
+    "n_test": "cnn_test"
+   },
+   "counts_match_manifests": true
+  },
+  "AttackNetV2_2__celeba_spoof": {
+   "card": "AttackNetV2_2__celeba_spoof.json",
+   "weights_file": "AttackNetV2_2__celeba_spoof.h5",
+   "weights_sha256": "b9e4db69dd6873c1bb1c61d6db340a2749f8f9d20467769d64ae5ace42926e6a",
+   "weights_sha256_verified": true,
+   "weights_manifest_sha256_equal": true,
+   "protocol": "official",
+   "dataset": "celeba_spoof",
+   "val_split": "random per image",
+   "val_split_note": "English translation of the value recorded in the card",
+   "saved": "2026-09-12 13:19",
+   "epochs_run": 12,
+   "card_counts": {
+    "n_train": 2400,
+    "n_val": 600,
+    "n_test": 900
+   },
+   "card_test_by_class": {
+    "n_bona_fide": 450,
+    "n_attack": 450
+   },
+   "manifests": {
+    "n_train": "cnn_train",
+    "n_val": "cnn_es",
+    "n_test": "cnn_test"
+   },
+   "counts_match_manifests": true
+  },
+  "LivenessNet__celeba_spoof-pooled": {
+   "card": "LivenessNet__celeba_spoof-pooled.json",
+   "weights_file": "LivenessNet__celeba_spoof-pooled.h5",
+   "weights_sha256": "4f7553343edabc31d382a6bbd6fe1dff664b1727010737a2c94c89bf22bcc48d",
+   "weights_sha256_verified": true,
+   "weights_manifest_sha256_equal": true,
+   "protocol": "pooled",
+   "dataset": "celeba_spoof",
+   "val_split": "random",
+   "val_split_note": "English translation of the value recorded in the card",
+   "saved": "2026-09-12 19:38",
+   "epochs_run": 12,
+   "card_counts": {
+    "n_train": 2808,
+    "n_val": 312,
+    "n_test": 780
+   },
+   "card_test_by_class": {
+    "n_bona_fide": 390,
+    "n_attack": 390
+   },
+   "manifests": {
+    "n_train": "pooled_train",
+    "n_val": "pooled_es",
+    "n_test": "pooled_test"
+   },
+   "counts_match_manifests": true
+  },
+  "AttackNetV2_2__celeba_spoof-pooled": {
+   "card": "AttackNetV2_2__celeba_spoof-pooled.json",
+   "weights_file": "AttackNetV2_2__celeba_spoof-pooled.h5",
+   "weights_sha256": "fd813458862f8f187fb6b68a06cb2cd1d3780066f3cc31e094947c7a069b812a",
+   "weights_sha256_verified": true,
+   "weights_manifest_sha256_equal": true,
+   "protocol": "pooled",
+   "dataset": "celeba_spoof",
+   "val_split": "random",
+   "val_split_note": "English translation of the value recorded in the card",
+   "saved": "2026-09-12 19:44",
+   "epochs_run": 8,
+   "card_counts": {
+    "n_train": 2808,
+    "n_val": 312,
+    "n_test": 780
+   },
+   "card_test_by_class": {
+    "n_bona_fide": 390,
+    "n_attack": 390
+   },
+   "manifests": {
+    "n_train": "pooled_train",
+    "n_val": "pooled_es",
+    "n_test": "pooled_test"
+   },
+   "counts_match_manifests": true
+  }
+ },
+ "limits": [
+  "The \"official\" checkpoints (protocol name recorded in the cards) are not trained on the original CelebA-Spoof protocol: fitting, early stopping and test images all come from shard 0 of the mirror's `test` split (correspondence with the official test split not verified), divided by us per image.",
+  "No identity is available: fitting, early-stopping and test images are not guaranteed to be identity-disjoint (overlap can neither be excluded nor measured; declared as not checkable); test results say nothing about unseen subjects.",
+  "The early-stopping split is rebuilt with the first versioned logic (`GroupShuffleSplit` on file names, one image per group); a stratified split gives the same totals 2,400 / 600 (with 300 / 300 per class in the early stopping instead of 295 / 305). Which of the two the training run used is not verified. The `val_split` field of the four \"official\" cards was 'by subject' in commit `0ac7143` and was rewritten as 'random per image' in commit `4d11e67`; with the logic of `0ac7143` the first value corresponds to `GroupShuffleSplit` on groups of one image.",
+  "The procedure that converted the parquet into the prepared folders is not versioned; a rule that reproduces their row sets exactly is checked. 39 rows without image bytes are excluded; 71 live and 2,707 spoof rows are not used.",
+  "One pair of rows has byte-identical images (exact duplicate, both bona fide); near-duplicates are not searched.",
+  "The pooled checkpoints use a random split of the same images: 244 of the 300 evaluation images were used to fit or validate them."
+ ],
+ "supported_comparisons": [
+  "Supported: a descriptive, within-shard comparison of the four \"official\" CNNs (card protocol name) on the same per-image split made by us, declared as not guaranteed to be identity-disjoint; CelebA-Spoof as a target dataset for models trained elsewhere, declared as shard 0 of the mirror's `test` split, without identities.",
+  "Not supported: conclusions on unseen subjects; comparisons with results on the official CelebA-Spoof protocol; any claim on the pooled checkpoints evaluated on the evaluation set."
+ ],
+ "checks": {
+  "parquet_matches_hf_metadata": true,
+  "parquet_columns": true,
+  "parquet_rows": true,
+  "parquet_labels": true,
+  "parquet_png": true,
+  "prepared_byte_identical_to_parquet": true,
+  "eval_file:celeba_": true,
+  "training_cache_train": true,
+  "training_cache_test": true,
+  "rows_valid": true,
+  "manifests_equal_declared_in_rules": true,
+  "weights_sha256:LivenessNet__celeba_spoof": true,
+  "weights_manifest:LivenessNet__celeba_spoof": true,
+  "card_counts:LivenessNet__celeba_spoof": true,
+  "card_protocol:LivenessNet__celeba_spoof": true,
+  "weights_sha256:AttackNetV1__celeba_spoof": true,
+  "weights_manifest:AttackNetV1__celeba_spoof": true,
+  "card_counts:AttackNetV1__celeba_spoof": true,
+  "card_protocol:AttackNetV1__celeba_spoof": true,
+  "weights_sha256:AttackNetV2_1__celeba_spoof": true,
+  "weights_manifest:AttackNetV2_1__celeba_spoof": true,
+  "card_counts:AttackNetV2_1__celeba_spoof": true,
+  "card_protocol:AttackNetV2_1__celeba_spoof": true,
+  "weights_sha256:AttackNetV2_2__celeba_spoof": true,
+  "weights_manifest:AttackNetV2_2__celeba_spoof": true,
+  "card_counts:AttackNetV2_2__celeba_spoof": true,
+  "card_protocol:AttackNetV2_2__celeba_spoof": true,
+  "weights_sha256:LivenessNet__celeba_spoof-pooled": true,
+  "weights_manifest:LivenessNet__celeba_spoof-pooled": true,
+  "card_counts:LivenessNet__celeba_spoof-pooled": true,
+  "card_protocol:LivenessNet__celeba_spoof-pooled": true,
+  "weights_sha256:AttackNetV2_2__celeba_spoof-pooled": true,
+  "weights_manifest:AttackNetV2_2__celeba_spoof-pooled": true,
+  "card_counts:AttackNetV2_2__celeba_spoof-pooled": true,
+  "card_protocol:AttackNetV2_2__celeba_spoof-pooled": true
+ },
+ "passed": true,
+ "problems": [],
+ "commit": "80b7d141bbbd93e019d4aac8d42cd4fa1d8cced9",
+ "dirty": false,
+ "created": "2026-10-09T19:12:16+0200",
+ "manifests": {
+  "parquet": {
+   "file": "manifests/celeba_parquet.csv",
+   "description": "all rows with image bytes of shard 0 of the mirror's `test` split (39 rows without image excluded)",
+   "sha256": "85d1c1624736f9ffadf170588475c96b599996b5af52504e7ee8bfb8d2dd6c8d",
+   "n": 6678,
+   "n_bona_fide": 2021,
+   "n_attack": 4657
+  },
+  "prepared_training": {
+   "file": "manifests/celeba_prepared_training.csv",
+   "description": "prepared folders `{bonafide,attack}_training` (files byte-identical to the parquet PNG bytes)",
+   "sha256": "be1f01b420afac2e07612f9fccb4b330652de37282f43d4123ddf1dbf91d5cbe",
+   "n": 3000,
+   "n_bona_fide": 1500,
+   "n_attack": 1500
+  },
+  "prepared_validation": {
+   "file": "manifests/celeba_prepared_validation.csv",
+   "description": "prepared folders `{bonafide,attack}_validation` (byte-identical files; the 300 evaluation images included)",
+   "sha256": "51964b7e7b1ebf63630c7e96b43336439e0ed65b15212d172011c8f1b46e4e5d",
+   "n": 900,
+   "n_bona_fide": 450,
+   "n_attack": 450
+  },
+  "eval": {
+   "file": "manifests/celeba_eval.csv",
+   "description": "the 300 images of the application evaluation set `data/eval/celeba_spoof` (frozen, compared only)",
+   "sha256": "39351f6ddae5e52ba10d58b84f9ec110bfd8aa2586ddf54469215a54e16ad917",
+   "n": 300,
+   "n_bona_fide": 150,
+   "n_attack": 150
+  },
+  "cnn_train": {
+   "file": "manifests/celeba_cnn_train.csv",
+   "description": "images that fitted the weights of the four CelebA-Spoof \"official\" CNNs (card protocol name; our per-image split inside shard 0 of the mirror's `test` split)",
+   "sha256": "cf20f46ab196e189123d9afcf7c4784ae6f85b921f66faff9c80f9d7043bf3cf",
+   "n": 2400,
+   "n_bona_fide": 1205,
+   "n_attack": 1195
+  },
+  "cnn_es": {
+   "file": "manifests/celeba_cnn_early_stopping.csv",
+   "description": "validation images of the four \"official\" CNNs (card protocol name; per-image split by us, not the original protocol)",
+   "sha256": "a33ff730f067d08c079d6124b624be97e3df8f4dd38ce795ebf12d712bb9b8a9",
+   "n": 600,
+   "n_bona_fide": 295,
+   "n_attack": 305
+  },
+  "cnn_test": {
+   "file": "manifests/celeba_cnn_test.csv",
+   "description": "test images of the \"official\" checkpoint cards (card protocol name; the prepared `_validation` folders, inside the mirror's `test` shard)",
+   "sha256": "51964b7e7b1ebf63630c7e96b43336439e0ed65b15212d172011c8f1b46e4e5d",
+   "n": 900,
+   "n_bona_fide": 450,
+   "n_attack": 450
+  },
+  "pooled_train": {
+   "file": "manifests/celeba_pooled_train.csv",
+   "description": "images that fitted the weights of the two CelebA-Spoof pooled CNNs",
+   "sha256": "015a59a832f07cbae60213af33d787aec23c06fbf37768ec72bf847dab78f343",
+   "n": 2808,
+   "n_bona_fide": 1404,
+   "n_attack": 1404
+  },
+  "pooled_es": {
+   "file": "manifests/celeba_pooled_early_stopping.csv",
+   "description": "validation images of the two pooled CNNs (random, stratified)",
+   "sha256": "af7e1a1cf17efab15ab10f58df6b5b544cdb617ce14c933234b148b6c114b7a4",
+   "n": 312,
+   "n_bona_fide": 156,
+   "n_attack": 156
+  },
+  "pooled_test": {
+   "file": "manifests/celeba_pooled_test.csv",
+   "description": "test images of the pooled checkpoint cards (random 20 % of the pooled images)",
+   "sha256": "d8085b0c5191a6deef2dabae656da3e2a5c7715bf8fbaf871ae58f1d7285edc0",
+   "n": 780,
+   "n_bona_fide": 390,
+   "n_attack": 390
+  }
+ },
+ "recount": {
+  "manifest_counts": {
+   "parquet": {
+    "n": 6678,
+    "n_bona_fide": 2021,
+    "n_attack": 4657
+   },
+   "prepared_training": {
+    "n": 3000,
+    "n_bona_fide": 1500,
+    "n_attack": 1500
+   },
+   "prepared_validation": {
+    "n": 900,
+    "n_bona_fide": 450,
+    "n_attack": 450
+   },
+   "eval": {
+    "n": 300,
+    "n_bona_fide": 150,
+    "n_attack": 150
+   },
+   "cnn_train": {
+    "n": 2400,
+    "n_bona_fide": 1205,
+    "n_attack": 1195
+   },
+   "cnn_es": {
+    "n": 600,
+    "n_bona_fide": 295,
+    "n_attack": 305
+   },
+   "cnn_test": {
+    "n": 900,
+    "n_bona_fide": 450,
+    "n_attack": 450
+   },
+   "pooled_train": {
+    "n": 2808,
+    "n_bona_fide": 1404,
+    "n_attack": 1404
+   },
+   "pooled_es": {
+    "n": 312,
+    "n_bona_fide": 156,
+    "n_attack": 156
+   },
+   "pooled_test": {
+    "n": 780,
+    "n_bona_fide": 390,
+    "n_attack": 390
+   }
+  },
+  "exclusions": {
+   "parquet_rows_not_used": {
+    "n": 2778,
+    "n_bona_fide": 71,
+    "n_attack": 2707
+   }
+  },
+  "pooled_overlap": {
+   "eval_images_in_pooled_fit_or_validation": 244
+  },
+  "exact_duplicates_by_hash": {
+   "parquet": 1,
+   "prepared_training": 1,
+   "prepared_validation": 0,
+   "eval": 0,
+   "cnn_train": 1,
+   "cnn_es": 0,
+   "cnn_test": 0,
+   "pooled_train": 1,
+   "pooled_es": 0,
+   "pooled_test": 0
+  }
+ },
+ "private": false,
+ "note": "aggregate counts only: per-image manifests, subject and video keys and row indices are restricted"
+}
