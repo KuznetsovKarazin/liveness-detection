@@ -17,6 +17,11 @@ outside the shard), so that no real image is named.
 | Mirror revision | `4ea8ec45dee3765e17bb3efedfdcd7af39a3ebfe` | verified |
 | Archive | `casiafasd.tar.gz`, 69,265,514 bytes, SHA-256 `76139d96360767adfecc1a8c01c062af14da664f665ba13ba5ce78111d0d9ec9`, equal to the etag recorded by the Hugging Face download cache (12 September 2026) | verified |
 | Content of the archive | `train_img/train_img/{color,depth}` 1,655 + 1,655 files, `test_img/test_img/{color,depth}` 2,408 + 2,408; no video, README or split list | verified (listed with `tarfile`, not extracted) |
+| Download URL | `https://huggingface.co/datasets/akahana/anti-spoofing-casiafasd/resolve/4ea8ec45dee3765e17bb3efedfdcd7af39a3ebfe/casiafasd.tar.gz` | verified (revision and file name of the cache) |
+| Download | 12 September 2026, 11:39:21 Europe/Rome, with `huggingface_hub` 1.31.0 (`hf_xet` 1.6.0), `local_dir` `data/raw`; the exact call was not recorded | verified (cache metadata and download log) |
+| Mirror today | on 9 October 2026 the revision is still the mirror's HEAD (last modified 4 June 2025) and the LFS object of `casiafasd.tar.gz` at that revision equals our SHA-256 and size; the mirror card states no licence and no source | verified (Hugging Face API, 9 October 2026) |
+| File dates in the archive | the 8 folders are dated 4 June 2025 02:31 UTC (the same day as the mirror upload), all 8,126 JPEG files 15 November 2022 01:24 UTC: the frames predate the mirror; who extracted them, and from which copy, is not verified | verified (archive listing) |
+| Other files of the mirror | two file-name/label lists (`train/`, `test/`), not downloaded: "no split list" refers to the downloaded archive | verified (Hugging Face API) |
 
 - Original source: CASIA Face Anti-Spoofing Database (CASIA-FASD), Institute of Automation, Chinese Academy of
   Sciences; reference publication: Z. Zhang, J. Yan, S. Liu, Z. Lei, D. Yi, S. Z. Li, "A face antispoofing database
@@ -25,13 +30,19 @@ outside the shard), so that no real image is named.
   per subject (genuine, warped photo, cut photo and video replay, each at low, normal and high quality), from the
   reference publication; the mapping of the video tokens to attack type and quality is not in the mirror and is not
   applied: the manifests carry the token as an opaque code.
-- Verified on the copy: only extracted JPEG frames, without videos, README or split lists: `train_img` 1,655 and
-  `test_img` 2,408 colour frames named `<subject>_<video>.avi_<frame>_<real|fake>.jpg`; subject numbers 1–20 in
-  `train_img` and 1–30 in `test_img` (the numbering is local to the split: the same numbers occur in both); 12 video
-  tokens per subject, none missing; tokens 1, 2 and HR_1 always `real`, the others always `fake`.
+- Verified on the copy: the downloaded archive holds only extracted JPEG frames, without videos, README or split lists
+  (the mirror also holds two file-name/label lists, `train/` and `test/`, which were not downloaded): `train_img`
+  1,655 and `test_img` 2,408 colour frames named `<subject>_<video>.avi_<frame>_<real|fake>.jpg`; subject numbers 1–20
+  in `train_img` and 1–30 in `test_img` (the numbering is local to the split: the same numbers occur in both); 12
+  video tokens per subject, none missing; tokens 1, 2 and HR_1 always `real`, the others always `fake`; in the archive
+  the frames are dated 15 November 2022 and the folders 4 June 2025 (the same day as the mirror upload), so the frames
+  predate the mirror.
+- Mirror: verified on 9 October 2026 (Hugging Face API): revision `4ea8ec45dee3765e17bb3efedfdcd7af39a3ebfe` is still
+  the mirror's HEAD and the LFS object of `casiafasd.tar.gz` equals our SHA-256 (69,265,514 bytes); the mirror card
+  states no licence and no source. Correspondence with the official release is not verified.
 - Not verified: that the subjects of `train_img` and of `test_img` are different persons; the attack type and quality
-  of each token; how the frames were extracted and cropped; the origin of the `depth/` maps (not used); the licence of
-  the mirror.
+  of each token; who extracted and cropped the frames, and from which copy; the origin of the `depth/` maps (not
+  used); the correspondence of the copy with the official release.
 - Subjects and videos: a subject is keyed `<mirror split>:<number>` and a video `<mirror split>:<number>:<token>`; a
   number alone is never compared across splits as an identity. No identity is inferred from image content.
 
@@ -90,24 +101,31 @@ used by any script).
 
 | item | value | status |
 |---|---|---|
-| Copy used | Hugging Face mirror `nguyenkhoa/celeba-spoof-for-face-antispoofing-test` (unofficial), shard 0 of 10 of the test split | verified (cache metadata and file name) |
+| Copy used | Hugging Face mirror `nguyenkhoa/celeba-spoof-for-face-antispoofing-test` (unofficial), shard 0 of 10 of the mirror's `test` split (correspondence with the official test split not verified) | verified (cache metadata and file name) |
 | Mirror revision | `f158d9f71d786089d4f8b3b6c16b7bcae5989a3f` | verified |
 | File | `test-00000-of-00010.parquet`, 495,744,415 bytes, SHA-256 `b5ac612899ebd7a825f86be4dbe3ffb84534b05bbc60172ba73e154b6e83cf09`, equal to the etag recorded by the Hugging Face download cache (12 September 2026) | verified |
 | Conversion script | not in the repository: the parquet was converted once outside the preparation script | verified (absence) |
+| Download URL | `https://huggingface.co/datasets/nguyenkhoa/celeba-spoof-for-face-antispoofing-test/resolve/f158d9f71d786089d4f8b3b6c16b7bcae5989a3f/data/test-00000-of-00010.parquet` | verified (revision and file name of the cache) |
+| Download | 12 September 2026, 12:03:25 Europe/Rome, with `huggingface_hub` 1.31.0 (`hf_xet` 1.6.0), `local_dir` `data/raw/celeba_spoof`; the exact call was not recorded | verified (cache metadata and download log) |
+| Mirror today | on 9 October 2026 the revision is still the mirror's HEAD (last modified 28 December 2024) and the LFS object of the shard at that revision equals our SHA-256 and size; the mirror card states no licence and no source, and names the split `test` (67,170 examples) | verified (Hugging Face API, 9 October 2026) |
 
 - Original source: CelebA-Spoof; reference publication: Y. Zhang, Z. Yin, Y. Li, G. Yin, J. Yan, J. Shao, Z. Liu,
   "CelebA-Spoof: Large-Scale Face Anti-Spoofing Dataset with Rich Annotations", ECCV 2020; official repository
   `ZhangYuanhan-AI/CelebA-Spoof`.
 - Documented [DOC-EXT]: the original release organises the images by identity, with official training and test splits
-  and annotations of attack type, illumination, environment, sensor and face attributes.
-- Verified on the copy: shard 0 of 10 of the test split of the mirror: one parquet file with the columns
-  `cropped_image` (`bytes`, `path`), `labels` (0 live, 1 spoof) and `labelNames`; 6,717 rows (2,030 live, 4,687
-  spoof), 39 of them without image bytes; `path` empty in every row; every image is a PNG; the prepared files are
-  byte-identical to the PNG bytes of their rows (with a `.jpg` extension).
+  and annotations of attack type, illumination, environment, sensor and face attributes; its README (official
+  repository) states that the live images come from CelebA.
+- Verified on the copy: shard 0 of 10 of the mirror's `test` split: one parquet file with the columns `cropped_image`
+  (`bytes`, `path`), `labels` (0 live, 1 spoof) and `labelNames`; 6,717 rows (2,030 live, 4,687 spoof), 39 of them
+  without image bytes; `path` empty in every row; every image is a PNG; the prepared files are byte-identical to the
+  PNG bytes of their rows (with a `.jpg` extension).
+- Mirror: verified on 9 October 2026 (Hugging Face API): revision `f158d9f71d786089d4f8b3b6c16b7bcae5989a3f` is still
+  the mirror's HEAD and the LFS object of `data/test-00000-of-00010.parquet` equals our SHA-256 (495,744,415 bytes);
+  the mirror card states no licence and no source, and names the split `test` (67,170 examples). Correspondence of the
+  mirror's `test` split with the official test split is not verified.
 - Not verified: the identity, attack type and acquisition conditions of any row; the order of the rows; how the faces
-  were cropped; how the shard relates to the whole official test split; the procedure that converted the parquet into
-  the prepared folders (a rule that reproduces them exactly is checked; the procedure itself is not versioned); the
-  licence of the mirror.
+  were cropped; how the shard relates to the official test split; the procedure that converted the parquet into the
+  prepared folders (a rule that reproduces them exactly is checked; the procedure itself is not versioned).
 - Identities: none: the copy has no identity, subject or video field, so no split can be checked for identity overlap;
   no identity is inferred from row order, content or similarity.
 
@@ -128,7 +146,7 @@ used by any script).
 | `label` | 0 bona fide (`live`), 1 attack (`spoof`) | from the `labels` column; not derivable from the key |
 | `label_name` | `live` or `spoof` | must match `label` |
 | `row` | row index | the integer of the key, without leading zeros |
-| `official_split` | `test` | every row of the copy belongs to the official test split; any other value is refused |
+| `official_split` | `test` | every row of the copy belongs to the mirror's `test` split (correspondence with the official test split not verified); any other value is refused |
 | `sha256`, `bytes` | hash and size of the PNG bytes of the row | equal to those of the prepared and evaluation files (checked by `build`) |
 
 The label cannot be checked against the key: a label changed in one manifest is caught by the key-consistency rule

@@ -189,11 +189,11 @@ SPEC = {
         "title": "CelebA-Spoof", "columns": CELEBA_COLUMNS,
         "dimensions": {"key": "key", "hash": "sha256"},
         "manifests": {
-            "parquet": ("celeba_parquet.csv", "all rows with image bytes of shard 0 of the mirror (official test split; 39 rows without image excluded)"),
+            "parquet": ("celeba_parquet.csv", "all rows with image bytes of shard 0 of the mirror's `test` split (39 rows without image excluded)"),
             "prepared_training": ("celeba_prepared_training.csv", "prepared folders `{bonafide,attack}_training` (files byte-identical to the parquet PNG bytes)"),
             "prepared_validation": ("celeba_prepared_validation.csv", "prepared folders `{bonafide,attack}_validation` (byte-identical files; the 300 evaluation images included)"),
             "eval": ("celeba_eval.csv", "the 300 images of the application evaluation set `data/eval/celeba_spoof` (frozen, compared only)"),
-            "cnn_train": ("celeba_cnn_train.csv", "images that fitted the weights of the four CelebA-Spoof \"official\" CNNs (our per-image split inside the official test)"),
+            "cnn_train": ("celeba_cnn_train.csv", "images that fitted the weights of the four CelebA-Spoof \"official\" CNNs (our per-image split inside shard 0 of the mirror's `test` split)"),
             "cnn_es": ("celeba_cnn_early_stopping.csv", "validation images of the four \"official\" CNNs (per image)"),
             "cnn_test": ("celeba_cnn_test.csv", "test images of the \"official\" checkpoint cards (the prepared `_validation` folders)"),
             "pooled_train": ("celeba_pooled_train.csv", "images that fitted the weights of the two CelebA-Spoof pooled CNNs"),
@@ -213,14 +213,19 @@ SOURCE_DECLARATIONS = {
                                  "subject (genuine, warped photo, cut photo and video replay, each at low, normal and high quality), from "
                                  "the reference publication; the mapping of the video tokens to attack type and quality is not in the "
                                  "mirror and is not applied: the manifests carry the token as an opaque code."),
-        ("Verified on the copy", "only extracted JPEG frames, without videos, README or split lists: `train_img` 1,655 and `test_img` "
-                                 "2,408 colour frames named `<subject>_<video>.avi_<frame>_<real|fake>.jpg`; subject numbers 1–20 in "
+        ("Verified on the copy", "the downloaded archive holds only extracted JPEG frames, without videos, README or split lists "
+                                 "(the mirror also holds two file-name/label lists, `train/` and `test/`, which were not downloaded): "
+                                 "`train_img` 1,655 and `test_img` 2,408 colour frames named `<subject>_<video>.avi_<frame>_<real|fake>.jpg`; subject numbers 1–20 in "
                                  "`train_img` and 1–30 in `test_img` (the numbering is local to the split: the same numbers occur in "
                                  "both); 12 video tokens per subject, none missing; tokens 1, 2 and HR_1 always `real`, the others "
-                                 "always `fake`."),
+                                 "always `fake`; in the archive the frames are dated 15 November 2022 and the folders 4 June 2025 "
+                                 "(the same day as the mirror upload), so the frames predate the mirror."),
+        ("Mirror", "verified on 9 October 2026 (Hugging Face API): revision `4ea8ec45dee3765e17bb3efedfdcd7af39a3ebfe` is still "
+                   "the mirror's HEAD and the LFS object of `casiafasd.tar.gz` equals our SHA-256 (69,265,514 bytes); the mirror "
+                   "card states no licence and no source. Correspondence with the official release is not verified."),
         ("Not verified", "that the subjects of `train_img` and of `test_img` are different persons; the attack type and quality of "
-                         "each token; how the frames were extracted and cropped; the origin of the `depth/` maps (not used); the "
-                         "licence of the mirror."),
+                         "each token; who extracted and cropped the frames, and from which copy; the origin of the `depth/` maps "
+                         "(not used); the correspondence of the copy with the official release."),
         ("Subjects and videos", "a subject is keyed `<mirror split>:<number>` and a video `<mirror split>:<number>:<token>`; a number "
                                 "alone is never compared across splits as an identity. No identity is inferred from image content."),
     ),
@@ -229,15 +234,20 @@ SOURCE_DECLARATIONS = {
                             "\"CelebA-Spoof: Large-Scale Face Anti-Spoofing Dataset with Rich Annotations\", ECCV 2020; official "
                             "repository `ZhangYuanhan-AI/CelebA-Spoof`."),
         ("Documented [DOC-EXT]", "the original release organises the images by identity, with official training and test splits and "
-                                 "annotations of attack type, illumination, environment, sensor and face attributes."),
-        ("Verified on the copy", "shard 0 of 10 of the test split of the mirror: one parquet file with the columns `cropped_image` "
+                                 "annotations of attack type, illumination, environment, sensor and face attributes; its README "
+                                 "(official repository) states that the live images come from CelebA."),
+        ("Verified on the copy", "shard 0 of 10 of the mirror's `test` split: one parquet file with the columns `cropped_image` "
                                  "(`bytes`, `path`), `labels` (0 live, 1 spoof) and `labelNames`; 6,717 rows (2,030 live, 4,687 "
                                  "spoof), 39 of them without image bytes; `path` empty in every row; every image is a PNG; the prepared "
                                  "files are byte-identical to the PNG bytes of their rows (with a `.jpg` extension)."),
+        ("Mirror", "verified on 9 October 2026 (Hugging Face API): revision `f158d9f71d786089d4f8b3b6c16b7bcae5989a3f` is still "
+                   "the mirror's HEAD and the LFS object of `data/test-00000-of-00010.parquet` equals our SHA-256 (495,744,415 "
+                   "bytes); the mirror card states no licence and no source, and names the split `test` (67,170 examples). "
+                   "Correspondence of the mirror's `test` split with the official test split is not verified."),
         ("Not verified", "the identity, attack type and acquisition conditions of any row; the order of the rows; how the faces "
-                         "were cropped; how the shard relates to the whole official test split; the procedure that converted the "
+                         "were cropped; how the shard relates to the official test split; the procedure that converted the "
                          "parquet into the prepared folders (a rule that reproduces them exactly is checked; the procedure itself is "
-                         "not versioned); the licence of the mirror."),
+                         "not versioned)."),
         ("Identities", "none: the copy has no identity, subject or video field, so no split can be checked for identity overlap; "
                        "no identity is inferred from row order, content or similarity."),
     ),
@@ -246,7 +256,8 @@ SOURCE_DECLARATIONS = {
 # limiti e confronti sostenuti (stesso testo in README.md e nel rapporto)
 LIMITS = {
     "casia_fasd": (
-        "The copy has only extracted frames: no original video, README or official split list. That `train_img` and `test_img` "
+        "The downloaded archive has only extracted frames: no original video, README or split list (the mirror's two "
+        "file-name/label lists were not downloaded). That `train_img` and `test_img` "
         "hold different persons is documented by the protocol [DOC-EXT] and cannot be verified on the copy, because subject "
         "numbers are local to the split.",
         "Frames of the same video are not independent samples; every split of this tranche keeps the frames of a video together "
@@ -257,11 +268,12 @@ LIMITS = {
         "against the card counts and the label and subject arrays of the training cache; the card counts alone do not determine "
         "the four held-out subjects (75 combinations of 4 of the 20 training subjects give 316 images), so the official split "
         "relies on `GroupShuffleSplit` with seed 42. The training cache is linked to the files by sampling order, not image by image.",
-        "317 test attack frames are not in the official test (spread(..., 1500) per class); the `depth/` maps are not used.",
+        "317 test attack frames are not in the test of the official checkpoints (spread(..., 1500) per class); the `depth/` maps are not used.",
     ),
     "celeba_spoof": (
         "The \"official\" checkpoints are not trained on the official CelebA-Spoof protocol: fitting, early stopping and test images "
-        "all come from shard 0 of the official test split, divided by us per image.",
+        "all come from shard 0 of the mirror's `test` split (correspondence with the official test split not verified), "
+        "divided by us per image.",
         "No identity is available: fitting, early-stopping and test images are not guaranteed to be identity-disjoint (overlap can "
         "neither be excluded nor measured; declared as not checkable); test results say nothing about unseen subjects.",
         "The early-stopping split is rebuilt with the first versioned logic (`GroupShuffleSplit` on file names, one image per "
@@ -289,7 +301,7 @@ SUPPORTED = {
     "celeba_spoof": (
         "Supported: a descriptive, within-shard comparison of the four \"official\" CNNs on the same per-image split, declared as "
         "not guaranteed to be identity-disjoint; CelebA-Spoof as a target dataset for models trained elsewhere, declared as shard 0 of the "
-        "official test without identities.",
+        "mirror's `test` split, without identities.",
         "Not supported: conclusions on unseen subjects; comparisons with results on the official CelebA-Spoof protocol; any claim "
         "on the pooled checkpoints evaluated on the evaluation set.",
     ),
@@ -1054,7 +1066,7 @@ def celeba_build(check):
     except ModuleNotFoundError:
         fail("missing Python package 'pyarrow': needed to read the CelebA-Spoof parquet (build only)")
     src = {"dataset": "CelebA-Spoof (Zhang et al., ECCV 2020)", "mirror": f"Hugging Face dataset {CELEBA_MIRROR}",
-           "file": CELEBA_SHARD, "shard": "shard 0 of 10 of the test split", "readme_in_mirror": False}
+           "file": CELEBA_SHARD, "shard": "shard 0 of 10 of the mirror's `test` split", "readme_in_mirror": False}
     meta = hf_meta(CELEBA_HF_META)
     src["revision"] = (meta or {}).get("revision")
     if not CELEBA_PARQUET.is_file():

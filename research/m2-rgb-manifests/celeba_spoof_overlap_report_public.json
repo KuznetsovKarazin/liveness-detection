@@ -1,7 +1,7 @@
 {
  "dataset": "celeba_spoof",
  "rules_file": "delivery/m2/rgb/celeba_spoof_overlap_rules.json",
- "rules_sha256": "1d4bd49152d3ebef2096b1eb7ecb2403c897bd146bb2c83c20ca4186bbe11f00",
+ "rules_sha256": "796a28aab5728fe40ae5ff7fda56b4c31517461c1390ee64e0f9555691a56b6a",
  "manifests_dir": "results/m2_rgb/celeba_spoof/manifests",
  "manifests": {
   "parquet": {
@@ -543,7 +543,7 @@
     {
      "by": "-",
      "outcome": "not checkable",
-     "reason": "the copy has no identity field (the `path` column is empty and there is no subject column): fitting, early-stopping and test images all come from shard 0 of the official test split and are divided per image, so identity overlap between them can neither be excluded nor measured"
+     "reason": "the copy has no identity field (the `path` column is empty and there is no subject column): fitting, early-stopping and test images all come from shard 0 of the mirror's `test` split and are divided per image, so identity overlap between them can neither be excluded nor measured"
     }
    ]
   },
@@ -555,7 +555,7 @@
     "key",
     "hash"
    ],
-   "description": "every image used by the checkpoints and the evaluation set is a row with image of shard 0 of the official test split: the \"official\" checkpoints are not trained on the official training split",
+   "description": "every image used by the checkpoints and the evaluation set is a row with image of shard 0 of the mirror's `test` split (correspondence with the official test split not verified): the \"official\" checkpoints are not trained on the official training split",
    "verdict": "pass",
    "checks": [
     {
@@ -1665,7 +1665,7 @@
  "n_not_checkable": 1,
  "passed": true,
  "note": "public version: counts and verdicts only, no keys, no subject or video identifiers",
- "commit": "532731eda25dd58939a1f969d15a92c7804d304e",
+ "commit": "13cb49fd4a59c74077d55e022aceba0799c3f3b5",
  "dirty": false,
- "checked": "2026-10-08T17:58:47+0200"
+ "checked": "2026-10-09T15:32:27+0200"
 }

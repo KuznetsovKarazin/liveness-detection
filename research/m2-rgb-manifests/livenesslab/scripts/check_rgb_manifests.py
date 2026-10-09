@@ -311,6 +311,35 @@ def rules_digest(doc: dict) -> str:
     return hashlib.sha256(json.dumps(norm, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
 
+# formulazioni corrette il 9/10/2026: la corrispondenza con il mirror è verificata, quella dello split `test` del mirror
+# con lo split di test ufficiale di CelebA-Spoof no
+ALLOWED_OFFICIAL_TEST = ("correspondence with the official test split not verified", "with the official test split is not verified",
+                         "relates to the official test split", "(official test split by protocol [DOC-EXT])")
+
+
+def wording_problems(text: str) -> list:
+    """Formulazioni superate nei testi pubblici: «not verified (no network» e «official test split / shard» fuori dalle
+    frasi corrette (lo split di CelebA-Spoof è lo split `test` del mirror)."""
+    t = re.sub(r"\s+", " ", text)
+    bad = [p for p in ("not verified (no network", "no network access") if p in t]
+    for ok in ALLOWED_OFFICIAL_TEST:
+        t = t.replace(ok, "")
+    bad += [p for p in ("official test split", "official test shard") if p in t]
+    return bad
+
+
+class TestWording(unittest.TestCase):
+    def test_wording_of_public_sources(self):
+        texts = {p.name: p.read_text(encoding="utf-8") for p in sorted(RM.RULES_DIR.glob("*")) if p.suffix in (".md", ".json", ".tmpl")}
+        texts["rgb_manifests.py (declarations)"] = json.dumps([RM.SOURCE_DECLARATIONS, RM.LIMITS, RM.SUPPORTED,
+                                                               {ds: RM.SPEC[ds]["manifests"] for ds in RM.DATASETS}])
+        for name, text in texts.items():
+            self.assertEqual(wording_problems(text), [], name)
+        self.assertTrue(wording_problems("shard 0 of the official test split"))
+        self.assertTrue(wording_problems("is not verified (no network access)"))
+        self.assertEqual(wording_problems("the mirror's `test` split (correspondence with the official test split not verified)"), [])
+
+
 class TestRuleEngine(unittest.TestCase):
     def test_clean_world(self):
         v = evaluate(casia_world())
@@ -734,7 +763,7 @@ def main() -> int:
     args = ap.parse_args()
     REQUIRE_REAL, REAL_DIR = args.require_real, args.real_dir
     suite = unittest.TestSuite(unittest.defaultTestLoader.loadTestsFromTestCase(c)
-                               for c in (TestFields, TestRowValidation, TestRules, TestRuleEngine, TestCli, TestPublicScan, TestSplits,
+                               for c in (TestFields, TestRowValidation, TestRules, TestWording, TestRuleEngine, TestCli, TestPublicScan, TestSplits,
                                          TestRealData))
     log = io.StringIO()
     result = unittest.TextTestRunner(stream=log, verbosity=2).run(suite)

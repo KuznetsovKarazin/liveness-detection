@@ -3017,7 +3017,7 @@
  "n_not_checkable": 1,
  "passed": true,
  "note": "public version: counts and verdicts only, no keys, no subject or video identifiers",
- "commit": "532731eda25dd58939a1f969d15a92c7804d304e",
+ "commit": "13cb49fd4a59c74077d55e022aceba0799c3f3b5",
  "dirty": false,
- "checked": "2026-10-08T17:58:31+0200"
+ "checked": "2026-10-09T15:32:14+0200"
 }

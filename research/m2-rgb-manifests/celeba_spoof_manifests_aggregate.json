@@ -5,7 +5,7 @@
   "dataset": "CelebA-Spoof (Zhang et al., ECCV 2020)",
   "mirror": "Hugging Face dataset nguyenkhoa/celeba-spoof-for-face-antispoofing-test",
   "file": "test-00000-of-00010.parquet",
-  "shard": "shard 0 of 10 of the test split",
+  "shard": "shard 0 of 10 of the mirror's `test` split",
   "readme_in_mirror": false,
   "revision": "f158d9f71d786089d4f8b3b6c16b7bcae5989a3f",
   "file_sha256": "b5ac612899ebd7a825f86be4dbe3ffb84534b05bbc60172ba73e154b6e83cf09",
@@ -31,9 +31,10 @@
  },
  "source_declarations": {
   "Original source": "CelebA-Spoof; reference publication: Y. Zhang, Z. Yin, Y. Li, G. Yin, J. Yan, J. Shao, Z. Liu, \"CelebA-Spoof: Large-Scale Face Anti-Spoofing Dataset with Rich Annotations\", ECCV 2020; official repository `ZhangYuanhan-AI/CelebA-Spoof`.",
-  "Documented [DOC-EXT]": "the original release organises the images by identity, with official training and test splits and annotations of attack type, illumination, environment, sensor and face attributes.",
-  "Verified on the copy": "shard 0 of 10 of the test split of the mirror: one parquet file with the columns `cropped_image` (`bytes`, `path`), `labels` (0 live, 1 spoof) and `labelNames`; 6,717 rows (2,030 live, 4,687 spoof), 39 of them without image bytes; `path` empty in every row; every image is a PNG; the prepared files are byte-identical to the PNG bytes of their rows (with a `.jpg` extension).",
-  "Not verified": "the identity, attack type and acquisition conditions of any row; the order of the rows; how the faces were cropped; how the shard relates to the whole official test split; the procedure that converted the parquet into the prepared folders (a rule that reproduces them exactly is checked; the procedure itself is not versioned); the licence of the mirror.",
+  "Documented [DOC-EXT]": "the original release organises the images by identity, with official training and test splits and annotations of attack type, illumination, environment, sensor and face attributes; its README (official repository) states that the live images come from CelebA.",
+  "Verified on the copy": "shard 0 of 10 of the mirror's `test` split: one parquet file with the columns `cropped_image` (`bytes`, `path`), `labels` (0 live, 1 spoof) and `labelNames`; 6,717 rows (2,030 live, 4,687 spoof), 39 of them without image bytes; `path` empty in every row; every image is a PNG; the prepared files are byte-identical to the PNG bytes of their rows (with a `.jpg` extension).",
+  "Mirror": "verified on 9 October 2026 (Hugging Face API): revision `f158d9f71d786089d4f8b3b6c16b7bcae5989a3f` is still the mirror's HEAD and the LFS object of `data/test-00000-of-00010.parquet` equals our SHA-256 (495,744,415 bytes); the mirror card states no licence and no source, and names the split `test` (67,170 examples). Correspondence of the mirror's `test` split with the official test split is not verified.",
+  "Not verified": "the identity, attack type and acquisition conditions of any row; the order of the rows; how the faces were cropped; how the shard relates to the official test split; the procedure that converted the parquet into the prepared folders (a rule that reproduces them exactly is checked; the procedure itself is not versioned).",
   "Identities": "none: the copy has no identity, subject or video field, so no split can be checked for identity overlap; no identity is inferred from row order, content or similarity."
  },
  "reconstruction": {
@@ -281,7 +282,7 @@
   }
  },
  "limits": [
-  "The \"official\" checkpoints are not trained on the official CelebA-Spoof protocol: fitting, early stopping and test images all come from shard 0 of the official test split, divided by us per image.",
+  "The \"official\" checkpoints are not trained on the official CelebA-Spoof protocol: fitting, early stopping and test images all come from shard 0 of the mirror's `test` split (correspondence with the official test split not verified), divided by us per image.",
   "No identity is available: fitting, early-stopping and test images are not guaranteed to be identity-disjoint (overlap can neither be excluded nor measured; declared as not checkable); test results say nothing about unseen subjects.",
   "The early-stopping split is rebuilt with the first versioned logic (`GroupShuffleSplit` on file names, one image per group); a stratified split gives the same totals 2,400 / 600 (with 300 / 300 per class in the early stopping instead of 295 / 305). Which of the two the training run used is not verified. The `val_split` field of the four \"official\" cards was 'by subject' in commit `0ac7143` and was rewritten as 'random per image' in commit `4d11e67`; with the logic of `0ac7143` the first value corresponds to `GroupShuffleSplit` on groups of one image.",
   "The procedure that converted the parquet into the prepared folders is not versioned; a rule that reproduces their row sets exactly is checked. 39 rows without image bytes are excluded; 71 live and 2,707 spoof rows are not used.",
@@ -289,7 +290,7 @@
   "The pooled checkpoints use a random split of the same images: 244 of the 300 evaluation images were used to fit or validate them."
  ],
  "supported_comparisons": [
-  "Supported: a descriptive, within-shard comparison of the four \"official\" CNNs on the same per-image split, declared as not guaranteed to be identity-disjoint; CelebA-Spoof as a target dataset for models trained elsewhere, declared as shard 0 of the official test without identities.",
+  "Supported: a descriptive, within-shard comparison of the four \"official\" CNNs on the same per-image split, declared as not guaranteed to be identity-disjoint; CelebA-Spoof as a target dataset for models trained elsewhere, declared as shard 0 of the mirror's `test` split, without identities.",
   "Not supported: conclusions on unseen subjects; comparisons with results on the official CelebA-Spoof protocol; any claim on the pooled checkpoints evaluated on the evaluation set."
  ],
  "checks": {
@@ -331,13 +332,13 @@
  },
  "passed": true,
  "problems": [],
- "commit": "532731eda25dd58939a1f969d15a92c7804d304e",
+ "commit": "13cb49fd4a59c74077d55e022aceba0799c3f3b5",
  "dirty": false,
- "created": "2026-10-08T17:58:46+0200",
+ "created": "2026-10-09T15:32:27+0200",
  "manifests": {
   "parquet": {
    "file": "manifests/celeba_parquet.csv",
-   "description": "all rows with image bytes of shard 0 of the mirror (official test split; 39 rows without image excluded)",
+   "description": "all rows with image bytes of shard 0 of the mirror's `test` split (39 rows without image excluded)",
    "sha256": "85d1c1624736f9ffadf170588475c96b599996b5af52504e7ee8bfb8d2dd6c8d",
    "n": 6678,
    "n_bona_fide": 2021,
@@ -369,7 +370,7 @@
   },
   "cnn_train": {
    "file": "manifests/celeba_cnn_train.csv",
-   "description": "images that fitted the weights of the four CelebA-Spoof \"official\" CNNs (our per-image split inside the official test)",
+   "description": "images that fitted the weights of the four CelebA-Spoof \"official\" CNNs (our per-image split inside shard 0 of the mirror's `test` split)",
    "sha256": "cf20f46ab196e189123d9afcf7c4784ae6f85b921f66faff9c80f9d7043bf3cf",
    "n": 2400,
    "n_bona_fide": 1205,

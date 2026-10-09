@@ -7,11 +7,11 @@ as the accepted NUAA tranche (`research/m2-nuaa-manifests/`), whose code is impo
 inference: the scripts list and hash files and read the training caches (label, group and frame arrays; the frames are
 only hashed).
 
-This folder is a filtered export of the operator's development repository (private; development commit `532731e`,
-run `20261008-M2-rgb-seed42-532731e`): the scripts needed to rerun the checks, the documents, the declared rules and the aggregate results,
+This folder is a filtered export of the operator's development repository (private; development commit `13cb49f`,
+run `20261009-M2-rgb-seed42-13cb49f`): the scripts needed to rerun the checks, the documents, the declared rules and the aggregate results,
 without data, weights, per-image manifests, subject or video keys, or row indices. The per-image manifests, the private
 summaries, the restricted overlap and short reports, the self-tests, the dataset register drafts and the logs are in the
-restricted run folder `20261008-M2-rgb-seed42-532731e` (see "Delivery status"), with their SHA-256 listed in the public aggregates and in
+restricted run folder `20261009-M2-rgb-seed42-13cb49f` (see "Delivery status"), with their SHA-256 listed in the public aggregates and in
 `run-report.md`. Code comments, command-line help and progress messages are in Italian by the developer's convention;
 reports, error messages and every document of this folder are in English.
 
@@ -21,13 +21,14 @@ copies that already existed; it does not assume that their use in M2 or C2 is au
 
 ## Delivery status
 
-The restricted folder of this run (`20261008-M2-rgb-seed42-532731e`) is ready locally and not uploaded yet; it is uploaded to `02_Experiments/M2/20261008-M2-rgb-seed42-532731e/` only after the coordinator has confirmed access and the authorisation of the two datasets has been decided. No earlier upload of a CASIA-FASD or CelebA-Spoof restricted folder is declared.
+The restricted folder of this run (`20261009-M2-rgb-seed42-13cb49f`) is kept locally and not uploaded: as requested by the coordinator on 8 October 2026, only the provenance note goes to the private M2 folder for now (its location is to be confirmed by the coordinator); the restricted run folder is uploaded to `02_Experiments/M2/20261009-M2-rgb-seed42-13cb49f/` only when he asks for it. No earlier upload of a CASIA-FASD or CelebA-Spoof restricted folder is declared.
 
 ## Glossary
 
 - **official** (checkpoint protocol): CASIA-FASD fitting and early stopping inside `train_img`, test on `test_img`;
-  CelebA-Spoof fitting, early stopping and test **all inside shard 0 of the official test split**, divided by us per
-  image (the name of the protocol in the cards is misleading for CelebA-Spoof).
+  CelebA-Spoof fitting, early stopping and test **all inside shard 0 of the mirror's `test` split** (correspondence
+  with the official test split not verified), divided by us per image (the name of the protocol in the cards is
+  misleading for CelebA-Spoof).
 - **pooled**: training and test arrays of the cache concatenated and split at random (per frame or per image).
 - **early stopping** (`cnn_es`, `pooled_es`): images never used for gradient updates; their `val_loss` controlled early
   stopping and the learning-rate reduction.
@@ -46,13 +47,19 @@ The restricted folder of this run (`20261008-M2-rgb-seed42-532731e`) is ready lo
   per subject (genuine, warped photo, cut photo and video replay, each at low, normal and high quality), from the
   reference publication; the mapping of the video tokens to attack type and quality is not in the mirror and is not
   applied: the manifests carry the token as an opaque code.
-- Verified on the copy: only extracted JPEG frames, without videos, README or split lists: `train_img` 1,655 and
-  `test_img` 2,408 colour frames named `<subject>_<video>.avi_<frame>_<real|fake>.jpg`; subject numbers 1–20 in
-  `train_img` and 1–30 in `test_img` (the numbering is local to the split: the same numbers occur in both); 12 video
-  tokens per subject, none missing; tokens 1, 2 and HR_1 always `real`, the others always `fake`.
+- Verified on the copy: the downloaded archive holds only extracted JPEG frames, without videos, README or split lists
+  (the mirror also holds two file-name/label lists, `train/` and `test/`, which were not downloaded): `train_img`
+  1,655 and `test_img` 2,408 colour frames named `<subject>_<video>.avi_<frame>_<real|fake>.jpg`; subject numbers 1–20
+  in `train_img` and 1–30 in `test_img` (the numbering is local to the split: the same numbers occur in both); 12
+  video tokens per subject, none missing; tokens 1, 2 and HR_1 always `real`, the others always `fake`; in the archive
+  the frames are dated 15 November 2022 and the folders 4 June 2025 (the same day as the mirror upload), so the frames
+  predate the mirror.
+- Mirror: verified on 9 October 2026 (Hugging Face API): revision `4ea8ec45dee3765e17bb3efedfdcd7af39a3ebfe` is still
+  the mirror's HEAD and the LFS object of `casiafasd.tar.gz` equals our SHA-256 (69,265,514 bytes); the mirror card
+  states no licence and no source. Correspondence with the official release is not verified.
 - Not verified: that the subjects of `train_img` and of `test_img` are different persons; the attack type and quality
-  of each token; how the frames were extracted and cropped; the origin of the `depth/` maps (not used); the licence of
-  the mirror.
+  of each token; who extracted and cropped the frames, and from which copy; the origin of the `depth/` maps (not
+  used); the correspondence of the copy with the official release.
 - Subjects and videos: a subject is keyed `<mirror split>:<number>` and a video `<mirror split>:<number>:<token>`; a
   number alone is never compared across splits as an identity. No identity is inferred from image content.
 
@@ -62,15 +69,19 @@ The restricted folder of this run (`20261008-M2-rgb-seed42-532731e`) is ready lo
   "CelebA-Spoof: Large-Scale Face Anti-Spoofing Dataset with Rich Annotations", ECCV 2020; official repository
   `ZhangYuanhan-AI/CelebA-Spoof`.
 - Documented [DOC-EXT]: the original release organises the images by identity, with official training and test splits
-  and annotations of attack type, illumination, environment, sensor and face attributes.
-- Verified on the copy: shard 0 of 10 of the test split of the mirror: one parquet file with the columns
-  `cropped_image` (`bytes`, `path`), `labels` (0 live, 1 spoof) and `labelNames`; 6,717 rows (2,030 live, 4,687
-  spoof), 39 of them without image bytes; `path` empty in every row; every image is a PNG; the prepared files are
-  byte-identical to the PNG bytes of their rows (with a `.jpg` extension).
+  and annotations of attack type, illumination, environment, sensor and face attributes; its README (official
+  repository) states that the live images come from CelebA.
+- Verified on the copy: shard 0 of 10 of the mirror's `test` split: one parquet file with the columns `cropped_image`
+  (`bytes`, `path`), `labels` (0 live, 1 spoof) and `labelNames`; 6,717 rows (2,030 live, 4,687 spoof), 39 of them
+  without image bytes; `path` empty in every row; every image is a PNG; the prepared files are byte-identical to the
+  PNG bytes of their rows (with a `.jpg` extension).
+- Mirror: verified on 9 October 2026 (Hugging Face API): revision `f158d9f71d786089d4f8b3b6c16b7bcae5989a3f` is still
+  the mirror's HEAD and the LFS object of `data/test-00000-of-00010.parquet` equals our SHA-256 (495,744,415 bytes);
+  the mirror card states no licence and no source, and names the split `test` (67,170 examples). Correspondence of the
+  mirror's `test` split with the official test split is not verified.
 - Not verified: the identity, attack type and acquisition conditions of any row; the order of the rows; how the faces
-  were cropped; how the shard relates to the whole official test split; the procedure that converted the parquet into
-  the prepared folders (a rule that reproduces them exactly is checked; the procedure itself is not versioned); the
-  licence of the mirror.
+  were cropped; how the shard relates to the official test split; the procedure that converted the parquet into the
+  prepared folders (a rule that reproduces them exactly is checked; the procedure itself is not versioned).
 - Identities: none: the copy has no identity, subject or video field, so no split can be checked for identity overlap;
   no identity is inferred from row order, content or similarity.
 
@@ -247,8 +258,8 @@ searched. This tranche does not establish absence of leakage.
 | C07 | official fitting + early stopping = `spread(train_img, 1500)` per class, disjoint | must |
 | C08 | official fitting and early stopping disjoint by key, hash, subject and video | must |
 | C09 | training side and test side disjoint by key and hash (by subject key and video key: by construction, the keys include the mirror split) | must |
-| C10, C11 | official test = `spread(test_img, 1500)`, eval = `spread(test_img, 150)` per class | must |
-| C12 | eval ⊆ official test | must |
+| C10, C11 | test of the official checkpoints = `spread(test_img, 1500)`, eval = `spread(test_img, 150)` per class | must |
+| C12 | eval ⊆ test of the official checkpoints | must |
 | C13, C14 | pooled fitting + early stopping + test = the cache frames, disjoint by key and hash | must |
 | C15 | declared leak: 235 of the 300 eval images in the pooled fitting or early stopping | must (declared count) |
 | C16 | declared leak: 50 of 50 subjects and 444 of 600 videos on both pooled sides | must (declared count) |
@@ -257,7 +268,7 @@ searched. This tranche does not establish absence of leakage.
 
 Self-test (10 faulty copies, written in canonical form with rows and SHA-256 re-declared, so that neither the format
 check nor the checksum stops them): early-stopping row added to the fitting images (C07, C08, C18); two SHA-256 swapped
-in the official test (C17 only); mirror split `dev` (row validation); label inconsistent with the key (row validation);
+in the test of the official checkpoints (C17 only); mirror split `dev` (row validation); label inconsistent with the key (row validation);
 duplicated pooled test row (C01, C13, C18); a test image's SHA-256 under a training key (C09, C17); pooled test row
 removed (C13, C18); evaluation image replaced (C11); prepared test row removed (C06, C18); a whole fitting subject
 moved to the early stopping (C18 only).
@@ -273,7 +284,7 @@ moved to the early stopping (C18 only).
 | S05 | "official" fitting + early stopping = prepared `_training`, disjoint | must |
 | S06, S07 | fitting vs early stopping; training side vs test side: disjoint by key and hash | must |
 | S08 | identity disjointness of the "official" split | not checkable (declared) |
-| S09 | every manifest ⊆ the parquet rows of the official test shard | must |
+| S09 | every manifest ⊆ the parquet rows of shard 0 of the mirror's `test` split | must |
 | S10 | pooled fitting + early stopping + test = the cache images, disjoint | must |
 | S11 | "official" test = prepared `_validation` | must |
 | S12 | declared leak: 244 of the 300 eval images in the pooled fitting or early stopping | must (declared count) |
@@ -301,7 +312,7 @@ fitting row moved to the early stopping (S14 only).
 
 - Supported: a descriptive, within-shard comparison of the four "official" CNNs on the same per-image split, declared
   as not guaranteed to be identity-disjoint; CelebA-Spoof as a target dataset for models trained elsewhere, declared
-  as shard 0 of the official test without identities.
+  as shard 0 of the mirror's `test` split, without identities.
 - Not supported: conclusions on unseen subjects; comparisons with results on the official CelebA-Spoof protocol; any
   claim on the pooled checkpoints evaluated on the evaluation set.
 
@@ -309,9 +320,9 @@ fitting row moved to the early stopping (S14 only).
 
 ### CASIA-FASD
 
-- The copy has only extracted frames: no original video, README or official split list. That `train_img` and
-  `test_img` hold different persons is documented by the protocol [DOC-EXT] and cannot be verified on the copy,
-  because subject numbers are local to the split.
+- The downloaded archive has only extracted frames: no original video, README or split list (the mirror's two
+  file-name/label lists were not downloaded). That `train_img` and `test_img` hold different persons is documented by
+  the protocol [DOC-EXT] and cannot be verified on the copy, because subject numbers are local to the split.
 - Frames of the same video are not independent samples; every split of this tranche keeps the frames of a video
   together except the pooled one.
 - The pooled checkpoints use a per-frame random split: all 50 subjects and 444 of the 600 videos are on both sides,
@@ -321,12 +332,14 @@ fitting row moved to the early stopping (S14 only).
   determine the four held-out subjects (75 combinations of 4 of the 20 training subjects give 316 images), so the
   official split relies on `GroupShuffleSplit` with seed 42. The training cache is linked to the files by sampling
   order, not image by image.
-- 317 test attack frames are not in the official test (spread(..., 1500) per class); the `depth/` maps are not used.
+- 317 test attack frames are not in the test of the official checkpoints (spread(..., 1500) per class); the `depth/`
+  maps are not used.
 
 ### CelebA-Spoof
 
 - The "official" checkpoints are not trained on the official CelebA-Spoof protocol: fitting, early stopping and test
-  images all come from shard 0 of the official test split, divided by us per image.
+  images all come from shard 0 of the mirror's `test` split (correspondence with the official test split not
+  verified), divided by us per image.
 - No identity is available: fitting, early-stopping and test images are not guaranteed to be identity-disjoint
   (overlap can neither be excluded nor measured; declared as not checkable); test results say nothing about unseen
   subjects.
@@ -344,9 +357,11 @@ fitting row moved to the early stopping (S14 only).
 ### Both
 
 - Neither dataset has a registered authorisation (no request, no confirmation of the terms); for CelebA-Spoof a
-  personal-data assessment is also needed (faces of real, identifiable persons, derived from CelebA [DOC-EXT]).
-- Both copies are unofficial mirrors; that their content matches the current objects of the mirrors, or the official
-  releases, is not verified (no network access).
+  personal-data assessment is also needed (faces of real, identifiable persons; the README of the official CelebA-Spoof
+  repository states that the live images come from CelebA).
+- Both copies are unofficial mirrors. Verified on 9 October 2026 (Hugging Face API): each revision is still the
+  mirror's HEAD and its LFS object equals our SHA-256; the mirror cards state no licence and no source. Correspondence
+  with the official releases is not verified.
 - The `.keras` files next to the `.h5` are not used by the application and are not hashed here.
 - No new split is made in this tranche; a new CASIA-FASD split would assign whole subjects (all 12 videos) before any
   frame selection or augmentation; CelebA-Spoof cannot be split by identity.
