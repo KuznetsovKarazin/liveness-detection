@@ -27,6 +27,7 @@ import hashlib
 import importlib.util
 import io
 import json
+import os
 import re
 import subprocess
 import sys
@@ -600,6 +601,241 @@ class TestCli(unittest.TestCase):
         self.assertTrue(RM.rule_problems("casia_fasd", doc))
 
 
+# ----------------------------------------------------------------------------- artefatti dopo un fallimento (revisione del 10/10)
+
+def make_casia_tree(root: Path, misplaced: bool = True) -> str:
+    """Copia CASIA-FASD sintetica e minima (frame non multipli di 25: nessun nome reale), con un'immagine bona fide dentro la
+    cartella attack della valutazione se misplaced. Restituisce il nome dell'immagine fuori posto."""
+    data = root / "data"
+    names = {"train": [f"{s}_{v}.avi_{f}_{'real' if v == '1' else 'fake'}.jpg" for s in range(1, 7) for v in ("1", "3") for f in (7, 13)],
+             "test": [f"{s}_{v}.avi_{f}_{'real' if v == '1' else 'fake'}.jpg" for s in range(1, 4) for v in ("1", "3") for f in (7, 13)]}
+    for split, sub, tag in (("train", "train_img/train_img", "training"), ("test", "test_img/test_img", "validation")):
+        for kind in ("color", "depth"):
+            (data / "raw" / "casia" / sub / kind).mkdir(parents=True, exist_ok=True)
+        for n in names[split]:
+            content = hashlib.sha256(f"{split}/{n}".encode()).digest()
+            for kind in ("color", "depth"):
+                (data / "raw" / "casia" / sub / kind / n).write_bytes(content)
+            cls = "bonafide" if n.endswith("_real.jpg") else "attack"
+            d = data / "CASIA_FASD" / "images" / f"{cls}_{tag}"
+            d.mkdir(parents=True, exist_ok=True)
+            (d / n).write_bytes(content)
+    test_real = [n for n in names["test"] if n.endswith("_real.jpg")]
+    test_fake = [n for n in names["test"] if n.endswith("_fake.jpg")]
+    for cls, ns in (("real", test_real[:2]), ("attack", test_fake[:2] + ([test_real[2]] if misplaced else []))):
+        (data / "eval" / "casia_fasd" / cls).mkdir(parents=True, exist_ok=True)
+        for n in ns:
+            (data / "eval" / "casia_fasd" / cls / n).write_bytes(hashlib.sha256(f"test/{n}".encode()).digest())
+    return test_real[2]
+
+
+class TestFailureArtefacts(unittest.TestCase):
+    """Nessun artefatto vecchio o non sicuro dopo un'esecuzione che fallisce (difetti riprodotti dal coordinatore il 10/10)."""
+
+    def test_build_failure_writes_no_public_aggregate(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            name = make_casia_tree(root)
+            out = root / "out" / "casia_fasd"
+            out.mkdir(parents=True)
+            for f in ("casia_fasd_manifests_aggregate.json", "overlap_report_public.json", "casia_fasd_m2_report_public.md"):
+                (out / f).write_text('{"passed": true}\n')          # uscite pubbliche di un run precedente valido
+            env = {**os.environ, "LIVENESSLAB_DATA_DIR": str(root / "data"), "LIVENESSLAB_WEIGHTS_DIR": str(root / "weights"),
+                   "LIVENESSLAB_RESULTS_DIR": str(root / "results")}
+            r = subprocess.run([sys.executable, str(SCRIPT), "build", "--dataset", "casia_fasd", "--out", str(out)],
+                               capture_output=True, text=True, env=env)
+            self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+            self.assertNotIn("Traceback", r.stderr)
+            for f in ("casia_fasd_manifests_aggregate.json", "overlap_report_public.json", "casia_fasd_m2_report_public.md"):
+                self.assertFalse((out / f).exists(), f"stale or unsafe public file left: {f}")
+            self.assertFalse(list(out.glob("*.tmp")))
+            summ = (out / "casia_fasd_manifests_summary.json").read_text()
+            self.assertIn(name, summ)                                     # la diagnosi per file resta nel riepilogo privato
+            self.assertFalse(json.loads(summ)["passed"])
+            for p in out.rglob("*"):
+                if p.is_file() and p.name != "casia_fasd_manifests_summary.json" and p.parent.name != "manifests":
+                    self.assertNotIn(name, p.read_text(errors="replace"), p.name)
+
+    def overlap_files(self, out: Path) -> dict:
+        return {f: (out / f).exists() for f in ("overlap_report.json", "overlap_report.md", "overlap_report_public.json", "overlap_report_public.md")}
+
+    def assert_no_stale_pass(self, out: Path, stage: str):
+        self.assertFalse((out / "overlap_report.md").exists())
+        self.assertFalse((out / "overlap_report_public.md").exists())
+        self.assertFalse((out / "overlap_self_test.json").exists())
+        for f in ("overlap_report.json", "overlap_report_public.json"):
+            rep = json.loads((out / f).read_text())
+            self.assertIs(rep["passed"], False, f)
+            self.assertEqual(rep["stage"], stage, f)
+            self.assertEqual(rep["rules"], [], f)
+        self.assertNotIn("error", json.loads((out / "overlap_report_public.json").read_text()))
+
+    def test_overlap_rerun_never_leaves_a_stale_pass(self):
+        w = casia_world()
+        with tempfile.TemporaryDirectory() as d:
+            d = Path(d)
+            out = d / "out"
+            r, rep = run_cli(d, w)
+            self.assertEqual(r.returncode, 0, r.stderr)
+            self.assertEqual(self.overlap_files(out), dict.fromkeys(self.overlap_files(out), True))
+            (out / "overlap_self_test.json").write_text('{"passed": true}\n')
+            rp = d / "rules.json"
+            doc = json.loads(rp.read_text())
+            good_sha = doc["manifests"]["eval"]["expected_sha256"]
+            doc["manifests"]["eval"]["expected_sha256"] = "0" * 64             # SHA dichiarato sbagliato
+            rp.write_text(json.dumps(doc))
+            run = lambda: subprocess.run([sys.executable, str(SCRIPT), "check-overlap", "--dataset", "casia_fasd", "--rules", str(rp),   # noqa: E731
+                                          "--manifests-dir", str(d / "manifests"), "--out", str(out)], capture_output=True, text=True)
+            r = run()
+            self.assertEqual(r.returncode, 1)
+            self.assert_no_stale_pass(out, "integrity")
+            doc["manifests"]["eval"]["expected_sha256"] = good_sha              # di nuovo PASS nella stessa cartella
+            rp.write_text(json.dumps(doc))
+            r = run()
+            self.assertEqual(r.returncode, 0, r.stderr)
+            self.assertEqual(self.overlap_files(out), dict.fromkeys(self.overlap_files(out), True))
+            self.assertTrue(json.loads((out / "overlap_report_public.json").read_text())["passed"])
+            bad = [dict(w["cnn_test"][0], mirror_split="dev")] + w["cnn_test"][1:]       # riga non valida, SHA ridichiarato
+            f = d / "manifests" / RM.SPEC["casia_fasd"]["manifests"]["cnn_test"][0]
+            RM.write_manifest("casia_fasd", f, bad)
+            doc["manifests"]["cnn_test"]["expected_sha256"] = RM.sha256(f)
+            rp.write_text(json.dumps(doc))
+            r = run()
+            self.assertEqual(r.returncode, 1)
+            self.assertNotIn("Traceback", r.stderr)
+            self.assert_no_stale_pass(out, "row-validation")
+            self.assertFalse(list(out.glob("*.tmp")))
+
+    def test_report_refuses_failed_overlap_and_leaves_no_old_report(self):
+        with tempfile.TemporaryDirectory() as d:
+            out = Path(d)
+            for f in ("casia_fasd_m2_report.md", "casia_fasd_m2_report_public.md"):
+                (out / f).write_text("old report\n")
+            (out / "casia_fasd_manifests_summary.json").write_text('{"passed": false, "checks": {}}\n')
+            (out / "casia_fasd_manifests_aggregate.json").write_text("{}\n")
+            (out / "overlap_report.json").write_text('{"passed": false}\n')
+            r = subprocess.run([sys.executable, str(SCRIPT), "report", "--dataset", "casia_fasd", "--out", str(out)], capture_output=True, text=True)
+            self.assertEqual(r.returncode, 1)
+            self.assertFalse((out / "casia_fasd_m2_report.md").exists() or (out / "casia_fasd_m2_report_public.md").exists())
+            # build passato e manifest coerenti, ma check-overlap fallito: nessun rapporto breve
+            man = {"eval": {"file": "manifests/casia_eval.csv", "sha256": "a" * 64}}
+            (out / "casia_fasd_manifests_summary.json").write_text(json.dumps(
+                {"passed": True, "checks": {"manifests_equal_declared_in_rules": True}, "manifests": man}))
+            (out / "casia_fasd_manifests_aggregate.json").write_text(json.dumps({"manifests": man}))
+            (out / "overlap_report.json").write_text(json.dumps(
+                {"passed": False, "row_validation_failed": False, "manifests": {"eval": {"file": "casia_eval.csv", "sha256": "a" * 64}}}))
+            (out / "casia_fasd_m2_report_public.md").write_text("old report\n")
+            r = subprocess.run([sys.executable, str(SCRIPT), "report", "--dataset", "casia_fasd", "--out", str(out)], capture_output=True, text=True)
+            self.assertEqual(r.returncode, 1)
+            self.assertIn("failed check-overlap", r.stderr)
+            self.assertFalse((out / "casia_fasd_m2_report_public.md").exists())
+
+    def run_overlap_in(self, d: Path, rp: Path):
+        return subprocess.run([sys.executable, str(SCRIPT), "check-overlap", "--dataset", "casia_fasd", "--rules", str(rp),
+                               "--manifests-dir", str(d / "manifests"), "--out", str(d / "out")], capture_output=True, text=True)
+
+    def test_public_scan_hit_writes_no_public_report(self):
+        w = casia_world()
+        with tempfile.TemporaryDirectory() as d:
+            d = Path(d)
+            r, _ = run_cli(d, w)
+            self.assertEqual(r.returncode, 0, r.stderr)
+            rp = d / "rules.json"
+            doc = json.loads(rp.read_text())
+            name = w["eval"][0]["key"].split("/", 1)[1]                    # chiave reale del mondo sintetico in una descrizione
+            doc["rules"][0]["description"] = "duplicates, e.g. " + name
+            rp.write_text(json.dumps(doc))
+            r = self.run_overlap_in(d, rp)
+            self.assertEqual(r.returncode, 1)
+            self.assertNotIn(name, r.stderr)
+            out = d / "out"
+            self.assertFalse((out / "overlap_report_public.json").exists() or (out / "overlap_report_public.md").exists())
+            rep = json.loads((out / "overlap_report.json").read_text())
+            self.assertEqual((rep["passed"], rep["stage"]), (False, "public-scan"))
+            self.assertFalse((out / "overlap_report.md").exists())
+
+    def test_unreadable_rules_give_an_explicit_fail(self):
+        w = casia_world()
+        with tempfile.TemporaryDirectory() as d:
+            d = Path(d)
+            r, _ = run_cli(d, w)
+            self.assertEqual(r.returncode, 0, r.stderr)
+            rp = d / "rules.json"
+            rp.write_text("{not json")
+            r = self.run_overlap_in(d, rp)
+            self.assertEqual(r.returncode, 1)
+            self.assertNotIn("Traceback", r.stderr)
+            for f in ("overlap_report.json", "overlap_report_public.json"):
+                rep = json.loads((d / "out" / f).read_text())
+                self.assertEqual((rep["passed"], rep["stage"], rep["rules"]), (False, "rules", []), f)
+            self.assertFalse((d / "out" / "overlap_report.md").exists() or (d / "out" / "overlap_report_public.md").exists())
+
+    def test_build_files(self):
+        w = casia_world()
+        ids = RM.identifiers("casia_fasd", w)
+        name = w["eval"][0]["key"].split("/", 1)[1]
+        summ, agg = {"passed": True, "problems": []}, {"passed": True, "note": "aggregate"}
+        files, problems = RM.build_files("casia_fasd", summ, agg, [], ids)
+        self.assertEqual(set(files), {"casia_fasd_manifests_summary.json", "casia_fasd_manifests_aggregate.json"})
+        self.assertEqual(problems, [])
+        # nessun problema dei controlli ma un identificativo nell'aggregato: la scansione lo ferma
+        files, problems = RM.build_files("casia_fasd", summ, {**agg, "x": name}, [], ids)
+        self.assertEqual(set(files), {"casia_fasd_manifests_summary.json"})
+        self.assertTrue(problems)
+        self.assertFalse(json.loads(files["casia_fasd_manifests_summary.json"])["passed"])
+        # un problema dei controlli (che nomina un file): nessun aggregato; il nome resta solo nel riepilogo privato
+        files, problems = RM.build_files("casia_fasd", summ, agg, [f"eval_class:attack: {name} in attack"], ids)
+        self.assertEqual(set(files), {"casia_fasd_manifests_summary.json"})
+        self.assertIn(name, files["casia_fasd_manifests_summary.json"])
+
+    def test_write_all_cleans_up_on_failure(self):
+        real = RM.os.replace
+        for exc in (OSError, RuntimeError):
+            calls = {"n": 0}
+
+            def boom(a, b, exc=exc):
+                calls["n"] += 1
+                if calls["n"] == 2:
+                    raise exc("simulated failure on the second rename")
+                return real(a, b)
+            with tempfile.TemporaryDirectory() as d:
+                RM.os.replace = boom
+                try:
+                    with self.assertRaises(exc):
+                        RM.write_all(Path(d), {"a.json": "1", "b.json": "2", "c.json": "3"})
+                finally:
+                    RM.os.replace = real
+                self.assertEqual(sorted(p.name for p in Path(d).iterdir()), [], exc.__name__)
+
+    def test_write_all_uses_temporary_files(self):
+        real = RM.os.replace
+        seen = []
+
+        def spy(a, b):
+            if not seen:                     # alla prima rinomina: tutti i temporanei scritti, i file esistenti intatti
+                seen.append((sorted(p.name for p in Path(b).parent.glob("*.tmp")), Path(b).read_text()))
+            return real(a, b)
+        with tempfile.TemporaryDirectory() as d:
+            (Path(d) / "a.json").write_text("old")
+            RM.os.replace = spy
+            try:
+                RM.write_all(Path(d), {"a.json": "new a", "b.json": "new b"})
+            finally:
+                RM.os.replace = real
+            self.assertEqual(seen, [(["a.json.tmp", "b.json.tmp"], "old")])
+            self.assertEqual((Path(d) / "a.json").read_text(), "new a")
+            self.assertFalse(list(Path(d).glob("*.tmp")))
+
+    def test_write_all_and_invalidate(self):
+        with tempfile.TemporaryDirectory() as d:
+            out = Path(d)
+            RM.write_all(out, {"a.json": "1\n", "b.md": "2\n"})
+            self.assertEqual(sorted(p.name for p in out.iterdir()), ["a.json", "b.md"])
+            (out / "c.json.tmp").write_text("x")
+            self.assertEqual(sorted(RM.invalidate(out, ["a.json", "c.json", "missing"])), ["a.json", "c.json.tmp"])
+            self.assertEqual(sorted(p.name for p in out.iterdir()), ["b.md"])
+
+
 class TestPublicScan(unittest.TestCase):
     def test_record_problems(self):
         w = casia_world()
@@ -783,7 +1019,7 @@ def main() -> int:
     args = ap.parse_args()
     REQUIRE_REAL, REAL_DIR = args.require_real, args.real_dir
     suite = unittest.TestSuite(unittest.defaultTestLoader.loadTestsFromTestCase(c)
-                               for c in (TestFields, TestRowValidation, TestRules, TestWording, TestRuleEngine, TestCli, TestPublicScan, TestSplits,
+                               for c in (TestFields, TestRowValidation, TestRules, TestWording, TestRuleEngine, TestCli, TestFailureArtefacts, TestPublicScan, TestSplits,
                                          TestRealData))
     log = io.StringIO()
     result = unittest.TextTestRunner(stream=log, verbosity=2).run(suite)

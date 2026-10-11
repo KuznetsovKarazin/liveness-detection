@@ -7,11 +7,11 @@ as the accepted NUAA tranche (`research/m2-nuaa-manifests/`), whose code is impo
 inference: the scripts list and hash files and read the training caches (label, group and frame arrays; the frames are
 only hashed).
 
-This folder is a filtered export of the operator's development repository (private; development commit `80b7d14`,
-run `20261009-M2-rgb-seed42-80b7d14`): the scripts needed to rerun the checks, the documents, the declared rules and the aggregate results,
+This folder is a filtered export of the operator's development repository (private; development commit `f099f71`,
+run `20261011-M2-rgb-seed42-f099f71`): the scripts needed to rerun the checks, the documents, the declared rules and the aggregate results,
 without data, weights, per-image manifests, subject or video keys, or row indices. The per-image manifests, the private
 summaries, the restricted overlap and short reports, the self-tests, the dataset register drafts and the logs are in the
-restricted run folder `20261009-M2-rgb-seed42-80b7d14` (see "Delivery status"), with their SHA-256 listed in the public aggregates and in
+restricted run folder `20261011-M2-rgb-seed42-f099f71` (see "Delivery status"), with their SHA-256 listed in the public aggregates and in
 `run-report.md`. Code comments, command-line help and progress messages are in Italian by the developer's convention;
 reports, error messages and every document of this folder are in English.
 
@@ -23,7 +23,7 @@ separately.
 
 ## Delivery status
 
-The restricted folder of this run (`20261009-M2-rgb-seed42-80b7d14`) is kept locally and not uploaded. The provenance note `M2_provenienza_RGB_20261009.pdf` was placed on 9 October 2026 in the shared M2 folder `20261006-M2-seed42-36c677a` as a supplementary document outside the NUAA run (not listed in its `SHA256SUMS`), as indicated in the coordinator's message of 9 October 2026 (email and M2 card); the restricted RGB run folder stays local and is uploaded to `02_Experiments/M2/20261009-M2-rgb-seed42-80b7d14/` only when he asks for it. No earlier upload of a CASIA-FASD or CelebA-Spoof restricted folder is declared.
+The restricted folder of this run (`20261011-M2-rgb-seed42-f099f71`) is kept locally and not uploaded. The provenance note `M2_provenienza_RGB_20261009.pdf` was placed on 9 October 2026 in the shared M2 folder `20261006-M2-seed42-36c677a` as a supplementary document outside the NUAA run (not listed in its `SHA256SUMS`), as indicated in the coordinator's message of 9 October 2026 (email and M2 card); the restricted RGB run folder stays local and is uploaded to `02_Experiments/M2/20261011-M2-rgb-seed42-f099f71/` only when he asks for it. No earlier upload of a CASIA-FASD or CelebA-Spoof restricted folder is declared.
 
 ## Glossary
 
@@ -187,6 +187,19 @@ checks give a DIFF on a copy that does not preserve them. `--private` adds subje
 The same with `--dataset celeba_spoof`. Outputs go to `results/m2_rgb/<dataset>/` (`--out-root` or `--out` to write
 elsewhere); data, results and weights folders can be moved with `LIVENESSLAB_DATA_DIR`, `LIVENESSLAB_RESULTS_DIR` and
 `LIVENESSLAB_WEIGHTS_DIR`.
+
+## Behaviour on failure
+
+No command leaves an artefact of an earlier run next to a failed one, and no public file is written from an unsafe
+candidate. `build` removes, before any check, the outputs of a previous run in its folder (summary, aggregate, overlap
+reports, self-test, short reports); it writes the private summary (with the per-file diagnostics) and writes the public
+aggregate only when every check has passed and the forbidden-content scan is clean. `check-overlap` removes the previous
+reports and self-test at the start; on a preliminary error (rules, integrity, header, row validation, declared rows or
+SHA-256) it writes only an explicit FAIL report (`overlap_report.json`, and `overlap_report_public.json` without details,
+`"rules": []`); otherwise it writes the four reports together at the end. `report` removes the previous short reports and
+refuses a failed build or overlap report. Every group of outputs is written only at the end, via temporary files and renames; if writing fails, no file of the
+group remains.
+`export_m2_rgb.py` refuses missing, failed, inconsistent or other-commit artefacts and leftover temporary files.
 
 ## Verification without images or weights
 
