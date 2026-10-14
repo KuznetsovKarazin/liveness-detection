@@ -290,7 +290,8 @@ class TestRules(unittest.TestCase):
         self.assertIn("report.md.tmpl", docs)
         if not {"naming_schema_rgb.md", "README.md"} & set(docs):
             self.skipTest("naming_schema_rgb.md and README.md not found next to the code: declarations not compared")
-        self.assertEqual({"naming_schema_rgb.md", "README.md"} - set(docs), set())
+        # nel repository di sviluppo e nella cartella consegnata ci sono entrambi; in una copia del solo codice c'è il modello
+        # del README (delivery/m2/rgb/README.md): si confronta quello e poi il test si salta con il motivo (sotto)
         for ds in RM.DATASETS:
             for label, text in RM.SOURCE_DECLARATIONS[ds]:
                 for n in ("naming_schema_rgb.md", "README.md"):
@@ -302,6 +303,9 @@ class TestRules(unittest.TestCase):
         # documentato e verificato restano distinti: lo schema del tipo di attacco non è mai detto verificato
         self.assertNotIn("warped", dict(RM.SOURCE_DECLARATIONS["casia_fasd"])["Verified on the copy"])
         self.assertIn("[DOC-EXT]", dict(RM.SOURCE_DECLARATIONS["casia_fasd"])["Documented [DOC-EXT]"] + " [DOC-EXT]")
+        if "naming_schema_rgb.md" not in docs:
+            self.skipTest("naming_schema_rgb.md not found next to the code (bare copy of livenesslab/): the README was compared, "
+                          "the naming schema was not")
 
 
 def rules_digest(doc: dict) -> str:

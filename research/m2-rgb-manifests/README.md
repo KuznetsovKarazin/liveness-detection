@@ -7,11 +7,11 @@ as the accepted NUAA tranche (`research/m2-nuaa-manifests/`), whose code is impo
 inference: the scripts list and hash files and read the training caches (label, group and frame arrays; the frames are
 only hashed).
 
-This folder is a filtered export of the operator's development repository (private; development commit `f099f71`,
-run `20261011-M2-rgb-seed42-f099f71`): the scripts needed to rerun the checks, the documents, the declared rules and the aggregate results,
+This folder is a filtered export of the operator's development repository (private; development commit `4b903bf`,
+run `20261013-M2-rgb-seed42-4b903bf`): the scripts needed to rerun the checks, the documents, the declared rules and the aggregate results,
 without data, weights, per-image manifests, subject or video keys, or row indices. The per-image manifests, the private
 summaries, the restricted overlap and short reports, the self-tests, the dataset register drafts and the logs are in the
-restricted run folder `20261011-M2-rgb-seed42-f099f71` (see "Delivery status"), with their SHA-256 listed in the public aggregates and in
+restricted run folder `20261013-M2-rgb-seed42-4b903bf` (see "Delivery status"), with their SHA-256 listed in the public aggregates and in
 `run-report.md`. Code comments, command-line help and progress messages are in Italian by the developer's convention;
 reports, error messages and every document of this folder are in English.
 
@@ -23,7 +23,7 @@ separately.
 
 ## Delivery status
 
-The restricted folder of this run (`20261011-M2-rgb-seed42-f099f71`) is kept locally and not uploaded. The provenance note `M2_provenienza_RGB_20261009.pdf` was placed on 9 October 2026 in the shared M2 folder `20261006-M2-seed42-36c677a` as a supplementary document outside the NUAA run (not listed in its `SHA256SUMS`), as indicated in the coordinator's message of 9 October 2026 (email and M2 card); the restricted RGB run folder stays local and is uploaded to `02_Experiments/M2/20261011-M2-rgb-seed42-f099f71/` only when he asks for it. No earlier upload of a CASIA-FASD or CelebA-Spoof restricted folder is declared.
+The restricted folder of this run (`20261013-M2-rgb-seed42-4b903bf`) is kept locally and not uploaded. The provenance note `M2_provenienza_RGB_20261009.pdf` was placed on 9 October 2026 in the shared M2 folder `20261006-M2-seed42-36c677a` as a supplementary document outside the NUAA run (not listed in its `SHA256SUMS`), as indicated in the coordinator's message of 9 October 2026 (email and M2 card); the restricted RGB run folder stays local and is uploaded to `02_Experiments/M2/20261013-M2-rgb-seed42-4b903bf/` only when he asks for it. No earlier upload of a CASIA-FASD or CelebA-Spoof restricted folder is declared.
 
 ## Glossary
 
@@ -109,7 +109,7 @@ Details, keys, closed value sets and checks in `naming_schema_rgb.md`; preproces
 | `<dataset>_overlap_report_public.md`, `.json` | pairwise overlap matrix, rule verdicts; counts only | public |
 | `<dataset>_report.md` | short report: source, counts, checkpoints, rules, self-test, supported comparisons, limits | public version without identifiers |
 | `run-report.md` | run report (also in the restricted folder) | public |
-| `livenesslab/` | `scripts/rgb_manifests.py` (builder and checker), `scripts/check_rgb_manifests.py` (offline tests), the NUAA modules it imports (`nuaa_manifests.py`, `select_threshold.py`, `package_rules.py`), `src/tesi_app/paths.py`, `delivery/m2/rgb/` (rules and report template read by the scripts), `scripts/m2_inventory/` (the six scripts that regenerate the numbers of the published inventory), `requirements.txt` | public (code) |
+| `livenesslab/` | `scripts/rgb_manifests.py` (builder and checker), `scripts/check_rgb_manifests.py` (offline tests), the NUAA modules it imports (`nuaa_manifests.py`, `select_threshold.py`, `package_rules.py`), `src/tesi_app/paths.py`, `delivery/m2/rgb/` (rules and report template read by the scripts), `scripts/m2_inventory/` (the six scripts that regenerate the numbers of the published inventory), `scripts/export_m2_rgb.py` with `scripts/export_helpers.py` (the export that produced this folder), `scripts/check_export_m2_rgb.py` (its offline tests), `scripts/check_rgb_mutations.py` (mutation check of the validator and of the export), `requirements.txt` | public (code) |
 | `SHA256SUMS` | SHA-256 of every other file of this folder, `livenesslab/` included | public |
 | `<dataset>/manifests/*.csv` | per-image manifests (below) | restricted |
 | `<dataset>/<dataset>_manifests_summary.json`, private reports | as the aggregate, plus subject keys of the early-stopping subjects (CASIA-FASD), row indices of the excluded and duplicated rows (CelebA-Spoof) | restricted |
@@ -243,6 +243,27 @@ of the fitting, early-stopping and pooled manifests is pinned only by their decl
    ```bash
    python scripts/check_rgb_manifests.py --require-real --real-dir "$M2_RUN"
    ```
+6. the export and its tests, and the mutation check (no data needed, empty data folders are enough). `export_m2_rgb.py`
+   is the script that produced this folder; its helpers are in `export_helpers.py`, a verified copy of functions of the
+   development-only `export_m1.py` and `export_m2.py`. `check_export_m2_rgb.py` (18 tests, including behavioural tests of
+   the helpers on synthetic folders) must end with `RESULT: PASS`; from this folder 2 tests skip by design, each with its
+   reason: the dataset register drafts are restricted, and `export_m1.py`/`export_m2.py` (the originals of the helpers)
+   are development-only; the comparison of the shared modules with the NUAA package also skips if
+   `../m2-nuaa-manifests` is not next to this folder. The mutation check copies the code to a temporary folder, applies
+   28 declared mutations to `rgb_manifests.py`, `export_m2_rgb.py` and `export_helpers.py` (each pattern must occur
+   exactly once, otherwise it stops with an error), runs the offline tests on each mutated copy and counts a mutation as
+   detected only if the tests ran to their summary with at least one failure or error (a copy that does not even start
+   is reported as an invalid mutation); it must end with `mutations killed: 28/28` and `RESULT: PASS` (a few
+   minutes; `--list` only checks the patterns). Inside the mutation check the export suite runs on a bare copy of the
+   code, without the NUAA folder and the documents next to it, so it reports 4 skips; the mutants of the helpers are still
+   detected by the behavioural tests, which do not need those files:
+
+   ```bash
+   python scripts/check_export_m2_rgb.py
+   python scripts/check_rgb_mutations.py
+   ```
+
+   Running `export_m2_rgb.py` itself needs the development repository (data, checkpoints, delivery templates).
 
 ## Integrity
 
