@@ -53,9 +53,12 @@ Uso tipico:
 import argparse
 import csv
 import hashlib
+import io
 import json
+import os
 import re
 import sys
+from contextlib import redirect_stderr
 from collections import Counter, defaultdict
 from itertools import product
 from pathlib import Path
@@ -146,6 +149,80 @@ NAME_RE = re.compile(r"^(\d{4})_(\d{4})_(\d{2})_(\d{2})_(\d{2})_(\d+)\.jpg$")
 # riga delle liste ufficiali: .../raw/{ClientRaw,ImposterRaw}/<ID>/<ID>_<glasses>_<pos>_<session>_<picNo>.jpg
 LIST_RE = re.compile(r"^/kaggle/input/nuaaaa/raw/(ClientRaw|ImposterRaw)/(\d{4})/((\d{4})_(\d{2})_(\d{2})_(\d{2})_(\d+)\.jpg)$")
 SHA_RE = re.compile(r"^[0-9a-f]{64}$")
+
+
+# ----------------------------------------------------------------------------- uscite: invalidazione e scrittura
+
+# uscite di ogni sottocomando: un nuovo build invalida anche quelle a valle (rapporti e self-test)
+BUILD_OUTPUTS = ("nuaa_manifests_summary.json", "nuaa_manifests_aggregate.json")
+OVERLAP_OUTPUTS = ("overlap_report.json", "overlap_report.md", "overlap_report_public.json", "overlap_report_public.md",
+                   "overlap_self_test.json", "overlap_self_test.md")
+REPORT_OUTPUTS = ("nuaa_m2_report.md", "nuaa_m2_report_public.md")
+
+
+def invalidate(out: Path, names) -> list:
+    """Toglie le uscite di un'esecuzione precedente (e i loro temporanei) prima di qualunque controllo: nessun artefatto
+    vecchio, per esempio un PASS, resta accanto a un'esecuzione che fallisce. Restituisce i nomi tolti."""
+    removed = []
+    for n in names:
+        for q in (Path(out) / n, Path(out) / (n + ".tmp")):
+            if q.exists() or q.is_symlink():
+                q.unlink()
+                removed.append(q.name)
+    return removed
+
+
+def write_all(out: Path, files: dict) -> None:
+    """Scrive un gruppo di file (nome -> testo) solo alla fine: prima tutti i file temporanei, poi le rinomine; se la
+    scrittura fallisce (qualunque eccezione) non resta nessun file del gruppo né alcun temporaneo."""
+    out = Path(out)
+    out.mkdir(parents=True, exist_ok=True)
+    try:
+        for n, text in files.items():
+            (out / (n + ".tmp")).write_text(text, encoding="utf-8")
+        for n in files:
+            os.replace(out / (n + ".tmp"), out / n)
+    except BaseException:
+        for n in files:
+            (out / (n + ".tmp")).unlink(missing_ok=True)
+            (out / n).unlink(missing_ok=True)
+        raise
+
+
+def build_files(summary: dict, aggregate: dict, problems: list, subject_ids) -> tuple:
+    """File da scrivere alla fine di build: il riepilogo privato sempre (con la diagnosi); l'aggregato pubblico solo se
+    non ci sono problemi e la scansione del contenuto vietato è pulita. Restituisce (nome -> testo, problemi, esito della
+    scansione). Con esito positivo i testi sono quelli di sempre."""
+    problems = list(problems)
+    agg_text = json.dumps(aggregate, indent=1) + "\n"
+    bad = public_problems(agg_text, subject_ids) if not problems else []
+    if bad:
+        problems.append("public aggregate contains forbidden content (not written): " + "; ".join(bad))
+    if problems != list(summary.get("problems", [])):
+        summary = {**summary, "passed": not problems, "problems": problems}
+    files = {"nuaa_manifests_summary.json": json.dumps(summary, indent=1) + "\n"}
+    if not problems:
+        files["nuaa_manifests_aggregate.json"] = agg_text
+    return files, problems, bad
+
+
+class Preliminary(Exception):
+    """Controllo preliminare di check-overlap fallito (stadio: rules, integrity, row-validation)."""
+
+    def __init__(self, msg: str, stage: str):
+        super().__init__(msg)
+        self.stage = stage
+
+
+def guarded(stage: str, fn, *args):
+    """Esegue una funzione che in caso di errore chiama fail(); trasforma l'uscita in Preliminary con lo stesso messaggio."""
+    buf = io.StringIO()
+    try:
+        with redirect_stderr(buf):
+            return fn(*args)
+    except SystemExit:
+        msg = buf.getvalue().strip()
+        raise Preliminary(msg[len("ERROR: "):] if msg.startswith("ERROR: ") else msg, stage) from None
 
 
 # ----------------------------------------------------------------------------- nomi NUAA
@@ -368,7 +445,7 @@ def recount_block(m: dict) -> dict:
 
 def public_problems(text: str, subject_ids, markdown: bool = False) -> list:
     """Contenuto vietato in un file pubblico, con le regole di package_rules.py (uguali a export_m1.py): percorsi
-    assoluti, nomi dell'operatore, credenziali, riferimenti a strumenti di IA, indirizzi IPv4 non locali, segni di
+    assoluti, nomi dell'operatore, credenziali, nomi di strumenti dal file locale, indirizzi IPv4 non locali, segni di
     lavoro non finito (solo nei .md), e identificativi di soggetto isolati (non dentro un hash o un numero)."""
     bad = []
     for label, rx in FORBIDDEN_TEXT:
@@ -446,6 +523,8 @@ def cmd_build(a) -> None:
     for forbidden in (RESULTS / "c1", RESULTS / "eval", RESULTS / "m1", WEIGHTS, DATA):
         if st.is_under(out, forbidden):
             fail(f"output folder {relpath(out)} is inside {relpath(forbidden)}: refused (read-only area)")
+    # le uscite di un build precedente, e quelle a valle, vengono tolte prima di ogni controllo
+    invalidate(out, BUILD_OUTPUTS + OVERLAP_OUTPUTS + REPORT_OUTPUTS)
     checks, problems = {}, []
 
     def check(name, ok, msg=None):
@@ -725,21 +804,16 @@ def cmd_build(a) -> None:
                  "early_stopping_subjects": {"n": len(rec["val_subjects"])}, "fitted_subjects": {"n": len(rec["fit_subjects"])},
                  "private": False,
                  "note": "aggregate counts only: per-image manifests and per-subject counts are restricted (summary JSON in the private folder)"}
-    out.mkdir(parents=True, exist_ok=True)
     summ_p, agg_p = out / "nuaa_manifests_summary.json", out / "nuaa_manifests_aggregate.json"
-    summ_p.write_text(json.dumps(summary, indent=1) + "\n", encoding="utf-8")
-    agg_text = json.dumps(aggregate, indent=1) + "\n"
     subject_ids = {r["subject"] for r in rows.values()}
-    bad = public_problems(agg_text, subject_ids)
-    if bad:
-        problems.append("public aggregate contains forbidden content: " + "; ".join(bad))
-        aggregate["passed"] = False
-        aggregate["problems"] = problems
-        agg_text = json.dumps(aggregate, indent=1) + "\n"
-    agg_p.write_text(agg_text, encoding="utf-8")
-    print(f"== {relpath(summ_p)} (private)\n== {relpath(agg_p)} (public aggregate, scan: {'clean' if not bad else 'FORBIDDEN CONTENT'})", flush=True)
+    # il riepilogo privato porta sempre la diagnosi; l'aggregato pubblico si scrive solo se tutto è passato e la
+    # scansione è pulita (mai un candidato pubblico con identificativi o diagnosi)
+    files, problems, bad = build_files(summary, aggregate, problems, subject_ids)
+    write_all(out, files)
     if problems:
-        fail("build checks failed: " + "; ".join(problems))
+        print(f"== {relpath(summ_p)} (private); no public aggregate written", flush=True)
+        fail(f"build checks failed ({len(problems)} problems, details in the private summary {summ_p.name}); no public aggregate written")
+    print(f"== {relpath(summ_p)} (private)\n== {relpath(agg_p)} (public aggregate, scan: clean)", flush=True)
     print(f"== build checks passed ({len(checks)} checks)", flush=True)
 
 
@@ -1154,28 +1228,49 @@ def run_self_test(doc: dict, rules_p: Path, man_dir: Path, mans: dict, out: Path
               "n_detected_as_expected": sum(x["detected_as_expected"] for x in results), "passed": passed,
               "note": "each faulty copy of the real manifests is checked with its rows and SHA-256 re-declared; it must fail exactly the expected rules",
               **repo_state(), "checked": now()}
-    (out / "overlap_self_test.json").write_text(json.dumps(st_rep, indent=1) + "\n", encoding="utf-8")
+    st_json = json.dumps(st_rep, indent=1) + "\n"
     L = ["# NUAA overlap self-test", "", f"**Result: {'PASS' if passed else 'FAIL'}** ({st_rep['n_detected_as_expected']} of "
          f"{len(results)} faulty copies rejected by exactly the expected rules).", "",
          "| fault | change | expected failing rules | failing rules | exit code | as expected |", "|---|---|---|---|---|---|"]
     L += [f"| {x['fault']} | {x['description']} | {', '.join(x['expected_failing_rules'])} | {', '.join(x['failing_rules']) or 'none'} | "
           f"{x['exit_code']} | {'yes' if x['detected_as_expected'] else 'NO'} |" for x in results]
-    (out / "overlap_self_test.md").write_text("\n".join(L) + "\n", encoding="utf-8")
+    write_all(out, {"overlap_self_test.json": st_json, "overlap_self_test.md": "\n".join(L) + "\n"})
     return passed
 
 
 def cmd_check_overlap(a) -> None:
     rules_p = Path(a.rules)
-    doc = load_json(rules_p)
+    out = Path(a.out)
+    # nessun rapporto di un'esecuzione precedente resta: i quattro rapporti, il self-test e i rapporti brevi a valle
+    invalidate(out, OVERLAP_OUTPUTS + REPORT_OUTPUTS)
+    try:
+        doc, mans, info, man_dir = overlap_inputs(rules_p, Path(a.manifests_dir))
+    except Preliminary as e:
+        # controlli preliminari falliti: nessuna regola gira; solo un rapporto FAIL esplicito (il pubblico senza dettagli)
+        base = {"passed": False, "stage": e.stage, "rules": [], "note": "preliminary checks failed: no rule was evaluated",
+                **repo_state(), "checked": now()}
+        write_all(out, {"overlap_report.json": json.dumps({**base, "error": str(e)}, indent=1) + "\n",
+                        "overlap_report_public.json": json.dumps(base, indent=1) + "\n"})
+        fail(str(e))
+    overlap_run(a, doc, mans, info, man_dir, rules_p, out)
+
+
+def overlap_inputs(rules_p: Path, man_dir: Path) -> tuple:
+    """Regole e manifest di check-overlap con i controlli preliminari (regole, righe e campi di ogni manifest, righe e
+    SHA-256 dichiarati); solleva Preliminary con lo stadio e il messaggio di sempre."""
+    doc = guarded("rules", load_json, rules_p)
     names = list((doc.get("manifests") or {}).keys()) if isinstance(doc.get("manifests"), dict) else []
     problems = rule_problems(doc, names)
     if problems:
-        fail(f"{relpath(rules_p)}: " + "; ".join(problems))
-    man_dir = Path(a.manifests_dir)
+        raise Preliminary(f"{relpath(rules_p)}: " + "; ".join(problems), "rules")
     mans, info, mismatch = {}, {}, []
     for n, m in doc["manifests"].items():
         p = man_dir / m["file"]
-        mans[n] = load_manifest(p)
+        rows = guarded("integrity", read_csv, p, COLUMNS)
+        bad_rows = manifest_problems(rows)
+        if bad_rows:
+            raise Preliminary(f"{relpath(p)}: " + "; ".join(bad_rows), "row-validation")
+        mans[n] = rows
         info[n] = {"file": m["file"], "sha256": sha256(p), "rows": len(mans[n])}
         # ogni manifest deve essere quello dichiarato: righe e SHA-256 attesi (un manifest troncato non passa a vuoto)
         if info[n]["rows"] != m["expected_rows"]:
@@ -1183,7 +1278,11 @@ def cmd_check_overlap(a) -> None:
         if info[n]["sha256"] != m["expected_sha256"]:
             mismatch.append(f"{n}: SHA-256 {info[n]['sha256'][:16]}… differs from the declared {m['expected_sha256'][:16]}…")
     if mismatch:
-        fail(f"manifests differ from those declared in {relpath(rules_p)}: " + "; ".join(mismatch))
+        raise Preliminary(f"manifests differ from those declared in {relpath(rules_p)}: " + "; ".join(mismatch), "integrity")
+    return doc, mans, info, man_dir
+
+
+def overlap_run(a, doc: dict, mans: dict, info: dict, man_dir: Path, rules_p: Path, out: Path) -> None:
     verdicts = evaluate_rules(mans, doc["rules"])
     n_fail = sum(v["verdict"] == "FAIL" for v in verdicts)
     # percorsi relativi al repository, oppure il solo nome fuori dal repository: nessun percorso personale nel rapporto
@@ -1198,19 +1297,16 @@ def cmd_check_overlap(a) -> None:
         for c in v["checks"]:
             c.pop("examples", None)
     pub["note"] = "public version: counts and verdicts only, no keys and no subject identifiers"
-    out = Path(a.out)
-    out.mkdir(parents=True, exist_ok=True)
-    (out / "overlap_report.json").write_text(json.dumps(rep, indent=1) + "\n", encoding="utf-8")
-    (out / "overlap_report.md").write_text(overlap_markdown(rep), encoding="utf-8")
     subject_ids = {r["subject"] for rows in mans.values() for r in rows}
     pub_json, pub_md = json.dumps(pub, indent=1) + "\n", overlap_markdown(pub)
     bad = public_problems(pub_json, subject_ids) + public_problems(pub_md, subject_ids, markdown=True)
     if bad:
-        for f in ("overlap_report_public.json", "overlap_report_public.md"):
-            (out / f).unlink(missing_ok=True)
-        fail("public overlap report contains forbidden content (not written): " + "; ".join(sorted(set(bad))))
-    (out / "overlap_report_public.json").write_text(pub_json, encoding="utf-8")
-    (out / "overlap_report_public.md").write_text(pub_md, encoding="utf-8")
+        write_all(out, {"overlap_report.json": json.dumps({**rep, "passed": False, "stage": "public-scan",
+                                                           "error": "; ".join(sorted(set(bad)))}, indent=1) + "\n"})
+        fail("public overlap report contains forbidden content (not written; details in the private overlap_report.json)")
+    # i quattro rapporti insieme, alla fine (anche quando una regola obbligatoria fallisce: FAIL esplicito)
+    write_all(out, {"overlap_report.json": json.dumps(rep, indent=1) + "\n", "overlap_report.md": overlap_markdown(rep),
+                    "overlap_report_public.json": pub_json, "overlap_report_public.md": pub_md})
     for v in verdicts:
         print(f"   {v['id']:<28} {v['severity']:<7} {v['verdict']}", flush=True)
     print(f"== {relpath(out / 'overlap_report.json')} and .md (restricted), overlap_report_public.json and .md (public)", flush=True)
@@ -1437,9 +1533,12 @@ def report_fields(summ: dict, ov: dict, private: bool, self_test: dict = None, a
 
 def cmd_report(a) -> None:
     out = Path(a.out)
+    invalidate(out, REPORT_OUTPUTS)                      # nessun rapporto breve di un'esecuzione precedente
     summ = load_json(out / "nuaa_manifests_summary.json")
     agg = load_json(out / "nuaa_manifests_aggregate.json")
     ov = load_json(out / "overlap_report.json")
+    if summ.get("passed") is not True or ov.get("passed") is not True:
+        fail("the summary or the overlap report records a failed check: no report is written")
     # aggregato pubblico e riepilogo privato devono certificare gli stessi manifest
     if {n: v["sha256"] for n, v in agg["manifests"].items()} != {n: v["sha256"] for n, v in summ["manifests"].items()}:
         fail("nuaa_manifests_aggregate.json and nuaa_manifests_summary.json list different manifests: rerun build")
@@ -1456,17 +1555,15 @@ def cmd_report(a) -> None:
     subject_ids = set()
     for v in summ["manifests"].values():
         subject_ids |= set(v.get("by_subject", {}))
-    outputs = {}
+    files = {}
     for private, fname in ((True, "nuaa_m2_report.md"), (False, "nuaa_m2_report_public.md")):
         txt = tmpl.format(**report_fields(summ, ov, private, self_test, agg))
-        if not private:
-            bad = public_problems(txt, subject_ids, markdown=True)
-            if bad:
-                fail("public report contains forbidden content: " + "; ".join(bad))
-        (out / fname).write_text(txt, encoding="utf-8")
-        outputs[fname] = sha256(out / fname)
-    for f, h in outputs.items():
-        print(f"== {relpath(out / f)} sha256 {h}", flush=True)
+        if not private and public_problems(txt, subject_ids, markdown=True):
+            fail("public report contains forbidden content: not written (neither the private nor the public report)")
+        files[fname] = txt
+    write_all(out, files)
+    for f in files:
+        print(f"== {relpath(out / f)} sha256 {sha256(out / f)}", flush=True)
 
 
 # ----------------------------------------------------------------------------- CLI
