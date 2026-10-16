@@ -1,0 +1,38 @@
+# Run report
+
+## Identity
+- Task and run ID: M2, second tranche (CASIA-FASD and CelebA-Spoof) — `{run_id}`
+- Date / operator: run of {run_date} (report generated on {date}) / Valerio Cassano
+- Git commit / environment lock: development repository commit `{commit}`, {tree_line} (this folder is a filtered export of it, see README); `livenesslab/requirements.txt`; exact versions of the environment in `pip_freeze.txt` of the restricted run folder.
+- Command: `{export_cmd}` (development repository; not included in this folder), which runs, for each dataset (`casia_fasd`, `celeba_spoof`): `python scripts/rgb_manifests.py build --dataset <dataset> --out-root {m2_dir}`; `check-overlap --self-test`; `recount`; `reconstruct`; `report`; then `python scripts/check_rgb_manifests.py --require-real --real-dir {m2_dir}`, `python scripts/check_nuaa_manifests.py`, `python scripts/check_export_m2_rgb.py`, and the offline tests again from the copy of the code in `livenesslab/`, with empty data and results folders. Logs in the restricted run folder.
+- Configuration path and SHA-256: `casia_fasd_overlap_rules.json` — `{rules_sha_casia}`; `celeba_spoof_overlap_rules.json` — `{rules_sha_celeba}` (declared manifests with expected rows and SHA-256, and the rules). Shared code of the NUAA tranche, imported and unchanged: {reference_line}.
+- Hardware / software: {hardware_line}
+- Checkpoint origin and SHA-256: the twelve CASIA-FASD and CelebA-Spoof checkpoints trained on 12 September 2026 (no new training in M2), linked by the SHA-256 of the `.h5` loaded by the application (card, `models/weights/manifest.json` and file): {checkpoint_line}. The `.keras` files are not used.
+- Pretraining / external data: none added in M2. CNNs trained from scratch; the derived frames use the pre-trained RetinaFace detector.
+
+## Data and protocol
+- Dataset version / authorization register entry: CASIA-FASD (Zhang et al., ICB 2012), unofficial mirror `akahana/anti-spoofing-casiafasd`, revision `{casia_revision}`, archive SHA-256 `{casia_sha}`; CelebA-Spoof (Zhang et al., ECCV 2020), unofficial mirror `nguyenkhoa/celeba-spoof-for-face-antispoofing-test`, shard 0 of 10 of the mirror's `test` split (correspondence with the official test split not verified), revision `{celeba_revision}`, file SHA-256 `{celeba_sha}`; both equal to the etag of the Hugging Face download cache, and verified on 9 October 2026 (Hugging Face API) to be still the mirrors' HEAD with LFS objects equal to our SHA-256. {authorisation_note} Register entries drafted (`dataset_register_casia_fasd.md`, `dataset_register_celeba_spoof.md`, restricted folder); CelebA-Spoof needs a personal-data assessment. Documented [DOC-EXT], verified on the copy and not verified: `naming_schema_rgb.md`.
+- Manifest and split SHA-256: per-image manifests in the restricted folder (`<dataset>/manifests/`): {manifests_line}.
+- Independent unit / train-dev-test counts: CASIA-FASD: independent unit = subject (`<mirror split>:<number>`, with its 12 videos); the manifests list frames; videos keyed `<mirror split>:<number>:<token>`. {casia_counts}. CelebA-Spoof: unit = image (row of the shard), no identity. {celeba_counts}.
+- Subject, session, video overlap and duplicate checks: CASIA-FASD: {casia_overlap}. CelebA-Spoof: {celeba_overlap}. Self-test: {self_test_line}. Derived frames of the training caches: {derived_line}. Duplicates are exact (file SHA-256, or frame array bytes); near-duplicates are not searched. This tranche does not establish absence of leakage.
+- Label mapping / score direction: 0 = bona fide (CASIA-FASD `_real`, CelebA-Spoof `live`), 1 = attack (`_fake`, `spoof`); no scores are computed in M2.
+- Crop, resize, orientation, channel order, normalization: unchanged; documented from the code in `transformations_rgb.md`. M2 does not touch preprocessing.
+- Model selection, threshold selection and calibration: none in M2. Splits of the checkpoints rebuilt with the logic of commit `0ac7143` and verified against the cards and the cache arrays: {reconstruction_line}
+- Attack decision at threshold (including equality): not applicable (no scores in M2).
+- Source-only development rule for external targets: not applicable in this tranche (no development set is defined).
+
+## Evidence
+- Restricted score file location and SHA-256: no score file in M2. Restricted run folder `02_Experiments/M2/{run_id}/`: manifests (SHA-256 above), {restricted_line}, logs. Integrity: this public folder: {n_public} files listed in its `SHA256SUMS`, whose SHA-256 is recorded in the restricted run folder (`public_SHA256SUMS.sha256` and `README.md`); restricted run folder: {n_restricted} files listed in its own `SHA256SUMS`; commands in the README, section "Integrity".
+- APCER / BPCER / ACER with denominators: not applicable (no metrics computed in M2).
+- Attack types / acquisition conditions: CASIA-FASD: warped photo, cut photo, video replay at three qualities [DOC-EXT], carried as opaque video tokens; CelebA-Spoof: not available in the copy.
+- Seed(s) / uncertainty / exclusions: splits reconstructed with seed 42; no random component in the checks. Exclusions: {exclusions_line}.
+- Runtime and latency protocol, if relevant: not relevant.
+- Reproduction command / logs: README sections "Commands", "Verification without images or weights" and "Integrity". {verification_line} Build: {build_line}. Offline tests: {tests_line}; from the copy in `livenesslab/`: {package_tests_line}; NUAA tests (shared code): {nuaa_tests_line}; export tests: {export_tests_line}. {not_produced}
+
+## Interpretation
+- Research question answered: none directly — M2 verifies the manifests and the split integrity of the RGB datasets (milestone 2, verified baseline), second tranche.
+- Observed result and comparison: {result_line}
+- Supported comparisons: see README, section "Supported comparisons" (CASIA-FASD official CNNs descriptively; CelebA-Spoof within the shard and as a target, without identities; no claim on pooled checkpoints on the evaluation sets).
+- Limitations / failed checks: CASIA-FASD train/test identity disjointness documented by the protocol, not verifiable on the copy; frames only, no video; pooled checkpoints leak evaluation images, subjects and videos; CelebA-Spoof "official" split (card protocol name, not the original protocol) is per image inside shard 0 of the mirror's `test` split, not guaranteed to be identity-disjoint (overlap can neither be excluded nor measured); validation logic of CelebA-Spoof not verified between two hypotheses; conversion procedure not versioned (rule verified); licence documents absent in our local copies, authorisations handled by the coordinator (see Data and protocol). {failed_line}
+- Next decision: review of this tranche; decisions of the coordinator on the mirrors, on the declaration of the CelebA-Spoof "official" checkpoints and on the proposal for C2 (CASIA-FASD ↔ NUAA, CelebA-Spoof as target only).
+- Reviewer and review outcome: {reviewer_line}
