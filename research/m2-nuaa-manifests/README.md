@@ -5,10 +5,10 @@ transformations and per-split counts, and a repeatable check of overlaps and dup
 This first tranche covers **NUAA** only (CASIA-FASD and CelebA-Spoof follow). No training and no inference: the
 scripts list and hash files and read the training cache (subject, label and frame arrays; the frames are only hashed).
 
-This folder is a filtered export of the operator's development repository (private; development commit `2a24188`,
-run `20261008-M2-seed42-2a24188`): the scripts needed to rerun the checks, the documents, the declared rules and the aggregate results,
+This folder is a filtered export of the operator's development repository (private; development commit `5fcc1f8`,
+run `20261014-M2-seed42-5fcc1f8`): the scripts needed to rerun the checks, the documents, the declared rules and the aggregate results,
 without data, weights, per-image manifests or per-subject records. The per-image manifests, the private summary, the
-restricted overlap and short reports and the logs are in the project workspace under `02_Experiments/M2/20261008-M2-seed42-2a24188/`,
+restricted overlap and short reports and the logs are in the project workspace under `02_Experiments/M2/20261014-M2-seed42-5fcc1f8/`,
 with their SHA-256 listed in the public aggregate and in `run-report.md`. Code comments, command-line help and progress
 messages are in Italian by the developer's convention; reports, error messages and every document of this folder are
 in English.
@@ -20,7 +20,7 @@ and pos, the number of subjects per class, and counts of rows of shared subjects
 
 ## Delivery status
 
-Restricted folder `02_Experiments/M2/20261006-M2-seed42-36c677a/` uploaded to Drive on 2026-10-08 (declared by the operator). This revision changes only code and documents: the 7 manifests are byte-identical to that upload (SHA-256 compared with its `SHA256SUMS`). The restricted folder of this run (`20261008-M2-seed42-2a24188`) is ready locally and not uploaded yet; it is uploaded to `02_Experiments/M2/20261008-M2-seed42-2a24188/` only after review.
+Restricted folder `02_Experiments/M2/20261006-M2-seed42-36c677a/` uploaded to Drive on 2026-10-08 (declared by the operator): it is the accepted package and stays as delivered. This run changes only code and documents: the 7 manifests are byte-identical to that upload (SHA-256 compared with its `SHA256SUMS`). The restricted folder of this run (`20261014-M2-seed42-5fcc1f8`) is kept locally and not uploaded, unless the coordinator asks for it.
 
 ## Glossary
 
@@ -68,7 +68,7 @@ Details in `naming_schema.md`.
 | `manifests/*.csv` | per-image manifests (below) | restricted |
 | `nuaa_manifests_summary.json`, private report | as the aggregate, plus per-subject counts and the identifiers of the two validation subjects | restricted |
 | `dataset_register_nuaa.md` | draft entry of the dataset register (`01_Dataset_Register`) | restricted |
-| `livenesslab/` | `scripts/nuaa_manifests.py` (builder and checker), `scripts/check_nuaa_manifests.py` (offline tests), `scripts/package_rules.py` (forbidden-content rules), `scripts/select_threshold.py` (reconstruction of the CNN split, reused), `src/tesi_app/paths.py`, `delivery/m2/` (rules and report template read by the scripts), `requirements*.txt` | public (code) |
+| `livenesslab/` | `scripts/nuaa_manifests.py` (builder and checker), `scripts/check_nuaa_manifests.py` (offline tests), `scripts/check_nuaa_mutations.py` (mutation check of the error paths), `scripts/package_rules.py` (forbidden-content rules: the scan's machine-specific and tool-specific patterns are kept in a local, unpublished file of the development repository; the published rule set keeps the generic checks), `scripts/select_threshold.py` (reconstruction of the CNN split, reused), `src/tesi_app/paths.py`, `delivery/m2/` (rules and report template read by the scripts), `requirements.txt` | public (code) |
 | `SHA256SUMS` | SHA-256 of every other file of this folder, `livenesslab/` included | public |
 
 Fields that change at every run and are not part of the evidence: `created`, `commit`, `dirty` (summary and
@@ -129,6 +129,21 @@ python scripts/check_nuaa_manifests.py                       # offline tests (re
 Data, results and weights folders can be moved with `LIVENESSLAB_DATA_DIR`, `LIVENESSLAB_RESULTS_DIR` and
 `LIVENESSLAB_WEIGHTS_DIR`; every command takes `--out` to write somewhere else.
 
+## Behaviour on failure
+
+No command leaves an artefact of an earlier run next to a failed one, and no public file is written from an unsafe
+candidate. `build` removes, before any check, the outputs of a previous run in its folder (summary, aggregate, overlap
+reports, self-test, short reports); it writes the private summary (with the per-file diagnostics) and writes the public
+aggregate only when every check has passed and the forbidden-content scan is clean. `check-overlap` removes the previous
+reports and self-test at the start; on a preliminary error (unreadable or invalid rules, unreadable manifest, row
+validation, declared rows or SHA-256) it writes only an explicit FAIL report (`overlap_report.json` with the stage and
+the error, and `overlap_report_public.json` with the stage only, without the error text, `"rules": []`); if the
+forbidden-content scan of the public report finds a hit, it writes only the private FAIL report; otherwise it writes the
+four reports together at the end. `report` removes the previous short reports and refuses a failed build or overlap
+report. Every group of outputs is written only at the end, via temporary files and renames; if writing fails, no file
+of the group remains. These paths were corrected after the acceptance of the first NUAA package (see "Delivery
+status"): the manifests, the rules, the verdicts and the public outputs of a successful run are unchanged.
+
 ## Verification without images or weights
 
 With `M2_RUN` pointing at the restricted run folder and `C1_RUN` at the restricted C1 run folder (it holds the C1
@@ -162,10 +177,21 @@ where the key appears, is not detected; only `build` checks the hashes against t
    python scripts/nuaa_manifests.py compare-c1 --v1 "$C1_RUN/nuaa_manifest.csv" --v2 "$M2_RUN/manifests/nuaa_c1_v2.csv"
    ```
 6. all of the above as tests, on the restricted folder (`--real-dir`; the test that compares `package_rules.py` with
-   the development-only `export_m1.py` is skipped in this package):
+   the development-only `export_m1.py` and the test of the local patterns are skipped in this package, each
+   with its reason):
 
    ```bash
    python scripts/check_nuaa_manifests.py --require-real --real-dir "$M2_RUN" --real-aggregate ../nuaa_manifests_aggregate.json --c1-v1 "$C1_RUN/nuaa_manifest.csv"
+   ```
+7. mutation check of the error paths (no data needed: it runs the offline tests with empty data folders). It copies
+   the code to a temporary folder, applies 24 declared mutations to `nuaa_manifests.py` and to the loading of the local patterns in `package_rules.py` (each pattern must occur exactly
+   once, otherwise it stops with an error), runs the offline tests on each mutated copy and counts a mutation as
+   detected only if the tests ran to their summary with at least one failure or error (a copy that does not even start
+   is reported as an invalid mutation); it must end with `mutations killed: 24/24` and `RESULT: PASS` (a few minutes;
+   `--list` only checks the patterns):
+
+   ```bash
+   python scripts/check_nuaa_mutations.py
    ```
 
 ## Integrity

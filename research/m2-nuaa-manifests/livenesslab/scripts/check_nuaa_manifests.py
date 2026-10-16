@@ -143,6 +143,14 @@ def failed_checks(rep, rid):
     return [c for c in verdict(rep, rid)["checks"] if c["outcome"] == "FAIL"]
 
 
+def assert_preliminary_fail(test, rep):
+    """Dopo un errore preliminare di check-overlap c'è solo un rapporto FAIL esplicito, senza regole valutate."""
+    test.assertIsNotNone(rep)
+    test.assertIs(rep["passed"], False)
+    test.assertEqual(rep["rules"], [])
+    test.assertIn(rep["stage"], ("rules", "integrity", "row-validation"))
+
+
 class quiet:
     """Silenzia stdout e stderr dei messaggi attesi nei test in processo."""
 
@@ -427,7 +435,7 @@ class TestOverlapCases(unittest.TestCase):
                 self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
                 self.assertIn("ERROR:", r.stderr)
                 self.assertNotIn("Traceback", r.stderr)
-                self.assertIsNone(rep)                                                         # nessun rapporto parziale
+                assert_preliminary_fail(self, rep)                                             # nessun rapporto parziale: solo un FAIL esplicito
 
     def test_missing_column_is_clean_error(self):
         w = clean_world()
@@ -455,8 +463,14 @@ class TestPackageRules(unittest.TestCase):
         spec.loader.exec_module(export_m1)
         import package_rules
         self.assertEqual(package_rules.C1_MANIFEST_SHA256, export_m1.C1_MANIFEST_SHA256)
-        self.assertEqual([(lab, rx.pattern, rx.flags) for lab, rx in package_rules.FORBIDDEN_TEXT],
-                         [(lab, rx.pattern, rx.flags) for lab, rx in export_m1.FORBIDDEN_TEXT])
+        # regole generiche + modelli del file locale = regole di export_m1.py (stessi pattern, flag e ordine); l'unica
+        # differenze volute sono le etichette delle due regole che vengono dal file locale
+        if not (package_rules.LOCAL_PATTERNS and package_rules.TOOL_WORDS):
+            self.skipTest("local scan patterns file not present: only the generic rules are loaded, export_m1.py not comparable")
+        self.assertEqual([(rx.pattern, rx.flags) for _, rx in package_rules.FORBIDDEN_TEXT],
+                         [(rx.pattern, rx.flags) for _, rx in export_m1.FORBIDDEN_TEXT])
+        rename = {export_m1.FORBIDDEN_TEXT[1][0]: package_rules.LOCAL_LABEL, export_m1.FORBIDDEN_TEXT[3][0]: package_rules.TOOL_LABEL}
+        self.assertEqual([lab for lab, _ in package_rules.FORBIDDEN_TEXT], [rename.get(lab, lab) for lab, _ in export_m1.FORBIDDEN_TEXT])
         self.assertIs(NM.FORBIDDEN_TEXT, package_rules.FORBIDDEN_TEXT)
         self.assertEqual((package_rules.IPV4.pattern, package_rules.IP_ALLOW, package_rules.MARKERS.pattern, package_rules.MARKERS.flags),
                          (export_m1.IPV4.pattern, export_m1.IP_ALLOW, export_m1.MARKERS.pattern, export_m1.MARKERS.flags))
@@ -464,7 +478,65 @@ class TestPackageRules(unittest.TestCase):
     def test_package_rules_source_passes_its_own_scan(self):
         import package_rules
         self.assertEqual(NM.public_problems((ROOT / "scripts" / "package_rules.py").read_text(encoding="utf-8"), set()), [])
-        self.assertTrue(package_rules.FORBIDDEN_TEXT[1][1].search("vale" + "cass"))
+
+    @staticmethod
+    def hits(rules, text):
+        import package_rules
+        found = [lab for lab, rx in rules if rx.search(text)]
+        found += ["ipv4"] * any(m.group(0) not in package_rules.IP_ALLOW for m in package_rules.IPV4.finditer(text))
+        return found
+
+    def test_generic_scan_without_local_file(self):
+        # pacchetto pubblico: senza il file locale restano le regole generiche
+        import package_rules as PR
+        with tempfile.TemporaryDirectory() as d:
+            absent = Path(d) / "local_scan_patterns.json"
+            self.assertEqual(PR.load_local_patterns(absent), [])
+            rules = PR.forbidden_text(PR.load_local_patterns(absent))
+            self.assertEqual([lab for lab, _ in rules], [lab for lab, _ in PR.GENERIC_TEXT])
+            self.assertEqual(PR.load_local_patterns(absent, key="tool_reference"), [])
+            rules = PR.forbidden_text(PR.load_local_patterns(absent), PR.load_local_patterns(absent, key="tool_reference"))
+            self.assertEqual([lab for lab, _ in rules], [lab for lab, _ in PR.GENERIC_TEXT])
+            self.assertFalse({PR.LOCAL_LABEL, PR.TOOL_LABEL} & {lab for lab, _ in rules})
+            self.assertEqual(self.hits(rules, "see /Us" + "ers/someone/x"), ["absolute path"])
+            self.assertEqual(self.hits(rules, "reach 8.8." + "4.4 now"), ["ipv4"])
+            self.assertEqual(self.hits(rules, "local 127.0.0.1 only"), [])
+            self.assertTrue(PR.local_patterns_problem(absent))                  # un export con --strict si rifiuta
+        self.assertTrue(NM.public_problems("at /Us" + "ers/someone and 8.8." + "4.4", set()))
+
+    def test_local_file_patterns_are_loaded(self):
+        # file locale presente (qui uno sintetico): i suoi modelli entrano al secondo posto, con l'etichetta neutra
+        import package_rules as PR
+        with tempfile.TemporaryDirectory() as d:
+            f = Path(d) / "local_scan_patterns.json"
+            f.write_text(json.dumps({"operator_or_host_name": ["op" + "name-x", r"10\.20\.\d+\.\d+"], "tool_reference": ["tool" + "x"]}))
+            self.assertEqual(PR.local_patterns_problem(f), "")
+            rules = PR.forbidden_text(PR.load_local_patterns(f), PR.load_local_patterns(f, key="tool_reference"))
+            self.assertEqual(rules[-1][0], PR.TOOL_LABEL)                         # nomi di strumenti: ultimo posto, maiuscole ignorate
+            self.assertEqual(self.hits(rules, "made with TOOL" + "X"), [PR.TOOL_LABEL])
+            self.assertEqual(rules[1][0], PR.LOCAL_LABEL)
+            self.assertEqual(rules[1][1].pattern, "op" + r"name-x|10\.20\.\d+\.\d+")
+            self.assertEqual(self.hits(rules, "user op" + "name-x here"), [PR.LOCAL_LABEL])
+            self.assertIn(PR.LOCAL_LABEL, self.hits(rules, "host 10.20." + "3.4"))
+            for bad in ("{not json", json.dumps({"operator_or_host_name": []}), json.dumps({"other": ["x"]})):
+                f.write_text(bad)
+                for key in PR.LOCAL_KEYS:
+                    with self.assertRaises(ValueError):                         # file malformato: errore, non scansione più debole
+                        PR.load_local_patterns(f, key=key)
+
+    def test_real_local_file_catches_the_sensitive_samples(self):
+        import package_rules as PR
+        if not PR.LOCAL_PATTERNS:
+            self.skipTest("local scan patterns file not present (public package): machine-specific samples not checked")
+        # un campione per modello, costruito a run time dal file locale (nessun valore della macchina in questo sorgente):
+        # le cifre variabili diventano 7 e i punti escapati punti
+        samples = [re.sub(r"\\d\+", "7", alt).replace("\\.", ".") for alt in PR.LOCAL_PATTERNS]
+        for i, t in enumerate(samples):
+            self.assertEqual(self.hits(PR.FORBIDDEN_TEXT, "x " + t + " y")[:1], [PR.LOCAL_LABEL], f"local pattern {i}")
+            self.assertEqual(self.hits(PR.forbidden_text([]), t), ["ipv4"] if PR.IPV4.search(t) else [], f"local pattern {i}")
+        for i, w in enumerate(PR.TOOL_WORDS):                                   # nomi di strumenti, anche in maiuscolo
+            self.assertEqual(self.hits(PR.FORBIDDEN_TEXT, "made with " + w.upper()), [PR.TOOL_LABEL], f"tool pattern {i}")
+            self.assertEqual(self.hits(PR.forbidden_text(PR.LOCAL_PATTERNS), w), [], f"tool pattern {i}")
 
 
 class TestManifestValidation(unittest.TestCase):
@@ -514,7 +586,7 @@ class TestManifestValidation(unittest.TestCase):
         w = clean_world(); w["test"][0] = r99
         r, rep = run_overlap(self.d, w)
         self.assertCleanError(r, "session values outside")
-        self.assertIsNone(rep)
+        assert_preliminary_fail(self, rep)
 
     def test_wrong_rows_stop_report_rules_too(self):
         # una riga incoerente ferma check-overlap prima di qualsiasi regola, anche se l'unica regola è "report"
@@ -522,7 +594,7 @@ class TestManifestValidation(unittest.TestCase):
         rules = {**SYN_RULES, "rules": [r for r in SYN_RULES["rules"] if r["severity"] == "report"]}
         r, rep = run_overlap(self.d, w, rules)
         self.assertCleanError(r, "subject values not consistent with the key")
-        self.assertIsNone(rep)
+        assert_preliminary_fail(self, rep)
 
     def test_session_empty_or_missing(self):
         w = clean_world(); w["es"][0] = dict(w["es"][0], session="")
@@ -544,7 +616,7 @@ class TestManifestValidation(unittest.TestCase):
         t = clean_world(); t["c1"] = t["c1"][:1]                       # C1 troncato: sottoinsieme ancora vero
         r, rep = run_overlap(self.d / "trunc", t, expect=expect)
         self.assertCleanError(r, "c1: 1 rows, expected 2")
-        self.assertIsNone(rep)
+        assert_preliminary_fail(self, rep)
         t = clean_world(); t["c1"] = [t["test"][1], t["test"][3]]       # stesse righe attese, contenuto diverso
         r, _ = run_overlap(self.d / "swap", t, expect=expect)
         self.assertCleanError(r, "differs from the declared")
@@ -839,6 +911,197 @@ def need_real(test):
     return man_dir
 
 
+# ----------------------------------------------------------------------------- artefatti dopo un fallimento (14/10)
+
+class TestFailureArtefacts(unittest.TestCase):
+    """Nessun artefatto vecchio o non sicuro dopo un'esecuzione che fallisce: aggregato pubblico solo con controlli
+    superati e scansione pulita; rapporti PASS precedenti tolti prima di ogni check-overlap; FAIL esplicito sugli errori
+    preliminari; scrittura alla fine con file temporanei e pulizia su qualunque eccezione."""
+
+    FOUR = ("overlap_report.json", "overlap_report.md", "overlap_report_public.json", "overlap_report_public.md")
+
+    def rerun(self, d: Path, rp: Path):
+        return subprocess.run([sys.executable, str(SCRIPT), "check-overlap", "--rules", str(rp), "--manifests-dir", str(d / "manifests"),
+                               "--out", str(d / "out")], cwd=ROOT, capture_output=True, text=True)
+
+    def assert_no_stale_pass(self, out: Path, stage: str):
+        for f in ("overlap_report.md", "overlap_report_public.md", "overlap_self_test.json"):
+            self.assertFalse((out / f).exists(), f)
+        for f in ("overlap_report.json", "overlap_report_public.json"):
+            rep = json.loads((out / f).read_text())
+            self.assertEqual((rep["passed"], rep["stage"], rep["rules"]), (False, stage, []), f)
+        self.assertNotIn("error", json.loads((out / "overlap_report_public.json").read_text()))
+        self.assertFalse(list(out.glob("*.tmp")))
+
+    def test_overlap_rerun_never_leaves_a_stale_pass(self):
+        w = clean_world()
+        with tempfile.TemporaryDirectory() as d:
+            d = Path(d)
+            out = d / "out"
+            r, rep = run_overlap(d, w)
+            self.assertEqual(r.returncode, 0, r.stderr)
+            self.assertTrue(all((out / f).exists() for f in self.FOUR))
+            (out / "overlap_self_test.json").write_text('{"passed": true}\n')
+            rp = d / "rules.json"
+            doc = json.loads(rp.read_text())
+            good = doc["manifests"]["c1"]["expected_sha256"]
+            doc["manifests"]["c1"]["expected_sha256"] = "0" * 64            # SHA-256 dichiarato sbagliato
+            rp.write_text(json.dumps(doc))
+            r = self.rerun(d, rp)
+            self.assertEqual(r.returncode, 1)
+            self.assertIn("differ from those declared", r.stderr)
+            self.assert_no_stale_pass(out, "integrity")
+            doc["manifests"]["c1"]["expected_sha256"] = good                 # di nuovo PASS nella stessa cartella
+            rp.write_text(json.dumps(doc))
+            r = self.rerun(d, rp)
+            self.assertEqual(r.returncode, 0, r.stderr)
+            self.assertTrue(all((out / f).exists() for f in self.FOUR))
+            self.assertTrue(json.loads((out / "overlap_report_public.json").read_text())["passed"])
+            bad = [dict(w["test"][0], session="99")] + w["test"][1:]       # riga non valida, SHA-256 ridichiarato
+            write_csv(d / "manifests" / "test.csv", bad)
+            doc["manifests"]["test"]["expected_sha256"] = sha_file(d / "manifests" / "test.csv")
+            rp.write_text(json.dumps(doc))
+            r = self.rerun(d, rp)
+            self.assertEqual(r.returncode, 1)
+            self.assertNotIn("Traceback", r.stderr)
+            self.assert_no_stale_pass(out, "row-validation")
+
+    def test_overlap_failure_removes_previous_short_reports(self):
+        # PASS, poi i rapporti brevi di `report` nella stessa cartella, poi un errore preliminare: nessun rapporto breve resta
+        w = clean_world()
+        with tempfile.TemporaryDirectory() as d:
+            d = Path(d)
+            out = d / "out"
+            r, _ = run_overlap(d, w)
+            self.assertEqual(r.returncode, 0, r.stderr)
+            for f in NM.REPORT_OUTPUTS:                                     # come dopo un `report` riuscito
+                (out / f).write_text("# short report of the previous PASS run\n")
+            rp = d / "rules.json"
+            doc = json.loads(rp.read_text())
+            doc["manifests"]["c1"]["expected_sha256"] = "0" * 64
+            rp.write_text(json.dumps(doc))
+            r = self.rerun(d, rp)
+            self.assertEqual(r.returncode, 1)
+            self.assertFalse([f for f in NM.REPORT_OUTPUTS if (out / f).exists()])
+            self.assert_no_stale_pass(out, "integrity")
+
+    def test_unreadable_manifest_gives_stage_integrity(self):
+        with tempfile.TemporaryDirectory() as d:
+            d = Path(d)
+            r, _ = run_overlap(d, clean_world())
+            self.assertEqual(r.returncode, 0, r.stderr)
+            (d / "manifests" / "test.csv").write_bytes(b"key,label\n\xff\xfe\xfa not utf-8\n")     # CSV illeggibile
+            r = self.rerun(d, d / "rules.json")
+            self.assertEqual(r.returncode, 1)
+            self.assertNotIn("Traceback", r.stderr)
+            self.assertIn("unreadable CSV", json.loads((d / "out" / "overlap_report.json").read_text())["error"])
+            self.assert_no_stale_pass(d / "out", "integrity")
+
+    def test_unreadable_rules_give_an_explicit_fail(self):
+        with tempfile.TemporaryDirectory() as d:
+            d = Path(d)
+            r, _ = run_overlap(d, clean_world())
+            self.assertEqual(r.returncode, 0, r.stderr)
+            rp = d / "rules.json"
+            rp.write_text("{not json")
+            r = self.rerun(d, rp)
+            self.assertEqual(r.returncode, 1)
+            self.assertNotIn("Traceback", r.stderr)
+            self.assert_no_stale_pass(d / "out", "rules")
+
+    def test_public_scan_hit_writes_no_public_report(self):
+        with tempfile.TemporaryDirectory() as d:
+            d = Path(d)
+            r, _ = run_overlap(d, clean_world())
+            self.assertEqual(r.returncode, 0, r.stderr)
+            rp = d / "rules.json"
+            doc = json.loads(rp.read_text())
+            doc["rules"][0]["description"] = "duplicates, e.g. subject " + "01" + "02"      # identificativo in una descrizione
+            rp.write_text(json.dumps(doc))
+            r = self.rerun(d, rp)
+            self.assertEqual(r.returncode, 1)
+            out = d / "out"
+            for f in ("overlap_report_public.json", "overlap_report_public.md", "overlap_report.md"):
+                self.assertFalse((out / f).exists(), f)
+            rep = json.loads((out / "overlap_report.json").read_text())
+            self.assertEqual((rep["passed"], rep["stage"]), (False, "public-scan"))
+
+    def test_build_files(self):
+        summ, agg = {"passed": True, "problems": []}, {"passed": True, "note": "aggregate"}
+        files, problems, bad = NM.build_files(summ, agg, [], {"0102"})
+        self.assertEqual(set(files), {"nuaa_manifests_summary.json", "nuaa_manifests_aggregate.json"})
+        self.assertEqual((problems, bad), ([], []))
+        self.assertEqual(files["nuaa_manifests_summary.json"], json.dumps(summ, indent=1) + "\n")     # testo di sempre
+        files, problems, bad = NM.build_files(summ, {**agg, "x": "subject " + "01" + "02"}, [], {"0102"})  # scansione: identificativo
+        self.assertEqual(set(files), {"nuaa_manifests_summary.json"})
+        self.assertTrue(problems and bad)
+        self.assertFalse(json.loads(files["nuaa_manifests_summary.json"])["passed"])
+        files, problems, _ = NM.build_files({**summ, "passed": False, "problems": ["c: x"]}, agg, ["c: x"], {"0102"})
+        self.assertEqual(set(files), {"nuaa_manifests_summary.json"})                                # controllo fallito
+
+    def test_build_failure_removes_previous_public_outputs(self):
+        with tempfile.TemporaryDirectory() as d:
+            out = Path(d) / "out"
+            out.mkdir()
+            for f in ("nuaa_manifests_aggregate.json", "overlap_report_public.json", "nuaa_m2_report_public.md"):
+                (out / f).write_text('{"passed": true}\n')
+            env = {**os.environ, "LIVENESSLAB_DATA_DIR": str(Path(d) / "data"), "LIVENESSLAB_RESULTS_DIR": str(Path(d) / "results"),
+                   "LIVENESSLAB_WEIGHTS_DIR": str(Path(d) / "weights")}
+            r = subprocess.run([sys.executable, str(SCRIPT), "build", "--out", str(out)], cwd=ROOT, capture_output=True, text=True, env=env)
+            self.assertEqual(r.returncode, 1)
+            self.assertNotIn("Traceback", r.stderr)
+            self.assertEqual(sorted(p.name for p in out.iterdir()), [])
+
+    def test_report_refuses_failed_overlap_and_removes_old_reports(self):
+        with tempfile.TemporaryDirectory() as d:
+            out = Path(d)
+            for f in NM.REPORT_OUTPUTS:
+                (out / f).write_text("old report\n")
+            (out / "nuaa_manifests_summary.json").write_text(json.dumps({"passed": True, "manifests": {}}))
+            (out / "nuaa_manifests_aggregate.json").write_text(json.dumps({"manifests": {}}))
+            (out / "overlap_report.json").write_text(json.dumps({"passed": False, "manifests": {}}))
+            r = subprocess.run([sys.executable, str(SCRIPT), "report", "--out", str(out)], cwd=ROOT, capture_output=True, text=True)
+            self.assertEqual(r.returncode, 1)
+            self.assertIn("failed check", r.stderr)
+            self.assertFalse(any((out / f).exists() for f in NM.REPORT_OUTPUTS))
+
+    def test_write_all(self):
+        real = NM.os.replace
+        for exc in (OSError, RuntimeError):
+            calls = {"n": 0}
+
+            def boom(a, b, exc=exc):
+                calls["n"] += 1
+                if calls["n"] == 2:
+                    raise exc("simulated failure on the second rename")
+                return real(a, b)
+            with tempfile.TemporaryDirectory() as d:
+                NM.os.replace = boom
+                try:
+                    with self.assertRaises(exc):
+                        NM.write_all(Path(d), {"a.json": "1", "b.json": "2", "c.json": "3"})
+                finally:
+                    NM.os.replace = real
+                self.assertEqual(sorted(p.name for p in Path(d).iterdir()), [], exc.__name__)
+        seen = []
+
+        def spy(a, b):
+            if not seen:
+                seen.append((sorted(p.name for p in Path(b).parent.glob("*.tmp")), Path(b).read_text()))
+            return real(a, b)
+        with tempfile.TemporaryDirectory() as d:
+            (Path(d) / "a.json").write_text("old")
+            NM.os.replace = spy
+            try:
+                NM.write_all(Path(d), {"a.json": "new a", "b.json": "new b"})
+            finally:
+                NM.os.replace = real
+            self.assertEqual(seen, [(["a.json.tmp", "b.json.tmp"], "old")])
+            self.assertEqual((Path(d) / "a.json").read_text(), "new a")
+            (Path(d) / "c.json.tmp").write_text("x")
+            self.assertEqual(sorted(NM.invalidate(Path(d), ["a.json", "c.json", "missing"])), ["a.json", "c.json.tmp"])
+
+
 class TestRealData(unittest.TestCase):
     def run_nm(self, *args):
         return subprocess.run([sys.executable, str(SCRIPT), *map(str, args)], cwd=ROOT, capture_output=True, text=True)
@@ -909,7 +1172,7 @@ def main() -> int:
     args = ap.parse_args()
     REQUIRE_REAL, REAL_DIR, REAL_AGGREGATE, C1_V1 = args.require_real, args.real_dir, args.real_aggregate, args.c1_v1
     suite = unittest.TestSuite(unittest.defaultTestLoader.loadTestsFromTestCase(c)
-                               for c in (TestParser, TestRules, TestPackageRules, TestOverlapCases, TestManifestValidation, TestDerivedFrames,
+                               for c in (TestParser, TestRules, TestPackageRules, TestOverlapCases, TestManifestValidation, TestDerivedFrames, TestFailureArtefacts,
                                          TestDerivations, TestKeyConsistency, TestRecountCompare, TestBuildWithoutData, TestRealData))
     log = io.StringIO()
     result = unittest.TextTestRunner(stream=log, verbosity=2).run(suite)
