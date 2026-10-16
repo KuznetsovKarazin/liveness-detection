@@ -109,7 +109,7 @@ Details, keys, closed value sets and checks in `naming_schema_rgb.md`; preproces
 | `<dataset>_overlap_report_public.md`, `.json` | pairwise overlap matrix, rule verdicts; counts only | public |
 | `<dataset>_report.md` | short report: source, counts, checkpoints, rules, self-test, supported comparisons, limits | public version without identifiers |
 | `run-report.md` | run report (also in the restricted folder) | public |
-| `livenesslab/` | `scripts/rgb_manifests.py` (builder and checker), `scripts/check_rgb_manifests.py` (offline tests), the NUAA modules it imports (`nuaa_manifests.py`, `select_threshold.py`, `package_rules.py`), `src/tesi_app/paths.py`, `delivery/m2/rgb/` (rules and report template read by the scripts), `scripts/m2_inventory/` (the six scripts that regenerate the numbers of the published inventory), `scripts/export_m2_rgb.py` with `scripts/export_helpers.py` (the export that produced this folder), `scripts/check_export_m2_rgb.py` (its offline tests), `scripts/check_rgb_mutations.py` (mutation check of the validator and of the export), `requirements.txt` | public (code) |
+| `livenesslab/` | `scripts/rgb_manifests.py` (builder and checker), `scripts/check_rgb_manifests.py` (offline tests), the NUAA modules it imports (`nuaa_manifests.py`, `select_threshold.py`, `package_rules.py`), `src/tesi_app/paths.py`, `delivery/m2/rgb/` (rules and report template read by the scripts), `scripts/m2_inventory/` (the six scripts that regenerate the numbers of the published inventory), `scripts/export_m2_rgb.py` with `scripts/export_helpers.py` and `scripts/path_guard.py` (the export that produced this folder and its path protection), `scripts/check_export_m2_rgb.py` (its offline tests), `scripts/check_rgb_mutations.py` (mutation check of the validator and of the export), `requirements.txt` | public (code) |
 | `SHA256SUMS` | SHA-256 of every other file of this folder, `livenesslab/` included | public |
 | `<dataset>/manifests/*.csv` | per-image manifests (below) | restricted |
 | `<dataset>/<dataset>_manifests_summary.json`, private reports | as the aggregate, plus subject keys of the early-stopping subjects (CASIA-FASD), row indices of the excluded and duplicated rows (CelebA-Spoof) | restricted |
@@ -201,6 +201,22 @@ refuses a failed build or overlap report. Every group of outputs is written only
 group remains.
 `export_m2_rgb.py` refuses missing, failed, inconsistent or other-commit artefacts and leftover temporary files.
 
+Path protection of the export: every folder that `export_m2_rgb.py` deletes or rewrites (`--m2`, the public folder, the
+restricted run folder, its temporary work folder) is checked, after resolving symbolic links and `..`, at argument parsing
+and again immediately before the deletion. Folders are compared by file identity (`os.path.samefile`), not by their
+spelling, so another spelling of the same folder on a case-insensitive filesystem is recognised; for a folder that
+does not exist yet its nearest existing ancestor is compared. It is refused if it is the filesystem root, the home folder or one of its
+ancestors, the repository root or one of its ancestors, or equal to, inside or an ancestor of a protected folder
+(`data/`, `models/`, `results/` and every baseline in it, `docs/`, `scripts/`, `src/`, `delivery/`, `config/`, `.git`, the
+other packages in `export/research/` and the existing run folders in `export/drive/`). Inside the repository only
+`results/m2_rgb/`, this package's public folder and a new run folder (or a `-trial` one) are accepted; outside it, any
+other folder (for example a scratch folder). Until this correction an ancestor of a protected folder (for example
+`--m2 results` or `--m2 .`), or another spelling of a protected folder, passed the check and would have been deleted.
+`rgb_manifests.py` refuses an output folder that holds the outputs of the NUAA tranche or of the other dataset, before
+removing any file (the overlap reports have the same names). A strict export also refuses to start without
+the development repository's local, unpublished file of scan patterns (machine-specific and tool-specific patterns; the
+published rule set keeps the generic checks).
+
 ## Verification without images or weights
 
 With `M2_RUN` pointing at the restricted run folder, from inside `livenesslab/`. Without the images, content hashes,
@@ -245,15 +261,17 @@ of the fitting, early-stopping and pooled manifests is pinned only by their decl
    ```
 6. the export and its tests, and the mutation check (no data needed, empty data folders are enough). `export_m2_rgb.py`
    is the script that produced this folder; its helpers are in `export_helpers.py`, a verified copy of functions of the
-   development-only `export_m1.py` and `export_m2.py`. `check_export_m2_rgb.py` (18 tests, including behavioural tests of
-   the helpers on synthetic folders) must end with `RESULT: PASS`; from this folder 2 tests skip by design, each with its
+   development-only `export_m1.py` and `export_m2.py` (one documented difference: `env_versions` reads the environment
+   files with a glob instead of listing them by name). `check_export_m2_rgb.py` (23 tests, including behavioural tests of
+   the helpers on synthetic folders and of the path protection, with temporary folders, sentinel files and an
+   intercepted deletion) must end with `RESULT: PASS`; from this folder 2 tests skip by design, each with its
    reason: the dataset register drafts are restricted, and `export_m1.py`/`export_m2.py` (the originals of the helpers)
    are development-only; the comparison of the shared modules with the NUAA package also skips if
    `../m2-nuaa-manifests` is not next to this folder. The mutation check copies the code to a temporary folder, applies
-   28 declared mutations to `rgb_manifests.py`, `export_m2_rgb.py` and `export_helpers.py` (each pattern must occur
+   40 declared mutations to `rgb_manifests.py`, `export_m2_rgb.py`, `export_helpers.py` and `path_guard.py` (each pattern must occur
    exactly once, otherwise it stops with an error), runs the offline tests on each mutated copy and counts a mutation as
    detected only if the tests ran to their summary with at least one failure or error (a copy that does not even start
-   is reported as an invalid mutation); it must end with `mutations killed: 28/28` and `RESULT: PASS` (a few
+   is reported as an invalid mutation); it must end with `mutations killed: 40/40` and `RESULT: PASS` (a few
    minutes; `--list` only checks the patterns). Inside the mutation check the export suite runs on a bare copy of the
    code, without the NUAA folder and the documents next to it, so it reports 4 skips; the mutants of the helpers are still
    detected by the behavioural tests, which do not need those files:

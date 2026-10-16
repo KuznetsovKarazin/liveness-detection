@@ -1665,7 +1665,7 @@
  "n_not_checkable": 1,
  "passed": true,
  "note": "public version: counts and verdicts only, no keys, no subject or video identifiers",
- "commit": "4b903bfbe57cd11d93c427c51ca01c4b36cf782b",
- "dirty": false,
- "checked": "2026-10-13T22:34:40+0200"
+ "commit": "df379d4a2bb062428b26f36f5cd2abb14eaae575",
+ "dirty": true,
+ "checked": "2026-10-16T11:01:47+0200"
 }

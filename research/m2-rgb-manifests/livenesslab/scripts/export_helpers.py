@@ -144,10 +144,8 @@ def redact(txt: str) -> str:
 def env_versions() -> set:
     """Versioni fissate nei file dell'ambiente (es. 4.11.0.86): hanno la forma di un IPv4 ma non lo sono."""
     vs = set()
-    for f in ("requirements.txt", "requirements-windows.txt"):
-        p = ROOT / f
-        if p.exists():
-            vs |= set(re.findall(r"==\s*([\d.]+)", p.read_text(encoding="utf-8")))
+    for p in sorted(ROOT.glob("requirements*.txt")):        # tutti i file dell'ambiente presenti, senza elencarli per nome
+        vs |= set(re.findall(r"==\s*([\d.]+)", p.read_text(encoding="utf-8")))
     vs |= set(re.findall(r"==\s*([\d.]+)", subprocess.run([PY, "-m", "pip", "freeze"], capture_output=True, text=True).stdout))
     return vs
 

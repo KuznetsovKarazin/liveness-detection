@@ -710,6 +710,46 @@ class TestFailureArtefacts(unittest.TestCase):
             self.assert_no_stale_pass(out, "row-validation")
             self.assertFalse(list(out.glob("*.tmp")))
 
+    def test_overlap_failure_removes_previous_short_reports(self):
+        # PASS, poi i rapporti brevi di `report` nella stessa cartella, poi un errore preliminare: nessun rapporto breve resta
+        w = casia_world()
+        with tempfile.TemporaryDirectory() as d:
+            d = Path(d)
+            out = d / "out"
+            r, _ = run_cli(d, w)
+            self.assertEqual(r.returncode, 0, r.stderr)
+            for f in RM.report_outputs("casia_fasd"):                       # come dopo un `report` riuscito
+                (out / f).write_text("# short report of the previous PASS run\n")
+            rp = d / "rules.json"
+            doc = json.loads(rp.read_text())
+            doc["manifests"]["eval"]["expected_sha256"] = "0" * 64
+            rp.write_text(json.dumps(doc))
+            r = self.run_overlap_in(d, rp)
+            self.assertEqual(r.returncode, 1)
+            self.assertFalse([f for f in RM.report_outputs("casia_fasd") if (out / f).exists()])
+            self.assert_no_stale_pass(out, "integrity")
+
+    def test_out_with_outputs_of_another_tranche_is_refused(self):
+        # --out puntato ai risultati NUAA o dell'altro dataset: rifiutato prima di cancellare qualsiasi file
+        w = casia_world()
+        for foreign in ("nuaa_manifests_summary.json", "celeba_spoof_manifests_summary.json", "celeba_spoof_m2_report.md"):
+            with tempfile.TemporaryDirectory() as d:
+                d = Path(d)
+                write_world(d, w)
+                out = d / "out"
+                out.mkdir()
+                kept = {n: f"{n} of the other tranche\n" for n in ("overlap_report.json", "overlap_report_public.md", "overlap_self_test.json", foreign)}
+                for n, t in kept.items():
+                    (out / n).write_text(t)
+                for cmd in (["build"], ["check-overlap", "--manifests-dir", str(d / "manifests")], ["report"]):
+                    r = subprocess.run([sys.executable, str(SCRIPT), cmd[0], "--dataset", "casia_fasd", "--out", str(out), *cmd[1:]],
+                                       capture_output=True, text=True)
+                    self.assertEqual(r.returncode, 1, (foreign, cmd[0]))
+                    self.assertIn("another tranche or dataset", r.stderr)
+                    self.assertNotIn("Traceback", r.stderr)
+                self.assertEqual({n: (out / n).read_text() for n in kept}, kept)      # nessun file toccato
+        self.assertEqual(RM.foreign_outputs_problem(Path(tempfile.gettempdir()) / "no-such-folder-x", "casia_fasd"), "")
+
     def test_report_refuses_failed_overlap_and_leaves_no_old_report(self):
         with tempfile.TemporaryDirectory() as d:
             out = Path(d)

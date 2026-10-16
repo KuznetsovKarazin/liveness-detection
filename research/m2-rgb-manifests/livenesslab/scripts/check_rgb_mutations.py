@@ -32,6 +32,10 @@ RGB_TESTS = "scripts/check_rgb_manifests.py"
 EXPORT_TESTS = "scripts/check_export_m2_rgb.py"
 RGB_MUTANTS = [
     ('check-overlap: no invalidate', '    invalidate(out, overlap_outputs() + report_outputs(ds))\n', '    pass\n'),
+    ('--out: outputs of another tranche not refused', '    if found:\n        return (f"output folder', '    if False:\n        return (f"output folder'),
+    ('check-overlap: --out not checked for other outputs', '    if msg := foreign_outputs_problem(out, ds):\n        fail(msg)\n    invalidate(out, overlap_outputs()',
+     '    invalidate(out, overlap_outputs()'),
+    ('check-overlap: short reports not invalidated', '    invalidate(out, overlap_outputs() + report_outputs(ds))\n', '    invalidate(out, overlap_outputs())\n'),
     ('build: no invalidate', '    invalidate(out, build_outputs(ds))\n', '    pass\n'),
     ('build: aggregate written on failure', '    if not problems:\n        files[f"{ds}_manifests_aggregate.json"] = agg_text', '    if True:\n        files[f"{ds}_manifests_aggregate.json"] = agg_text'),
     ('build: scan skipped', '    bad = public_text_problems(agg_text, ids) if not problems else []', '    bad = []'),
@@ -52,6 +56,24 @@ EXPORT_MUTANTS = [
     ("export: dirty tree accepted", "    if dirty and not trial:\n        return (", "    if False:\n        return ("),
     ("export: failed or other-commit artefacts accepted",
      '        if d and (d.get("passed") is not True or d.get("commit") != commit):', "        if False:"),
+    # protezione dei percorsi da cancellare (correzione del 16/10/2026)
+    ("path guard: delivered run folder rewritable", '    if run_id and (not run_dir.exists() or run_id.endswith("-trial")):\n',
+     "    if run_id:\n"),
+    ("path guard: no check before rmtree", "    msg = deletion_problem(path, run_id)\n    if msg:\n        raise SystemExit",
+     '    msg = ""\n    if msg:\n        raise SystemExit'),
+    ("path guard: output folders not checked", "        if msg := deletion_problem(p, run_id):\n", "        if False:\n"),
+]
+GUARD = "scripts/path_guard.py"
+GUARD_MUTANTS = [
+    ("path guard: protected ancestors accepted", "        if contains(p, q):\n", "        if False:\n"),
+    ("path guard: repository ancestors accepted", "    if contains(p, root):\n", "    if False:\n"),
+    ("path guard: home and its ancestors accepted", "    if contains(p, home):\n", "    if False:\n"),
+    ("path guard: string comparison instead of samefile", "        return os.path.samefile(a, b)\n",
+     "        return str(Path(a).resolve()) == str(Path(b).resolve())\n"),
+    ("path guard: safe_rmtree without the check", "    msg = deletion_problem(path, root, protected, allowed, home)\n    if msg:\n",
+     '    msg = ""\n    if msg:\n'),
+    ("path guard: folders inside protected ones accepted", '    return f"{p} is inside {where} and is not a folder of this export"',
+     '    return ""'),
 ]
 HELPERS = "scripts/export_helpers.py"
 HELPER_MUTANTS = [
@@ -67,7 +89,7 @@ HELPER_MUTANTS = [
     ("helpers: fill_run_id without the missing check", '    if "{run_id}" not in text:\n', "    if False:\n"),
 ]
 MUTANTS = ([(n, RGB, RGB_TESTS, a, b) for n, a, b in RGB_MUTANTS] + [(n, EXPORT, EXPORT_TESTS, a, b) for n, a, b in EXPORT_MUTANTS]
-           + [(n, HELPERS, EXPORT_TESTS, a, b) for n, a, b in HELPER_MUTANTS])
+           + [(n, HELPERS, EXPORT_TESTS, a, b) for n, a, b in HELPER_MUTANTS] + [(n, GUARD, EXPORT_TESTS, a, b) for n, a, b in GUARD_MUTANTS])
 DOCS = ("README.md", "naming_schema_rgb.md")        # documenti letti da alcuni test se si trovano accanto al codice
 
 

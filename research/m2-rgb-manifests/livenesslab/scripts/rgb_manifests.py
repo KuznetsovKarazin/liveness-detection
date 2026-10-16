@@ -98,6 +98,25 @@ def report_outputs(ds: str) -> list:
     return [f"{ds}_m2_report.md", f"{ds}_m2_report_public.md"]
 
 
+# uscite proprie della tranche NUAA (i suoi rapporti delle sovrapposizioni hanno gli stessi nomi di quelli di qui)
+NUAA_OUTPUTS = ("nuaa_manifests_summary.json", "nuaa_manifests_aggregate.json", "nuaa_m2_report.md", "nuaa_m2_report_public.md")
+
+
+def foreign_outputs_problem(out: Path, ds: str) -> str:
+    """Una cartella di uscita con le uscite della tranche NUAA o dell'altro dataset è rifiutata prima di toccare
+    qualsiasi file: invalidate vi cancellerebbe i rapporti con gli stessi nomi (overlap_report*, overlap_self_test*)."""
+    out = Path(out)
+    names = list(NUAA_OUTPUTS)
+    for o in DATASETS:
+        if o != ds:
+            names += [f"{o}_manifests_summary.json", f"{o}_manifests_aggregate.json"] + report_outputs(o)
+    found = sorted(n for n in names if (out / n).exists())
+    if found:
+        return (f"output folder {relpath(out)} holds the outputs of another tranche or dataset ({', '.join(found)}): refused, "
+                "nothing removed")
+    return ""
+
+
 def invalidate(out: Path, names) -> list:
     """Toglie le uscite di una esecuzione precedente prima di qualunque controllo: nessun artefatto vecchio (per esempio un
     PASS) resta accanto a un'esecuzione che fallisce. Restituisce i nomi tolti."""
@@ -1236,6 +1255,8 @@ def cmd_build(a) -> None:
             fail(f"output folder {relpath(out)} is inside {relpath(forbidden)}: refused (read-only area)")
     # le uscite di un build precedente (e quelle a valle) vengono tolte prima di ogni controllo: un build che fallisce
     # non lascia mai un aggregato pubblico, né vecchio né nuovo
+    if msg := foreign_outputs_problem(out, ds):
+        fail(msg)
     invalidate(out, build_outputs(ds))
     checks, problems = {}, []
 
@@ -1387,6 +1408,8 @@ def cmd_check_overlap(a) -> None:
     man_dir = Path(a.manifests_dir or ds_out(Path(a.out_root), ds) / "manifests")
     out = Path(a.out or ds_out(Path(a.out_root), ds))
     # nessun rapporto di un'esecuzione precedente resta: i quattro rapporti, il self-test e i rapporti brevi a valle
+    if msg := foreign_outputs_problem(out, ds):
+        fail(msg)
     invalidate(out, overlap_outputs() + report_outputs(ds))
     try:
         doc, mans, info = load_declared(ds, rules_p, man_dir)
@@ -1706,6 +1729,8 @@ def report_fields(ds: str, summ: dict, ov: dict, private: bool, self_test: dict 
 def cmd_report(a) -> None:
     ds = a.dataset
     out = Path(a.out or ds_out(Path(a.out_root), ds))
+    if msg := foreign_outputs_problem(out, ds):
+        fail(msg)
     invalidate(out, report_outputs(ds))                  # nessun rapporto breve di un'esecuzione precedente
     summ = load_json(out / f"{ds}_manifests_summary.json")
     agg = load_json(out / f"{ds}_manifests_aggregate.json")

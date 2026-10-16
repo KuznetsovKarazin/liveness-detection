@@ -43,6 +43,8 @@ sys.path.insert(0, str(ROOT / "scripts"))
 # check_export_m2_rgb.py ne verifica l'identità con gli originali nel repository di sviluppo
 from export_helpers import (completeness_problems, env_versions, fill_run_id, hardware_line, local_imports, redact,  # noqa: E402
                             run, scan, sha256, tests_line, write_sums)
+from package_rules import local_patterns_problem  # noqa: E402
+import path_guard  # noqa: E402
 from rgb_manifests import AUTHORISATION_NOTE  # noqa: E402
 
 PY = sys.executable
@@ -55,7 +57,7 @@ REVIEW_LINE = "not yet reviewed (first delivery of this tranche)."
 RUN_ID_RX = re.compile(r"^\d{8}-M2-rgb-[A-Za-z0-9._-]+$")
 STRICT_PATHS = ["scripts", "src", "delivery", "requirements*.txt"]
 READ_ONLY = ["results/c1", "results/eval", "results/m1", "results/m2", "models", "data"]
-# requirements-windows.txt non serve: nessun comando di questa tranche è specifico di Windows (solo requirements.txt)
+# solo requirements.txt: nessun comando ne usa altri
 CODE = ["requirements.txt", "src/tesi_app/__init__.py", "src/tesi_app/paths.py",
         "scripts/rgb_manifests.py", "scripts/check_rgb_manifests.py", "scripts/nuaa_manifests.py", "scripts/select_threshold.py",
         "scripts/package_rules.py", "delivery/m2/rgb/casia_fasd_overlap_rules.json", "delivery/m2/rgb/celeba_spoof_overlap_rules.json",
@@ -64,7 +66,9 @@ CODE = ["requirements.txt", "src/tesi_app/__init__.py", "src/tesi_app/paths.py",
         "scripts/m2_inventory/common.py", "scripts/m2_inventory/casia_inventory.py", "scripts/m2_inventory/celeba_inventory.py",
         "scripts/m2_inventory/splits_inventory.py", "scripts/m2_inventory/checkpoints_inventory.py", "scripts/m2_inventory/run_all.py",
         # export, suoi test e controllo delle mutazioni, da rieseguire dal pacchetto pubblico (richiesta del coordinatore)
-        "scripts/export_m2_rgb.py", "scripts/export_helpers.py", "scripts/check_export_m2_rgb.py", "scripts/check_rgb_mutations.py"]
+        "scripts/export_m2_rgb.py", "scripts/export_helpers.py", "scripts/check_export_m2_rgb.py", "scripts/check_rgb_mutations.py",
+        # protezione delle cartelle da cancellare, comune agli export (16/10/2026)
+        "scripts/path_guard.py"]
 PUBLIC_DOCS = ["naming_schema_rgb.md", "transformations_rgb.md", "casia_fasd_overlap_rules.json", "celeba_spoof_overlap_rules.json"]
 # per dataset: uscita di rgb_manifests.py in <m2>/<dataset>/ -> nome nel pacchetto pubblico
 PUBLIC_RESULTS = {"{ds}_manifests_aggregate.json": "{ds}_manifests_aggregate.json",
@@ -215,6 +219,39 @@ def artefact_problems(folder: Path, ds: str, commit: str) -> list:
     return problems
 
 
+# ----------------------------------------------------------------------------- protezione dei percorsi
+# Cartelle che l'export non deve mai cancellare né sovrascrivere, né contenere in una cartella da cancellare
+# (correzione del 16/10/2026: un --m2 antenato di una cartella protetta, per esempio results/ o la radice del
+# repository, passava il controllo; poi il confronto per identità dei file, perché su un filesystem che non distingue le
+# maiuscole una grafia diversa dello stesso percorso passava un confronto fra stringhe). La logica è in path_guard.py.
+PROTECTED = [x for x in path_guard.BASE_PROTECTED if x != "results/m2_rgb"]
+
+
+def allowed_folders(run_id: str, root: Path = None) -> list:
+    """Le sole cartelle del repository che questo export ricrea: results/m2_rgb, il pacchetto pubblico della tranche e la
+    cartella riservata del run se non esiste già o è di una prova (-trial): un run consegnato non si riscrive."""
+    root = Path(root if root is not None else ROOT)        # ROOT letto alla chiamata (i test usano un albero finto)
+    run_dir = root / "export" / "drive" / "02_Experiments" / "M2" / run_id
+    allowed = [root / "results" / "m2_rgb", root / "export" / "research" / PUBLIC_NAME]
+    if run_id and (not run_dir.exists() or run_id.endswith("-trial")):
+        allowed.append(run_dir)
+    return allowed
+
+
+def deletion_problem(path, run_id: str, root: Path = None, home: Path = None) -> str:
+    """Motivo per cui una cartella non si può cancellare o riscrivere ("" se si può), con le regole di path_guard.py."""
+    root = root if root is not None else ROOT
+    return path_guard.deletion_problem(path, root, PROTECTED, allowed_folders(run_id, root), home)
+
+
+def safe_rmtree(path, run_id: str) -> None:
+    """Cancella una cartella dell'export solo dopo il controllo di deletion_problem (subito prima della cancellazione)."""
+    msg = deletion_problem(path, run_id)
+    if msg:
+        raise SystemExit(f"ERROR: refusing to delete: {msg}")
+    shutil.rmtree(path, ignore_errors=True)
+
+
 def nuaa_package_problem(root: Path) -> str:
     """Il pacchetto pubblico NUAA serve per confrontare i file condivisi; con --strict la sua assenza ferma l'export."""
     if not (Path(root) / "export" / "research" / "m2-nuaa-manifests" / "SHA256SUMS").is_file():
@@ -362,6 +399,9 @@ def main() -> int:
     ap.add_argument("--uploaded-on", default=None, help="data del caricamento, AAAA-MM-GG (con --uploaded-run)")
     ap.add_argument("--uploaded-sums", default=None, help="SHA256SUMS della cartella riservata caricata (sola lettura)")
     a = ap.parse_args()
+    # i modelli della scansione legati alla macchina stanno in un file locale mai pubblicato: senza, niente export --strict
+    if a.strict and (msg := local_patterns_problem()):
+        print(f"ERROR: strict mode: {msg}", file=sys.stderr); return 1
     up = (a.uploaded_run, a.uploaded_on, a.uploaded_sums)
     if any(up) and not all(up):
         print("ERROR: --uploaded-run, --uploaded-on and --uploaded-sums go together", file=sys.stderr); return 1
@@ -371,9 +411,11 @@ def main() -> int:
               file=sys.stderr)
         return 1
     out, m2 = Path(a.out).resolve(), Path(a.m2).resolve()
-    for ro in READ_ONLY:
-        if m2 == (ROOT / ro).resolve() or (ROOT / ro).resolve() in m2.parents:
+    for ro in READ_ONLY:                                 # per identità dei file, non per stringhe (path_guard.within)
+        if (ROOT / ro).exists() and path_guard.within(m2, ROOT / ro):
             print(f"ERROR: --m2 {rel(m2)} is inside the read-only area {ro}", file=sys.stderr); return 1
+    if msg := deletion_problem(m2, a.run_id or ""):
+        print(f"ERROR: --m2 cannot be regenerated: {msg}", file=sys.stderr); return 1
     commit = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True).stdout.strip() or "n/d"
     run_id = a.run_id or f"{today()}-M2-rgb-seed42-{commit[:7]}"
     dirty = bool(subprocess.run(["git", "status", "--porcelain"], cwd=ROOT, capture_output=True, text=True).stdout.strip())
@@ -382,6 +424,9 @@ def main() -> int:
         print(f"ERROR: invalid run-id {run_id!r} (expected YYYYMMDD-M2-rgb-...)", file=sys.stderr); return 1
     repo = out / "research" / PUBLIC_NAME
     d = out / "drive" / "02_Experiments" / "M2" / run_id
+    for what, p in (("--m2", m2), ("public folder", repo), ("restricted run folder", d)):   # tutte le cartelle che l'export ricrea
+        if msg := deletion_problem(p, run_id):
+            print(f"ERROR: {what} cannot be written: {msg}", file=sys.stderr); return 1
     inputs = {"README template": DELIV / "README.md", "run report template": DELIV / "run-report.md.tmpl",
               **{f"document {n}": DELIV / n for n in PUBLIC_DOCS + RESTRICTED_DOCS}, **{f"code {c}": ROOT / c for c in CODE}}
     if a.dry_run:
@@ -407,7 +452,7 @@ def main() -> int:
 
     # 1) rigenerazione e test
     print(f"1) regenerate {rel(m2)} at commit {commit[:7]}", flush=True)
-    shutil.rmtree(m2, ignore_errors=True)
+    safe_rmtree(m2, run_id)
     steps = []
     for ds in DATASETS:
         man = m2 / ds / "manifests"
@@ -458,7 +503,7 @@ def main() -> int:
 
     # 2) parte pubblica
     print("2) public folder", flush=True)
-    shutil.rmtree(repo, ignore_errors=True); shutil.rmtree(d, ignore_errors=True)
+    safe_rmtree(repo, run_id); safe_rmtree(d, run_id)
     repo.mkdir(parents=True); d.mkdir(parents=True)
     for n in PUBLIC_DOCS:
         shutil.copy2(DELIV / n, repo / n)
@@ -484,6 +529,8 @@ def main() -> int:
     (repo / "README.md").write_text(readme.replace("{commit}", commit[:7]).replace("{run_id}", run_id)
                                     .replace("{delivery_status}", status), encoding="utf-8")
     with tempfile.TemporaryDirectory(prefix="m2-rgb-package-") as tmp:
+        if msg := deletion_problem(tmp, run_id):             # cartella di lavoro temporanea, cancellata all'uscita
+            raise SystemExit(f"ERROR: refusing the temporary folder: {msg}")
         work = Path(tmp) / "livenesslab"
         shutil.copytree(code_root, work)
         env = {**os.environ, "LIVENESSLAB_DATA_DIR": str(Path(tmp) / "data"), "LIVENESSLAB_RESULTS_DIR": str(Path(tmp) / "results"),

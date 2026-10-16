@@ -8,10 +8,12 @@ ricerca di record per soggetto, video o immagine nella parte pubblica e file con
   .venv/bin/python scripts/check_export_m2_rgb.py            # uscita 1 se un test fallisce
 """
 import argparse
+import contextlib
 import importlib.util
 import io
 import os
 import re
+import shutil
 import string
 import sys
 import tempfile
@@ -151,10 +153,21 @@ class TestLists(unittest.TestCase):
         if (EX.DELIV / "run-report.md.tmpl").is_file():
             self.assertIn("{tree_line}", (EX.DELIV / "run-report.md.tmpl").read_text(encoding="utf-8"))
         self.assertTrue(re.fullmatch(r"\d{8}", EX.today()))
-        self.assertNotIn("requirements-windows.txt", EX.CODE)
+        self.assertEqual([c for c in EX.CODE if c.startswith("requirements")], ["requirements.txt"])
         # gli script dell'inventario pubblicato sulla scheda sono nel pacchetto (promessi per questa PR)
         self.assertEqual({c for c in EX.CODE if c.startswith("scripts/m2_inventory/")},
                          {f"scripts/m2_inventory/{p.name}" for p in (ROOT / "scripts" / "m2_inventory").glob("*.py")})
+
+    def test_local_patterns_file_is_never_exported(self):
+        import subprocess
+        self.assertFalse([c for c in EX.CODE + EX.PUBLIC_DOCS + EX.RESTRICTED_DOCS if c.startswith("config/") or "local_scan_patterns" in c])
+        with tempfile.TemporaryDirectory() as d:
+            env = {**os.environ, "LIVENESSLAB_LOCAL_SCAN_PATTERNS": str(Path(d) / "absent.json")}
+            r = subprocess.run([sys.executable, str(SCRIPT), "--strict", "--dry-run", "--out", str(Path(d) / "out")], cwd=ROOT,
+                               capture_output=True, text=True, env=env)
+            self.assertEqual(r.returncode, 1)                  # export --strict senza il file locale: rifiutato
+            self.assertIn("local scan patterns file", r.stderr)
+            self.assertFalse((Path(d) / "out").exists())
 
     def test_stale_or_invalid_artefacts_are_refused(self):
         import json
@@ -273,9 +286,19 @@ class TestLists(unittest.TestCase):
                 node.body = node.body[1:]
             return ast.dump(node)
         for mod, names in ((mods["m2"], ("sha256", "run", "tests_line", "scan", "completeness_problems", "fill_run_id", "hardware_line")),
-                           (mods["m1"], ("write_sums", "redact", "env_versions", "local_imports"))):
+                           (mods["m1"], ("write_sums", "redact", "local_imports"))):
             for n in names:
                 self.assertEqual(code(getattr(h, n)), code(getattr(mod, n)), n)
+        # unica differenza ammessa (16/10/2026): env_versions legge i file dell'ambiente con un glob invece di elencarli per
+        # nome; il resto della funzione è identico all'originale, che con quella sola sostituzione deve dare la copia
+        orig = textwrap.dedent(inspect.getsource(mods["m1"].env_versions))
+        loop = re.search(r"    for f in \(.*?\):\n        p = ROOT / f\n        if p.exists\(\):\n            (vs \|= .*?)\n", orig)
+        self.assertIsNotNone(loop, "env_versions of export_m1.py changed: update the allowed difference")
+        expected = orig.replace(loop.group(0), '    for p in sorted(ROOT.glob("requirements*.txt")):\n        ' + loop.group(1) + "\n")
+        expected_node = ast.parse(expected).body[0]
+        expected_node.body = expected_node.body[1:] if isinstance(expected_node.body[0], ast.Expr) else expected_node.body
+        self.assertEqual(code(h.env_versions), ast.dump(expected_node), "env_versions")
+        self.assertEqual(h.env_versions() >= mods["m1"].env_versions(), True)        # stesse versioni (e nessuna in meno)
         self.assertEqual(h.FORBIDDEN_EXT, mods["m1"].FORBIDDEN_EXT)
 
     def test_public_records(self):
@@ -304,6 +327,152 @@ class TestLists(unittest.TestCase):
             self.assertEqual(EX.sha256(ROOT / f), listed.get(sub), f)
 
 
+class TestPathGuard(unittest.TestCase):
+    """Nessuna cartella protetta, né un suo antenato, viene mai cancellata (difetto trovato dal coordinatore il 15/10:
+    --m2 accettava un antenato, per esempio results/ o la radice del repository). Solo cartelle temporanee: le
+    cancellazioni vere avvengono in un albero finto, e shutil.rmtree è intercettato nei test di main."""
+    RUN = "20261016-M2-rgb-seed42-abcdef0"
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        t = Path(self.tmp.name).resolve()
+        self.home, self.root = t / "home", t / "work" / "repo"            # repository fuori dalla home: controlli distinti
+        self.sentinels = []
+        for d in ("data", "models", "results/c1", "results/m1", "results/m2", "results/eval", "results/m2_rgb/casia_fasd", "docs",
+                  "scripts", ".git", "export/research/m2-nuaa-manifests", "export/research/m2-rgb-manifests",
+                  "export/drive/02_Experiments/M2/20261006-M2-seed42-36c677a", "export/drive/02_Experiments/M2/20261008-M2-rgb-seed42-532731e"):
+            (self.root / d).mkdir(parents=True)
+            if "m2_rgb" not in d and "m2-rgb-manifests" not in d:
+                (self.root / d / "SENTINEL").write_text("keep")
+                self.sentinels.append(self.root / d / "SENTINEL")
+        self.home.mkdir()
+        self.outside = t / "scratch"
+        self.outside.mkdir()
+        (t / "link_to_c1").symlink_to(self.root / "results" / "c1")
+        self.link = t / "link_to_c1"
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def problem(self, p, run=None):
+        return EX.deletion_problem(p, run or self.RUN, root=self.root, home=self.home)
+
+    def test_refused_and_allowed(self):
+        r = self.root
+        refused = {"repository root": r, "results (ancestor)": r / "results", "export (ancestor)": r / "export",
+                   "filesystem root": Path("/"), "home": self.home, "ancestor of home": self.home.parent,
+                   "baseline equal": r / "results" / "c1", "baseline descendant": r / "results" / "m1" / "x",
+                   "NUAA results": r / "results" / "m2", "data": r / "data", "models": r / "models", "docs": r / "docs",
+                   "scripts": r / "scripts", "git": r / ".git", "other tranche": r / "export" / "research" / "m2-nuaa-manifests",
+                   "accepted NUAA run": r / "export" / "drive" / "02_Experiments" / "M2" / "20261006-M2-seed42-36c677a",
+                   "delivered RGB run": r / "export" / "drive" / "02_Experiments" / "M2" / "20261008-M2-rgb-seed42-532731e",
+                   "relative with ..": r / "results" / "m2_rgb" / ".." / "c1", "symlink to a baseline": self.link,
+                   "other folder of the repository": r / "notes"}
+        for what, p in refused.items():
+            self.assertTrue(self.problem(p), what)
+        # il motivo dichiarato distingue i controlli (antenato del repository, antenato di una cartella protetta, home)
+        for p, why in ((r.parent, "repository root or one of its ancestors"), (r / "results", "contains the protected folder"),
+                       (r / "export", "contains the protected folder"), (self.home, "home folder"), (Path("/"), "filesystem root")):
+            self.assertIn(why, self.problem(p), str(p))
+        self.assertTrue(self.problem(r / "export" / "drive" / "02_Experiments" / "M2" / "20261008-M2-rgb-seed42-532731e",
+                                     run="20261008-M2-rgb-seed42-532731e"))        # un run consegnato non si riscrive
+        allowed = {"results/m2_rgb": r / "results" / "m2_rgb", "inside m2_rgb": r / "results" / "m2_rgb" / "casia_fasd",
+                   "public folder of this tranche": r / "export" / "research" / "m2-rgb-manifests",
+                   "new run folder": r / "export" / "drive" / "02_Experiments" / "M2" / self.RUN,
+                   "scratch outside the repository": self.outside / "m2"}
+        for what, p in allowed.items():
+            self.assertEqual(self.problem(p), "", what)
+        for p in list(refused.values()) + list(allowed.values()):         # cancellazione vera solo se ammessa, nell'albero finto
+            if not self.problem(p) and p.exists():
+                shutil.rmtree(p)
+        self.assertEqual([s for s in self.sentinels if not s.is_file()], [])
+        self.assertFalse((r / "results" / "m2_rgb").exists())
+
+    def test_safe_rmtree_deletes_only_allowed_folders(self):
+        # path_guard.safe_rmtree sull'albero finto: rifiuta cartelle protette e antenati senza toccarli, cancella solo
+        # le cartelle ammesse (qui: results/m2_rgb e una cartella di scratch, entrambe temporanee)
+        sys.path.insert(0, str(ROOT / "scripts"))
+        import path_guard as G
+        r = self.root
+        prot, allowed = EX.PROTECTED, EX.allowed_folders(self.RUN, r)
+        for p in (r, r / "results", r / "results" / "c1", r / "export", self.home,
+                  r / "export" / "drive" / "02_Experiments" / "M2" / "20261008-M2-rgb-seed42-532731e"):
+            with self.assertRaises(SystemExit, msg=str(p)):
+                G.safe_rmtree(p, r, prot, allowed, self.home)
+            self.assertTrue(p.exists(), str(p))
+        self.assertEqual([x for x in self.sentinels if not x.is_file()], [])
+        (r / "results" / "m2_rgb" / "casia_fasd" / "old.json").write_text("{}")
+        (self.outside / "m2" / "x").mkdir(parents=True)
+        for p in (r / "results" / "m2_rgb", self.outside / "m2"):
+            G.safe_rmtree(p, r, prot, allowed, self.home)
+            self.assertFalse(p.exists(), str(p))
+        self.assertEqual([x for x in self.sentinels if not x.is_file()], [])
+
+    @staticmethod
+    def case_insensitive(p: Path) -> bool:
+        return str(p).swapcase() != str(p) and os.path.exists(str(p).swapcase())
+
+    def test_other_spellings_of_the_same_folder(self):
+        # filesystem che non distingue le maiuscole (macOS): una grafia diversa è la stessa cartella e va rifiutata
+        r = self.root
+        if not self.case_insensitive(r):
+            self.skipTest("case-sensitive filesystem: other spellings are different folders")
+        sw = lambda p: Path(str(p).swapcase())                              # noqa: E731
+        low = lambda p: Path(str(p).lower())                                # noqa: E731
+        for p in (sw(r), low(r), sw(r / "results"), low(r / "results"), sw(r / "results" / "c1"), sw(self.home),
+                  sw(r / "export" / "drive" / "02_Experiments" / "M2" / "20261006-M2-seed42-36c677a"),
+                  sw(r / "results" / "c1" / "not-yet-there"), sw(r / "notes" / "new")):
+            self.assertTrue(self.problem(p), str(p))
+        for p in (sw(r / "results" / "m2_rgb"), sw(r / "results" / "m2_rgb" / "new"),
+                  sw(r / "export" / "drive" / "02_Experiments" / "M2" / self.RUN), sw(self.outside / "m2")):
+            self.assertEqual(self.problem(p), "", str(p))                   # cartelle ammesse anche con un'altra grafia
+        self.assertIn("repository root", self.problem(sw(r)))
+        self.assertIn("contains the protected folder", self.problem(sw(r / "results")))
+
+    def test_main_never_deletes_a_protected_folder(self):
+        calls = []
+        saved = (EX.shutil.rmtree, EX.run, sys.argv)
+        EX.shutil.rmtree = lambda *a, **k: calls.append(a)
+
+        def no_run(*a, **k):                                                 # nessun passo dell'export deve partire
+            raise AssertionError("an export step was started: " + " ".join(str(x) for x in a[1:3]))
+        EX.run = no_run
+        real_link = self.outside / "link_to_real_c1"                          # collegamento a una cartella protetta vera
+        real_link.symlink_to(ROOT / "results" / "c1")
+        try:
+            bad = [str(ROOT / "results"), str(ROOT), "/", str(Path.home()), str(ROOT / "results" / "m2_rgb" / ".." / "c1"),
+                   str(real_link), str(ROOT / "results" / "c1"), str(ROOT / "docs")]
+            if self.case_insensitive(ROOT):                                   # altre grafie della radice e di results/
+                bad += [str(ROOT).lower(), str(ROOT).swapcase(), str(ROOT / "results").lower(), str(ROOT / "results").upper()]
+            for m2 in bad:
+                sys.argv = ["export_m2_rgb.py", "--trial", "--run-id", self.RUN, "--m2", m2, "--out", str(self.outside / "out")]
+                err = io.StringIO()
+                with contextlib.redirect_stderr(err), contextlib.redirect_stdout(io.StringIO()):
+                    rc = EX.main()
+                self.assertEqual(rc, 1, m2)
+                self.assertTrue("cannot be" in err.getvalue() or "read-only area" in err.getvalue(), (m2, err.getvalue()))
+            for out in (str(ROOT / "results"), str(ROOT / "scripts")):        # --out che porterebbe a scrivere in aree protette
+                sys.argv = ["export_m2_rgb.py", "--trial", "--run-id", self.RUN, "--m2", str(self.outside / "m2"), "--out", out]
+                err = io.StringIO()
+                with contextlib.redirect_stderr(err), contextlib.redirect_stdout(io.StringIO()):
+                    self.assertEqual(EX.main(), 1, out)
+                self.assertIn("cannot be written", err.getvalue())
+            sys.argv = ["export_m2_rgb.py", "--trial", "--run-id", self.RUN, "--dry-run", "--m2", str(self.outside / "m2"), "--out", str(self.outside / "out")]
+            err = io.StringIO()
+            with contextlib.redirect_stderr(err), contextlib.redirect_stdout(io.StringIO()):
+                EX.main()
+            self.assertNotIn("cannot be", err.getvalue())                    # cartelle di scratch: ammesse
+            with self.assertRaises(SystemExit):
+                EX.safe_rmtree(ROOT / "results", self.RUN)                   # controllo anche subito prima di cancellare
+            with self.assertRaises(SystemExit):
+                EX.safe_rmtree(ROOT, self.RUN)
+            self.assertEqual(calls, [])
+            EX.safe_rmtree(self.outside / "m2", self.RUN)
+            self.assertEqual(len(calls), 1)
+        finally:
+            EX.shutil.rmtree, EX.run, sys.argv = saved
+
+
 class TestHelpers(unittest.TestCase):
     """Comportamento delle funzioni di export_helpers.py su cartelle sintetiche (gira anche dal pacchetto pubblico). I
     testi vietati sono costruiti a run time, così il sorgente pubblico resta pulito."""
@@ -328,8 +497,10 @@ class TestHelpers(unittest.TestCase):
         cases = {"absolute path": ("p.md", ("see /" + "Users/someone/file").encode()),
                  "forbidden file type": ("x" + ".npz", b"plain text"),         # contenuto testuale: lo ferma solo l'estensione
                  "IP address": ("ip.txt", ("host " + ".".join(["10", "1", "2", "3"])).encode()),
-                 "unfinished-work marker": ("m.md", ("open: T" + "BD").encode()),
-                 "tool reference": ("t.md", ("made with " + "Cl" + "aude").encode())}
+                 "unfinished-work marker": ("m.md", ("open: T" + "BD").encode())}
+        import package_rules
+        if package_rules.TOOL_WORDS:                            # nome di uno strumento, dal file locale (assente nel pacchetto)
+            cases["tool reference"] = ("t.md", ("made with " + package_rules.TOOL_WORDS[0].title()).encode())
         for what, (name, content) in cases.items():
             found = self.scan_one(name, content)
             self.assertTrue(found, what)
@@ -381,7 +552,7 @@ def main() -> int:
     ap = argparse.ArgumentParser(description="Test offline di export_m2_rgb.py")
     ap.add_argument("--verbose", action="store_true")
     args = ap.parse_args()
-    suite = unittest.TestSuite(unittest.defaultTestLoader.loadTestsFromTestCase(c) for c in (TestLists, TestHelpers))
+    suite = unittest.TestSuite(unittest.defaultTestLoader.loadTestsFromTestCase(c) for c in (TestLists, TestPathGuard, TestHelpers))
     log = io.StringIO()
     result = unittest.TextTestRunner(stream=log, verbosity=2).run(suite)
     if args.verbose or not result.wasSuccessful():
