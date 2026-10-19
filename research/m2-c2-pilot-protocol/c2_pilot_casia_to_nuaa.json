@@ -1,0 +1,263 @@
+{
+ "schema": "c2-pilot-config/draft-1",
+ "status": "DRAFT for review: not executed; no download, training or inference has been performed for C2",
+ "task": "C2 pilot (protocol prepared under the M2 card)",
+ "run_id_pattern": "YYYYMMDD-C2-seed42-<shortcommit>",
+ "drive_folder_pattern": "02_Experiments/C2/<run-id>/ (created and shared by the coordinator)",
+ "code_commit": "<COMMIT>",
+ "direction": {
+  "source": "casia_fasd",
+  "target": "nuaa"
+ },
+ "deferred": [
+  "nuaa -> casia_fasd (reverse direction)",
+  "celeba_spoof (target)",
+  "further seeds"
+ ],
+ "seed": 42,
+ "seed_scope": "random, numpy and tensorflow seeds (split reproduction, shuffling, weight initialisation, augmentation); Metal GPU kernels are not guaranteed deterministic",
+ "models": [
+  {
+   "id": "livenessnet__casia_fasd_c2",
+   "arch": "LivenessNet"
+  },
+  {
+   "id": "attacknet_v2_2__casia_fasd_c2",
+   "arch": "AttackNetV2_2"
+  }
+ ],
+ "checkpoints": {
+  "proposed": "new training (open decision D-1)",
+  "alternative_not_recommended": {
+   "LivenessNet__casia_fasd.h5": "38152229e814638fa1dbe991fbd2138557a3b91bb465299059c7f3df5e88ca81",
+   "AttackNetV2_2__casia_fasd.h5": "1b3ba1700505ab14fb180115b0f91d11ecd8bfffc43f886c318f427c6d62366a"
+  },
+  "excluded_pooled": {
+   "LivenessNet__casia_fasd-pooled.h5": "c7cb5bf8aa8ca854fbe6d19edfb03371d555497983cf261f264f5ccd2e10dfc0",
+   "AttackNetV2_2__casia_fasd-pooled.h5": "4e6ab99ace1ed6a68dbc389ce0b6bd8406524a07f37f425e36b6d88fa58aeac0",
+   "reason": "per-frame random split of train + test: all 50 subjects on both sides, 235 of the 300 CASIA evaluation images in fitting or early stopping (M2 rules C15, C16)"
+  },
+  "output_dir": "<restricted run folder>/checkpoints (never models/weights: the existing cards and weights must not be overwritten)",
+  "reason_source_side_only": "existing weights: pre-repository script; seed 42 only for split and shuffling (initialisation not seeded); best epoch not recorded; best weights restored only when early stopping fired (models/weights/PROVENANCE.md, card notes)",
+  "pre_commitment": "new models reported whatever the outcome (flagged non-informative if degenerate); no retraining, hyper-parameter or criterion change after seeing dev, test or target scores"
+ },
+ "budget": {
+  "max_epochs": 12,
+  "batch": 16,
+  "learning_rate": 0.001,
+  "optimizer": "Adam (legacy), clipnorm 1.0",
+  "trainings": 2,
+  "inference_passes": "per model: score --set dev, then select (threshold.json), then score --set source_test,target (refused without threshold.json), then apply",
+  "wall_time_cap_minutes": 120,
+  "on_cap_exceeded": "stop, no results; report as a failed run",
+  "epochs_argument": "--epochs 12 (limit of the existing cards; script default 10)",
+  "hyper_parameters_origin": "those of scripts/train_cnn.py used for the 12 September 2026 trainings (optimizer, loss and early stopping from the reference configuration), fixed before C1; not chosen on NUAA or C2 data"
+ },
+ "manifests": {
+  "source_train": {
+   "name": "casia_fasd/cnn_train",
+   "file": "casia_cnn_train.csv",
+   "rows": 1339,
+   "n_bona_fide": 333,
+   "n_attack": 1006,
+   "n_subjects": 16,
+   "n_videos": 192,
+   "sha256": "a1d5ec4c1fea5c2fa854fe780fff53d9e61fa6e2a29f74ca95bee1f58c8a195d"
+  },
+  "source_dev": {
+   "name": "casia_fasd/cnn_es",
+   "file": "casia_cnn_early_stopping.csv",
+   "rows": 316,
+   "n_bona_fide": 71,
+   "n_attack": 245,
+   "n_subjects": 4,
+   "n_videos": 48,
+   "sha256": "3d6b601dd8a3d38f7dcea37f6b1cdbcde555d88b6b3164cbbc269f6cfb9c8d39"
+  },
+  "source_test": {
+   "name": "casia_fasd/cnn_test",
+   "file": "casia_cnn_test.csv",
+   "rows": 2091,
+   "n_bona_fide": 591,
+   "n_attack": 1500,
+   "n_subjects": 30,
+   "n_videos": 360,
+   "sha256": "20b6915145fb2dfa490b80e5ff8128ed05a86eef3298ce18bd4501b291ec304a"
+  },
+  "target_test": {
+   "name": "nuaa/cnn_test",
+   "file": "nuaa_cnn_test.csv",
+   "rows": 3000,
+   "n_bona_fide": 1500,
+   "n_attack": 1500,
+   "n_subjects": 16,
+   "sha256": "ce9669dccae37041e778ff7bcba5f4cef08fa79f50d65be84806b084c5d95748",
+   "alternative": {
+    "name": "nuaa/official_test",
+    "rows": 9123,
+    "sha256": "2fad23ff295cb2c1d3d0be238deef02faad252aa717933c30588bd5a9c4106c7"
+   }
+  },
+  "refused_anywhere_in_selection": [
+   "casia_fasd/cnn_test",
+   "casia_fasd/mirror_test",
+   "nuaa/*"
+  ],
+  "rules_files": {
+   "casia_fasd_overlap_rules.json": "54288b13796b126c3c54aad6698356676fef6ec89e28cc522b9b5edc12b83512",
+   "nuaa_overlap_rules.json": "c6825d1c6e9e49d6b22dccbda4445312397c227e1052d3df7a726dbd3f4a9c34"
+  },
+  "restricted_sources": {
+   "casia_fasd": "02_Experiments/M2/20261019-M2-rgb-seed42-cbcda11/casia_fasd/manifests/",
+   "nuaa": "02_Experiments/M2/20261006-M2-seed42-36c677a/manifests/"
+  }
+ },
+ "derived_frames": {
+  "source": {
+   "file": "casia_fasd_1500.npz",
+   "sha256": "7d0a2b22146375bc4e629a430f0f5a161655d56ca26bb62a5e160cbff58bf5a6",
+   "X_train": 1655,
+   "X_test": 2091
+  },
+  "target": {
+   "file": "nuaa_1500.npz",
+   "sha256": "dc286dc371e61d638da1842c062a38c5368a9ec4da07ccbc36b7fff6f3177920",
+   "X_test": 3000
+  },
+  "linkage": "frames linked to manifest rows by sampling order and label/group arrays, checked against the manifests before use"
+ },
+ "preprocessing": {
+  "face_crop": "RetinaFace (OpenCV DNN, confidence >= 0.6, box >= 16 px), Haar cascade fallback, whole image if both fail; margin 0.15, square",
+  "resize": "256 x 256, cv2.INTER_AREA",
+  "colour": "BGR -> RGB",
+  "enhancement": "per-image: bilateral filter (9, 75, 75), CLAHE on L (3.0, 8x8), unsharp masking (sigma 2.0, 1.5/-0.5), gamma 1.2, convertScaleAbs(1.1, 5)",
+  "normalisation": "pixel / 255; no dataset-level statistic",
+  "batch_norm": "inference with training=False: moving statistics from source fitting only",
+  "augmentation": "source fitting frames only: flip, rotation 0.03, zoom 0.12, translation 0.06, brightness 0.15, contrast 0.2, Gaussian noise 0.02; shuffle buffer 4096, seed 42",
+  "same_for_source_and_target": true,
+  "detector_fallback": "not recorded in the caches; rate per dataset measured by the check step"
+ },
+ "training": {
+  "split": "fitting = source_train, early stopping = source_dev (GroupShuffleSplit(n_splits=1, test_size=0.2, random_state=42) on the local subject number of train_img; must reproduce the two manifests exactly, otherwise FAIL)",
+  "class_weight": "balanced on the fitting frames",
+  "early_stopping": "val_loss on source_dev, patience 4, best weights restored (also when the epoch limit is reached)",
+  "lr_schedule": "ReduceLROnPlateau on source_dev val_loss, factor 0.5, patience 2, min 1e-6",
+  "checkpoint_selection": "the restored best-val_loss epoch on source_dev; no other selection",
+  "test_evaluation_during_training": "disabled (card without test field): no source-test result before the threshold is frozen",
+  "device": "Metal GPU (not deterministic; evidence = saved weights SHA-256)"
+ },
+ "threshold": {
+  "set": "source_dev only",
+  "criterion": "eer",
+  "rule": "candidates = distinct dev scores plus nextafter(min, -inf) if >= 0; attack if score > value (tie = bona fide); eer: min |fp*n_attack - fn*n_bona_fide| on integers, ties -> highest value",
+  "alternative_documented_not_used": "apcer10",
+  "dev_reuse_declared": "source_dev drives early stopping, learning-rate reduction, best-epoch restore and the threshold",
+  "frozen_before_test": "threshold.json written by select from dev scores before any source-test or target scoring; its SHA-256 is recorded by score before test scoring and checked unchanged by apply",
+  "applied_unchanged_to": [
+   "source_test",
+   "target_test"
+  ],
+  "also_reported": "fixed threshold 0.5, labelled as such",
+  "selection_code": "generic functions of scripts/select_threshold.py imported unchanged (threshold_counts, candidate_thresholds, select_threshold)",
+  "unit": "frame / image"
+ },
+ "evaluations": [
+  {
+   "id": "E1",
+   "model": "livenessnet__casia_fasd_c2",
+   "set": "source_test"
+  },
+  {
+   "id": "E2",
+   "model": "attacknet_v2_2__casia_fasd_c2",
+   "set": "source_test"
+  },
+  {
+   "id": "E3",
+   "model": "livenessnet__casia_fasd_c2",
+   "set": "target_test"
+  },
+  {
+   "id": "E4",
+   "model": "attacknet_v2_2__casia_fasd_c2",
+   "set": "target_test"
+  }
+ ],
+ "metrics": {
+  "score": "probability of attack in [0, 1]; label 0 bona fide, 1 attack",
+  "primary": [
+   "APCER = accepted attacks / n_attack, pooled over all attacks (group convention)",
+   "BPCER = rejected bona fide / n_bona_fide",
+   "ACER = (APCER + BPCER) / 2 when both are defined (group convention)"
+  ],
+  "always_with": [
+   "n",
+   "n_bona_fide",
+   "n_attack",
+   "accepted_attacks",
+   "rejected_bona_fide",
+   "ties_at_threshold",
+   "n_subjects_bona_fide",
+   "n_subjects_attack"
+  ],
+  "descriptive": [
+   "AUC",
+   "EER (full ROC, information only)",
+   "BPCER@APCER10 (metric definition of M1)"
+  ],
+  "missing_class": "null with counts, never 0",
+  "unit_primary": "frame / still image",
+  "per_attack_type": "ISO/IEC 30107-3 per-PAI-species APCER with metrics_by_attack_type; NUAA: print only (equal to pooled APCER); CASIA-FASD: token mapping of the Idiap bob.db.casia_fasd interface (v2.0.9, get_type: 3, 4, HR_2 warped; 5, 6, HR_3 cut; 7, 8, HR_4 video), consistent with the three attack types of Zhang et al., ICB 2012 [DOC-EXT]; assumed to hold for the mirror's file names; labelled",
+  "uncertainty": "none: single seed, single split; no frame-level binomial interval (frames not independent); subject-level dispersion in the restricted output only"
+ },
+ "outputs": {
+  "restricted": [
+   "scores_E1..E4.csv and dev scores (research/templates/score-schema.json fields)",
+   "checkpoints and cards",
+   "training logs",
+   "subject-level dispersion",
+   "copy of run-report.md",
+   "SHA256SUMS"
+  ],
+  "public": [
+   "code and this configuration with its SHA-256",
+   "threshold.json (values, aggregate dev counts, SHA-256; no identifier; as for M1)",
+   "aggregate table E1-E4 with denominators and subject counts",
+   "run-report.md",
+   "SHA256SUMS"
+  ]
+ },
+ "environment": {
+  "python": "3.11.16",
+  "tensorflow": "2.15.0",
+  "tensorflow-metal": "1.1.0",
+  "keras": "2.15.0",
+  "numpy": "1.26.4",
+  "scikit-learn": "1.3.2",
+  "cv2_at_import": "4.11.0",
+  "opencv_packages_installed": {
+   "opencv-python": "4.8.1.78",
+   "opencv-contrib-python": "4.11.0.86",
+   "opencv-python-headless": "4.11.0.86"
+  },
+  "source": "pip_freeze.txt of run 20261019-M2-rgb-seed42-cbcda11; lock of the C2 run saved in its restricted folder"
+ },
+ "run_report": "compiled from research/templates/run-report.md at run time",
+ "scoring": {
+  "device": "CPU",
+  "batch_norm": "training=False",
+  "float_format": "round-trip (repr)",
+  "recomputation": "apply recomputes every number from the score files"
+ },
+ "open_decisions": {
+  "D-1": "new training (proposed) or existing official checkpoints",
+  "D-3": "NUAA cnn_test 3,000 (proposed) or official test 9,123",
+  "D-4": "NUAA mirror copy accepted in M2 (proposed) or official release; CASIA-FASD agreement in place before the run"
+ },
+ "known_before_protocol_not_used_for_any_choice": [
+  "card metrics of the existing CASIA-FASD checkpoints on the CASIA-FASD test (incl. EER 0.4504 and 0.6184)",
+  "C1 NUAA table (300 images), including the pooled CASIA-FASD rows",
+  "local evaluation of 25 September 2026 on the 300 CASIA-FASD evaluation images",
+  "evaluations of the same weights on CelebA-Spoof, SynthASpoof and the sample set (September 2026, outside the C1 package)"
+ ]
+}
