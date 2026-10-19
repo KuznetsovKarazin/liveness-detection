@@ -29,25 +29,27 @@ SHA-256 or stop.
 **Which NUAA test, and why.** `cnn_test`, 3,000 images (1,500 + 1,500), `spread(official test, 1500)` per class: (1)
 manifest, rule R13 and derived frames (`nuaa_1500.npz`, 3,000 distinct frames) accepted in M2 [ACCEPTED]; the frames
 were made by the same preprocessing function as the CASIA-FASD cache [DECLARED: `transformations.md`], so no target
-image is preprocessed again; (2) same 16 subjects as the full test (9,123): more images, not more independent units;
-(3) balanced classes; (4) no CASIA-FASD file or derived frame equals a NUAA one [VER-LOCAL]; (5) C1 ⊂ this set (R10)
-[ACCEPTED] and is only read. The C1 set (300) is not proposed: frozen baseline, too small. Decision D-3.
+image is preprocessed again; (2) same 16 subjects as the full test (9,123): more images, not more independent units; (3)
+balanced classes; (4) no CASIA-FASD file or derived frame equals a NUAA one [VER-LOCAL]; (5) C1 ⊂ this set (R10)
+[ACCEPTED] and is only read. The C1 set (300) is not proposed: frozen baseline, too small. Decision D-3: `cnn_test`
+3,000, agreed by the reviewer on 19 October 2026.
 
 ## 2. Choices fixed before the run
 
 **Preprocessing (source and target alike, `scripts/train_cnn.py`).** RetinaFace crop (Haar cascade, then whole image
 as fallbacks), margin 0.15, square; 256 x 256 `INTER_AREA`; BGR → RGB; per-image enhancement of the reference code;
 pixels / 255. No dataset statistic; batch normalisation at scoring with `training=False` (source statistics only);
-augmentation on source fitting frames only. The detector used per image is not recorded in the caches; the `check`
-step of the run measures the fallback rate per dataset. The target is never used to fit, stop, calibrate, select or
-normalise.
+augmentation on source fitting frames only. The detector used per image is not recorded in the caches, so the
+historical fallback rate (Haar or whole image) is **not available** for this pilot; measuring it would need a new
+detection pass on the images, a separate measurement to be authorised.
+The target is never used to fit, stop, calibrate, select or normalise.
 
-**Checkpoints: new training proposed (D-1).** Reasons, source-side provenance and reproducibility only
-(`models/weights/PROVENANCE.md`, card notes) [DECLARED]: the existing official CASIA-FASD weights come from a script
-older than the repository; seed 42 covered only split and shuffling (initialisation not seeded); the best epoch is not
-recorded; best weights were restored only when early stopping fired (LivenessNet stopped after 5 epochs with patience
-4, so its restored epoch would be epoch 1, a deduction). Their dev accuracy equals one class share (71/316 and
-245/316), consistent with, not proof of, a constant decision at 0.5; dev scores were never computed.
+**Checkpoints: new training (D-1, agreed by the reviewer on 19 October 2026).** Reasons, source-side provenance and
+reproducibility only (`models/weights/PROVENANCE.md`, card notes) [DECLARED]: the existing official CASIA-FASD weights
+come from a script older than the repository; seed 42 covered only split and shuffling (initialisation not seeded); the
+best epoch is not recorded; best weights were restored only when early stopping fired (LivenessNet stopped after 5
+epochs with patience 4, so its restored epoch would be epoch 1, a deduction). Their dev accuracy equals one class share
+(71/316 and 245/316), consistent with, not proof of, a constant decision at 0.5; dev scores were never computed.
 
 **Numbers known before this protocol, not used for any choice:** - card metrics on the CASIA-FASD test [DECLARED]:
 LivenessNet APCER 1.000, BPCER 0.000, EER 0.4504, AUC 0.550; AttackNet V2.2 APCER 0.000, BPCER 1.000, EER 0.6184, AUC
@@ -102,11 +104,20 @@ deterministic, so the evidence is the saved weights and scores; scoring on CPU.
 | E3 | LivenessNet | NUAA `cnn_test` 3,000 | NUAA cache `X_test` + manifest | `scores_E3.csv` |
 | E4 | AttackNet V2.2 | NUAA `cnn_test` 3,000 | same | `scores_E4.csv` |
 
-Plus dev scores (316 per model), in `research/templates/score-schema.json`, written with round-trip precision
-(`repr`).
+**Two phases of the score records** (fields of `research/templates/score-schema.json`, scores written with
+round-trip precision, `repr`):
+- *Before `select`*: `score --set dev` writes `raw_scores_dev.csv` (316 rows per model). No source-dev threshold
+  exists yet, so `threshold` and `prediction` are `null` (declared phase rule: the schema's `threshold` is the number
+  frozen from source dev, which does not exist before `select` and is written into records only by `apply`).
+  `select` reads only these records.
+- *After `select`*: `threshold.json` holds the frozen value per model. `score --set source_test,target` writes
+  `raw_scores_source_test.csv` and `raw_scores_target.csv`, also with `threshold` and `prediction` `null`. Only `apply`
+  writes the decision records `scores_E1.csv` … `scores_E4.csv` (and the dev at the frozen threshold, for reference),
+  with `threshold` = the frozen value and `prediction` = 1 iff `score_attack > threshold` (tie = bona fide). Results
+  at 0.5 appear only in the aggregate table, labelled, never in the `threshold` field.
 
 ```bash
-python scripts/c2_pilot.py check  --config c2_pilot_casia_to_nuaa.json     # manifests, caches, separation, detector
+python scripts/c2_pilot.py check  --config c2_pilot_casia_to_nuaa.json     # manifests, caches, splits; no detector
 python scripts/c2_pilot.py train  --config ... --epochs 12 --no-test-eval  # authorisation needed
 python scripts/c2_pilot.py score  --config ... --set dev                     # CPU; authorisation needed
 python scripts/c2_pilot.py select --config ...                               # dev scores only; writes threshold.json
@@ -129,10 +140,11 @@ session is not reusable: `session_of` returns `""` on CASIA-FASD names, so the n
 **pass silently**; it is replaced by refusal by key and SHA-256 of every test and NUAA row. Edge cases (ties, minimum
 0.0, constant scores, single-class dev, dev AUC < 0.5): the M1 hand-derived cases, as tests.
 
-**Failure behaviour.** `check` stops before any training or scoring with an explicit FAIL and no public output on any
-SHA-256, count or split mismatch, test or cross-dataset overlap, missing weights or pooled checkpoint; `score` and
-`apply` refuse incomplete scores or an edited `threshold.json`; outputs are atomic, deletions go through
-`path_guard.py`.
+**Failure behaviour.** `check` (before training: manifests, caches and splits only, no detector and no weights) stops
+with an explicit FAIL and no public output on any SHA-256, count or split mismatch, test or cross-dataset overlap, or a
+pooled checkpoint in the configuration. After `train` and before any `score`, the new weights are checked (file SHA-256
+against their card, card fields, restored epoch; existing or pooled weights refused); `score` and `apply` refuse
+incomplete scores or an edited `threshold.json`; outputs are atomic, deletions go through `path_guard.py`.
 
 **Cost (estimate).** From the cards [DECLARED], about 19 and 26 s per epoch on the training machine (Apple Silicon,
 Metal): at most about 4 + 5 minutes of training at 12 epochs, no preprocessing, CPU scoring of minutes; under 30
@@ -143,13 +155,13 @@ minutes.
 `SHA256SUMS`. Restricted (`02_Experiments/C2/<run-id>/`): per-frame scores, dev scores, weights and cards, logs,
 subject-level dispersion, copy of the run report.
 
-## Open decisions for the reviewer
+## Decisions
 
-- **D-1** New training (proposed) or the existing official checkpoints.
-- **D-3** NUAA target: `cnn_test` 3,000 (proposed) or the full official test 9,123 (6,123 images to preprocess).
-- **D-4** NUAA copy: the mirror copy accepted in M2 (proposed; the official release needs a new download, manifests
-  and preprocessing, outside the current perimeter); and the CASIA-FASD agreement (9 October 2026, to be signed through
-  the University) in place before the run.
+- **D-1** New training of both models, seed 42: agreed by the reviewer on 19 October 2026.
+- **D-3** NUAA target `cnn_test` 3,000: agreed by the reviewer on 19 October 2026.
+- **D-4** (open, followed by the coordinator in D1) NUAA copy: the mirror copy accepted in M2 (proposed; the official
+  release needs a new download, manifests and preprocessing, outside the current perimeter); and the CASIA-FASD
+  agreement (9 October 2026, to be signed through the University) in place before the run.
 
 ## Limits
 

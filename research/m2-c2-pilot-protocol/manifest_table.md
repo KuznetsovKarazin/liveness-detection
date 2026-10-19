@@ -29,7 +29,7 @@ NUAA manifests: restricted run `20261006-M2-seed42-36c677a`, status [VER-LOCAL] 
 | S2 | source dev (early stopping, threshold) | CASIA `cnn_es` | 316 (71 + 245) | 4 / 4 | 48 (12 + 36) |
 | S3 | source test | CASIA `cnn_test` | 2,091 (591 + 1,500) | 30 / 30 | 360 (90 + 270) |
 | S4 | (reference) source test, all frames | CASIA `mirror_test` | 2,408 (591 + 1,817) | 30 / 30 | 360 (90 + 270) |
-| T1 | target test (proposed) | NUAA `cnn_test` | 3,000 (1,500 + 1,500) | 9 / 15 | — |
+| T1 | target test (D-3, agreed) | NUAA `cnn_test` | 3,000 (1,500 + 1,500) | 9 / 15 | — |
 | T2 | (alternative) target, all images | NUAA `official_test` | 9,123 (3,362 + 5,761) | 9 / 15 | — |
 | T3 | (not proposed) C1 evaluation set | NUAA `c1` | 300 (150 + 150) | 9 / 15 | — |
 

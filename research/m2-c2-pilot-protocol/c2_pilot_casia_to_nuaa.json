@@ -27,7 +27,7 @@
   }
  ],
  "checkpoints": {
-  "proposed": "new training (open decision D-1)",
+  "proposed": "new training of both models, seed 42 (D-1, agreed by the reviewer on 19 October 2026)",
   "alternative_not_recommended": {
    "LivenessNet__casia_fasd.h5": "38152229e814638fa1dbe991fbd2138557a3b91bb465299059c7f3df5e88ca81",
    "AttackNetV2_2__casia_fasd.h5": "1b3ba1700505ab14fb180115b0f91d11ecd8bfffc43f886c318f427c6d62366a"
@@ -39,7 +39,8 @@
   },
   "output_dir": "<restricted run folder>/checkpoints (never models/weights: the existing cards and weights must not be overwritten)",
   "reason_source_side_only": "existing weights: pre-repository script; seed 42 only for split and shuffling (initialisation not seeded); best epoch not recorded; best weights restored only when early stopping fired (models/weights/PROVENANCE.md, card notes)",
-  "pre_commitment": "new models reported whatever the outcome (flagged non-informative if degenerate); no retraining, hyper-parameter or criterion change after seeing dev, test or target scores"
+  "pre_commitment": "new models reported whatever the outcome (flagged non-informative if degenerate); no retraining, hyper-parameter or criterion change after seeing dev, test or target scores",
+  "check_of_new_weights": "after train and before any score: file SHA-256 against the card, card fields, restored epoch; existing or pooled weights refused"
  },
  "budget": {
   "max_epochs": 12,
@@ -47,7 +48,7 @@
   "learning_rate": 0.001,
   "optimizer": "Adam (legacy), clipnorm 1.0",
   "trainings": 2,
-  "inference_passes": "per model: score --set dev, then select (threshold.json), then score --set source_test,target (refused without threshold.json), then apply",
+  "inference_passes": "per model: score --set dev (raw scores; threshold and prediction null), then select (threshold.json), then score --set source_test,target (raw scores; refused without threshold.json), then apply (decision records with the frozen threshold)",
   "wall_time_cap_minutes": 120,
   "on_cap_exceeded": "stop, no results; report as a failed run",
   "epochs_argument": "--epochs 12 (limit of the existing cards; script default 10)",
@@ -135,7 +136,7 @@
   "batch_norm": "inference with training=False: moving statistics from source fitting only",
   "augmentation": "source fitting frames only: flip, rotation 0.03, zoom 0.12, translation 0.06, brightness 0.15, contrast 0.2, Gaussian noise 0.02; shuffle buffer 4096, seed 42",
   "same_for_source_and_target": true,
-  "detector_fallback": "not recorded in the caches; rate per dataset measured by the check step"
+  "detector_fallback": "not available: the caches do not record the detector used per image; a new detection pass would be a separate measurement to be authorised"
  },
  "training": {
   "split": "fitting = source_train, early stopping = source_dev (GroupShuffleSplit(n_splits=1, test_size=0.2, random_state=42) on the local subject number of train_img; must reproduce the two manifests exactly, otherwise FAIL)",
@@ -212,7 +213,7 @@
  },
  "outputs": {
   "restricted": [
-   "scores_E1..E4.csv and dev scores (research/templates/score-schema.json fields)",
+   "raw_scores_dev.csv, raw_scores_source_test.csv, raw_scores_target.csv (threshold and prediction null) and decision records scores_E1..E4.csv written by apply (threshold = frozen value, prediction); research/templates/score-schema.json fields",
    "checkpoints and cards",
    "training logs",
    "subject-level dispersion",
@@ -249,15 +250,31 @@
   "float_format": "round-trip (repr)",
   "recomputation": "apply recomputes every number from the score files"
  },
- "open_decisions": {
-  "D-1": "new training (proposed) or existing official checkpoints",
-  "D-3": "NUAA cnn_test 3,000 (proposed) or official test 9,123",
-  "D-4": "NUAA mirror copy accepted in M2 (proposed) or official release; CASIA-FASD agreement in place before the run"
+ "decisions": {
+  "D-1": "agreed on 19 October 2026: new training",
+  "D-3": "agreed on 19 October 2026: NUAA cnn_test 3,000",
+  "D-4": "open (D1): NUAA mirror copy accepted in M2 (proposed) or official release; CASIA-FASD agreement in place before the run"
  },
  "known_before_protocol_not_used_for_any_choice": [
   "card metrics of the existing CASIA-FASD checkpoints on the CASIA-FASD test (incl. EER 0.4504 and 0.6184)",
   "C1 NUAA table (300 images), including the pooled CASIA-FASD rows",
   "local evaluation of 25 September 2026 on the 300 CASIA-FASD evaluation images",
   "evaluations of the same weights on CelebA-Spoof, SynthASpoof and the sample set (September 2026, outside the C1 package)"
- ]
+ ],
+ "score_records": {
+  "before_select": "score --set dev writes raw_scores_dev.csv: raw dev scores, threshold null, prediction null; select reads only these",
+  "schema_deviation": "before apply, threshold and prediction are null instead of the schema's number frozen from source dev; declared phase rule",
+  "after_select": "threshold.json frozen per model; score --set source_test,target writes raw_scores_source_test.csv and raw_scores_target.csv (threshold and prediction null); only apply writes the decision records scores_E1..E4.csv (and the dev for reference) with threshold = frozen value and prediction = 1 iff score_attack > threshold (tie = bona fide)",
+  "fixed_0_5": "aggregate table only, labelled; never in the threshold field",
+  "precision": "round-trip (repr)"
+ },
+ "run_steps": {
+  "check": "before training: manifests, caches, splits and separation by SHA-256; no detector, no weights",
+  "train": "--epochs 12, test evaluation disabled",
+  "weights_check": "after train, before any score",
+  "score_dev": "raw",
+  "select": "threshold.json",
+  "score_tests": "raw, refused without threshold.json",
+  "apply": "decisions with the frozen threshold"
+ }
 }
