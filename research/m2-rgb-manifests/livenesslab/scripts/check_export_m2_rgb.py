@@ -35,6 +35,21 @@ EX = load_module()
 
 
 DEV_ONLY = "the dataset register drafts are restricted: they are in the development repository only, not in the public package"
+# I soli motivi per cui un test di questa suite si salta: tutti ingressi mancanti (file del repository di sviluppo o del
+# pacchetto accanto al codice), nessuno di piattaforma (revisione del 17/10/2026). L'export ufficiale, che ha tutti gli
+# ingressi, conta ogni salto come controllo fallito; test_every_skip_is_a_missing_input lo verifica sul sorgente.
+MISSING_INPUT = {
+    "registers": DEV_ONLY,
+    "public documents": "the public documents are next to livenesslab/ only in the delivered folder, not in a bare copy of the code",
+    "original exports": "scripts/export_m1.py and scripts/export_m2.py are development-only: the copy cannot be compared here",
+    "NUAA package": "NUAA public package not found (neither export/research/m2-nuaa-manifests nor ../m2-nuaa-manifests)",
+    "git": "git not available: the repository state cannot be computed",
+}
+
+
+def skip_missing(test: unittest.TestCase, what: str):
+    """Unico modo di saltare un test di questa suite: un ingresso mancante dichiarato in MISSING_INPUT."""
+    test.skipTest(f"missing input: {MISSING_INPUT[what]}")
 
 
 def has_registers() -> bool:
@@ -46,10 +61,31 @@ def public_doc(n: str):
     return next((p for p in (EX.DELIV / n, ROOT.parent / n) if p.is_file()), None)
 
 
+@contextlib.contextmanager
+def alias_of(alias, target):
+    """Simula un secondo percorso per la stessa cartella su ogni filesystem: os.stat (usato da os.path.samefile e da
+    Path.exists) riporta per alias e per ogni percorso sotto di esso l'identità del percorso corrispondente sotto target,
+    come fa un filesystem che non distingue le maiuscole per una grafia diversa. Un confronto fra stringhe dei percorsi
+    risolti non lo riconosce; il confronto per identità sì."""
+    real, a, t = os.stat, str(alias), str(target)
+
+    def fake_stat(p, *args, **kwargs):
+        if isinstance(p, (str, os.PathLike)):
+            q = os.fspath(p)
+            if isinstance(q, str) and (q == a or q.startswith(a + os.sep)):
+                p = t + q[len(a):]
+        return real(p, *args, **kwargs)
+    os.stat = fake_stat
+    try:
+        yield
+    finally:
+        os.stat = real
+
+
 class TestLists(unittest.TestCase):
     def need_registers(self):
         if not has_registers():
-            self.skipTest(DEV_ONLY)
+            skip_missing(self, "registers")
 
     def test_code_and_documents_exist(self):
         self.assertEqual([c for c in EX.CODE if not (ROOT / c).is_file()], [])
@@ -57,7 +93,7 @@ class TestLists(unittest.TestCase):
             self.assertTrue((EX.DELIV / t).is_file(), t)
         missing = [n for n in EX.PUBLIC_DOCS if public_doc(n) is None]
         if missing and not (ROOT.parent / "README.md").is_file():
-            self.skipTest("the public documents are next to livenesslab/ only in the delivered folder, not in a bare copy of the code")
+            skip_missing(self, "public documents")
         self.assertEqual(missing, [])
         if has_registers():
             self.assertEqual([n for n in EX.RESTRICTED_DOCS if not (EX.DELIV / n).is_file()], [])
@@ -196,54 +232,184 @@ class TestLists(unittest.TestCase):
             write(good); (f / "x.json.tmp").write_text("x")
             self.assertTrue(EX.artefact_problems(f, "casia_fasd", "c" * 40))
 
+    def fake_export(self, d: Path, celeba_public_passed=True, json_dirty=False, outside=("", ""), start_dirty=True) -> tuple:
+        """main con i passi dell'export sostituiti da un run finto che scrive artefatti coerenti fra loro (nessun manifest)
+        in una cartella temporanea; lo stato del repository fuori da --m2 è dato dal test (prima e dopo la rigenerazione),
+        così l'esito non dipende dallo stato vero del repository. Restituisce (codice, uscita, run report o None)."""
+        import json
+        import subprocess
+        commit = subprocess.run(["git", "rev-parse", "HEAD"], cwd=EX.ROOT, capture_output=True, text=True).stdout.strip() or "n/d"
+        m2 = Path(d) / "m2"
+        # documenti di consegna fittizi: il test gira anche dal pacchetto pubblico, che non ha i modelli del repository
+        deliv = Path(d) / "deliv"
+        deliv.mkdir()
+        (deliv / "README.md").write_text("{commit} {run_id}\n\n{delivery_status}\n")
+        (deliv / "run-report.md.tmpl").write_text("run {run_id}\ntree: {tree_line}\n")
+        for n in EX.RESTRICTED_DOCS:
+            (deliv / n).write_text("register draft {run_id}\n")
+        for n in EX.PUBLIC_DOCS:
+            src = ROOT / "delivery" / "m2" / "rgb" / n
+            (deliv / n).write_bytes(src.read_bytes() if src.is_file() else b"document\n")
+        man, ovm = {}, {}                      # nessun manifest: artefatti coerenti fra loro
+        state = {"commit": commit, "dirty": json_dirty, "dirty_excludes": None}
+
+        def fake_run(*cmd, env=None, cwd=None):
+            for ds in EX.DATASETS:
+                f = m2 / ds
+                (f / "manifests").mkdir(parents=True, exist_ok=True)
+                docs = {f"{ds}_manifests_summary.json": {"passed": True, "manifests": man},
+                        f"{ds}_manifests_aggregate.json": {"passed": True, "manifests": man},
+                        "overlap_report.json": {"passed": True, "rules_sha256": "r", "manifests": ovm, "rules": [], "n_must_failed": 0},
+                        "overlap_report_public.json": {"passed": celeba_public_passed or ds != "celeba_spoof", "manifests": ovm, "rules": [],
+                                                       "n_must_failed": 0},
+                        "overlap_self_test.json": {"passed": True, "rules_sha256": "r"}}
+                for n, v in docs.items():
+                    (f / n).write_text(json.dumps({**v, **state}))
+                for n in (f"{ds}_m2_report.md", f"{ds}_m2_report_public.md", "overlap_report.md", "overlap_report_public.md", "overlap_self_test.md"):
+                    (f / n).write_text("x\n")
+            return 0, "tests run: 1, failures: 0, errors: 0, skipped: 0\nbuild checks passed (1 checks)\n"
+        trees = iter([(None, commit, outside[0]), (None, commit, outside[1])])
+        saved = (EX.run, sys.argv, EX.DELIV, EX.tree_outside, EX.repo_dirty)
+        # albero intero (soglia iniziale) dato dal test: con --trial può essere modificato anche se fuori da --m2 è pulito
+        EX.run, EX.DELIV, EX.tree_outside, EX.repo_dirty = fake_run, deliv, lambda p: next(trees), lambda root=None: start_dirty
+        sys.argv = ["export_m2_rgb.py", "--trial", "--run-id", "20261013-M2-rgb-seed42-test000", "--out", str(Path(d) / "out"), "--m2", str(m2)]
+        buf = io.StringIO()
+        try:
+            with contextlib.redirect_stdout(buf), contextlib.redirect_stderr(buf):
+                rc = EX.main()
+        finally:
+            EX.run, sys.argv, EX.DELIV, EX.tree_outside, EX.repo_dirty = saved
+        rr = next((Path(d) / "out" / "research").glob("*/run-report.md"), None)
+        return rc, buf.getvalue(), rr.read_text() if rr else None
+
     def test_main_refuses_failed_artefacts(self):
         """main controlla gli artefatti di ogni dataset con artefact_problems: con un run finto che lascia un rapporto
         pubblico delle sovrapposizioni fallito, l'export rifiuta (codice 1) e lo dice."""
-        import contextlib
-        import json
-        import subprocess
-        import shutil
-        commit = subprocess.run(["git", "rev-parse", "HEAD"], cwd=EX.ROOT, capture_output=True, text=True).stdout.strip() or "n/d"
         with tempfile.TemporaryDirectory() as d:
-            m2 = Path(d) / "m2"
-            # documenti di consegna fittizi: il test gira anche dal pacchetto pubblico, che non ha i modelli del repository
-            deliv = Path(d) / "deliv"
-            deliv.mkdir()
-            (deliv / "README.md").write_text("{commit} {run_id}\n\n{delivery_status}\n")
-            (deliv / "run-report.md.tmpl").write_text("run {run_id}\n")
-            for n in EX.RESTRICTED_DOCS:
-                (deliv / n).write_text("register draft {run_id}\n")
-            for n in EX.PUBLIC_DOCS:
-                src = ROOT / "delivery" / "m2" / "rgb" / n
-                (deliv / n).write_bytes(src.read_bytes() if src.is_file() else b"document\n")
-            man, ovm = {}, {}                      # nessun manifest: artefatti coerenti fra loro, solo il rapporto pubblico CelebA fallito
-
-            def fake_run(*cmd, env=None, cwd=None):
-                for ds in EX.DATASETS:
-                    f = m2 / ds
-                    (f / "manifests").mkdir(parents=True, exist_ok=True)
-                    docs = {f"{ds}_manifests_summary.json": {"passed": True, "commit": commit, "manifests": man},
-                            f"{ds}_manifests_aggregate.json": {"passed": True, "commit": commit, "manifests": man},
-                            "overlap_report.json": {"passed": True, "commit": commit, "rules_sha256": "r", "manifests": ovm, "rules": [], "n_must_failed": 0},
-                            "overlap_report_public.json": {"passed": ds != "celeba_spoof", "commit": commit, "manifests": ovm, "rules": [], "n_must_failed": 0},
-                            "overlap_self_test.json": {"passed": True, "commit": commit, "rules_sha256": "r"}}
-                    for n, v in docs.items():
-                        (f / n).write_text(json.dumps(v))
-                    for n in (f"{ds}_m2_report.md", f"{ds}_m2_report_public.md", "overlap_report.md", "overlap_report_public.md", "overlap_self_test.md"):
-                        (f / n).write_text("x\n")
-                return 0, "tests run: 1, failures: 0, errors: 0, skipped: 0\nbuild checks passed (1 checks)\n"
-            saved = (EX.run, sys.argv, EX.DELIV)
-            EX.run, EX.DELIV = fake_run, deliv
-            sys.argv = ["export_m2_rgb.py", "--trial", "--run-id", "20261013-M2-rgb-seed42-test000", "--out", str(Path(d) / "out"), "--m2", str(m2)]
-            buf = io.StringIO()
-            try:
-                with contextlib.redirect_stdout(buf), contextlib.redirect_stderr(io.StringIO()):
-                    rc = EX.main()
-            finally:
-                EX.run, sys.argv, EX.DELIV = saved
+            rc, out, _ = self.fake_export(Path(d), celeba_public_passed=False)
         self.assertEqual(rc, 1)
-        self.assertIn("celeba_spoof: overlap_report_public.json is not a passed artefact", buf.getvalue())
-        self.assertNotIn("casia_fasd: overlap_report_public.json is not a passed artefact", buf.getvalue())
+        self.assertIn("celeba_spoof: overlap_report_public.json is not a passed artefact", out)
+        self.assertNotIn("casia_fasd: overlap_report_public.json is not a passed artefact", out)
+        self.assertNotIn("repository state", out)                         # stato dei JSON coerente con il run report
+
+    def test_main_compares_json_state_with_the_run_report(self):
+        """Revisione del 17/10/2026: i JSON dicevano dirty true e il run report working tree clean. main confronta commit,
+        dirty e cartella esclusa di ogni JSON con lo stato registrato e controlla che durante la rigenerazione nulla cambi
+        fuori da --m2; il run report dichiara la semantica del campo."""
+        with tempfile.TemporaryDirectory() as d:
+            rc, out, rr = self.fake_export(Path(d))
+        self.assertNotIn("repository state", out)
+        self.assertNotIn("working tree changed", out)
+        self.assertIn("the results folder is outside the repository", rr)
+        self.assertIn("plain repository state, `false`", rr)
+        with tempfile.TemporaryDirectory() as d:
+            rc, out, rr = self.fake_export(Path(d), json_dirty=True)          # JSON dirty, albero pulito fuori da --m2
+        self.assertEqual(rc, 1)
+        self.assertEqual(out.count("differs from the run report"), 2 * len(EX.STATE_JSON), out)
+        with tempfile.TemporaryDirectory() as d:
+            rc, out, _ = self.fake_export(Path(d), outside=("", " M scripts/x.py"))   # modifica comparsa durante il run
+        self.assertEqual(rc, 1)
+        self.assertIn("the working tree changed outside the results folder during the regeneration", out)
+        self.assertIn("M scripts/x.py", out)
+        # albero modificato fuori da --m2 e invariato durante il run: JSON dirty true, coerente con il run report
+        with tempfile.TemporaryDirectory() as d:
+            rc, out, rr = self.fake_export(Path(d), json_dirty=True, outside=(" M scripts/x.py", " M scripts/x.py"))
+        self.assertNotIn("differs from the run report", out)          # (codice 1 solo per i manifest assenti del run finto)
+        self.assertNotIn("working tree changed", out)
+        self.assertIn("plain repository state, `true`", rr)
+        # albero intero modificato ma pulito fuori da --m2: il valore atteso è quello fuori da --m2, non quello intero
+        with tempfile.TemporaryDirectory() as d:
+            rc, out, rr = self.fake_export(Path(d), json_dirty=False, outside=("", ""), start_dirty=True)
+        self.assertNotIn("differs from the run report", out)
+        self.assertIn("plain repository state, `false`", rr)
+        # git status fallito all'inizio (commit leggibile): export rifiutato prima di qualsiasi passo
+        with tempfile.TemporaryDirectory() as d:
+            rc, out, rr = self.fake_export(Path(d), outside=(None, None))
+            self.assertFalse((Path(d) / "m2").exists())
+        self.assertEqual(rc, 1)
+        self.assertIn("git status failed", out)
+
+    def test_repository_state_helpers(self):
+        import json
+        commit = "c" * 40
+        with tempfile.TemporaryDirectory() as d:
+            m2 = Path(d)
+            good = {"commit": commit, "dirty": False, "dirty_excludes": "results/m2_rgb"}
+            for ds in EX.DATASETS:
+                (m2 / ds).mkdir()
+                for n in EX.STATE_JSON:
+                    (m2 / ds / n.format(ds=ds)).write_text(json.dumps({"passed": True, **good}))
+            self.assertEqual(EX.json_state_problems(m2, commit, False, "results/m2_rgb"), [])
+            self.assertEqual(len(EX.json_state_problems(m2, commit, True, "results/m2_rgb")), 10)      # dirty diverso
+            self.assertEqual(len(EX.json_state_problems(m2, "d" * 40, False, "results/m2_rgb")), 10)   # altro commit
+            self.assertEqual(len(EX.json_state_problems(m2, commit, False, None)), 10)                 # altra esclusione
+            f = m2 / "celeba_spoof" / "overlap_self_test.json"
+            f.write_text(json.dumps({"passed": True, "commit": commit, "dirty": False}))               # campo assente
+            self.assertEqual(len(EX.json_state_problems(m2, commit, False, "results/m2_rgb")), 1)
+        self.assertEqual(EX.tree_change_problem(("results/m2_rgb", commit, ""), ("results/m2_rgb", commit, "")), "")
+        self.assertIn("results/m2_rgb", EX.tree_change_problem(("results/m2_rgb", commit, ""), ("results/m2_rgb", commit, "?? notes.txt")))
+        self.assertTrue(EX.tree_change_problem(("results/m2_rgb", commit, ""), ("results/m2_rgb", "d" * 40, "")))
+        line = EX.tree_line(False, "results/m2_rgb", False)
+        self.assertIn("working tree clean at the start of the export: yes", line)
+        self.assertIn("only `results/m2_rgb` was deleted and regenerated", line)
+        self.assertIn("(`dirty_excludes`) and is `false`", line)
+        self.assertIn("NO (explicit trial export, `--trial`)", EX.tree_line(True, "results/m2_rgb", True))
+        self.assertIn("is `true`", EX.tree_line(True, "results/m2_rgb", True))
+
+    def test_start_gate_uses_the_same_status_as_the_json(self):
+        """Revisione del 17/10/2026: con status.showUntrackedFiles=no un file non versionato sfuggiva alla soglia iniziale
+        (git status --porcelain vuoto) ma non ai JSON; ora soglia, controllo dopo la rigenerazione e JSON usano lo stesso
+        comando (rgb_manifests.STATUS_ARGS). Su un repository git temporaneo."""
+        import subprocess
+        if shutil.which("git") is None:
+            skip_missing(self, "git")
+        self.assertIn("--untracked-files=all", EX.RM.STATUS_ARGS)
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d).resolve()
+            g = lambda *a: subprocess.run(["git", "-c", "user.name=test", "-c", "user.email=test", "-c", "commit.gpgsign=false", *a],   # noqa: E731
+                                          cwd=root, capture_output=True, text=True, check=True).stdout
+            (root / "a.txt").write_text("a\n")
+            g("init", "-q"); g("add", "-A"); g("commit", "-q", "-m", "init"); g("config", "status.showUntrackedFiles", "no")
+            self.assertFalse(EX.repo_dirty(root))
+            (root / "b.txt").write_text("b\n")
+            self.assertEqual(g("status", "--porcelain").strip(), "")         # nascosto dalla configurazione
+            self.assertTrue(EX.repo_dirty(root))
+            self.assertEqual(EX.repo_dirty(root), EX.RM.repo_state_excluding(Path(d + "-elsewhere"), root)["dirty"])
+
+    def test_failed_git_status_is_never_clean(self):
+        saved = EX.RM.tree_state
+        try:
+            EX.RM.tree_state = lambda out, root=None: (None, "c" * 40, None)       # rev-parse risponde, status no
+            self.assertTrue(EX.repo_dirty(Path("/")))
+            self.assertTrue(EX.RM.repo_state_excluding(Path("/"))["dirty"])
+            EX.RM.tree_state = lambda out, root=None: (None, None, None)           # nessun repository
+            self.assertFalse(EX.repo_dirty(Path("/")))
+        finally:
+            EX.RM.tree_state = saved
+        ok = ("results/m2_rgb", "c" * 40, "")
+        self.assertIn("git status failed", EX.tree_change_problem(ok, ("results/m2_rgb", "c" * 40, None)))
+        self.assertIn("git status failed", EX.tree_change_problem(("results/m2_rgb", "c" * 40, None), ok))
+        self.assertTrue(EX.status_failed((None, "c", None)))
+        self.assertFalse(EX.status_failed((None, None, None)))
+        self.assertIn("--no-optional-locks", EX.RM.STATUS_ARGS)
+
+    def test_skips_fail_the_export_with_their_reason(self):
+        self.assertEqual(EX.skip_problems("check_export_m2_rgb.py", "tests run: 3, failures: 0, errors: 0, skipped: 0\n", 0), [])
+        self.assertTrue(EX.skip_problems("check_export_m2_rgb.py", "no summary", None))
+        txt = "skipped test_x: missing input: NUAA public package not found\ntests run: 3, failures: 0, errors: 0, skipped: 1\n"
+        p = EX.skip_problems("check_export_m2_rgb.py", txt, 1)
+        self.assertEqual(len(p), 1)
+        self.assertIn("1 skipped tests (missing inputs: test_x: missing input: NUAA public package not found)", p[0])
+
+    def test_every_skip_is_a_missing_input(self):
+        """Nessun salto di piattaforma: ogni salto passa da skip_missing con un motivo di MISSING_INPUT (revisione del
+        17/10/2026: su un filesystem che distingue le maiuscole un test si saltava e l'export non poteva mai passare)."""
+        src = Path(__file__).read_text(encoding="utf-8")
+        self.assertEqual(src.count(".skip" + "Test("), 1)                      # solo dentro skip_missing
+        used = re.findall(r'skip_missing\(self, "([^"]+)"\)', src)
+        self.assertEqual(sorted(set(used)), sorted(MISSING_INPUT))
+        for why in MISSING_INPUT.values():
+            self.assertFalse(re.search(r"case|filesystem|platform|linux|macos|windows", why, re.I), why)
 
     def test_overlap_manifests_differ_from_summary(self):
         import json
@@ -267,7 +433,7 @@ class TestLists(unittest.TestCase):
         import inspect
         m1, m2 = ROOT / "scripts" / "export_m1.py", ROOT / "scripts" / "export_m2.py"
         if not (m1.is_file() and m2.is_file()):
-            self.skipTest("scripts/export_m1.py and scripts/export_m2.py are development-only: the copy cannot be compared here")
+            skip_missing(self, "original exports")
         sys.path.insert(0, str(ROOT / "scripts"))
         import export_helpers as h
         mods = {}
@@ -320,7 +486,7 @@ class TestLists(unittest.TestCase):
         nuaa = next((p for p in (ROOT / "export" / "research" / "m2-nuaa-manifests", ROOT.parent.parent / "m2-nuaa-manifests")
                      if (p / "SHA256SUMS").is_file()), None)
         if nuaa is None:
-            self.skipTest("NUAA public package not found (neither export/research/m2-nuaa-manifests nor ../m2-nuaa-manifests)")
+            skip_missing(self, "NUAA package")
         listed = dict(reversed(line.split("  ", 1)) for line in (nuaa / "SHA256SUMS").read_text(encoding="utf-8").splitlines() if "  " in line)
         for f, published in EX.REFERENCE_FILES.items():
             sub = published.split("research/m2-nuaa-manifests/", 1)[1]
@@ -413,21 +579,31 @@ class TestPathGuard(unittest.TestCase):
         return str(p).swapcase() != str(p) and os.path.exists(str(p).swapcase())
 
     def test_other_spellings_of_the_same_folder(self):
-        # filesystem che non distingue le maiuscole (macOS): una grafia diversa è la stessa cartella e va rifiutata
-        r = self.root
-        if not self.case_insensitive(r):
-            self.skipTest("case-sensitive filesystem: other spellings are different folders")
-        sw = lambda p: Path(str(p).swapcase())                              # noqa: E731
-        low = lambda p: Path(str(p).lower())                                # noqa: E731
-        for p in (sw(r), low(r), sw(r / "results"), low(r / "results"), sw(r / "results" / "c1"), sw(self.home),
-                  sw(r / "export" / "drive" / "02_Experiments" / "M2" / "20261006-M2-seed42-36c677a"),
-                  sw(r / "results" / "c1" / "not-yet-there"), sw(r / "notes" / "new")):
-            self.assertTrue(self.problem(p), str(p))
-        for p in (sw(r / "results" / "m2_rgb"), sw(r / "results" / "m2_rgb" / "new"),
-                  sw(r / "export" / "drive" / "02_Experiments" / "M2" / self.RUN), sw(self.outside / "m2")):
-            self.assertEqual(self.problem(p), "", str(p))                   # cartelle ammesse anche con un'altra grafia
-        self.assertIn("repository root", self.problem(sw(r)))
-        self.assertIn("contains the protected folder", self.problem(sw(r / "results")))
+        # due percorsi diversi per la stessa cartella vanno riconosciuti per identità. Gira su ogni piattaforma, senza
+        # salti (revisione del 17/10/2026: su Linux il test si saltava e la mutazione del confronto per stringhe
+        # sopravviveva): un alias simulato sempre (una seconda cartella vera che riporta l'identità della radice finta,
+        # alias_of) e, su un filesystem che non distingue le maiuscole (macOS), anche le grafie diverse vere
+        r, base = self.root, Path(self.tmp.name).resolve()
+        with tempfile.TemporaryDirectory() as other:
+            alias_base = Path(other).resolve() / "alias"
+            alias_base.mkdir()
+            spellings = {"alias": lambda p: alias_base / Path(p).relative_to(base)}
+            if self.case_insensitive(r):
+                spellings["swapcase"] = lambda p: Path(str(p).swapcase())
+                spellings["lower"] = lambda p: Path(str(p).lower())
+            for kind, sw in spellings.items():
+                with alias_of(alias_base, base):
+                    for p in (r, r / "results", r / "results" / "c1", self.home,
+                              r / "export" / "drive" / "02_Experiments" / "M2" / "20261006-M2-seed42-36c677a",
+                              r / "results" / "c1" / "not-yet-there", r / "notes" / "new"):
+                        self.assertTrue(self.problem(sw(p)), (kind, str(p)))
+                    for p in (r / "results" / "m2_rgb", r / "results" / "m2_rgb" / "new",
+                              r / "export" / "drive" / "02_Experiments" / "M2" / self.RUN, self.outside / "m2"):
+                        self.assertEqual(self.problem(sw(p)), "", (kind, str(p)))    # cartelle ammesse anche con un altro percorso
+                    self.assertIn("repository root", self.problem(sw(r)), kind)
+                    self.assertIn("contains the protected folder", self.problem(sw(r / "results")), kind)
+            # controllo della simulazione: senza alias_of lo stesso percorso è un'altra cartella, fuori dal repository
+            self.assertEqual(self.problem(alias_base / "work" / "repo"), "")
 
     def test_main_never_deletes_a_protected_folder(self):
         calls = []
@@ -444,10 +620,13 @@ class TestPathGuard(unittest.TestCase):
                    str(real_link), str(ROOT / "results" / "c1"), str(ROOT / "docs")]
             if self.case_insensitive(ROOT):                                   # altre grafie della radice e di results/
                 bad += [str(ROOT).lower(), str(ROOT).swapcase(), str(ROOT / "results").lower(), str(ROOT / "results").upper()]
+            alias = self.outside / "alias_of_root"                            # su ogni piattaforma: alias simulato della radice vera
+            alias.mkdir()
+            bad += [str(alias), str(alias / "results"), str(alias / "results" / "c1")]
             for m2 in bad:
                 sys.argv = ["export_m2_rgb.py", "--trial", "--run-id", self.RUN, "--m2", m2, "--out", str(self.outside / "out")]
                 err = io.StringIO()
-                with contextlib.redirect_stderr(err), contextlib.redirect_stdout(io.StringIO()):
+                with contextlib.redirect_stderr(err), contextlib.redirect_stdout(io.StringIO()), alias_of(alias, ROOT):
                     rc = EX.main()
                 self.assertEqual(rc, 1, m2)
                 self.assertTrue("cannot be" in err.getvalue() or "read-only area" in err.getvalue(), (m2, err.getvalue()))
@@ -557,6 +736,8 @@ def main() -> int:
     result = unittest.TextTestRunner(stream=log, verbosity=2).run(suite)
     if args.verbose or not result.wasSuccessful():
         print(log.getvalue())
+    for t, why in result.skipped:                       # motivo di ogni test saltato (letto dall'export)
+        print(f"skipped {t.id().rsplit('.', 1)[-1]}: {why}")
     print(f"tests run: {result.testsRun}, failures: {len(result.failures)}, errors: {len(result.errors)}, skipped: {len(result.skipped)}")
     print("RESULT: " + ("PASS" if result.wasSuccessful() else "FAIL"))
     return 0 if result.wasSuccessful() else 1

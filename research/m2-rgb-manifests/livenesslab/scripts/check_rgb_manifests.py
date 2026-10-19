@@ -29,6 +29,7 @@ import io
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -49,6 +50,23 @@ def load_module():
 
 
 RM = load_module()
+
+# I soli motivi per cui un test di questa suite si salta: tutti ingressi mancanti, nessuno di piattaforma (revisione del
+# 17/10/2026, come in check_export_m2_rgb.py). L'export ufficiale, con --require-real e tutti gli ingressi, conta ogni
+# salto come controllo fallito; test_every_skip_is_a_missing_input lo verifica sul sorgente.
+MISSING_INPUT = {
+    "documents": "naming_schema_rgb.md and README.md not found next to the code: declarations not compared",
+    "naming schema": "naming_schema_rgb.md not found next to the code (bare copy of livenesslab/): the README was compared, the naming schema was not",
+    "README": "README.md not found next to the code: notes not compared",
+    "git": "git not available: the repository state cannot be computed",
+    "real manifests": "real manifests not available (run rgb_manifests.py build, or pass --real-dir)",
+    "public aggregate": "public aggregate not available",
+}
+
+
+def skip_missing(test: unittest.TestCase, what: str, detail: str = ""):
+    """Unico modo di saltare un test di questa suite: un ingresso mancante dichiarato in MISSING_INPUT."""
+    test.skipTest(f"missing input: {MISSING_INPUT[what]}" + (f" ({detail})" if detail else ""))
 
 
 # chiavi costruite a run time: nessun identificativo letterale (anche fittizio) nel sorgente pubblico, che la
@@ -289,7 +307,7 @@ class TestRules(unittest.TestCase):
                 docs[n] = norm(p.read_text(encoding="utf-8"))
         self.assertIn("report.md.tmpl", docs)
         if not {"naming_schema_rgb.md", "README.md"} & set(docs):
-            self.skipTest("naming_schema_rgb.md and README.md not found next to the code: declarations not compared")
+            skip_missing(self, "documents")
         # nel repository di sviluppo e nella cartella consegnata ci sono entrambi; in una copia del solo codice c'è il modello
         # del README (delivery/m2/rgb/README.md): si confronta quello e poi il test si salta con il motivo (sotto)
         for ds in RM.DATASETS:
@@ -304,8 +322,7 @@ class TestRules(unittest.TestCase):
         self.assertNotIn("warped", dict(RM.SOURCE_DECLARATIONS["casia_fasd"])["Verified on the copy"])
         self.assertIn("[DOC-EXT]", dict(RM.SOURCE_DECLARATIONS["casia_fasd"])["Documented [DOC-EXT]"] + " [DOC-EXT]")
         if "naming_schema_rgb.md" not in docs:
-            self.skipTest("naming_schema_rgb.md not found next to the code (bare copy of livenesslab/): the README was compared, "
-                          "the naming schema was not")
+            skip_missing(self, "naming schema")
 
 
 def rules_digest(doc: dict) -> str:
@@ -357,7 +374,7 @@ class TestWording(unittest.TestCase):
         self.assertIn("{authorisation_note}", texts.get("run-report.md.tmpl", "{authorisation_note}"))
         readme = next((norm(p.read_text(encoding="utf-8")) for p in (RM.RULES_DIR / "README.md", ROOT.parent / "README.md") if p.is_file()), None)
         if readme is None:
-            self.skipTest("README.md not found next to the code: notes not compared")
+            skip_missing(self, "README")
         for note in (RM.CELEBA_OFFICIAL_NOTE, RM.CASIA_PROTOCOL_NOTE, RM.AUTHORISATION_NOTE):
             self.assertIn(note, readme)
         self.assertGreaterEqual(readme.count(RM.CELEBA_OFFICIAL_NOTE), 3)              # in testa alle sezioni CelebA-Spoof
@@ -469,6 +486,10 @@ class TestCli(unittest.TestCase):
             self.assertTrue(rep["passed"])
             pub = (Path(d) / "out" / "overlap_report_public.json").read_text()
             self.assertNotIn("examples", pub)
+            # stato del repository senza la cartella di uscita (qui fuori dal repository: nessuna esclusione dichiarata)
+            for doc in (rep, json.loads(pub)):
+                self.assertIn("dirty_excludes", doc)
+                self.assertIsNone(doc["dirty_excludes"])
 
     def test_violation_exit_code_and_no_traceback(self):
         w = casia_world()
@@ -587,6 +608,7 @@ class TestCli(unittest.TestCase):
                         res.append(RM.run_self_test("casia_fasd", doc, rp, Path(d) / "manifests", w, Path(d)))
             finally:
                 RM.self_test_faults = saved
+            self.assertIn("dirty_excludes", json.loads((Path(d) / "overlap_self_test.json").read_text()))
         self.assertEqual(res, [True, False, False])                          # esatto, regola diversa, meno di 8 guasti
 
     def test_counts_rule(self):
@@ -656,6 +678,7 @@ class TestFailureArtefacts(unittest.TestCase):
             summ = (out / "casia_fasd_manifests_summary.json").read_text()
             self.assertIn(name, summ)                                     # la diagnosi per file resta nel riepilogo privato
             self.assertFalse(json.loads(summ)["passed"])
+            self.assertIn("dirty_excludes", json.loads(summ))              # stato del repository senza la cartella di uscita
             for p in out.rglob("*"):
                 if p.is_file() and p.name != "casia_fasd_manifests_summary.json" and p.parent.name != "manifests":
                     self.assertNotIn(name, p.read_text(errors="replace"), p.name)
@@ -880,6 +903,149 @@ class TestFailureArtefacts(unittest.TestCase):
             self.assertEqual(sorted(p.name for p in out.iterdir()), ["b.md"])
 
 
+class TestRepoState(unittest.TestCase):
+    """Campo dirty dei JSON (correzione del 17/10/2026): con results/ versionato, la cartella che il comando stesso
+    cancella e riscrive non rende "modificato" un albero pulito; ogni altra modifica sì. Su un repository git temporaneo,
+    mai su quello vero."""
+
+    def git(self, root, *args):
+        r = subprocess.run(["git", "-c", "user.name=test", "-c", "user.email=test", "-c", "commit.gpgsign=false", *args], cwd=root,
+                           capture_output=True, text=True)
+        self.assertEqual(r.returncode, 0, r.stderr)
+        return r.stdout
+
+    def test_output_folder_excluded_from_dirty(self):
+        if shutil.which("git") is None:
+            skip_missing(self, "git")
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d).resolve() / "repo"
+            (root / "results" / "m2_rgb" / "casia_fasd").mkdir(parents=True)
+            (root / "scripts").mkdir()
+            (root / "results" / "m2_rgb" / "casia_fasd" / "a.json").write_text("{}\n")
+            (root / "results" / "c1.txt").write_text("c1\n")
+            (root / "scripts" / "x.py").write_text("x = 1\n")
+            self.git(root, "init", "-q")
+            self.git(root, "add", "-A")
+            self.git(root, "commit", "-q", "-m", "init")
+            m2, outside = root / "results" / "m2_rgb", Path(d).resolve() / "scratch"
+            outside.mkdir()
+            st = lambda p: RM.repo_state_excluding(p, root)              # noqa: E731
+            self.assertEqual(st(m2), {"commit": self.git(root, "rev-parse", "HEAD").strip(), "dirty": False, "dirty_excludes": "results/m2_rgb"})
+            # la cartella rigenerata: file versionati cancellati e riscritti, file nuovi, sottocartelle nuove
+            (m2 / "casia_fasd" / "a.json").unlink()
+            (m2 / "celeba_spoof" / "manifests").mkdir(parents=True)
+            (m2 / "celeba_spoof" / "manifests" / "b.csv").write_text("b\n")
+            self.assertFalse(st(m2)["dirty"])
+            self.assertTrue(st(m2 / "casia_fasd")["dirty"])                 # esclusa solo la cartella data, non le vicine
+            self.assertTrue(st(outside)["dirty"])                            # fuori dal repository: nessuna esclusione
+            self.assertIsNone(st(outside)["dirty_excludes"])
+            self.assertTrue(st(root)["dirty"])                               # la radice non si esclude mai
+            self.assertIsNone(st(root)["dirty_excludes"])
+            self.assertEqual(st(Path(str(m2) + "/../m2_rgb"))["dirty_excludes"], "results/m2_rgb")
+            # cartella non versionata dentro una cartella nuova: esclusa anche se git la raggruppa sotto il genitore
+            (root / "notes" / "out").mkdir(parents=True)
+            (root / "notes" / "out" / "r.json").write_text("{}\n")
+            self.git(root, "checkout", "-q", "--", "results")
+            shutil.rmtree(m2 / "celeba_spoof")
+            self.assertFalse(st(root / "notes" / "out")["dirty"])
+            self.assertEqual(st(root / "notes" / "out")["dirty_excludes"], "notes/out")
+            # ogni altra modifica rende il repository modificato
+            (root / "scripts" / "x.py").write_text("x = 2\n")
+            self.assertTrue(st(m2)["dirty"])
+            self.git(root, "checkout", "-q", "--", "scripts")
+            (root / "results" / "c1.txt").write_text("changed\n")       # anche accanto alla cartella esclusa
+            self.assertTrue(st(m2)["dirty"])
+            self.git(root, "checkout", "-q", "--", "results")
+            (root / "notes" / "other.txt").write_text("x\n")
+            self.assertTrue(st(root / "notes" / "out")["dirty"])
+            # file per file, non raggruppati per cartella: un file nuovo in una cartella non versionata cambia lo stato
+            # (l'export confronta lo stato prima e dopo la rigenerazione)
+            before = RM.tree_state(root / "notes" / "out", root)[2]
+            (root / "notes" / "other2.txt").write_text("y\n")
+            self.assertNotEqual(RM.tree_state(root / "notes" / "out", root)[2], before)
+            # un'altra grafia della stessa cartella (filesystem che non distingue le maiuscole) è esclusa con la grafia del
+            # disco, quella che git conosce. Su ogni piattaforma: os.stat riporta per M2_RGB l'identità di m2_rgb, come
+            # fa macOS; senza la simulazione, su un filesystem che distingue le maiuscole, è un'altra cartella
+            other = root / "results" / "M2_RGB"
+            if not other.exists():
+                self.assertEqual(st(other)["dirty_excludes"], "results/M2_RGB")
+            real_stat = os.stat
+
+            def fake_stat(p, *args, **kwargs):
+                if isinstance(p, (str, os.PathLike)) and os.fspath(p) == str(other):
+                    p = m2
+                return real_stat(p, *args, **kwargs)
+            os.stat = fake_stat
+            try:
+                self.assertEqual(st(other)["dirty_excludes"], "results/m2_rgb")
+            finally:
+                os.stat = real_stat
+
+    def test_default_state_out_of_the_repository(self):
+        # cartella fuori dal repository: nessuna esclusione, stesso commit di repo_state() e dirty dallo stesso comando
+        # di stato usato dall'export (tree_state)
+        with tempfile.TemporaryDirectory() as d:
+            st = RM.repo_state_excluding(Path(d))
+            self.assertEqual(st, {"commit": RM.repo_state()["commit"], "dirty": bool(RM.tree_state(Path(d))[2]) if st["commit"] != "n/d" else False,
+                                  "dirty_excludes": None})
+
+    def test_user_git_config_cannot_hide_untracked_files(self):
+        # revisione del 17/10/2026: con status.showUntrackedFiles=no un file non versionato spariva da `git status
+        # --porcelain`; il comando di stato (STATUS_ARGS) lo elenca sempre, dentro e fuori dal repository
+        if shutil.which("git") is None:
+            skip_missing(self, "git")
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d).resolve() / "repo"
+            (root / "results" / "m2_rgb").mkdir(parents=True)
+            (root / "results" / "m2_rgb" / "a.json").write_text("{}\n")
+            self.git(root, "init", "-q")
+            self.git(root, "add", "-A")
+            self.git(root, "commit", "-q", "-m", "init")
+            self.git(root, "config", "status.showUntrackedFiles", "no")
+            m2, outside = root / "results" / "m2_rgb", Path(d).resolve() / "scratch"
+            outside.mkdir()
+            (m2 / "new.json").write_text("{}\n")                                # solo nella cartella esclusa: pulito
+            self.assertFalse(RM.repo_state_excluding(m2, root)["dirty"])
+            self.assertTrue(RM.repo_state_excluding(outside, root)["dirty"])     # senza esclusione: modificato
+            (root / "notes.txt").write_text("x\n")                              # non versionato fuori dalla cartella
+            self.assertEqual(self.git(root, "status", "--porcelain").strip(), "")   # nascosto dalla configurazione
+            self.assertTrue(RM.repo_state_excluding(m2, root)["dirty"])
+            self.assertIn("notes.txt", RM.tree_state(root, root)[2])
+
+    def test_failed_git_status_is_dirty(self):
+        # git status fallito con il commit leggibile: mai «pulito» nei JSON
+        saved = RM.tree_state
+        try:
+            RM.tree_state = lambda out, root=None: ("results/m2_rgb", "c" * 40, None)
+            self.assertEqual(RM.repo_state_excluding(Path("/x")), {"commit": "c" * 40, "dirty": True, "dirty_excludes": "results/m2_rgb"})
+            RM.tree_state = lambda out, root=None: (None, None, None)
+            self.assertEqual(RM.repo_state_excluding(Path("/x")), {"commit": "n/d", "dirty": False, "dirty_excludes": None})
+        finally:
+            RM.tree_state = saved
+        self.assertEqual(RM.STATUS_ARGS[0], "--no-optional-locks")
+
+    def test_state_text_in_markdown(self):
+        self.assertEqual(RM.state_text({"dirty": False, "dirty_excludes": "results/m2_rgb"}),
+                         "working tree clean outside `results/m2_rgb` (the output folder of this command)")
+        self.assertEqual(RM.state_text({"dirty": True, "dirty_excludes": "results/m2_rgb"}),
+                         "working tree modified outside `results/m2_rgb` (the output folder of this command)")
+        self.assertEqual(RM.state_text({"dirty": True, "dirty_excludes": None}), "working tree modified")
+        self.assertEqual(RM.state_text({"dirty": False, "dirty_excludes": None}), "working tree clean")
+        with tempfile.TemporaryDirectory() as d:
+            r, rep = run_cli(Path(d), casia_world())
+            for n in ("overlap_report.md", "overlap_report_public.md"):
+                self.assertIn(f", {RM.state_text(rep)}, ", (Path(d) / "out" / n).read_text(), n)
+        self.assertIn("{tree_state}", RM.REPORT_TMPL.read_text(encoding="utf-8"))
+
+    def test_every_skip_is_a_missing_input(self):
+        src = Path(__file__).read_text(encoding="utf-8")
+        self.assertEqual(src.count(".skip" + "Test("), 1)                      # solo dentro skip_missing
+        used = re.findall(r'skip_missing\((?:self|test), "([^"]+)"', src)
+        self.assertEqual(sorted(set(used)), sorted(MISSING_INPUT))
+        for why in MISSING_INPUT.values():
+            self.assertFalse(re.search(r"case|filesystem|platform|linux|macos|windows", why, re.I), why)
+
+
 class TestPublicScan(unittest.TestCase):
     def test_record_problems(self):
         w = casia_world()
@@ -1008,7 +1174,7 @@ def need_real(test, ds):
     if missing:
         if REQUIRE_REAL:
             test.fail(f"real manifests missing in {man_dir.name}: {missing}")
-        test.skipTest(f"real {ds} manifests not available (run rgb_manifests.py build, or pass --real-dir)")
+        skip_missing(test, "real manifests", ds)
     return man_dir
 
 
@@ -1035,7 +1201,7 @@ class TestRealData(unittest.TestCase):
         if not agg.is_file():
             if REQUIRE_REAL:
                 self.fail(f"{agg.name} not found")
-            self.skipTest("public aggregate not available")
+            skip_missing(self, "public aggregate")
         r = self.run_rm("recount", "--dataset", ds, "--manifests-dir", man_dir, "--aggregate", agg)
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
         return r.stdout
@@ -1063,12 +1229,14 @@ def main() -> int:
     args = ap.parse_args()
     REQUIRE_REAL, REAL_DIR = args.require_real, args.real_dir
     suite = unittest.TestSuite(unittest.defaultTestLoader.loadTestsFromTestCase(c)
-                               for c in (TestFields, TestRowValidation, TestRules, TestWording, TestRuleEngine, TestCli, TestFailureArtefacts, TestPublicScan, TestSplits,
+                               for c in (TestFields, TestRowValidation, TestRules, TestWording, TestRuleEngine, TestCli, TestFailureArtefacts, TestRepoState, TestPublicScan, TestSplits,
                                          TestRealData))
     log = io.StringIO()
     result = unittest.TextTestRunner(stream=log, verbosity=2).run(suite)
     if args.verbose or not result.wasSuccessful():
         print(log.getvalue())
+    for t, why in result.skipped:                       # motivo di ogni test saltato (letto dall'export)
+        print(f"skipped {t.id().rsplit('.', 1)[-1]}: {why}")
     print(f"tests run: {result.testsRun}, failures: {len(result.failures)}, errors: {len(result.errors)}, skipped: {len(result.skipped)}")
     print("RESULT: " + ("PASS" if result.wasSuccessful() else "FAIL"))
     return 0 if result.wasSuccessful() else 1

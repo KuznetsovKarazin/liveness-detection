@@ -3,7 +3,7 @@
 ## Identity
 - Task and run ID: M2, second tranche (CASIA-FASD and CelebA-Spoof) — `{run_id}`
 - Date / operator: run of {run_date} (report generated on {date}) / Valerio Cassano
-- Git commit / environment lock: development repository commit `{commit}`, {tree_line} (this folder is a filtered export of it, see README); `livenesslab/requirements.txt`; exact versions of the environment in `pip_freeze.txt` of the restricted run folder.
+- Git commit / environment lock: development repository commit `{commit}`; {tree_line} (README, section "What is delivered"); this folder is a filtered export of that commit (see README); `livenesslab/requirements.txt`; exact versions of the environment in `pip_freeze.txt` of the restricted run folder.
 - Command: `{export_cmd}` (development repository; not included in this folder), which runs, for each dataset (`casia_fasd`, `celeba_spoof`): `python scripts/rgb_manifests.py build --dataset <dataset> --out-root {m2_dir}`; `check-overlap --self-test`; `recount`; `reconstruct`; `report`; then `python scripts/check_rgb_manifests.py --require-real --real-dir {m2_dir}`, `python scripts/check_nuaa_manifests.py`, `python scripts/check_export_m2_rgb.py`, and the offline tests again from the copy of the code in `livenesslab/`, with empty data and results folders. Logs in the restricted run folder.
 - Configuration path and SHA-256: `casia_fasd_overlap_rules.json` — `{rules_sha_casia}`; `celeba_spoof_overlap_rules.json` — `{rules_sha_celeba}` (declared manifests with expected rows and SHA-256, and the rules). Shared code of the NUAA tranche, imported and unchanged: {reference_line}.
 - Hardware / software: {hardware_line}

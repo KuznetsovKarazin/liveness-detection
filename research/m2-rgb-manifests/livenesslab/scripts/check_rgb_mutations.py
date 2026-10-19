@@ -49,6 +49,20 @@ RGB_MUTANTS = [
     ('write_all: direct write', '            t = out / (n + ".tmp")', '            t = out / n'),
     ('rules error not ManifestError', '        raise ManifestError(f"{relpath(rules_p)}: missing or invalid rules file", "rules") from None', '        raise'),
     ('integrity: fail instead of report', '        raise ManifestError(f"manifests differ from those declared in {relpath(rules_p)}: " + "; ".join(mismatch), "integrity")', '        fail("manifests differ")'),
+    # stato del repository nei JSON senza la cartella di uscita (revisione del 17/10/2026)
+    ('repo state: output folder not excluded', '    pathspec = [f":(top,exclude,literal){excl}"] if excl else []\n', '    pathspec = []\n'),
+    ('repo state: untracked files by user config',
+     'STATUS_ARGS = ("--no-optional-locks", "-c", "status.showUntrackedFiles=all", "status", "--porcelain", "--untracked-files=all")',
+     'STATUS_ARGS = ("--no-optional-locks", "status", "--porcelain")'),
+    ('repo state: failed git status read as clean', '"dirty": status is None or bool(status), "dirty_excludes": excl}',
+     '"dirty": bool(status), "dirty_excludes": excl}'),
+    ('markdown: state without the excluded folder', '(the output folder of this command)" if doc.get("dirty_excludes") else ""',
+     '(the output folder of this command)" if False else ""'),
+    ('repo state: spelling not taken from the disk', '            name = next((e for e in sorted(os.listdir(cur)) if _same(cur / e, cur / s)), s)\n',
+     '            name = s\n'),
+    ('build: plain repo_state in the JSON', '**repo_state_excluding(a.out or a.out_root), "created": now()}', '**repo_state(), "created": now()}'),
+    ('check-overlap: plain repo_state in the JSON', '    state = repo_state_excluding(a.out or a.out_root)', '    state = repo_state()'),
+    ('self-test: plain repo_state in the JSON', '**(state or repo_state_excluding(out)), "checked": now()}', '**repo_state(), "checked": now()}'),
     ('public-scan: old public kept', '        write_all(out, {"overlap_report.json": json.dumps({**rep, "passed": False, "stage": "public-scan",', '        write_all(out, {"overlap_report_public.json": pub_json, "overlap_report.json": json.dumps({**rep, "passed": False, "stage": "public-scan",'),
 ]
 EXPORT_MUTANTS = [
@@ -62,6 +76,20 @@ EXPORT_MUTANTS = [
     ("path guard: no check before rmtree", "    msg = deletion_problem(path, run_id)\n    if msg:\n        raise SystemExit",
      '    msg = ""\n    if msg:\n        raise SystemExit'),
     ("path guard: output folders not checked", "        if msg := deletion_problem(p, run_id):\n", "        if False:\n"),
+    # stato del repository: JSON e run report coerenti, nessuna modifica fuori da --m2, nessun test saltato (17/10/2026)
+    ("export: JSON repository state not compared", "    failed += json_state_problems(m2, commit, json_dirty, state_start[0])\n", "    pass\n"),
+    ("export: changes outside the results folder not checked", "    if msg := tree_change_problem(state_start, tree_outside(m2)):\n",
+     '    if msg := "":\n'),
+    ("export: dirty_excludes not compared", "            if got != (commit, dirty, excludes):\n", "            if got[:2] != (commit, dirty):\n"),
+    ("export: start gate with plain git status", "    return bool(commit) and (status is None or bool(status))",
+     '    return bool(subprocess.run(["git", "status", "--porcelain"], cwd=root, capture_output=True, text=True).stdout.strip())'),
+    ("export: failed git status read as clean at the start gate", "    return bool(commit) and (status is None or bool(status))",
+     "    return bool(commit) and bool(status)"),
+    ("export: failed git status not refused at the start", "    if status_failed(state_start):\n", "    if False:\n"),
+    ("export: failed git status not refused after the run", "    if status_failed(before) or status_failed(after):\n", "    if False:\n"),
+    ("export: JSON dirty always false", "    json_dirty = bool(state_start[2])\n", "    json_dirty = False\n"),
+    ("export: JSON dirty from the whole tree", "    json_dirty = bool(state_start[2])\n", "    json_dirty = dirty\n"),
+    ("export: skipped tests accepted", "    if skipped:\n        reasons", "    if False:\n        reasons"),
 ]
 GUARD = "scripts/path_guard.py"
 GUARD_MUTANTS = [

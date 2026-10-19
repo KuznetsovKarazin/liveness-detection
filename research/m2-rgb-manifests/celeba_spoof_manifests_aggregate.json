@@ -332,9 +332,10 @@
  },
  "passed": true,
  "problems": [],
- "commit": "df379d4a2bb062428b26f36f5cd2abb14eaae575",
- "dirty": true,
- "created": "2026-10-16T11:01:47+0200",
+ "commit": "cbcda11f42a18fbfc52e6679eb6605d6847dd1c4",
+ "dirty": false,
+ "dirty_excludes": "results/m2_rgb",
+ "created": "2026-10-19T09:02:41+0200",
  "manifests": {
   "parquet": {
    "file": "manifests/celeba_parquet.csv",

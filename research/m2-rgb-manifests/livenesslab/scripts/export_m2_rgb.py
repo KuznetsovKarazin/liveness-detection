@@ -20,7 +20,10 @@ Passi:
 
 Il run-id predefinito è AAAAMMGG-M2-rgb-seed42-<commit>, distinto da quello della tranche NUAA (la cartella riservata
 di un run NUAA dello stesso giorno non viene mai toccata). Con --strict l'export si rifiuta di partire se il codice o i
-documenti esportati hanno modifiche non registrate. Codice 1 se un controllo fallisce. Non scrive mai in data, models,
+documenti esportati hanno modifiche non registrate. Lo stato del repository nei JSON (commit, dirty) esclude la cartella
+--m2 che l'export cancella e rigenera (dirty_excludes): l'export verifica che durante la rigenerazione nulla cambi fuori
+da --m2 e che ogni JSON registri lo stesso stato del run report. Ogni test saltato è un controllo fallito, con il motivo:
+nessun test salta per la piattaforma, quindi un salto è sempre un ingresso mancante. Codice 1 se un controllo fallisce. Non scrive mai in data, models,
 results/c1, results/eval, results/m1 o results/m2 (tranche NUAA).
 Uso:  python scripts/export_m2_rgb.py [--out export] [--m2 results/m2_rgb] [--run-id ...] [--strict] [--dry-run]
 """
@@ -45,6 +48,7 @@ from export_helpers import (completeness_problems, env_versions, fill_run_id, ha
                             run, scan, sha256, tests_line, write_sums)
 from package_rules import local_patterns_problem  # noqa: E402
 import path_guard  # noqa: E402
+import rgb_manifests as RM  # noqa: E402
 from rgb_manifests import AUTHORISATION_NOTE  # noqa: E402
 
 PY = sys.executable
@@ -260,7 +264,7 @@ def nuaa_package_problem(root: Path) -> str:
 
 
 TRIAL_NOTE = ("**Trial export, not for delivery**: built from a working tree with uncommitted changes (`--trial`); the run-id "
-              "ends with `-trial` and the run report records `working tree clean: NO`.")
+              "ends with `-trial` and the run report records `working tree clean at the start of the export: NO`.")
 
 
 def effective_run_id(run_id: str, dirty: bool, trial: bool) -> str:
@@ -272,12 +276,91 @@ def tree_gate(dirty: bool, trial: bool) -> str:
     """Un export da un albero con modifiche non registrate è ammesso solo come prova esplicita (--trial)."""
     if dirty and not trial:
         return ("the working tree has uncommitted changes: commit them first, or pass --trial for an explicit trial export "
-                "(its run report records 'working tree clean: NO')")
+                "(its run report records 'working tree clean at the start of the export: NO')")
     return ""
 
 
 def yes_no(v) -> str:
     return {True: "yes", False: "NO"}.get(v, "not checked")
+
+
+# ----------------------------------------------------------------------------- stato del repository (17/10/2026)
+# I JSON di rgb_manifests.py registrano commit e dirty senza la cartella dei risultati che l'export cancella e rigenera
+# (dirty_excludes): con results/ versionato quei file risultano cancellati e riscritti durante il run. L'export verifica
+# che fuori da quella cartella nulla cambi durante la rigenerazione e che commit e dirty dei JSON coincidano con lo stato
+# registrato nel run report, così i due resoconti non possono più divergere.
+STATE_JSON = ["{ds}_manifests_summary.json", "{ds}_manifests_aggregate.json", "overlap_report.json", "overlap_report_public.json",
+              "overlap_self_test.json"]
+
+
+def tree_outside(m2) -> tuple:
+    """(cartella esclusa o None, commit, git status fuori da essa): lo stesso calcolo dei JSON (rgb_manifests.tree_state)."""
+    return RM.tree_state(m2)
+
+
+def repo_dirty(root: Path = None) -> bool:
+    """Albero con modifiche (file non versionati compresi) per la soglia iniziale: lo stesso calcolo dei JSON, senza
+    esclusioni (tree_state della radice), così la configurazione di git dell'utente non può farli divergere."""
+    root = Path(root if root is not None else ROOT)
+    _, commit, status = RM.tree_state(root, root)
+    return bool(commit) and (status is None or bool(status))     # git status fallito: non dimostrato pulito
+
+
+def status_failed(state: tuple) -> bool:
+    """git risponde (commit leggibile) ma git status fallisce: stato sconosciuto, mai letto come pulito."""
+    return bool(state[1]) and state[2] is None
+
+
+def tree_change_problem(before: tuple, after: tuple) -> str:
+    """Una modifica fuori dalla cartella rigenerata, comparsa durante la rigenerazione, è un controllo fallito."""
+    if status_failed(before) or status_failed(after):
+        return "git status failed: the repository state outside the results folder is unknown"
+    if before[1] != after[1] or (before[2] or "") != (after[2] or ""):
+        changed = sorted(set((after[2] or "").splitlines()) ^ set((before[2] or "").splitlines()))
+        return (f"the working tree changed outside {before[0] or 'the results folder'} during the regeneration "
+                f"(commit {str(before[1])[:7]} -> {str(after[1])[:7]}; {changed[:5]})")
+    return ""
+
+
+def json_state_problems(m2: Path, commit: str, dirty: bool, excludes) -> list:
+    """Ogni JSON rigenerato deve registrare il commit del run, dirty uguale allo stato fuori dalla cartella esclusa
+    all'inizio dell'export e la stessa cartella esclusa; altrimenti JSON e run report direbbero cose diverse."""
+    problems = []
+    for ds in DATASETS:
+        for n in STATE_JSON:
+            name = n.format(ds=ds)
+            try:
+                doc = json.loads((Path(m2) / ds / name).read_text(encoding="utf-8"))
+            except (OSError, ValueError):
+                continue                                   # mancante o illeggibile: già segnalato da artefact_problems
+            got = (doc.get("commit"), doc.get("dirty"), doc.get("dirty_excludes", "absent"))
+            if got != (commit, dirty, excludes):
+                problems.append(f"{ds}/{name}: repository state (commit {str(got[0])[:7]}, dirty {got[1]}, excludes {got[2]}) differs "
+                                f"from the run report (commit {commit[:7]}, dirty {dirty}, excludes {excludes})")
+    return problems
+
+
+def tree_line(dirty_start: bool, excludes, json_dirty: bool) -> str:
+    """Stato dell'albero nel run report, con la semantica esatta del campo dirty dei JSON."""
+    start = "yes" if not dirty_start else "NO (explicit trial export, `--trial`)"
+    if excludes:
+        return (f"working tree clean at the start of the export: {start}; during the run only `{excludes}` was deleted and regenerated, "
+                f"`git status` outside that folder was unchanged (checked after the regeneration), and the `dirty` field of the regenerated "
+                f"JSON files excludes that folder (`dirty_excludes`) and is `{str(json_dirty).lower()}`")
+    return (f"working tree clean at the start of the export: {start}; the results folder is outside the repository and the "
+            f"`dirty` field of the regenerated JSON files is the plain repository state, `{str(json_dirty).lower()}`")
+
+
+def skip_problems(name: str, txt: str, skipped) -> list:
+    """Criterio di accettazione dei test nell'export: nessun test saltato. Dal 17/10/2026 nessun test salta per la
+    piattaforma (il filesystem che distingue le maiuscole è simulato): uno skip è sempre un ingresso mancante (dati,
+    registri, pacchetto NUAA, export di sviluppo) e per l'export ufficiale resta un controllo fallito, con il motivo."""
+    if skipped is None:
+        return [f"{name}: test summary missing"]
+    if skipped:
+        reasons = [l.split("skipped ", 1)[1] for l in txt.splitlines() if l.startswith("skipped ")]
+        return [f"{name}: {skipped} skipped tests (missing inputs: {'; '.join(reasons) or 'reason not printed'})"]
+    return []
 
 
 def report_fields(summ: dict, ov: dict, st: dict, agg: dict, run_id, commit, a, m2: Path, counts_files, logs_info, failed, not_produced) -> dict:
@@ -418,7 +501,10 @@ def main() -> int:
         print(f"ERROR: --m2 cannot be regenerated: {msg}", file=sys.stderr); return 1
     commit = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True).stdout.strip() or "n/d"
     run_id = a.run_id or f"{today()}-M2-rgb-seed42-{commit[:7]}"
-    dirty = bool(subprocess.run(["git", "status", "--porcelain"], cwd=ROOT, capture_output=True, text=True).stdout.strip())
+    dirty = repo_dirty()                    # stesso comando di stato dei JSON (rgb_manifests.STATUS_ARGS)
+    state_start = tree_outside(m2)          # fuori da --m2, che l'export cancella e rigenera (stato dei JSON)
+    if status_failed(state_start):
+        print("ERROR: git status failed: the repository state cannot be recorded", file=sys.stderr); return 1
     run_id = effective_run_id(run_id, dirty, a.trial)
     if not RUN_ID_RX.match(run_id):
         print(f"ERROR: invalid run-id {run_id!r} (expected YYYYMMDD-M2-rgb-...)", file=sys.stderr); return 1
@@ -441,7 +527,7 @@ def main() -> int:
     if a.strict and (msg := nuaa_package_problem(ROOT)):
         print(f"ERROR: strict mode: {msg}", file=sys.stderr); return 1
     if a.strict:
-        r = subprocess.run(["git", "status", "--porcelain", "--", *STRICT_PATHS], cwd=ROOT, capture_output=True, text=True)
+        r = subprocess.run(["git", *RM.STATUS_ARGS, "--", *STRICT_PATHS], cwd=ROOT, capture_output=True, text=True)
         if r.returncode != 0 or r.stdout.strip():
             print(f"strict mode: uncommitted changes in the exported code or documents:\n{r.stdout[:2000]}nothing exported, exit 1")
             return 1
@@ -476,8 +562,11 @@ def main() -> int:
     t_nuaa, _ = tests_line(rcs["check_nuaa_manifests.txt"][1], rcs["check_nuaa_manifests.txt"][0])
     t_exp, s_exp = tests_line(rcs["check_export_m2_rgb.txt"][1], rcs["check_export_m2_rgb.txt"][0])
     for what, skip in (("check_rgb_manifests.py", s_rgb), ("check_export_m2_rgb.py", s_exp)):
-        if skip is None or skip != 0:
-            failed.append(f"{what}: summary missing or skipped tests ({skip})")
+        failed += skip_problems(what, rcs[what.replace(".py", ".txt")][1], skip)
+    if msg := tree_change_problem(state_start, tree_outside(m2)):
+        failed.append(msg)
+    json_dirty = bool(state_start[2])
+    failed += json_state_problems(m2, commit, json_dirty, state_start[0])
     builds = []
     for ds in DATASETS:
         m = re.search(r"build checks passed \((\d+) checks\)", rcs[f"{ds}_build.log"][1])
@@ -587,7 +676,7 @@ def main() -> int:
         if h is not None and not same:
             failed.append(f"{f} differs from the copy delivered in the NUAA package")
     fields["reference_line"] = "; ".join(ref_lines)
-    fields["tree_line"] = (f"working tree clean: {'NO (explicit trial export, `--trial`)' if dirty else 'yes'}")
+    fields["tree_line"] = tree_line(dirty, state_start[0], json_dirty)
     (repo / "run-report.md").write_text((DELIV / "run-report.md.tmpl").read_text(encoding="utf-8").format(**fields), encoding="utf-8")
     shutil.copy2(repo / "run-report.md", d / "run-report.md")
     pub_sha, n_listed, sp = write_sums(repo)

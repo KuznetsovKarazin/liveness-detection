@@ -7,11 +7,11 @@ as the accepted NUAA tranche (`research/m2-nuaa-manifests/`), whose code is impo
 inference: the scripts list and hash files and read the training caches (label, group and frame arrays; the frames are
 only hashed).
 
-This folder is a filtered export of the operator's development repository (private; development commit `df379d4`,
-run `20261016-M2-rgb-seed42-df379d4`): the scripts needed to rerun the checks, the documents, the declared rules and the aggregate results,
+This folder is a filtered export of the operator's development repository (private; development commit `cbcda11`,
+run `20261019-M2-rgb-seed42-cbcda11`): the scripts needed to rerun the checks, the documents, the declared rules and the aggregate results,
 without data, weights, per-image manifests, subject or video keys, or row indices. The per-image manifests, the private
 summaries, the restricted overlap and short reports, the self-tests, the dataset register drafts and the logs are in the
-restricted run folder `20261016-M2-rgb-seed42-df379d4` (see "Delivery status"), with their SHA-256 listed in the public aggregates and in
+restricted run folder `20261019-M2-rgb-seed42-cbcda11` (see "Delivery status"), with their SHA-256 listed in the public aggregates and in
 `run-report.md`. Code comments, command-line help and progress messages are in Italian by the developer's convention;
 reports, error messages and every document of this folder are in English.
 
@@ -23,7 +23,7 @@ separately.
 
 ## Delivery status
 
-The restricted folder of this run (`20261016-M2-rgb-seed42-df379d4`) is kept locally and not uploaded. The provenance note `M2_provenienza_RGB_20261009.pdf` was placed on 9 October 2026 in the shared M2 folder `20261006-M2-seed42-36c677a` as a supplementary document outside the NUAA run (not listed in its `SHA256SUMS`), as indicated in the coordinator's message of 9 October 2026 (email and M2 card); the restricted RGB run folder stays local and is uploaded to `02_Experiments/M2/20261016-M2-rgb-seed42-df379d4/` only when he asks for it. No earlier upload of a CASIA-FASD or CelebA-Spoof restricted folder is declared.
+The restricted folder of this run (`20261019-M2-rgb-seed42-cbcda11`) is kept locally and not uploaded. The provenance note `M2_provenienza_RGB_20261009.pdf` was placed on 9 October 2026 in the shared M2 folder `20261006-M2-seed42-36c677a` as a supplementary document outside the NUAA run (not listed in its `SHA256SUMS`), as indicated in the coordinator's message of 9 October 2026 (email and M2 card); the restricted RGB run folder stays local and is uploaded to `02_Experiments/M2/20261019-M2-rgb-seed42-cbcda11/` only when he asks for it. No earlier upload of a CASIA-FASD or CelebA-Spoof restricted folder is declared.
 
 ## Glossary
 
@@ -116,8 +116,22 @@ Details, keys, closed value sets and checks in `naming_schema_rgb.md`; preproces
 | `<dataset>/overlap_report.*`, `overlap_self_test.*` | restricted overlap report (example keys of failed checks) and self-test | restricted |
 | `dataset_register_casia_fasd.md`, `dataset_register_celeba_spoof.md` | draft entries of the dataset register (`01_Dataset_Register`) | restricted |
 
-Fields that change at every run and are not part of the evidence: `created`, `commit`, `dirty`, `checked`,
-`manifests_dir`, `library_versions`.
+Fields that change at every run and are not part of the evidence: `created`, `commit`, `dirty`, `dirty_excludes`,
+`checked`, `manifests_dir`, `library_versions`.
+
+Repository state in the JSON files (`commit`, `dirty`, `dirty_excludes`): `dirty` is `true` when the working tree of the
+repository that contains the code has changes (`git -c status.showUntrackedFiles=all status --porcelain
+--untracked-files=all`: every untracked file is listed whatever the user's git configuration) **outside the output
+folder that the command itself writes**, named in `dirty_excludes` (relative to the repository root, with the spelling
+on disk): `--out` if given, otherwise `--out-root`. Run on its own, `rgb_manifests.py --out <folder of the repository>`
+therefore excludes that folder, whichever it is, and `dirty_excludes` declares it; `export_m2_rgb.py` always uses
+`results/m2_rgb` (or a scratch folder outside the repository). In the development repository the results are
+versioned, so the export, which deletes and regenerates `results/m2_rgb/`, used to see its own regenerated files as
+changes and recorded `dirty: true` although the tree was clean at the start (run `20261016-M2-rgb-seed42-df379d4`, in
+the six restricted and the four public JSON files, and as "(working tree modified)" in the overlap reports in
+Markdown). An output folder outside the repository is not excluded (`dirty_excludes: null`). The Markdown reports
+(overlap reports and short reports) state the same: `working tree clean` or `modified`, followed by
+``outside `<dirty_excludes>` `` when a folder is excluded.
 
 ## Manifests
 
@@ -174,7 +188,7 @@ repository):
 python scripts/rgb_manifests.py build --dataset casia_fasd                       # manifests, private summary, public aggregate (exit 1 if a check fails)
 python scripts/rgb_manifests.py check-overlap --dataset casia_fasd --self-test   # declared rules and self-test (exit 1 on any failure)
 python scripts/rgb_manifests.py report --dataset casia_fasd                      # short report, private and public versions
-python scripts/check_rgb_manifests.py                                            # offline tests (real-data tests skipped without data)
+python scripts/check_rgb_manifests.py                                            # offline tests: without the restricted folder "tests run: 57, failures: 0, errors: 0, skipped: 2" (the two real-data tests)
 ```
 
 `python scripts/m2_inventory/run_all.py` regenerates the 71 numbers of the published inventory (CASIA-FASD and
@@ -200,6 +214,24 @@ SHA-256) it writes only an explicit FAIL report (`overlap_report.json`, and `ove
 refuses a failed build or overlap report. Every group of outputs is written only at the end, via temporary files and renames; if writing fails, no file of the
 group remains.
 `export_m2_rgb.py` refuses missing, failed, inconsistent or other-commit artefacts and leftover temporary files.
+
+Repository state of the export: the working tree must be clean at the start (or the export is an explicit `--trial`),
+checked with the same git status command as the JSON files.
+After the regeneration it checks that `git status` outside `--m2` (the only folder of the repository that it
+deletes and regenerates before writing the packages) is unchanged, and that every regenerated JSON file records the commit of the
+run, `dirty` equal to the state outside `--m2` at the start, and `dirty_excludes` equal to `--m2`; otherwise the export
+fails, so the JSON files and the run report cannot disagree. The run report states this semantics. A `git status` that
+fails while the commit can be read is never taken as clean: the JSON files record `dirty: true` and the export stops
+with an explicit error. The status command uses `git --no-optional-locks`, so these read-only checks never take the
+index lock.
+
+Skipped tests: the export fails if `check_rgb_manifests.py --require-real` or `check_export_m2_rgb.py` skips any test,
+and prints the reason of each skip. No test skips because of the platform (another path to the same folder is
+simulated on every filesystem, see step 6 below), so a skip always means a missing input, which the official export
+must have: the real manifests or the public aggregates, the register drafts, the NUAA package, the development-only
+exports, the documents next to `livenesslab/` (`README.md`, `naming_schema_rgb.md` and the other public documents),
+or `git` for the repository-state tests. Each suite declares its missing inputs in one list, and a test checks on its
+source that every skip goes through it.
 
 Path protection of the export: every folder that `export_m2_rgb.py` deletes or rewrites (`--m2`, the public folder, the
 restricted run folder, its temporary work folder) is checked, after resolving symbolic links and `..`, at argument parsing
@@ -250,11 +282,12 @@ of the fitting, early-stopping and pooled manifests is pinned only by their decl
 5. all of the above as tests (`--real-dir` is the folder that contains `casia_fasd/` and `celeba_spoof/`; the public
    aggregates are read from this folder, one level above `livenesslab/`); the test
    `test_library_drift_canary` fails with an explicit message if scikit-learn splits a fixed input differently from
-   scikit-learn 1.3.2. A test skips, with its reason printed by `--verbose`, only when what it needs is absent: the tests on
-   the real manifests without `--require-real` and the restricted folder, and the two document checks (comparison of the
-   source declarations, and check of the CelebA-Spoof, CASIA-FASD and licence notes) when `README.md` and
-   `naming_schema_rgb.md` are not next to `livenesslab/`. Run from this folder with the command
-   below, no test should skip:
+   scikit-learn 1.3.2. A test skips only when what it needs is absent, and its reason is always printed as
+   `skipped <test>: missing input: ...`: the tests on the real manifests without `--require-real` and the restricted
+   folder, the two document checks (comparison of the source declarations, and check of the CelebA-Spoof, CASIA-FASD
+   and licence notes) when `README.md` and `naming_schema_rgb.md` are not next to `livenesslab/`, and the
+   repository-state tests without `git`. Run from this folder with the command below, no test skips and the last two
+   lines are `tests run: 57, failures: 0, errors: 0, skipped: 0` and `RESULT: PASS`:
 
    ```bash
    python scripts/check_rgb_manifests.py --require-real --real-dir "$M2_RUN"
@@ -262,16 +295,22 @@ of the fitting, early-stopping and pooled manifests is pinned only by their decl
 6. the export and its tests, and the mutation check (no data needed, empty data folders are enough). `export_m2_rgb.py`
    is the script that produced this folder; its helpers are in `export_helpers.py`, a verified copy of functions of the
    development-only `export_m1.py` and `export_m2.py` (one documented difference: `env_versions` reads the environment
-   files with a glob instead of listing them by name). `check_export_m2_rgb.py` (23 tests, including behavioural tests of
-   the helpers on synthetic folders and of the path protection, with temporary folders, sentinel files and an
-   intercepted deletion) must end with `RESULT: PASS`; from this folder 2 tests skip by design, each with its
-   reason: the dataset register drafts are restricted, and `export_m1.py`/`export_m2.py` (the originals of the helpers)
-   are development-only; the comparison of the shared modules with the NUAA package also skips if
-   `../m2-nuaa-manifests` is not next to this folder. The mutation check copies the code to a temporary folder, applies
-   40 declared mutations to `rgb_manifests.py`, `export_m2_rgb.py`, `export_helpers.py` and `path_guard.py` (each pattern must occur
+   files with a glob instead of listing them by name). `check_export_m2_rgb.py` (29 tests, including behavioural tests of
+   the helpers on synthetic folders, of the path protection, with temporary folders, sentinel files and an
+   intercepted deletion, and of the repository-state checks) must end with `RESULT: PASS`; from this folder, next to
+   `../m2-nuaa-manifests` as in `research/` of the group repository, its last two lines are
+   `tests run: 29, failures: 0, errors: 0, skipped: 2` and `RESULT: PASS` (`skipped: 3` without `../m2-nuaa-manifests`). The comparison of two paths
+   to the same folder runs on every filesystem: on one that ignores case (macOS by default) with real other spellings,
+   and everywhere with a simulated alias (a second real folder whose file identity is reported as that of the protected
+   one), so a string comparison in place of `os.path.samefile` fails on Linux too. A test skips only for a missing
+   input, with its reason printed as `skipped <test>: missing input: ...`: from this folder 2 tests skip by design, the
+   dataset register drafts (restricted) and `export_m1.py`/`export_m2.py` (the originals of the helpers,
+   development-only); the comparison of the shared modules with the NUAA package also skips if `../m2-nuaa-manifests`
+   is not next to this folder. The mutation check copies the code to a temporary folder, applies
+   58 declared mutations to `rgb_manifests.py`, `export_m2_rgb.py`, `export_helpers.py` and `path_guard.py` (each pattern must occur
    exactly once, otherwise it stops with an error), runs the offline tests on each mutated copy and counts a mutation as
    detected only if the tests ran to their summary with at least one failure or error (a copy that does not even start
-   is reported as an invalid mutation); it must end with `mutations killed: 40/40` and `RESULT: PASS` (a few
+   is reported as an invalid mutation; a skip is never counted as a detection); it must end with `mutations killed: 58/58` and `RESULT: PASS` (a few
    minutes; `--list` only checks the patterns). Inside the mutation check the export suite runs on a bare copy of the
    code, without the NUAA folder and the documents next to it, so it reports 4 skips; the mutants of the helpers are still
    detected by the behavioural tests, which do not need those files:
