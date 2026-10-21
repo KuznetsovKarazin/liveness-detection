@@ -514,6 +514,10 @@ class Base(unittest.TestCase):
         if "train" in steps:
             self.assertFalse((run / "checkpoints").exists())
             self.assertFalse((run / "checkpoints.tmp").exists())
+            self.assertFalse([e for e in os.listdir(run) if e.startswith(".checkpoints.")] if run.is_dir() else [])
+        if run.is_dir():                    # temporanei nuovi (nomi casuali) delle uscite dei passi controllati
+            names = {n for s_ in steps for n in C2.OUTPUTS[s_]}
+            self.assertFalse([e for e in os.listdir(run) if e.endswith(".tmp") and any(e.startswith(f".{n}.") for n in names)])
 
 
 # ============================================================================ configurazione
@@ -947,7 +951,9 @@ class TestTrainCnn(Base):
 
     def test_cli_options_and_defaults(self):
         tree = ast.parse(TRAIN_CNN.read_text(encoding="utf-8"))
-        main = next(n for n in tree.body if isinstance(n, ast.If) and "__main__" in ast.unparse(n.test))
+        main = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == "main")
+        guard = next(n for n in tree.body if isinstance(n, ast.If) and "__main__" in ast.unparse(n.test))
+        self.assertEqual(ast.unparse(guard.body[0]), "main()")
         opts = {}
         for n in ast.walk(main):
             if isinstance(n, ast.Call) and ast.unparse(n.func) == "ap.add_argument":
@@ -1701,20 +1707,22 @@ class TestRefusalsAndStatus(Base):
     def status(self, w):
         return json.loads((w.run / "status.json").read_text())
 
-    def test_step_refusal_removes_stale_pass(self):
+    def test_option_refusal_keeps_outputs_and_marks_fail(self):
+        """Opzioni rifiutate (autorizzazione, epoche) prima di qualunque modifica: le uscite restano, status.json dice FAIL."""
         w = self.world()
         pipeline(w, "apply")
         self.assertEqual(self.status(w)["result"], "PASS")
-        self.assertFail(run_c2([x for x in w.args("train") if x != "--i-am-authorized"]), "--i-am-authorized", "train")
-        self.assertNoOutputs(w.run, "train", "score_dev", "select", "score_tests", "apply")
-        st_ = self.status(w)
-        self.assertEqual((st_["result"], st_["step"]), ("FAIL", "train"))
-        self.assertTrue(st_["outputs"].startswith("removed"))
-        w2 = World(self.tmp / "w2")
-        pipeline(w2, "apply")
-        self.assertFail(run_c2([x for x in w2.args("score", "--set", "dev") if x != "--i-am-authorized"]), "--i-am-authorized", "score")
-        self.assertNoOutputs(w2.run, "score_dev", "select", "score_tests", "apply")
-        self.assertTrue((w2.run / "train.json").exists())
+        before = {n: (w.run / n).read_bytes() for n in os.listdir(w.run) if (w.run / n).is_file() and n != "status.json"}
+        for args, text, cmd in (([x for x in w.args("train") if x != "--i-am-authorized"], "--i-am-authorized", "train"),
+                                (w.args("train")[:-3] + ["--epochs", "11", "--i-am-authorized"], "differs from the configuration budget", "train"),
+                                ([x for x in w.args("score", "--set", "dev") if x != "--i-am-authorized"], "--i-am-authorized", "score")):
+            self.assertFail(run_c2(args), text, cmd)
+            after = {n: (w.run / n).read_bytes() for n in os.listdir(w.run) if (w.run / n).is_file() and n != "status.json"}
+            self.assertEqual(after, before, text)
+            self.assertTrue((w.run / "checkpoints").is_dir())
+            st_ = self.status(w)
+            self.assertEqual(st_["result"], "FAIL")
+            self.assertTrue(st_["outputs"].startswith("untouched"))
 
     def test_identity_refusal_leaves_outputs_and_marks_fail(self):
         w = self.world()
@@ -2246,7 +2254,8 @@ class TestThirdReview(Base):
         pipeline(w, "apply")
         self.assertFail(run_c2([x for x in w.args("score", "--set", "source_test,target") if x != "--i-am-authorized"]),
                         "score needs --i-am-authorized", "score")
-        self.assertNoOutputs(w.run, "score_tests", "apply")
+        for n in C2.OUTPUTS["score_tests"] + C2.OUTPUTS["apply"]:      # rifiuto prima di qualunque modifica
+            self.assertTrue((w.run / n).exists(), n)
 
     def test_threshold_read_back(self):
         w = self.world()
@@ -2495,6 +2504,7 @@ class TestSweep(Base):
         self.assertFail(run_c2(w.args("check")), "target cache nuaa_1500.npz not found")
         w = World(self.tmp / "othername")
         a = w.args("check")
+        shutil.copy2(w.cache("source"), w.cache_dir / "other_1500.npz")
         a[a.index("--source-cache") + 1] = str(w.cache_dir / "other_1500.npz")
         self.assertFail(run_c2(a), "is not the file of the configuration")
         w = World(self.tmp / "corrupt")
@@ -2776,6 +2786,391 @@ class TestSweep(Base):
         self.assertEqual(info["val_split"], "per soggetto")
 
 
+def tree_bytes(d: Path) -> dict:
+    """Contenuto di un albero (percorso relativo -> byte; collegamenti come bersaglio), senza seguire i collegamenti."""
+    out = {}
+    for dp, dns, fns in os.walk(d):
+        for n in fns + [x for x in dns if (Path(dp) / x).is_symlink()]:
+            q = Path(dp) / n
+            out[str(q.relative_to(d))] = ("link", os.readlink(q)) if q.is_symlink() else q.read_bytes()
+    return out
+
+
+class TestTeacherReview21(Base):
+    """Revisione del docente del 21/10 sulla PR #8: ingressi e uscite separati, alberi con i pacchetti accettati,
+    temporanei sicuri, opzioni prima del lavoro, provenienza legata al run corrente."""
+
+    def inputs_snapshot(self, w):
+        return {"src": tree_bytes(w.src_dir), "tgt": tree_bytes(w.tgt_dir), "cache": tree_bytes(w.cache_dir), "cfg": w.config.read_bytes()}
+
+    def moved(self, w, where: Path, which="source"):
+        """Copia della cartella dei manifest (source o target) in `where` e argomenti che la usano."""
+        src = w.src_dir if which == "source" else w.tgt_dir
+        where.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copytree(src, where)
+        return where
+
+    def test_inputs_inside_or_around_the_run_refused(self):
+        w = self.world()
+        pipeline(w, "train")
+        run_before = tree_bytes(w.run)
+        cases = {"inside checkpoints": w.run / "checkpoints" / "m", "inside the run": w.run / "m", "equal to the run": None}
+        for name, where in cases.items():
+            if where is None:
+                a = w.args("check")
+                a[a.index("--source-manifests") + 1] = str(w.run)
+            else:
+                self.moved(w, where)
+                a = w.args("check")
+                a[a.index("--source-manifests") + 1] = str(where)
+            before = tree_bytes(w.run)
+            for cmd in (a, a[:1] and [a[0].replace("check", "train")] + a[1:] + ["--epochs", "12", "--i-am-authorized"]):
+                self.assertFail(run_c2(cmd), "inputs refused", None)
+                self.assertEqual(tree_bytes(w.run), before, name)          # nulla cancellato né scritto, nemmeno status.json
+            if where is not None:
+                shutil.rmtree(where)
+        self.assertEqual(tree_bytes(w.run), run_before)
+
+    def test_inputs_by_link_alias_config_cache_and_ancestor(self):
+        w = self.world()
+        pipeline(w, "check")
+        snap = self.inputs_snapshot(w)
+        run_before = tree_bytes(w.run)
+        link = self.tmp / "link_to_run"
+        link.symlink_to(w.run, target_is_directory=True)
+        (w.run / "m").mkdir()
+        for f in w.src_dir.iterdir():
+            shutil.copy2(f, w.run / "m" / f.name)
+        run_before = tree_bytes(w.run)
+        for opt, val in (("--source-manifests", link / "m"), ("--target-manifests", link), ("--config", w.run / "check.json"),
+                         ("--source-cache", w.run / "check.json"), ("--source-manifests", w.run.parent)):
+            a = w.args("check")
+            a[a.index(opt) + 1] = str(val)
+            self.assertFail(run_c2(a), "inputs refused", "check")
+            self.assertEqual(tree_bytes(w.run), run_before, opt)
+        # alias simulato (stessa identità per os.path.samefile, percorso diverso)
+        alias = self.tmp / "alias_dir"
+        alias.mkdir()
+        real = os.path.samefile
+
+        def same(x, y):
+            return {Path(x).resolve(), Path(y).resolve()} == {alias.resolve(), w.run.resolve()} or real(x, y)
+        a = w.args("check")
+        a[a.index("--target-manifests") + 1] = str(alias)
+        with mock.patch("os.path.samefile", same):
+            self.assertFail(run_c2(a), "inputs refused", "check")
+        self.assertEqual(tree_bytes(w.run), run_before)
+        self.assertEqual(self.inputs_snapshot(w), snap)
+
+    def fork_layout(self):
+        f = self.tmp / "fork"
+        sentinel = f / "research" / "c1-livenesslab" / "livenesslab" / "models" / "weights" / "LivenessNet__casia_fasd.h5"
+        sentinel.parent.mkdir(parents=True)
+        sentinel.write_bytes(b"accepted C1 checkpoint")
+        for pkg in ("m1-metrics/livenesslab/scripts", "m2-rgb-manifests/livenesslab/scripts", "m2-c2-pilot-protocol", "m2-c2-pilot-impl/livenesslab/scripts"):
+            (f / "research" / pkg).mkdir(parents=True, exist_ok=True)
+        (f / "research" / "m1-metrics" / "config.json").write_text("{}")
+        return f, f / "research" / "m2-c2-pilot-impl" / "livenesslab", sentinel
+
+    def test_group_repository_layout_protected(self):
+        f, root, sentinel = self.fork_layout()
+        before = tree_bytes(f)
+        C2._outer_roots.cache_clear()
+        with mock.patch.object(C2, "ROOT", root), mock.patch.object(TC, "ROOT", root):
+            for where in ("research/c1-livenesslab/livenesslab/models/weights", "research/m1-metrics", "research/m2-rgb-manifests/livenesslab",
+                          "research/m2-c2-pilot-protocol", "research/m2-c2-pilot-impl", "research/m2-c2-pilot-impl/livenesslab/results/c2", ".", "other"):
+                self.assertIn("work tree", C2.run_dir_problem(f / where / TRIAL), where)
+                self.assertIn("work tree", TC.out_dir_problem(f / where), where)
+            self.assertEqual(C2.run_dir_problem(self.tmp / "outside" / TRIAL), "")
+            self.assertEqual(TC.out_dir_problem(self.tmp / "outside" / "ck"), "")
+            w = self.world()
+            with self.assertRaises(SystemExit) as cm, contextlib.redirect_stdout(io.StringIO()):
+                fake_trainer()("LivenessNet", "casia_fasd", {"X_train": w.arrays["source"]["X_train"], "y_train": w.arrays["source"]["y_train"],
+                                                             "s_train": w.arrays["source"]["s_train"]}, 12, 16, 1e-3,
+                               out_dir=sentinel.parent, test_eval=False)
+            self.assertIn("work tree", str(cm.exception.code))
+            self.assertFail(run_c2(w.args("check", run=f / "research" / "m1-metrics" / TRIAL)), "run folder refused", "check")
+        C2._outer_roots.cache_clear()
+        self.assertEqual(tree_bytes(f), before)
+        self.assertEqual(sentinel.read_bytes(), b"accepted C1 checkpoint")
+
+    def test_git_work_tree_protected(self):
+        if shutil.which("git") is None:
+            skip_missing(self, "git")
+        g = self.tmp / "gitrepo"
+        root = g / "pkg" / "livenesslab"
+        (root / "scripts").mkdir(parents=True)
+        subprocess.run(["git", "init", "-q", str(g)], check=True, capture_output=True)
+        (g / "keep.txt").write_text("x")
+        C2._outer_roots.cache_clear()
+        with mock.patch.object(C2, "ROOT", root), mock.patch.object(TC, "ROOT", root):
+            self.assertIn("work tree", C2.run_dir_problem(g / "anything" / TRIAL))
+            self.assertIn("work tree", TC.out_dir_problem(g / "pkg" / "out"))
+            self.assertEqual(C2.run_dir_problem(self.tmp / "free" / TRIAL), "")
+        C2._outer_roots.cache_clear()
+        self.assertEqual(C2.run_dir_problem(self.tmp / "free" / TRIAL), "")        # ROOT vero: la sua radice non è un albero esterno
+
+    def test_run_folder_symlink_refused(self):
+        w = self.world()
+        real = self.tmp / "real_run"
+        real.mkdir()
+        w.run.symlink_to(real, target_is_directory=True)
+        self.assertFail(run_c2(w.args("check")), "symbolic link", "check")
+        self.assertEqual(os.listdir(real), [])
+
+    def test_temporary_and_output_links_never_followed(self):
+        ext = self.tmp / "external.txt"
+        ext.write_text("external, must stay")
+        ext_dir = self.tmp / "external_dir"
+        ext_dir.mkdir()
+        (ext_dir / "keep.h5").write_bytes(b"keep")
+        w = self.world()
+        w.run.mkdir()
+        names = [n for s_ in C2.STEPS for n in C2.OUTPUTS[s_]] + [C2.STATUS]
+        for n in names:
+            (w.run / (n + ".tmp")).symlink_to(ext)
+        (w.run / "status.json.tmp").unlink()
+        (w.run / "status.json.tmp").symlink_to(self.tmp / "missing_target")      # collegamento senza bersaglio
+        (w.run / "notes.tmp").write_text("a file of the user, not a temporary of this code")
+        (w.run / ".check.json.old.tmp").write_text("stale new-style temp")
+        (w.run / "checkpoints").symlink_to(ext_dir, target_is_directory=True)
+        (w.run / "checkpoints.tmp").symlink_to(ext_dir, target_is_directory=True)
+        pipeline(w, "apply")                                                 # PASS con i collegamenti presenti
+        self.assertEqual(ext.read_text(), "external, must stay")
+        self.assertEqual(tree_bytes(ext_dir), {"keep.h5": b"keep"})
+        self.assertEqual([e for e in os.listdir(w.run) if e.endswith(".tmp") or e.endswith(".tmp/")], ["notes.tmp"], os.listdir(w.run))
+        self.assertFalse((w.run / "status.json.tmp").is_symlink())
+        self.assertEqual((w.run / "notes.tmp").read_text(), "a file of the user, not a temporary of this code")
+        self.assertFalse((w.run / "checkpoints").is_symlink())
+        # FAIL con un'uscita e status.json come collegamenti
+        (w.run / "threshold.json.tmp").symlink_to(ext)
+        rewrite_scores(w, "raw_scores_target.csv", lambda rows: rows[:-1], record="score_tests.json")
+        (w.run / "scores_E1.csv").unlink()
+        (w.run / "scores_E1.csv").symlink_to(ext)
+        self.assertFail(run_c2(w.args("apply")), step="apply")
+        self.assertEqual(ext.read_text(), "external, must stay")
+        self.assertFalse((w.run / "scores_E1.csv").exists() or (w.run / "scores_E1.csv").is_symlink())
+        (w.run / "status.json").unlink()
+        (w.run / "status.json").symlink_to(ext)
+        self.assertFail(run_c2(w.args("apply")), "status.json in the run folder is not a regular file", "apply")
+        self.assertEqual(ext.read_text(), "external, must stay")
+
+    def test_write_all_refuses_link_targets_and_uses_new_temporaries(self):
+        ext = self.tmp / "ext.txt"
+        ext.write_text("x")
+        d = self.tmp / "out"
+        d.mkdir()
+        (d / "a.json").symlink_to(ext)
+        with self.assertRaises(C2.C2Error):
+            C2.write_all(d, {"a.json": "new"})
+        self.assertEqual(ext.read_text(), "x")
+        calls = []
+        real = C2.tempfile.mkstemp
+
+        def spy(**k):
+            calls.append(k)
+            return real(**k)
+        with mock.patch.object(C2.tempfile, "mkstemp", spy):
+            C2.write_all(d, {"b.json": "ok"})
+        self.assertEqual((d / "b.json").read_text(), "ok")
+        self.assertEqual([(c["dir"], c["suffix"]) for c in calls], [(d, ".tmp")])
+        self.assertEqual(sorted(os.listdir(d)), ["a.json", "b.json"])
+
+    def test_options_validated_before_reading_images(self):
+        f, root, sentinel = self.fork_layout()
+        calls = []
+        bad = (["--dataset", "nuaa", "--no-test-eval"], ["--dataset", "nuaa", "--epochs", "0"], ["--dataset", "nuaa", "--arch", "Foo"],
+               ["--dataset", "nuaa", "--batch", "0"], ["--dataset", "nuaa", "--lr", "0"], ["--dataset", "nuaa", "--per-class", "-1"],
+               ["--dataset", "nuaa", "--out-dir", str(sentinel.parent), "--no-test-eval"],
+               ["--dataset", "nuaa", "--out-dir", str(sentinel), "--no-test-eval"])
+        C2._outer_roots.cache_clear()
+        with mock.patch.object(TC, "build_arrays", lambda *a, **k: calls.append(a) or {}), mock.patch.object(TC, "ROOT", root), \
+                mock.patch.object(TC, "train", lambda *a, **k: calls.append(("train", a))):
+            for argv in bad:
+                with self.assertRaises(SystemExit) as cm, contextlib.redirect_stdout(io.StringIO()):
+                    TC.main(argv)
+                self.assertTrue(str(cm.exception.code).startswith("ERROR: "), argv)
+            self.assertEqual(calls, [])
+            with contextlib.redirect_stdout(io.StringIO()):
+                TC.main(["--dataset", "nuaa", "--out-dir", str(self.tmp / "ok"), "--no-test-eval", "--arch", "LivenessNet"])
+        self.assertEqual(len(calls), 2)
+        self.assertEqual(sentinel.read_bytes(), b"accepted C1 checkpoint")
+
+    def copy_from(self, a_run, b_run, *names):
+        for n in names:
+            src, dst = a_run / n, b_run / n
+            if dst.is_dir() and not dst.is_symlink():
+                shutil.rmtree(dst)
+            elif dst.exists() or dst.is_symlink():
+                dst.unlink()
+            (shutil.copytree if src.is_dir() else shutil.copy2)(src, dst)
+
+    def two_runs(self, upto_b):
+        wa = World(self.tmp / "A", "20261021-C2-seed42-abcdef0-trial")
+        pipeline(wa, "apply")
+        wb = World(self.tmp / "B", "20261021-C2-seed42-abcdef1-trial")
+        wb.cfg, wb.config.parent.mkdir(exist_ok=True)
+        shutil.copy2(wa.config, wb.config)                                   # stessa configurazione, stessi ingressi
+        for d in ("src_dir", "tgt_dir", "cache_dir"):
+            shutil.rmtree(getattr(wb, d)); shutil.copytree(getattr(wa, d), getattr(wb, d))
+        pipeline(wb, upto_b)
+        return wa, wb
+
+    def test_records_of_another_run_refused(self):
+        cases = [("check", ("train.json", "checkpoints"), ("score", "--set", "dev"), "train.json belongs to another run"),
+                 ("train", ("score_dev.json", "raw_scores_dev.csv"), ("select",), "score_dev.json belongs to another run"),
+                 ("score_dev", ("threshold.json",), ("score", "--set", "source_test,target"), "threshold.json belongs to another run"),
+                 ("select", ("score_tests.json", "raw_scores_source_test.csv", "raw_scores_target.csv"), ("apply",),
+                  "score_tests.json belongs to another run")]
+        for upto, names, cmd, text in cases:
+            for d in ("A", "B"):
+                shutil.rmtree(self.tmp / d, ignore_errors=True)
+            wa, wb = self.two_runs(upto)
+            if upto == "select":                                              # B fino al punteggio dei test, poi i record di A
+                pipeline(wb, "score_tests")
+            self.copy_from(wa.run, wb.run, *names)
+            self.assertFail(run_c2(wb.args(*cmd)), text, cmd[0])
+            if "belongs" in text and names[0] != "threshold.json":
+                self.assertIn(f"({wa.run.name!r})", run_c2(wb.args(*cmd))[2])
+            self.assertNotEqual(json.loads((wb.run / names[0]).read_text())["run_id"], wb.run.name)
+
+    def test_inputs_refused_before_any_change(self):
+        """Ingressi mancanti o del tipo sbagliato: rifiuto prima di accettare la cartella, nessun file scritto o tolto."""
+        w = self.world()
+        pipeline(w, "apply")
+        before = tree_bytes(w.run)
+        for cmd, opt, val, text in (("select", "--source-manifests", self.tmp / "nope", "--source-manifests nope is not a folder"),
+                                    ("apply", "--config", self.tmp / "nope.json", "configuration not found: nope.json"),
+                                    ("train", "--target-cache", self.tmp / "nuaa_1500.npz", "target cache nuaa_1500.npz not found"),
+                                    ("check", "--source-cache", self.tmp / "casia_fasd_1500.npz", "source cache casia_fasd_1500.npz not found"),
+                                    ("select", "--target-manifests", w.config, "--target-manifests config.json is not a folder")):
+            a = w.args(cmd)
+            a[a.index(opt) + 1] = str(val)
+            self.assertFail(run_c2(a), text, cmd)
+            self.assertEqual(tree_bytes(w.run), before, cmd)          # status.json compreso: ancora PASS
+
+    def test_check_configuration_refused_before_any_change(self):
+        w = self.world()
+        pipeline(w, "apply")
+        before = {n: (w.run / n).read_bytes() for n in os.listdir(w.run) if (w.run / n).is_file() and n != "status.json"}
+        w.config.write_text("{not json")
+        self.assertFail(run_c2(w.args("check")), "not valid JSON", "check")
+        after = {n: (w.run / n).read_bytes() for n in os.listdir(w.run) if (w.run / n).is_file() and n != "status.json"}
+        self.assertEqual(after, before)
+        self.assertTrue(json.loads((w.run / "status.json").read_text())["outputs"].startswith("untouched"))
+
+    def test_output_link_to_a_folder_removed_not_followed(self):
+        ext_dir = self.tmp / "ext_folder"
+        ext_dir.mkdir()
+        (ext_dir / "keep.txt").write_text("keep")
+        w = self.world()
+        w.run.mkdir()
+        (w.run / "check.json").symlink_to(ext_dir, target_is_directory=True)
+        self.assertPass(run_c2(w.args("check")))
+        self.assertFalse((w.run / "check.json").is_symlink())
+        self.assertEqual(tree_bytes(ext_dir), {"keep.txt": b"keep"})
+
+    def test_out_dir_link_or_file_refused(self):
+        target = self.tmp / "real_out"
+        target.mkdir()
+        link = self.tmp / "link_out"
+        link.symlink_to(target, target_is_directory=True)
+        f = self.tmp / "a_file"
+        f.write_text("x")
+        self.assertIn("is a symbolic link", TC.out_dir_problem(link))
+        self.assertIn("exists and is not a folder", TC.out_dir_problem(f))
+        self.assertEqual(TC.out_dir_problem(target), "")
+
+    def test_output_folder_with_an_output_name_refused(self):
+        w = self.world()
+        pipeline(w, "score_dev")
+        (w.run / "threshold.json").mkdir()
+        self.assertFail(run_c2(w.args("select")), "threshold.json in the run folder is a folder, not an output file: refused", "select")
+        self.assertTrue((w.run / "threshold.json").is_dir())
+
+    def test_output_file_mode(self):
+        w = self.world()
+        pipeline(w, "check")
+        self.assertEqual((w.run / "check.json").stat().st_mode & 0o777, 0o666 & ~C2._UMASK)
+
+    def test_validate_args_limits_accepted(self):
+        ns = types.SimpleNamespace(arch=["LivenessNet"], epochs=1, batch=1, lr=1e-3, per_class=0, no_test_eval=False, out_dir=None,
+                                   dataset="casia_fasd", protocol="official")
+        self.assertEqual(TC.validate_args(ns), "")
+        for field, value in (("epochs", 0), ("batch", 0), ("per_class", -1), ("lr", 0.0), ("arch", [])):
+            self.assertTrue(TC.validate_args(types.SimpleNamespace(**{**vars(ns), field: value})), field)
+
+    def test_out_dir_with_existing_outputs_refused(self):
+        """--out-dir con pesi, file Keras o scheda già presenti (collegamento a un file esterno, collegamento senza
+        bersaglio, file regolare): rifiuto prima di qualunque training, file esterno identico, nessuna sovrascrittura."""
+        import numpy as np
+        ext = self.tmp / "external.h5"
+        ext.write_bytes(b"external weights")
+        w = self.world()
+        data = {k: w.arrays["source"][k] for k in ("X_train", "y_train", "s_train")}
+        for name, make in (("link", lambda d: (d / "LivenessNet__casia_fasd.h5").symlink_to(ext)),
+                           ("dangling", lambda d: (d / "LivenessNet__casia_fasd.keras").symlink_to(self.tmp / "nothing_here")),
+                           ("regular", lambda d: (d / "LivenessNet__casia_fasd.json").write_text("existing card"))):
+            out = self.tmp / f"out_{name}"
+            out.mkdir()
+            make(out)
+            before = tree_bytes(out)
+            FakeModel.LOG.clear()
+            with self.assertRaises(SystemExit) as cm, contextlib.redirect_stdout(io.StringIO()):
+                fake_trainer()("LivenessNet", "casia_fasd", data, 12, 16, 1e-3, out_dir=out, test_eval=False)
+            self.assertIn("already holds", str(cm.exception.code), name)
+            self.assertEqual(FakeModel.LOG, [], name)
+            self.assertEqual(tree_bytes(out), before, name)
+            calls = []
+            with mock.patch.object(TC, "build_arrays", lambda *a, **k: calls.append(a) or {}), self.assertRaises(SystemExit) as cm, \
+                    contextlib.redirect_stdout(io.StringIO()):
+                TC.main(["--dataset", "casia_fasd", "--arch", "LivenessNet", "--out-dir", str(out), "--no-test-eval"])
+            self.assertIn("already holds", str(cm.exception.code), name)
+            self.assertEqual(calls, [], name)
+        self.assertEqual(ext.read_bytes(), b"external weights")
+        # cartella con i file di un'altra architettura: ammessa
+        out = self.tmp / "out_other"
+        out.mkdir()
+        (out / "AttackNetV2_2__casia_fasd.h5").write_bytes(b"other model")
+        self.assertEqual(TC.existing_outputs_problem(out, "LivenessNet", "casia_fasd", "official"), "")
+
+    def test_validate_args_refuses_non_finite_lr(self):
+        ns = types.SimpleNamespace(arch=["LivenessNet"], epochs=1, batch=1, lr=1e-3, per_class=0, no_test_eval=False, out_dir=None,
+                                   dataset="casia_fasd", protocol="official")
+        self.assertEqual(TC.validate_args(ns), "")
+        for v in (float("nan"), float("inf")):
+            self.assertIn("finite", TC.validate_args(types.SimpleNamespace(**{**vars(ns), "lr": v})), v)
+
+    def test_forged_records_refused(self):
+        cases = (("train.json", "check_sha256", "was not written after the check of this run"), ("train.json", "step", "records the step 'check'"),
+                 ("train.json", "commit", "was written at another commit than the check of this run"),
+                 ("score_dev.json", "train_sha256", "score_dev.json was written with another train.json"),
+                 ("score_tests.json", "score_dev_sha256", "score_tests.json was written with another score_dev.json"))
+        for i, (rec, field, text) in enumerate(cases):
+            w = World(self.tmp / f"forged{i}")
+            pipeline(w, "score_tests")
+            r = json.loads((w.run / rec).read_text())
+            (w.run / rec).write_text(json.dumps(dict(r, **{field: "check" if field == "step" else "1234567" if field == "commit" else "0" * 64})))
+            self.assertFail(run_c2(w.args("apply")), text, "apply")
+
+    def test_linked_checkpoints_and_records_refused(self):
+        w = self.world()
+        pipeline(w, "train")
+        other = self.tmp / "other_ck"
+        shutil.copytree(w.run / "checkpoints", other)
+        shutil.rmtree(w.run / "checkpoints")
+        (w.run / "checkpoints").symlink_to(other, target_is_directory=True)
+        self.assertFail(run_c2(w.args("score", "--set", "dev")), "is a symbolic link", "score")
+        self.assertTrue((other / "LivenessNet__casia_fasd.h5").exists())
+        w2 = World(self.tmp / "w2")
+        pipeline(w2, "train")
+        keep = self.tmp / "train_copy.json"
+        shutil.copy2(w2.run / "train.json", keep)
+        (w2.run / "train.json").unlink()
+        (w2.run / "train.json").symlink_to(keep)
+        self.assertFail(run_c2(w2.args("score", "--set", "dev")), "missing train.json", "score")
+
+
 class TestZZStructure(unittest.TestCase):
     def test_tensorflow_never_imported(self):
         # nessun modulo di TensorFlow o Keras resta caricato dopo tutta la suite (i moduli finti si tolgono all'uscita)
@@ -2822,7 +3217,8 @@ def main() -> int:
     rm, nm, st = C2.rm, C2.nm, C2.st
     TC = load_train_cnn()
     classes = (TestConfig, TestRunFolder, TestCheck, TestTrainCnn, TestTrainCnnGuards, TestTrainStep, TestScore, TestSelect, TestApply,
-               TestInvalidation, TestRefusalsAndStatus, TestRecordsAndWeights, TestThirdReview, TestFourthReview, TestSweep, TestZZStructure)
+               TestInvalidation, TestRefusalsAndStatus, TestRecordsAndWeights, TestThirdReview, TestFourthReview, TestSweep,
+               TestTeacherReview21, TestZZStructure)
     suite = unittest.TestSuite(unittest.defaultTestLoader.loadTestsFromTestCase(c) for c in classes)
     log = io.StringIO()
     result = unittest.TextTestRunner(stream=log, verbosity=2).run(suite)

@@ -56,13 +56,16 @@ src/tesi_app/evaluation.py, che importa anche OpenCV); TensorFlow solo per train
 """
 import argparse
 import csv
+import functools
 import hashlib
 import io
 import json
 import math
 import os
 import re
+import subprocess
 import sys
+import tempfile
 import time
 from collections import Counter
 from pathlib import Path
@@ -296,19 +299,73 @@ def protected_extra() -> list:
     return [WEIGHTS, DATA, RESULTS / "c1", RESULTS / "m1", RESULTS / "m2", RESULTS / "m2_rgb", RESULTS / "eval"]
 
 
+@functools.lru_cache(maxsize=None)
+def _outer_roots(root: str) -> tuple:
+    """Alberi che contengono il codice senza esserne la radice: l'albero di lavoro git che contiene ROOT (git rev-parse
+    --show-toplevel, se diverso da ROOT) e ogni antenato X di ROOT con ROOT dentro X/research (disposizione del
+    repository del gruppo, anche in una copia senza git). Lì stanno i pacchetti accettati: nessuna uscita è ammessa."""
+    root = Path(root).resolve()
+    out = []
+    try:
+        r = subprocess.run(["git", "rev-parse", "--show-toplevel"], cwd=root, capture_output=True, text=True, timeout=30)
+        top = Path(r.stdout.strip()).resolve() if r.returncode == 0 and r.stdout.strip() else None
+        if top is not None and not pg.same(top, root):
+            out.append(top)
+    except (OSError, subprocess.SubprocessError):
+        pass
+    for x in root.parents:
+        if (x / "research").is_dir() and any(pg.same(x / "research", y) for y in root.parents) and not any(pg.same(x, o) for o in out):
+            out.append(x)
+    return tuple(out)
+
+
+def outer_roots() -> tuple:
+    return _outer_roots(str(ROOT))
+
+
 def run_dir_problem(run) -> str:
-    """Motivo per cui `run` non può essere la cartella del run ("" se può): nome, path_guard (radice, home, repository,
-    cartelle protette; dentro il repository solo results/c2/), cartelle dei pesi, dei dati e dei risultati consegnati
-    anche se spostate con le variabili d'ambiente (in entrambe le direzioni)."""
+    """Motivo per cui `run` non può essere la cartella del run ("" se può): nome, collegamento simbolico, alberi esterni
+    con i pacchetti accettati (outer_roots), path_guard (radice, home, repository, cartelle protette; dentro il repository
+    solo results/c2/), cartelle dei pesi, dei dati e dei risultati consegnati anche se spostate con le variabili
+    d'ambiente (in entrambe le direzioni)."""
     run = Path(run)
     if not RUN_ID_RE.match(run.name):
         return f"run folder name {run.name!r} is not YYYYMMDD-C2-seed42-<shortcommit>[-trial]"
+    if run.is_symlink():
+        return f"{run.name} is a symbolic link: the run folder must be a real folder"
+    for g in outer_roots():
+        if pg.within(run, g) or pg.contains(run, g):
+            return f"{run} is inside, or contains, the work tree {g.name} with the accepted packages: outputs go outside it"
     msg = pg.deletion_problem(run, ROOT, pg.BASE_PROTECTED, [ROOT / "results" / "c2"])
     if msg:
         return msg
     for q in protected_extra():
         if pg.within(run, q) or (Path(q).exists() and pg.contains(run, q)):
             return f"{run} is, contains or is inside a protected folder ({q.name})"
+    return ""
+
+
+def input_paths(a, caches: bool) -> dict:
+    out = {"--config": a.config, "--source-manifests": a.source_manifests, "--target-manifests": a.target_manifests}
+    if caches:
+        out |= {"--source-cache": a.source_cache, "--target-cache": a.target_cache}
+    return out
+
+
+def inputs_problem(a, run, caches: bool) -> str:
+    """Ingressi del passo controllati prima di qualunque modifica: esistono, sono del tipo giusto e sono separati dalla
+    cartella del run per identità dei file (né dentro, né uguali, né antenati; anche tramite collegamenti o alias)."""
+    run = Path(run)
+    for opt, p in input_paths(a, caches).items():
+        p = Path(p)
+        if pg.within(p, run) or pg.contains(p, run):
+            return f"{opt} {p.name} is, contains or is inside the run folder: inputs and outputs must be separate"
+        if opt == "--config" and not p.is_file():
+            return f"configuration not found: {p.name}"
+        if opt.endswith("manifests") and not p.is_dir():
+            return f"{opt} {p.name} is not a folder"
+        if opt.endswith("cache") and not p.is_file():
+            return f"{opt.split('-')[2]} cache {p.name} not found"
     return ""
 
 
@@ -335,41 +392,75 @@ def remove_outputs(run, step: str) -> list:
     run = Path(run)
     removed = []
     RUN_STATE["step"], RUN_STATE["removed"] = step, True
+    entries = sorted(os.listdir(run))
     for s in STEPS[STEPS.index(step):]:
         for n in OUTPUTS[s]:
-            for q in (run / n, run / (n + ".tmp")):
-                if q.exists() or q.is_symlink():
-                    q.unlink()
-                    removed.append(q.name)
+            temps = [e for e in entries if e == n + ".tmp" or (e.startswith(f".{n}.") and e.endswith(".tmp"))]
+            for q in [run / n] + [run / e for e in temps]:
+                if q.is_symlink():              # il collegamento si toglie, il suo bersaglio mai
+                    q.unlink(); removed.append(q.name)
+                elif q.is_dir():
+                    fail(f"{q.name} in the run folder is a folder, not an output file: refused")
+                elif q.exists():
+                    q.unlink(); removed.append(q.name)
         if s == "train":
-            for d in (run / CHECKPOINTS, run / (CHECKPOINTS + ".tmp")):
+            dirs = [CHECKPOINTS, CHECKPOINTS + ".tmp"] + [e for e in entries if e.startswith(f".{CHECKPOINTS}.")]
+            for d in (run / e for e in dirs):
                 if d.is_symlink():
                     d.unlink(); removed.append(d.name)
-                elif d.exists():
+                elif d.is_dir():
                     pg.safe_rmtree(d, ROOT, pg.BASE_PROTECTED, [ROOT / "results" / "c2"], ignore_errors=False)
                     removed.append(d.name)
+                elif d.exists():
+                    d.unlink(); removed.append(d.name)
     return removed
 
 
+_UMASK = os.umask(0o022)
+os.umask(_UMASK)
+
+
 def write_all(run, files: dict) -> None:
-    """Scrive un gruppo di file (nome -> testo) solo alla fine: prima tutti i temporanei, poi le rinomine; su qualunque
-    eccezione non resta nessun file del gruppo né alcun temporaneo."""
+    """Scrive un gruppo di file (nome -> testo) solo alla fine: prima tutti i temporanei, creati in modo sicuro
+    (tempfile.mkstemp: nome nuovo, O_CREAT | O_EXCL, nessun collegamento seguito), poi le rinomine; un'uscita che è un
+    collegamento o non è un file regolare è rifiutata prima di scrivere. Su qualunque eccezione non resta nessun file
+    del gruppo né alcun temporaneo, e nessun file esterno è toccato."""
     run = Path(run)
+    tmps, done = {}, []
     try:
+        for n in files:
+            q = run / n
+            if q.is_symlink() or (q.exists() and not q.is_file()):
+                raise C2Error(f"{n} in the run folder is a link or not a regular file: refused")
         for n, text in files.items():
-            (run / (n + ".tmp")).write_text(text, encoding="utf-8", newline="")
-        for n in files:
-            os.replace(run / (n + ".tmp"), run / n)
+            fd, tp = tempfile.mkstemp(prefix=f".{n}.", suffix=".tmp", dir=run)
+            tmps[n] = Path(tp)
+            with os.fdopen(fd, "w", encoding="utf-8", newline="") as f:
+                f.write(text)
+            os.chmod(tp, 0o666 & ~_UMASK)
+        for n, tp in tmps.items():
+            os.replace(tp, run / n)
+            done.append(n)
     except BaseException:
-        for n in files:
-            (run / (n + ".tmp")).unlink(missing_ok=True)
+        for tp in tmps.values():
+            tp.unlink(missing_ok=True)
+        for n in done:
             (run / n).unlink(missing_ok=True)
         raise
 
 
-def load_record(run, name: str) -> dict:
+def record_base(ctx, step: str) -> dict:
+    """Provenienza di un record: run, passo, configurazione, check.json di questo run (SHA-256) e commit."""
+    return {"passed": True, "step": step, "run_id": ctx.run.name, "config_sha256": ctx.cfg_sha,
+            "check_sha256": sha256_file(ctx.run / "check.json"), "commit": ctx.check.get("commit")}
+
+
+def load_record(run, name: str, ctx=None, step: str = None) -> dict:
+    """Record di un passo precedente: file regolare, JSON valido, passo superato e, con ctx, scritto da questo run
+    (run_id, passo, configurazione e SHA-256 del check.json di questo run): un record copiato da un altro run, anche
+    con la stessa configurazione, è rifiutato."""
     p = Path(run) / name
-    if not p.is_file():
+    if p.is_symlink() or not p.is_file():
         fail(f"missing {name} in the run folder: run the previous step first")
     try:
         d = json.loads(p.read_text(encoding="utf-8"))
@@ -377,6 +468,17 @@ def load_record(run, name: str) -> dict:
         fail(f"{name} is not valid JSON")
     if not isinstance(d, dict) or d.get("passed") is not True:
         fail(f"{name} does not record a passed step")
+    if ctx is not None:
+        if d.get("run_id") != ctx.run.name:
+            fail(f"{name} belongs to another run ({d.get('run_id')!r}): records and checkpoints of another run are refused")
+        if d.get("step") != step:
+            fail(f"{name} records the step {d.get('step')!r}, expected {step!r}")
+        if d.get("config_sha256") != ctx.cfg_sha:
+            fail(f"{name} was written with another configuration")
+        if d.get("check_sha256") != sha256_file(ctx.run / "check.json"):
+            fail(f"{name} was not written after the check of this run (check.json SHA-256 differs)")
+        if d.get("commit") != ctx.check.get("commit"):
+            fail(f"{name} was written at another commit than the check of this run")
     return d
 
 
@@ -385,15 +487,18 @@ class Ctx:
         self.run, self.cfg, self.cfg_sha, self.check, self.trial = run, cfg, cfg_sha, check, trial
 
 
-def open_run(a, step: str) -> Ctx:
-    """Cartella del run e configurazione di un passo dopo check: stessa configurazione (SHA-256), stesso codice e, per un
-    run non -trial, stesso commit del check con albero pulito."""
+def open_run(a, step: str, caches: bool) -> Ctx:
+    """Cartella del run e configurazione di un passo dopo check: prima, senza scrivere nulla, cartella e ingressi
+    (inputs_problem); poi stessa configurazione (SHA-256), stesso codice e, per un run non -trial, stesso commit del
+    check con albero pulito."""
     run = Path(a.run_dir)
     RUN_STATE.update(step=step, removed=False)
     if msg := run_dir_problem(run):
         fail(f"run folder refused: {msg}")
     if not run.is_dir():
         fail("run folder does not exist or is not a folder: run check first")
+    if msg := inputs_problem(a, run, caches):
+        fail(f"inputs refused: {msg}")
     accept_run(run, step)
     cfg, cfg_sha = load_config(a.config)
     check = load_record(run, "check.json")
@@ -566,11 +671,12 @@ def cmd_check(a) -> None:
     trial = is_trial(run)
     if run.exists() and not run.is_dir():
         fail("run folder path exists and is not a folder")
+    if msg := inputs_problem(a, run, caches=True):
+        fail(f"inputs refused: {msg}")
     if run.is_dir() and not trial and any(not (e.name == STATUS and e.is_file() and not e.is_symlink()) for e in run.iterdir()):
         fail("a non-trial run folder must be new (missing, empty or holding only the regular file status.json): refused, nothing removed")
     run.mkdir(parents=True, exist_ok=True)
     accept_run(run, "check")
-    remove_outputs(run, "check")
     cfg, cfg_sha = load_config(a.config)
     state = repo_state(run)
     m = RUN_ID_RE.match(run.name)
@@ -579,6 +685,7 @@ def cmd_check(a) -> None:
             fail(f"non-trial run: configuration SHA-256 {cfg_sha[:12]}… is not the approved one ({APPROVED_CONFIG_SHA256[:12]}…)")
         if state.get("dirty") or not str(state.get("commit", "")).startswith(m.group(2)):
             fail("non-trial run: the working tree must be clean and the run id must carry the current commit")
+    remove_outputs(run, "check")
     inp = load_inputs(cfg, a, caches=True)
     frames = frame_separation(inp)
     roles = {}
@@ -676,13 +783,14 @@ def weights_problems(ckdir, cfg: dict, rec: dict, inp_counts: dict) -> list:
 
 
 def cmd_train(a) -> None:
-    ctx = open_run(a, "train")
-    remove_outputs(ctx.run, "train")
+    ctx = open_run(a, "train", caches=True)
     if not a.i_am_authorized:
         fail("train needs --i-am-authorized (new training on the restricted data)")
     b = ctx.cfg["budget"]
     if a.epochs != b["max_epochs"]:
         fail(f"--epochs {a.epochs} differs from the configuration budget ({b['max_epochs']})")
+    trainer = load_trainer()
+    remove_outputs(ctx.run, "train")
     inp = load_inputs(ctx.cfg, a, caches=True)
     z = inp.cache["source"]
     order = inp.order[("source", "train")]
@@ -690,11 +798,10 @@ def cmd_train(a) -> None:
     split_check = {"sha256": [rows[k]["sha256"] for k in order], "train": [r["sha256"] for r in inp.rows["source_train"]],
                    "val": [r["sha256"] for r in inp.rows["source_dev"]]}
     data = {"X_train": z["X_train"], "y_train": z["y_train"], "s_train": z["s_train"]}   # nessun X_test: nessuna valutazione del test
-    trainer = load_trainer()
-    tmp, final = ctx.run / (CHECKPOINTS + ".tmp"), ctx.run / CHECKPOINTS
-    tmp.mkdir()
+    final = ctx.run / CHECKPOINTS
+    tmp = Path(tempfile.mkdtemp(prefix=f".{CHECKPOINTS}.", dir=ctx.run))      # cartella temporanea nuova, mai un nome fisso
     try:
-        rec = {"passed": True, "step": "train", "run_id": ctx.run.name, "config_sha256": ctx.cfg_sha, "epochs_argument": a.epochs,
+        rec = {**record_base(ctx, "train"), "epochs_argument": a.epochs,
                "batch": b["batch"], "learning_rate": b["learning_rate"], "test_evaluation": "disabled", "models": {}}
         t_all = time.time()
         for mid, arch in model_list(ctx.cfg):
@@ -720,16 +827,16 @@ def cmd_train(a) -> None:
         write_all(ctx.run, {"train.json": json.dumps(rec, indent=1) + "\n"})
     except BaseException:
         for d in (tmp, final):
-            if d.exists() and not (ctx.run / "train.json").exists():
+            if d.is_dir() and not d.is_symlink() and not (ctx.run / "train.json").exists():
                 pg.safe_rmtree(d, ROOT, pg.BASE_PROTECTED, [ROOT / "results" / "c2"], ignore_errors=False)
         raise
     print(f"== train: {len(rec['models'])} models trained, weights and cards in {CHECKPOINTS}/ checked")
 
 
 def checked_weights(ctx: Ctx, inp: Inputs) -> dict:
-    rec = load_record(ctx.run, "train.json")
-    if rec.get("config_sha256") != ctx.cfg_sha:
-        fail("train.json was written with another configuration")
+    rec = load_record(ctx.run, "train.json", ctx, "train")
+    if (ctx.run / CHECKPOINTS).is_symlink():
+        fail(f"{CHECKPOINTS}/ is a symbolic link: the weights of this run must be in its own folder")
     problems = weights_problems(ctx.run / CHECKPOINTS, ctx.cfg, rec, {r: len(inp.rows[r]) for r in ("source_train", "source_dev")})
     if problems:
         fail("weights check failed: " + "; ".join(problems))
@@ -826,20 +933,20 @@ def parse_sets(text: str) -> str:
 
 def cmd_score(a) -> None:
     step = parse_sets(a.set)
-    ctx = open_run(a, step)
-    remove_outputs(ctx.run, step)
+    ctx = open_run(a, step, caches=True)
     if not a.i_am_authorized:
         fail("score needs --i-am-authorized (inference on the restricted data)")
     thr_p = ctx.run / "threshold.json"
-    if step == "score_tests" and not thr_p.is_file():
+    if step == "score_tests" and (thr_p.is_symlink() or not thr_p.is_file()):
         fail("source_test and target scoring refused: threshold.json is missing (run score --set dev and select first)")
+    remove_outputs(ctx.run, step)
     inp = load_inputs(ctx.cfg, a, caches=True)
     train_rec = checked_weights(ctx, inp)
     files = {}
     if step == "score_dev":
         rows = score_role(ctx, inp, "source_dev", make_scorers(ctx, train_rec), train_rec)
         text = csv_text(rows)
-        rec = {"passed": True, "step": step, "run_id": ctx.run.name, "config_sha256": ctx.cfg_sha, "device": "CPU",
+        rec = {**record_base(ctx, step), "device": "CPU", "train_sha256": sha256_file(ctx.run / "train.json"),
                "files": {RAW["dev"]: {"sha256": sha256_text(text), "rows": len(rows)}}, "created": now()}
         files = {RAW["dev"]: text, "score_dev.json": json.dumps(rec, indent=1) + "\n"}
     else:
@@ -849,8 +956,8 @@ def cmd_score(a) -> None:
         texts = {RAW[r]: csv_text(score_role(ctx, inp, r, scorers, train_rec)) for r in ("source_test", "target_test")}
         if sha256_file(thr_p) != thr_sha:
             fail("threshold.json changed while the test sets were scored")
-        rec = {"passed": True, "step": step, "run_id": ctx.run.name, "config_sha256": ctx.cfg_sha, "device": "CPU",
-               "threshold_sha256_before_scoring": thr_sha,
+        rec = {**record_base(ctx, step), "device": "CPU", "train_sha256": sha256_file(ctx.run / "train.json"),
+               "score_dev_sha256": sha256_file(ctx.run / "score_dev.json"), "threshold_sha256_before_scoring": thr_sha,
                "files": {n: {"sha256": sha256_text(t), "rows": t.count("\n") - 1} for n, t in texts.items()}, "created": now()}
         files = {**texts, "score_tests.json": json.dumps(rec, indent=1) + "\n"}
     write_all(ctx.run, files)
@@ -952,9 +1059,11 @@ def score_problems(rows, role: str, ctx: Ctx, inp: Inputs, train_rec: dict, phas
 
 def check_raw(ctx: Ctx, inp: Inputs, train_rec: dict, role: str, record: str) -> list:
     name = RAW["dev"] if role == "source_dev" else RAW[role]
-    rec = load_record(ctx.run, record)
-    if rec.get("config_sha256") != ctx.cfg_sha:
-        fail(f"{record} was written with another configuration")
+    rec = load_record(ctx.run, record, ctx, record.removesuffix(".json"))
+    if rec.get("train_sha256") != sha256_file(ctx.run / "train.json"):
+        fail(f"{record} was written with another train.json")
+    if record == "score_tests.json" and rec.get("score_dev_sha256") != sha256_file(ctx.run / "score_dev.json"):
+        fail("score_tests.json was written with another score_dev.json")
     p = ctx.run / name
     rows = read_scores(p)
     if (rec.get("files") or {}).get(name, {}).get("sha256") != sha256_file(p):
@@ -1033,13 +1142,14 @@ def public_scan(text: str, inp: Inputs, what: str, markdown: bool = False) -> No
 def threshold_doc(ctx: Ctx, models: dict, raw_sha: str, train_rec: dict) -> dict:
     return {"schema": "c2-threshold/1", "passed": True, "run_id": ctx.run.name, "set": "source_dev", "criterion": "eer",
             "decision_rule": DECISION_RULE, "selection_rule": SELECTION_RULE, "config_sha256": ctx.cfg_sha,
+            "check_sha256": sha256_file(ctx.run / "check.json"),
             "raw_scores_dev_sha256": raw_sha, "select_threshold_py_sha256": sha256_file(ROOT / "scripts" / "select_threshold.py"),
             "models": {mid: {**e, "checkpoint_sha256": train_rec["models"][mid]["weights_sha256"]} for mid, e in models.items()},
             "also_reported": "fixed threshold 0.5, in the aggregate table only, labelled"}
 
 
 def cmd_select(a) -> None:
-    ctx = open_run(a, "select")
+    ctx = open_run(a, "select", caches=False)
     remove_outputs(ctx.run, "select")
     inp = load_inputs(ctx.cfg, a, caches=False)
     train_rec = checked_weights(ctx, inp)
@@ -1077,6 +1187,8 @@ def verify_threshold(ctx: Ctx, inp: Inputs, train_rec: dict) -> dict:
         doc = json.loads(p.read_text(encoding="utf-8"))
     except (OSError, UnicodeDecodeError, ValueError):
         fail("threshold.json missing or not valid JSON")
+    if p.is_symlink() or not isinstance(doc, dict) or doc.get("run_id") != ctx.run.name:
+        fail("threshold.json belongs to another run or is a link: refused")
     rows = check_raw(ctx, inp, train_rec, "source_dev", "score_dev.json")
     want = threshold_doc(ctx, selection(ctx, rows), sha256_file(ctx.run / RAW["dev"]), train_rec)
     got = {k: v for k, v in doc.items() if k != "created"} if isinstance(doc, dict) else {}
@@ -1137,11 +1249,11 @@ def table_md(doc: dict) -> str:
 
 
 def cmd_apply(a) -> None:
-    ctx = open_run(a, "apply")
+    ctx = open_run(a, "apply", caches=False)
     remove_outputs(ctx.run, "apply")
     inp = load_inputs(ctx.cfg, a, caches=False)
     train_rec = checked_weights(ctx, inp)
-    st_rec = load_record(ctx.run, "score_tests.json")
+    st_rec = load_record(ctx.run, "score_tests.json", ctx, "score_tests")
     thr_p = ctx.run / "threshold.json"
     if not thr_p.is_file():
         fail("threshold.json is missing")
@@ -1197,8 +1309,7 @@ def cmd_apply(a) -> None:
     public_scan(jtext, inp, "c2_table.json")
     public_scan(mtext, inp, "c2_table.md", markdown=True)
     files["c2_table.json"], files["c2_table.md"] = jtext, mtext
-    files["apply.json"] = json.dumps({"passed": True, "step": "apply", "run_id": ctx.run.name, "config_sha256": ctx.cfg_sha,
-                                      "threshold_sha256": thr_sha, "files": {n: sha256_text(t) for n, t in files.items()},
+    files["apply.json"] = json.dumps({**record_base(ctx, "apply"), "threshold_sha256": thr_sha, "files": {n: sha256_text(t) for n, t in files.items()},
                                       "created": now()}, indent=1) + "\n"
     write_all(ctx.run, files)
     for e in evals:
@@ -1257,11 +1368,16 @@ def write_status(result: str, cmd: str, reason: str = "") -> None:
         return
     if (Path(run) / STATUS).is_symlink() or ((Path(run) / STATUS).exists() and not (Path(run) / STATUS).is_file()):
         raise C2Error("status.json in the run folder is not a regular file")
+    for e in os.listdir(run):                       # temporanei vecchi di status.json: si tolgono, mai seguiti
+        if e == STATUS + ".tmp" or (e.startswith(f".{STATUS}.") and e.endswith(".tmp")):
+            q = Path(run) / e
+            if q.is_symlink() or q.is_file():
+                q.unlink()
     doc = {"result": result, "command": cmd, "step": RUN_STATE["step"], "created": now()}
     if result == "FAIL":
         doc["reason"] = reason
         doc["outputs"] = ("removed: outputs of this step and of the later steps" if RUN_STATE["removed"]
-                          else "untouched: run identity refused, the existing outputs are not current")
+                          else "untouched: refused before any change (options, identity), the existing outputs are not current")
     write_all(run, {STATUS: json.dumps(doc, indent=1) + "\n"})
 
 

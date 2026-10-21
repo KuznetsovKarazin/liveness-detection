@@ -15,13 +15,18 @@ iperparametri, seed) e manifest.json riassuntivo. Con i pesi presenti l'app regi
 
 Adattamenti per il pilota C2 (scripts/c2_pilot.py), tutti opzionali: senza di essi il comportamento è quello di prima.
   --out-dir DIR    pesi e scheda in DIR invece che in models/weights/, senza toccare manifest.json; DIR è controllata con
-                   scripts/path_guard.py (rifiutate le cartelle dei pesi e dei dati, anche spostate, e ogni cartella
-                   protetta del repository: dentro il repository è ammessa solo results/c2/); la scheda aggiunge
+                   scripts/path_guard.py (rifiutati un collegamento simbolico, un file, l'albero di lavoro che contiene il
+                   codice quando non ne è la radice, cioè i pacchetti accettati del repository del gruppo, le cartelle dei
+                   pesi e dei dati, anche spostate, e ogni cartella protetta del repository: dentro il repository è
+                   ammessa solo results/c2/) e non deve contenere già pesi, file Keras o scheda dello stesso modello,
+                   nemmeno come collegamenti: nulla viene sovrascritto né seguito; la scheda aggiunge
                    restored_epoch, restored_by, val_loss_history e keras_sha256.
   --no-test-eval   nessuna valutazione finale su X_test (richiede --out-dir): la scheda non ha né il campo test né n_test
                    e aggiunge test_evaluation = "disabled"; con split_check aggiunge split_check = "passed: ...".
   split_check      (solo da codice, train(..., split_check=...)) SHA-256 del file di ogni frame di X_train: lo split per
                    soggetto deve riprodurre esattamente i manifest di fitting e di early stopping, altrimenti errore.
+
+Tutte le opzioni sono controllate (validate_args) prima di leggere immagini o costruire cache.
 
 Riproducibilità: seed 42 per split, mescolamento, inizializzazione dei pesi e augmentation. Su GPU (Metal) alcune
 operazioni restano non deterministiche: due run identici possono differire di poco.
@@ -120,17 +125,55 @@ def build_arrays(ds: str, per_class, cache_dir: Path):
     return out
 
 
-def out_dir_problem(d) -> str:
-    """Motivo per cui d non può essere la cartella di uscita di --out-dir ("" se può), con scripts/path_guard.py (identità
-    dei file, in entrambe le direzioni): cartelle dei pesi e dei dati anche spostate con le variabili d'ambiente, poi le
-    regole di deletion_problem (radice, home, repository, cartelle protette; dentro il repository solo results/c2/)."""
+def outer_roots() -> list:
+    """Alberi che contengono il codice senza esserne la radice (pacchetti accettati accanto): l'albero di lavoro git che
+    contiene ROOT, se diverso da ROOT, e ogni antenato X di ROOT con ROOT dentro X/research (disposizione del repository
+    del gruppo, anche senza git). Nessuna uscita è ammessa dentro di essi."""
+    import subprocess
     if str(ROOT / "scripts") not in sys.path:
         sys.path.insert(0, str(ROOT / "scripts"))
     import path_guard as pg
+    root, out = Path(ROOT).resolve(), []
+    try:
+        r = subprocess.run(["git", "rev-parse", "--show-toplevel"], cwd=root, capture_output=True, text=True, timeout=30)
+        top = Path(r.stdout.strip()).resolve() if r.returncode == 0 and r.stdout.strip() else None
+        if top is not None and not pg.same(top, root):
+            out.append(top)
+    except (OSError, subprocess.SubprocessError):
+        pass
+    for x in root.parents:
+        if (x / "research").is_dir() and any(pg.same(x / "research", y) for y in root.parents) and not any(pg.same(x, o) for o in out):
+            out.append(x)
+    return out
+
+
+def out_dir_problem(d) -> str:
+    """Motivo per cui d non può essere la cartella di uscita di --out-dir ("" se può), con scripts/path_guard.py (identità
+    dei file, in entrambe le direzioni): collegamento simbolico, file esistente, alberi esterni con i pacchetti accettati
+    (outer_roots), cartelle dei pesi e dei dati anche spostate con le variabili d'ambiente, poi le regole di
+    deletion_problem (radice, home, repository, cartelle protette; dentro il repository solo results/c2/)."""
+    if str(ROOT / "scripts") not in sys.path:
+        sys.path.insert(0, str(ROOT / "scripts"))
+    import path_guard as pg
+    if Path(d).is_symlink():
+        return f"{Path(d)} is a symbolic link"
+    if Path(d).exists() and not Path(d).is_dir():
+        return f"{Path(d)} exists and is not a folder"
+    for g in outer_roots():
+        if pg.within(d, g) or pg.contains(d, g):
+            return f"{Path(d)} is inside, or contains, the work tree {g.name} with the accepted packages"
     for q in (WEIGHTS, DATA):
         if pg.within(d, q) or (Path(q).exists() and pg.contains(d, q)):
             return f"{Path(d)} is, contains or is inside the {'weights' if q == WEIGHTS else 'data'} folder"
     return pg.deletion_problem(d, ROOT, pg.BASE_PROTECTED, [ROOT / "results" / "c2"])
+
+
+def existing_outputs_problem(d, arch_name: str, ds: str, protocol: str) -> str:
+    """Con --out-dir nessun file di uscita può esistere già (nemmeno come collegamento, anche senza bersaglio): pesi,
+    file Keras e scheda non si sovrascrivono mai e nessun collegamento viene seguito."""
+    key = f"{arch_name}__{ds}" + ("-pooled" if protocol == "pooled" else "")
+    found = [f"{key}{x}" for x in (".keras", ".h5", ".json") if os.path.lexists(Path(d) / f"{key}{x}")]
+    return f"{Path(d)} already holds {', '.join(found)} (files or links are never overwritten)" if found else ""
 
 
 def check_split(tr_i, va_i, split_check: dict) -> None:
@@ -161,6 +204,8 @@ def train(arch_name: str, ds: str, data, epochs: int, batch: int, lr: float, pro
         raise SystemExit("ERROR: --no-test-eval requires --out-dir (models/weights/ and its manifest.json are never written without a test evaluation)")
     dest = WEIGHTS if out_dir is None else Path(out_dir)
     if out_dir is not None and (msg := out_dir_problem(dest)):
+        raise SystemExit(f"ERROR: --out-dir refused: {msg}")
+    if out_dir is not None and (msg := existing_outputs_problem(dest, arch_name, ds, protocol)):
         raise SystemExit(f"ERROR: --out-dir refused: {msg}")
     if split_check is not None and protocol != "official":
         raise SystemExit("ERROR: the split check applies to the official protocol only")
@@ -253,7 +298,25 @@ def train(arch_name: str, ds: str, data, epochs: int, batch: int, lr: float, pro
     return info
 
 
-if __name__ == "__main__":
+def validate_args(a) -> str:
+    """Opzioni controllate prima di leggere immagini o costruire cache ("" se valide): architetture, epoche, lotto,
+    learning rate, immagini per classe, --no-test-eval solo con --out-dir, --out-dir ammessa (out_dir_problem)."""
+    if not a.arch or any(x not in ARCHS for x in a.arch):
+        return f"--arch {a.arch} must name architectures among {ARCHS}"
+    import math
+    if a.epochs < 1 or a.batch < 1 or not a.lr > 0 or not math.isfinite(a.lr) or (a.per_class is not None and a.per_class < 0):
+        return "--epochs and --batch must be at least 1, --lr positive and finite, --per-class not negative"
+    if a.no_test_eval and a.out_dir is None:
+        return "--no-test-eval requires --out-dir (models/weights/ and its manifest.json are never written without a test evaluation)"
+    if a.out_dir is not None and (msg := out_dir_problem(a.out_dir)):
+        return f"--out-dir refused: {msg}"
+    for arch in a.arch if a.out_dir is not None else []:
+        if msg := existing_outputs_problem(a.out_dir, arch, a.dataset, a.protocol):
+            return f"--out-dir refused: {msg}"
+    return ""
+
+
+def main(argv=None) -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--dataset", required=True, choices=list(DATASETS))
     ap.add_argument("--arch", nargs="*", default=ARCHS)
@@ -264,9 +327,15 @@ if __name__ == "__main__":
     ap.add_argument("--protocol", choices=["official", "pooled"], default="official")
     ap.add_argument("--out-dir", default=None, help="cartella di uscita di pesi e schede (default models/weights/ con manifest.json)")
     ap.add_argument("--no-test-eval", action="store_true", help="nessuna valutazione finale su X_test (scheda senza test)")
-    a = ap.parse_args()
+    a = ap.parse_args(argv)
+    if msg := validate_args(a):                       # prima di qualunque lettura di immagini o cache
+        raise SystemExit(f"ERROR: {msg}")
     print(f"Preparo {a.dataset} (max {a.per_class} per classe)…", flush=True)
     data = build_arrays(a.dataset, a.per_class or None, DATA / "processed")   # 0 = tutte le immagini
     print({k: v.shape for k, v in data.items()}, flush=True)
     for arch in a.arch:
         train(arch, a.dataset, data, a.epochs, a.batch, a.lr, a.protocol, out_dir=a.out_dir, test_eval=not a.no_test_eval)
+
+
+if __name__ == "__main__":
+    main()

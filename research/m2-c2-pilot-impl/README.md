@@ -22,8 +22,8 @@ of the group repository).
   `apply` and `all` (the steps in order), each reading the configuration and a run folder.
 - `livenesslab/scripts/train_cnn.py`: the three adaptations of the protocol, all optional; without them the behaviour is
   the one of the copy in `research/c1-livenesslab/` (see "Changes to `train_cnn.py`").
-- `livenesslab/scripts/check_c2_pilot.py` (165 tests on synthetic data) and `livenesslab/scripts/check_c2_mutations.py`
-  (262 declared mutations of `c2_pilot.py` and of the `train_cnn.py` adaptations).
+- `livenesslab/scripts/check_c2_pilot.py` (185 tests on synthetic data) and `livenesslab/scripts/check_c2_mutations.py`
+  (314 declared mutations of `c2_pilot.py` and of the `train_cnn.py` adaptations).
 - Unchanged copies, byte-identical to the published ones in `research/pad-2026` `5b52c02`: `select_threshold.py`,
   `path_guard.py`, `rgb_manifests.py`, `nuaa_manifests.py`, `package_rules.py`, `src/tesi_app/paths.py`, `__init__.py`
   (as in `research/m2-rgb-manifests/`); `src/tesi_app/evaluation.py`, `core.py`, `face.py` and `requirements.txt` (as in
@@ -69,7 +69,13 @@ median and maximum, without identifiers.
 
 The run folder is named `YYYYMMDD-C2-seed42-<shortcommit>` and must be new at `check` (missing, empty, or holding only a
 regular file `status.json` left by a failed `check`; any other entry, such as a folder, a link, `check.json` or a
-`.DS_Store` added by the macOS Finder, makes it not new), or end with `-trial`. Every folder is checked with the shared `path_guard.py` (file identity, both directions;
+`.DS_Store` added by the macOS Finder, makes it not new), or end with `-trial`; it must be a real folder, not a symbolic
+link. When the code runs inside a larger tree (the group repository: the git work tree that contains `livenesslab/`
+when it is not its root, or any ancestor whose `research/` contains it, also in a copy without git), no output is
+accepted anywhere in that tree: its accepted packages (`research/c1-livenesslab/`, `research/m1-metrics/`,
+`research/m2-*`, this package itself) and their `models/`, `data/` and `results/` are never written; run folders go
+outside it. In the development repository the code is at the root, and only `results/c2/` is accepted inside it.
+Every folder is checked with the shared `path_guard.py` (file identity, both directions;
 its own rules, including the filesystem root, the home folder and their ancestors, are tested in
 `check_export_m2_rgb.py`, and a run folder can never be one of those because of its name). The repository and its
 ancestors and `data/`, `models/`, `results/` with every baseline in it, `export/`, `docs/`, `scripts/`, `src/`,
@@ -91,16 +97,34 @@ errors (for example `OSError`, `KeyError` or a TensorFlow error: `ERROR: unexpec
 no file of the group and no temporary file remain). `status.json` in the run folder records the result of the last
 command (`result`, `command`, `step`, and for a failure `reason` and `outputs`):
 
-- refusals before the run folder is accepted (argument errors, name, protected place, missing folder, non-trial folder
-  that is not new at `check`): nothing is written or removed, not even `status.json`;
+- refusals before the run folder is accepted (argument errors; name, link, protected place or larger tree; missing
+  folder; non-trial folder that is not new at `check`; inputs that are missing, of the wrong type, or inside, equal to
+  or an ancestor of the run folder, also through a link or another path to the same folder): nothing is written or
+  removed, not even `status.json`, and every input stays byte-identical;
 - as soon as the folder is accepted, before anything is removed, `status.json` becomes `"result": "RUNNING"`;
-- refusals of the run identity (`check.json` missing, not passed or of another folder; configuration, code or commit different from
-  `check.json`): the existing outputs stay as they are (they belong to the recorded run) and `status.json` becomes
-  `"result": "FAIL"` with `"outputs": "untouched: run identity refused, the existing outputs are not current"`;
-- every other refusal or error (authorisation, `--epochs`, inputs, weights, scores, threshold, unexpected errors,
-  interruption): the
-  step has already removed its own outputs and those of the later steps (also `checkpoints/`, through `path_guard.py`),
-  and `status.json` becomes `"result": "FAIL"` with `"outputs": "removed: outputs of this step and of the later steps"`.
+- refusals of the options and of the run identity, all checked before any change (`--i-am-authorized`, `--epochs`,
+  `threshold.json` missing for the test scoring; at `check` the configuration, the approved configuration and the
+  repository state; at the later steps `check.json` missing, not passed or of another folder, configuration, code or
+  commit different from `check.json`): the existing outputs stay as they are and `status.json` becomes
+  `"result": "FAIL"` with `"outputs": "untouched: refused before any change (options, identity), the existing outputs are not current"`;
+- every other refusal or error, found while the step works (input content, weights, records, scores, threshold,
+  unexpected errors, interruption): the step has already removed its own outputs and those of the later steps (also
+  `checkpoints/`, through `path_guard.py`), and `status.json` becomes `"result": "FAIL"` with
+  `"outputs": "removed: outputs of this step and of the later steps"`.
+
+Outputs and temporary files: every temporary file is created new (`tempfile.mkstemp` / `mkdtemp` in the run folder, never
+a fixed name) and renamed into place; an output that is a link or not a regular file is refused before writing; removal
+never follows a link (the link is removed, never its target; only real folders are removed recursively), and old
+temporary names (`<name>.tmp`) are removed the same way. A file outside the run folder reached through a link is never
+written, both on success and on failure.
+
+Provenance: every record read by a later step (`train.json`, `score_dev.json`, `score_tests.json`) carries `run_id`,
+`step`, `config_sha256`, `check_sha256` (the SHA-256 of this run's `check.json`) and `commit`, and is refused unless they
+match the current run; `threshold.json` carries `run_id`, `config_sha256` and `check_sha256`, is refused if its `run_id`
+is another run's, and must equal the selection recomputed for this run; `score_dev.json` and `score_tests.json` also record the SHA-256 of the
+`train.json` (and `score_dev.json`) they were computed from; records and `checkpoints/` that are links are refused. The
+checkpoints are bound to this run through the SHA-256 of weights, Keras file and card recorded in its `train.json`.
+Records or checkpoints copied from another run with the same configuration are therefore refused.
 
 So no earlier `PASS` output can be read as current next to a failure: either it was removed, or `status.json` says
 FAIL (or RUNNING, if the process was killed).
@@ -108,21 +132,27 @@ FAIL (or RUNNING, if the process was killed).
 ## Changes to `train_cnn.py`
 
 Compared with the copy in `research/c1-livenesslab/livenesslab/scripts/train_cnn.py` (SHA-256 `4d655345…`), which stays
-unchanged, only these top-level nodes differ: the module docstring, the new functions `out_dir_problem` and
-`check_split`, the function `train` and the `__main__` block; every other node (preprocessing, sampling, subject names,
-cache) is identical. In the development repository the exports accept exactly two versions of the file: the C1 one
+unchanged, only these top-level nodes differ: the module docstring, the new functions `outer_roots`, `out_dir_problem`,
+`check_split`, `validate_args` and `main` (the command-line code moved from the `__main__` block, which now only calls
+`main()`), and the function `train`; every other node (preprocessing, sampling, subject names, cache) is identical. In the development repository the exports accept exactly two versions of the file: the C1 one
 (SHA-256 `4d655345…`) and this one (its exact SHA-256 is a constant, checked against the file by a test, plus the AST
 comparison with the verified C1 copy).
 
 1. `--out-dir` / `out_dir`: weights and card in that folder, without `manifest.json`. The folder is checked with
-   `path_guard.py`: the weights and data folders (also when moved) and every protected folder of the repository are
-   refused; inside the repository only `results/c2/` is accepted. The card adds `restored_epoch`, `restored_by`,
+   `path_guard.py`: a link, a file, the larger tree with the accepted packages (as for the run folder), the weights and
+   data folders (also when moved) and every protected folder of the repository are refused; inside the repository only
+   `results/c2/` is accepted. The folder must not already hold the weights, Keras file or card of the model being
+   trained, not even as links (also dangling): nothing is overwritten and no link is followed. The card adds `restored_epoch`, `restored_by`,
    `val_loss_history` and `keras_sha256`.
 2. `split_check` (from code only): the subject split must reproduce the fitting and early-stopping manifests by file
    SHA-256 (same length and same multiset on each side), otherwise it stops; it requires the split by subject and the official protocol; the card adds `split_check`.
 3. `--no-test-eval` / `test_eval=False`: no final evaluation on `X_test`; it requires `--out-dir` (without it the command
    stops before any work, so `models/weights/` and its `manifest.json` are never written without test metrics); the card
    has no `test` and `n_test` and adds `test_evaluation: disabled`.
+
+All options (architectures, epochs, batch, learning rate (positive and finite), images per class, existing outputs in the
+output folder, `--no-test-eval` with `--out-dir`, the output
+folder) are checked by `validate_args` before any image is read or any cache is built.
 
 Without these options the files, card fields and their order, and `manifest.json` are the ones of the C1 copy
 (behavioural test with a fake TensorFlow module, plus a test of the command-line options and defaults).
@@ -180,7 +210,7 @@ In a git work tree with `../../m2-c2-pilot-protocol/` next to this folder (as in
 last two lines are:
 
 ```
-tests run: 165, failures: 0, errors: 0, skipped: 0
+tests run: 185, failures: 0, errors: 0, skipped: 0
 RESULT: PASS
 ```
 
@@ -188,20 +218,20 @@ Outside a git work tree the last three lines are:
 
 ```
 skipped test_real_repository_untouched: missing input: git not available or the code is not in a git work tree: the repository-state sentinel is not compared
-tests run: 165, failures: 0, errors: 0, skipped: 1
+tests run: 185, failures: 0, errors: 0, skipped: 1
 RESULT: PASS
 ```
 
-`check_c2_mutations.py` copies the code to a temporary folder, applies 262 declared mutations (each pattern must occur
+`check_c2_mutations.py` copies the code to a temporary folder, applies 314 declared mutations (each pattern must occur
 exactly once), runs the suite on each copy and counts a mutation only if the suite ran to its summary with at least one
 failure or error (a skip is never a detection). The bare copy has neither the configuration nor git, so its first line is
-`unmutated copy: scripts/check_c2_pilot.py exit 0 (tests run: 165, failures: 0, errors: 0, skipped: 2)`; the last two lines
+`unmutated copy: scripts/check_c2_pilot.py exit 0 (tests run: 185, failures: 0, errors: 0, skipped: 2)`; the last two lines
 are (about 12 minutes on a 10-core Mac with the default of 4 mutations in parallel, 30–60 minutes on a 2-core
 machine; `--jobs N` sets how many run in parallel, `--jobs 1` one at a time; a copy whose suite does not finish within
 30 minutes is reported as an invalid mutation, `timeout after 1800 s`, never as a detection):
 
 ```
-mutations killed: 262/262
+mutations killed: 314/314
 RESULT: PASS
 ```
 
@@ -213,7 +243,7 @@ tree next to the protocol folder, as its first line and its last three lines:
 ```
 NOTE: imports blocked for this run: tensorflow, keras, h5py
 blocked imports attempted: 0; blocked packages loaded: none
-tests run: 165, failures: 0, errors: 0, skipped: 0
+tests run: 185, failures: 0, errors: 0, skipped: 0
 RESULT: PASS
 ```
 
@@ -223,16 +253,16 @@ imported with an empty cv2 stand-in (its image functions are not used)`, and the
 
 ```
 blocked imports attempted: 1; blocked packages loaded: none
-tests run: 165, failures: 0, errors: 0, skipped: 0
+tests run: 185, failures: 0, errors: 0, skipped: 0
 RESULT: PASS
 ```
 
 (the one attempt is the suite's own probe of `cv2`). `python scripts/check_c2_mutations.py --block tensorflow,keras,h5py,cv2`
-ends with the same two lines `mutations killed: 262/262` and `RESULT: PASS`. Verified on macOS (Python 3.11.16, NumPy 1.26.4,
+ends with the same two lines `mutations killed: 314/314` and `RESULT: PASS`. Verified on macOS (Python 3.11.16, NumPy 1.26.4,
 scikit-learn 1.3.2), on the default volume and on a case-sensitive APFS volume. Also run on Linux, in the official
-`python:3.12` container (Python 3.12.15, aarch64), with NumPy 2.3.5 and scikit-learn 1.8.0 and without TensorFlow and OpenCV
-actually installed, from this folder laid out as in `research/`: `tests run: 165, failures: 0, errors: 0, skipped: 0`
-(after the OpenCV `NOTE` line), `RESULT: PASS`; `mutations killed: 262/262`, `RESULT: PASS`. Not run on x86_64.
+`python:3.12` container (Python 3.12.15, aarch64, NumPy 2.3.5, scikit-learn 1.8.0, without TensorFlow and OpenCV installed),
+from this folder laid out as in `research/`: `tests run: 185, failures: 0, errors: 0, skipped: 0` (after the OpenCV `NOTE`
+line), `RESULT: PASS`; `mutations killed: 314/314`, `RESULT: PASS`. Not run on x86_64 by the author.
 
 ## Test logs
 
@@ -240,7 +270,9 @@ Outputs of the commands above, run from this package layout (git work tree, `../
 
 - `test_logs/check_c2_pilot.txt`: `python scripts/check_c2_pilot.py`;
 - `test_logs/check_c2_pilot_block.txt`: `python scripts/check_c2_pilot.py --block tensorflow,keras,h5py,cv2`;
-- `test_logs/check_c2_mutations.txt`: `python scripts/check_c2_mutations.py`.
+- `test_logs/check_c2_mutations.txt`: `python scripts/check_c2_mutations.py`, run from the development repository (where the
+  bare copy also gets the configuration, so its first line ends with `skipped: 1`); the same command from this layout
+  gives `skipped: 2` on that line and the same `mutations killed: 314/314`.
 
 ## Not done, limits
 
