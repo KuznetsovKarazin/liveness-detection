@@ -165,8 +165,9 @@ def invalidate(out: Path, names) -> list:
     """Toglie le uscite di un'esecuzione precedente (e i loro temporanei) prima di qualunque controllo: nessun artefatto
     vecchio, per esempio un PASS, resta accanto a un'esecuzione che fallisce. Restituisce i nomi tolti. Manutenzione del
     22/10/2026 (m2_writers.invalidate): anche i temporanei univoci, collegamenti tolti come collegamenti, mai il loro
-    bersaglio."""
-    return mw.invalidate(out, names)
+    bersaglio. Revisione del docente del 23/10 (m2_writers.invalidate_all): se l'invalidazione si ferma a metà, la pulizia è
+    completata (altre uscite tolte o marcate FAIL) prima di un rifiuto esplicito."""
+    return mw.invalidate_all(out, names)
 
 
 def write_all(out: Path, files: dict) -> None:
@@ -1357,7 +1358,7 @@ def self_test_failure(out: Path, rep: dict, pub: dict, error: str) -> None:
     Markdown si tolgono e, se il self-test non ha scritto il suo rapporto (errore imprevisto o rifiuto), si scrive un
     overlap_self_test.json FAIL con l'errore: nessuna uscita dice PASS accanto al fallimento."""
     mw.invalidate_each(out, ["overlap_report.md", "overlap_report_public.md"] + (["overlap_self_test.json", "overlap_self_test.md"] if error else []),
-                       invalidate, {"stage": "invalidation-failed", "note": "this output could not be removed after a failure: no verdict is valid"})
+                       None, mw.CLEANUP_DOC)
     files = {"overlap_report.json": json.dumps({**rep, "passed": False, "stage": "self-test",
                                                 "error": error or "self-test: a faulty copy was not rejected by exactly the expected rules"}, indent=1) + "\n",
              "overlap_report_public.json": json.dumps({**pub, "passed": False, "stage": "self-test"}, indent=1) + "\n"}
@@ -1580,7 +1581,8 @@ def report_fields(summ: dict, ov: dict, private: bool, self_test: dict = None, a
 
 def cmd_report(a) -> None:
     out = Path(a.out)
-    if msg := outputs_problem(out, REPORT_OUTPUTS, {"--template": Path(a.template)}):
+    if msg := outputs_problem(out, REPORT_OUTPUTS, {"--template": Path(a.template), **{f"the input {n}": out / n for n in (
+            "nuaa_manifests_summary.json", "nuaa_manifests_aggregate.json", "overlap_report.json", "overlap_self_test.json")}}):
         fail(msg)
     invalidate(out, REPORT_OUTPUTS)                      # nessun rapporto breve di un'esecuzione precedente
     summ = load_json(out / "nuaa_manifests_summary.json")
@@ -1669,7 +1671,7 @@ def unexpected_failure(a, e: BaseException) -> None:
             out = Path(a.out)
             admitted = bool(VALIDATED) and VALIDATED[0] == out     # errore durante la validazione: nulla si toglie
             if admitted:                                # un nome alla volta: mai un PASS lasciato in silenzio
-                mw.invalidate_each(out, names, invalidate, {"stage": "invalidation-failed", "note": "this output could not be removed after a failure: no verdict is valid"})
+                mw.invalidate_each(out, names, None, mw.CLEANUP_DOC)
             if a.cmd == "check-overlap" and admitted:
                 failed_doc = {"passed": False, "stage": "error", "rules": [], "note": "unexpected error: no verdict is valid", **repo_state(),
                         "checked": now()}

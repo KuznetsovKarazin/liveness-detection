@@ -31,6 +31,7 @@ import functools
 import hashlib
 import json
 import os
+import stat
 import subprocess
 import sys
 import tempfile
@@ -98,14 +99,96 @@ def output_problem(out, root, protected, allowed, extra=(), inputs=None, outputs
     for q in extra:
         if pg.within(out, q) or (Path(q).exists() and pg.contains(out, q)):
             return f"{out} is, contains or is inside a protected folder ({Path(q).name})"
-    written = [out / n for n in outputs] + [out / (n + ".tmp") for n in outputs] + [Path(d) for d in dirs]
     for label, p in (inputs or {}).items():
         p = Path(p)
         if pg.within(out, p):
             return f"the output folder is {label} {p.name} or inside it: inputs and outputs must be separate"
-        for w in written:
-            if pg.within(p, w):
-                return f"{label} {p.name} is, or is inside, an output of this command ({w.name}): inputs and outputs must be separate"
+        # anche ogni voce di una cartella d'ingresso (per esempio un manifest che è un collegamento a un'uscita)
+        for what, q in [(label, p)] + [(f"{label} entry", e) for e in entries_of(p)]:
+            if hit := touched_by(q, out, outputs, dirs):
+                return f"{what} {q.name} is, or is inside, a path this command removes or rewrites ({hit}): inputs and outputs must be separate"
+    # verifica preliminare (revisione del docente del 23/10): ogni percorso che la pulizia toccherà deve essere un file
+    # regolare o un collegamento (tolto come collegamento), non immutabile né «solo aggiunta», in una cartella in cui si
+    # può scrivere; altrimenti rifiuto prima di togliere qualsiasi file
+    for d in [out, *map(Path, dirs)]:
+        if d.is_dir() and not os.access(d, os.W_OK | os.X_OK):
+            return f"the folder {d.name} does not accept writes: its outputs could not be removed; refused before any change, nothing removed"
+    for q in owned_paths(out, outputs) + [e for d in map(Path, dirs) if d.is_dir() for e in sorted(d.iterdir())]:
+        st = os.lstat(q)
+        if not (stat.S_ISREG(st.st_mode) or stat.S_ISLNK(st.st_mode)):
+            mode = st.st_mode
+            kind = "a folder" if stat.S_ISDIR(mode) else "a FIFO" if stat.S_ISFIFO(mode) else "a socket" if stat.S_ISSOCK(mode) else "not a regular file"
+            return f"{q.name} in the output folder is {kind}, not a removable output: refused before any change, nothing removed"
+        if getattr(st, "st_flags", 0) & LOCK_FLAGS or (os.name == "nt" and not os.access(q, os.W_OK)):
+            return f"{q.name} in the output folder is immutable, append-only or read-only: it could not be removed; refused before any change, nothing removed"
+    return ""
+
+
+# indicatori che impediscono di togliere un file (BSD/macOS: chflags uchg/schg, uappnd/sappnd)
+LOCK_FLAGS = getattr(stat, "UF_IMMUTABLE", 0) | getattr(stat, "SF_IMMUTABLE", 0) | getattr(stat, "UF_APPEND", 0) | getattr(stat, "SF_APPEND", 0)
+
+
+def entries_of(p) -> list:
+    """Voci (non ricorsive) di una cartella d'ingresso; [] per un file o un percorso illeggibile."""
+    try:
+        return sorted(Path(p).iterdir()) if Path(p).is_dir() else []
+    except OSError:
+        return []
+
+
+def _ids(p) -> set:
+    """Identità (dispositivo, inode) della voce `p` e del file a cui punta, se esistono."""
+    out = set()
+    for f in (os.lstat, os.stat):
+        try:
+            st = f(p)
+            out.add((st.st_dev, st.st_ino))
+        except OSError:
+            pass
+    return out
+
+
+def owned_name(entry: str, n: str) -> bool:
+    """Unica regola dei nomi che la pulizia di un'uscita `n` tocca (revisione del docente del 23/10): l'uscita, il
+    temporaneo a nome fisso delle copie accettate (<n>.tmp) e i temporanei univoci di write_all (.<n>.<casuale>.tmp)."""
+    return entry == n or entry == n + ".tmp" or (entry.startswith(f".{n}.") and entry.endswith(".tmp"))
+
+
+def owned_paths(out, names) -> list:
+    """Voci esistenti di `out` che invalidate toglierebbe per le uscite `names` (stessa regola di owned_name)."""
+    try:
+        entries = sorted(os.listdir(out))
+    except OSError:
+        return []
+    return [Path(out) / e for e in entries if any(owned_name(e, n) for n in names)]
+
+
+def touched_by(p, out, outputs, dirs=()) -> str:
+    """Percorso (nome) che il comando toglie o riscrive e che coincide con l'ingresso `p` ("" se nessuno): `p` (come
+    scritto e risolto) è una voce di `out`, per identità della cartella, con un nome della regola owned_name, oppure è,
+    o sta dentro, una cartella che il comando riscrive."""
+    out = Path(out)
+    # per identità: le voci reali che invalidate toglierebbe (os.listdir), confrontate con l'ingresso per dispositivo e
+    # inode, così un'altra grafia (filesystem che non distingue le maiuscole) o un alias sono riconosciuti
+    removed = {}
+    for q in owned_paths(out, outputs) if out.is_dir() else []:
+        try:
+            st = os.lstat(q)
+            removed[(st.st_dev, st.st_ino)] = q.name
+        except OSError:
+            pass
+    for cand in {Path(os.path.abspath(p)), Path(p).resolve()}:
+        for i in _ids(cand):
+            if i in removed:
+                return f"{removed[i]} (the same file)"
+        # per nome, senza distinzione di maiuscole, anche per le voci che non esistono ancora
+        if out.exists() and pg.same(cand.parent, out):
+            for n in outputs:
+                if owned_name(cand.name.casefold(), n.casefold()):
+                    return n if cand.name == n else f"{cand.name}, a temporary of {n}"
+        for d in map(Path, dirs):
+            if pg.within(cand, d):
+                return d.name
     return ""
 
 
@@ -121,12 +204,8 @@ def foreign_outputs_problem(out, names, what: str) -> str:
 
 def temp_names(out, n: str) -> list:
     """Temporanei di un'uscita lasciati da un'esecuzione interrotta: il nome fisso delle copie accettate (<nome>.tmp) e
-    i nomi univoci di write_all (.<nome>.<casuale>.tmp)."""
-    try:
-        entries = sorted(os.listdir(out))
-    except OSError:
-        return []
-    return [Path(out) / e for e in entries if e == n + ".tmp" or (e.startswith(f".{n}.") and e.endswith(".tmp"))]
+    i nomi univoci di write_all (.<nome>.<casuale>.tmp); stessa regola di owned_name."""
+    return [q for q in owned_paths(out, [n]) if q.name != n]
 
 
 def invalidate(out, names) -> list:
@@ -136,7 +215,7 @@ def invalidate(out, names) -> list:
     nomi tolti."""
     removed = []
     for n in names:
-        for q in [Path(out) / n] + [t for t in temp_names(out, n) if t.name != n]:
+        for q in owned_paths(out, [n]):                 # stessa regola della verifica degli ingressi (owned_name)
             if q.is_symlink():
                 q.unlink()
                 removed.append(q.name)
@@ -148,6 +227,26 @@ def invalidate(out, names) -> list:
     return removed
 
 
+CLEANUP_DOC = {"stage": "invalidation-failed", "note": "this output could not be removed after a failure: no verdict is valid"}
+
+
+def invalidate_all(out, names, failed_doc: dict = None) -> list:
+    """invalidate delle uscite all'inizio di un comando (revisione del docente del 23/10). Se si ferma a metà (anche con
+    SystemExit, per esempio un oggetto non regolare comparso dopo la verifica preliminare), la pulizia è completata un
+    nome alla volta (invalidate_each: le altre uscite tolte, i JSON che non si tolgono sovrascritti con un FAIL, i file
+    rimasti nominati) e poi il comando si ferma con un rifiuto esplicito: nessun PASS resta accanto a un'invalidazione
+    parziale. Un'interruzione da tastiera è rilanciata dopo la stessa pulizia."""
+    try:
+        return invalidate(out, names)
+    except BaseException as e:
+        left = invalidate_each(out, names, None, failed_doc or CLEANUP_DOC)
+        if isinstance(e, KeyboardInterrupt):
+            raise
+        _fail(f"the invalidation of the previous outputs stopped ({type(e).__name__}): " + (
+            "the other outputs were removed or marked FAIL" if not left else
+            f"outputs that could be neither removed nor marked FAIL: {', '.join(left)}; the others were removed or marked FAIL"))
+
+
 def invalidate_each(out, names, invalidate_fn, failed_doc: dict) -> list:
     """Pulizia dopo un errore (self_test_failure, unexpected_failure), un nome alla volta con la invalidate del modulo:
     se un'uscita non si può togliere (per esempio EACCES), un rapporto JSON è sovrascritto in modo atomico con un
@@ -156,7 +255,7 @@ def invalidate_each(out, names, invalidate_fn, failed_doc: dict) -> list:
     left = []
     for n in names:
         try:
-            invalidate_fn(out, [n])
+            (invalidate_fn or invalidate)(out, [n])     # None: invalidate di questo modulo, letta al momento della chiamata
             continue
         except (Exception, SystemExit) as e:  # noqa: BLE001  (doppio guasto: mai in silenzio)
             why = f"{type(e).__name__}: {e}"
@@ -219,7 +318,7 @@ MAINTENANCE = {
     "scripts/rgb_manifests.py": {
         "package": "m2-rgb-manifests",
         "accepted": "61e8d1a668b21488134d444cf3df31995e4b06dc985e3708adb4444089a4d68a",
-        "current": "bafcf1a0b82eae1770f716253c8119aeb5ca2a944d63245e24dbe02cbc5174c3",
+        "current": "4036a3fa7833d845952564c4a5440d9061649ffebca7bcdfaf354ec4f6f6198e",
         "changed": ("invalidate", "write_all", "write_manifest", "write_rows", "outputs_problem", "cmd_build",
                     "VALIDATED", "self_test_faults", "run_self_test", "cmd_check_overlap", "self_test_failure", "cmd_report",
                     "main", "unexpected_failure"),
@@ -228,7 +327,7 @@ MAINTENANCE = {
     "scripts/nuaa_manifests.py": {
         "package": "m2-nuaa-manifests",
         "accepted": "bc1ce7b1c50eadbcbfb2c2817c5d846b6f9224d5848f31e33ef6923bb58450e5",
-        "current": "547025494ce6624d15f844307a31b81985f76e44527f8dd80d3aea92265de808",
+        "current": "a719ce2ed83479ab07883398d21eb1d869a4d4be273dda04b8cf34f8c99cfa44",
         "changed": ("invalidate", "write_all", "write_manifest", "write_rows", "outputs_problem", "cmd_build",
                     "VALIDATED", "run_self_test", "cmd_check_overlap", "overlap_run", "self_test_failure", "cmd_report",
                     "main", "unexpected_failure", "RGB_OUTPUTS"),
@@ -237,8 +336,8 @@ MAINTENANCE = {
     "scripts/export_m2_rgb.py": {
         "package": "m2-rgb-manifests",
         "accepted": "fa5b1eea8f527ceedb0d17e8f05da92f14ed8557866e7487d8f1b2bad5c4ff62",
-        "current": "0dce67906c80165e2f72b49fa1996c6ce878960fbc5368e3c3021182e8a3dba0",
-        "changed": ("CODE", "deletion_problem", "reference_state", "reference_report", "main"),
+        "current": "862738857ffd74ac4bea4cd44a63b0b8a128333f90ca0dd0fe354b95ccba60f5",
+        "changed": ("CODE", "deletion_problem", "export_paths_problem", "reference_state", "reference_report", "main"),
         "added": ("import m2_writers as mw",),
     },
 }

@@ -118,8 +118,7 @@ HELPER_MUTANTS = [
 # riscritte sul codice nuovo, devono essere rilevate dai test di rgb_manifests.py
 WRITERS = "scripts/m2_writers.py"
 WRITER_MUTANTS = [
-    ("invalidate: keeps .tmp", "        for q in [Path(out) / n] + [t for t in temp_names(out, n) if t.name != n]:\n",
-     "        for q in [Path(out) / n]:\n"),
+    ("invalidate: keeps .tmp", "        for q in owned_paths(out, [n]):                 # stessa regola", "        for q in [Path(out) / n]:                 # stessa regola"),
     ("write_all: no cleanup", "        for tp in tmps.values():\n            tp.unlink(missing_ok=True)\n        for n in files:\n", "        raise\n        for n in files:\n"),
     ("write_all: cleanup only on OSError", "    except BaseException:\n        for tp in tmps.values():", "    except OSError:\n        for tp in tmps.values():"),
     ("write_all: direct write", '            fd, tp = tempfile.mkstemp(prefix=f".{n}.", suffix=".tmp", dir=out)\n',

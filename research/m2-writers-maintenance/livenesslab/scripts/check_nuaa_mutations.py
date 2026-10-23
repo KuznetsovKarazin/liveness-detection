@@ -59,8 +59,8 @@ MUTANTS = [
     ("report: accepts a failed check", '    if summ.get("passed") is not True or ov.get("passed") is not True:\n        fail(', "    if False:\n        fail("),
     # write_all e invalidate sono in scripts/m2_writers.py dalla manutenzione del 22/10/2026: le quattro mutazioni di prima,
     # riscritte sul codice nuovo, devono essere rilevate dai test di nuaa_manifests.py
-    ("invalidate: keeps temporary files", "        for q in [Path(out) / n] + [t for t in temp_names(out, n) if t.name != n]:\n",
-     "        for q in [Path(out) / n]:\n", WRITERS),
+    ("invalidate: keeps temporary files", "        for q in owned_paths(out, [n]):                 # stessa regola",
+     "        for q in [Path(out) / n]:                 # stessa regola", WRITERS),
     ("write_all: no cleanup", "        for tp in tmps.values():\n            tp.unlink(missing_ok=True)\n        for n in files:\n",
      "        raise\n        for n in files:\n", WRITERS),
     ("write_all: cleanup only on OSError", "    except BaseException:\n        for tp in tmps.values():", "    except OSError:\n        for tp in tmps.values():", WRITERS),

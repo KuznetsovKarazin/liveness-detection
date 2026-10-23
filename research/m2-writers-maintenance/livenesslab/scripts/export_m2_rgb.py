@@ -277,6 +277,21 @@ def reference_state(f: str, h: str, data: bytes = None, accepted: str = None) ->
     return mw.maintenance_state(f, data, accepted if accepted is not None else mw.accepted_text(f, ROOT))
 
 
+def export_paths_problem(folders: dict, uploaded_sums=None) -> str:
+    """Cartelle che l'export cancella e ricrea e ingresso dichiarato dall'operatore, controllati prima di qualunque
+    modifica (revisione del docente del 23/10, casi fratelli): nessuna cartella è un collegamento simbolico (rmtree non
+    lo toglierebbe e le scritture andrebbero nel bersaglio) e `--uploaded-sums` non è, né sta dentro, una cartella che
+    l'export cancella (sarebbe cancellato prima di essere letto)."""
+    for what, p in folders.items():
+        if Path(p).is_symlink():
+            return f"{what} {Path(p).name} is a symbolic link: the export recreates real folders only"
+    if uploaded_sums:
+        for what, p in folders.items():
+            if path_guard.within(uploaded_sums, p) or path_guard.within(p, uploaded_sums):
+                return f"--uploaded-sums is inside the {what} that the export deletes and recreates: inputs and outputs must be separate"
+    return ""
+
+
 def reference_report(root: Path = None) -> tuple:
     """Controllo dei file condivisi con il pacchetto NUAA per il run report (manutenzione del 22/10/2026, estratto da
     main): per ogni file di REFERENCE_FILES la riga del run report e, se lo SHA-256 pubblicato è noto e reference_state
@@ -558,6 +573,9 @@ def main() -> int:
     for what, p in (("--m2", m2), ("public folder", repo), ("restricted run folder", d)):   # tutte le cartelle che l'export ricrea
         if msg := deletion_problem(p, run_id):
             print(f"ERROR: {what} cannot be written: {msg}", file=sys.stderr); return 1
+    if msg := export_paths_problem({"--m2 folder": Path(a.m2), "public folder": out / "research" / PUBLIC_NAME,
+                                    "restricted run folder": out / "drive" / "02_Experiments" / "M2" / run_id}, a.uploaded_sums):
+        print(f"ERROR: {msg}", file=sys.stderr); return 1
     inputs = {"README template": DELIV / "README.md", "run report template": DELIV / "run-report.md.tmpl",
               **{f"document {n}": DELIV / n for n in PUBLIC_DOCS + RESTRICTED_DOCS}, **{f"code {c}": ROOT / c for c in CODE}}
     if a.dry_run:

@@ -27,7 +27,9 @@ import re
 import shutil
 import subprocess
 import sys
+import stat
 import tempfile
+import types
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -212,9 +214,11 @@ class TestWriters(Base):
             self.assert_external_intact(tag)
             self.assertEqual((target_dir / "keep").read_text(), "keep")
             (out / "e.json").mkdir()
-            with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
+            err = io.StringIO()
+            with contextlib.redirect_stderr(err), self.assertRaises(SystemExit):
                 mod.invalidate(out, ["e.json"])
             self.assertTrue((out / "e.json").is_dir())
+            self.assertIn("e.json in the output folder is a folder, not an output file: refused", err.getvalue())
 
     def test_write_manifest_same_bytes_and_atomic(self):
         import csv
@@ -447,9 +451,19 @@ elif MODE == "cleanupfail":
     def write_then_fail_and_lock(out, files):
         real(out, files)
         if NAME in files:
-            M.invalidate = eacces                       # da qui nessuna uscita si può togliere
+            M.mw.invalidate = eacces                    # da qui nessuna uscita si può togliere
             raise EXC("injected failure")
     M.write_all = write_then_fail_and_lock
+elif MODE == "midinv":
+    real_inv = M.mw.invalidate
+    calls = {{"n": 0}}
+    def stop_midway(out, names):
+        calls["n"] += 1
+        if calls["n"] == 1:                             # la prima invalidazione si ferma dopo la prima uscita
+            real_inv(out, list(names)[:1])
+            raise SystemExit("injected stop in the middle of the invalidation")
+        return real_inv(out, names)
+    M.mw.invalidate = stop_midway
 elif MODE == "selftest":
     M.run_self_test = boom
 elif MODE == "validate":
@@ -660,6 +674,394 @@ class TestFailuresNeverLeaveAPass(Base):
                 self.assertFalse((d / "out" / "overlap_report_public.md").exists(), (tag, mode))
                 self.assertTrue((d / "out" / "overlap_report_public.json").exists(), (tag, mode))
                 self.assertEqual(self.no_temporaries(d / "out"), [])
+
+
+# ----------------------------------------------------------------------------- revisione del docente del 23/10
+
+class TestTeacherReview23(Base):
+    """Revisione del docente del 23/10 (PR #9, d95f2c0): (1) un ingresso con il nome di un temporaneo univoco di
+    un'uscita (`<out>/.overlap_report.json.savedrules.tmp`) superava il controllo e la pulizia lo cancellava: controllo e
+    pulizia usano ora la stessa regola dei nomi (owned_name) e l'ingresso è rifiutato prima di qualunque modifica; (2)
+    `<out>/overlap_report.md` sostituito da una cartella: invalidate si fermava a metà (JSON privato tolto, pubblici PASS
+    rimasti): ora una verifica preliminare rifiuta ogni oggetto non regolare prima di togliere qualsiasi file e, se
+    l'invalidazione si ferma comunque a metà, la pulizia è completata prima di un rifiuto esplicito."""
+
+    def world(self, tag, d):
+        d.mkdir(parents=True, exist_ok=True)
+        return CR.write_world(d, CR.casia_world()) if tag == "rgb" else CN.write_world(d, CN.clean_world())
+
+    def cli(self, tag):
+        return (RGB, ["--dataset", "casia_fasd"]) if tag == "rgb" else (NUAA, [])
+
+    def overlap(self, tag, rules, man, out, env=None):
+        script, ds = self.cli(tag)
+        return run(script, "check-overlap", *ds, "--rules", rules, "--manifests-dir", man, "--out", out, t=self.t, env=env)
+
+    def patterns(self, n):
+        return (n, n + ".tmp", f".{n}.savedrules.tmp", f".{n}.k3j9x2.tmp")
+
+    def test_inputs_with_the_names_the_clean_up_touches(self):
+        for tag in ("rgb", "nuaa"):
+            script, ds = self.cli(tag)
+            report = RM.report_outputs("casia_fasd")[0] if tag == "rgb" else NM.REPORT_OUTPUTS[0]
+            for k, pat in enumerate(self.patterns("overlap_report.json") + self.patterns("overlap_self_test.md") + self.patterns(report)):
+                d = self.t / f"{tag}-in-{k}"
+                rp = self.world(tag, d)
+                out = d / "out"
+                out.mkdir()
+                (out / "keep.txt").write_text("other file\n")
+                # --rules nella cartella di uscita con il nome dato, anche tramite un collegamento da un'altra cartella
+                (out / pat).write_bytes(rp.read_bytes())
+                (d / "link_rules.json").symlink_to(out / pat)
+                before = tree_bytes(d)
+                for rules, man in ((out / pat, d / "manifests"), (d / "link_rules.json", d / "manifests")):
+                    r = self.overlap(tag, rules, man, out)
+                    self.assertEqual(r.returncode, 1, (tag, pat, r.stderr))
+                    self.assertIn("removes or rewrites", r.stderr, (tag, pat))
+                    self.assertNotIn("Traceback", r.stderr)
+                    self.assertEqual(tree_bytes(d), before, (tag, pat))                  # ingresso e uscite identici
+                # --template di report con il nome dato
+                tmpl = out / pat
+                r = run(script, "report", *ds, "--out", out, "--template", tmpl, t=self.t)
+                self.assertEqual(r.returncode, 1, (tag, pat))
+                if any(MW.owned_name(pat, n) for n in (RM.report_outputs("casia_fasd") if tag == "rgb" else NM.REPORT_OUTPUTS)):
+                    self.assertIn("removes or rewrites", r.stderr, (tag, pat, "report"))
+                self.assertEqual(tree_bytes(d), before, (tag, pat, "report"))
+            # --manifests-dir uguale a una cartella con il nome di un temporaneo univoco: rifiutata
+            d = self.t / f"{tag}-mandir"
+            rp = self.world(tag, d)
+            out = d / "out"
+            out.mkdir()
+            shutil.copytree(d / "manifests", out / ".overlap_report.md.saved.tmp")
+            before = tree_bytes(d)
+            r = self.overlap(tag, rp, out / ".overlap_report.md.saved.tmp", out)
+            self.assertEqual(r.returncode, 1)
+            self.assertIn("removes or rewrites", r.stderr)
+            self.assertEqual(tree_bytes(d), before, tag)
+
+    def test_build_inputs_and_manifest_folder(self):
+        # build: cartella dei dati con il nome di un temporaneo univoco o dentro <out>/manifests; oggetto non regolare
+        # dentro <out>/manifests
+        for tag in ("rgb", "nuaa"):
+            script, ds = self.cli(tag)
+            out = self.t / f"{tag}-b" / "out"
+            (out / "manifests").mkdir(parents=True)
+            summary = "casia_fasd_manifests_summary.json" if tag == "rgb" else "nuaa_manifests_summary.json"
+            (out / summary).write_text('{"passed": true}\n')
+            for data in (out / f".{summary}.saved.tmp", out / "manifests" / "data"):
+                data.mkdir()
+                env = {**env_for(self.t / f"{tag}-b"), "LIVENESSLAB_DATA_DIR": str(data)}
+                before = tree_bytes(out.parent)
+                r = run(script, "build", *ds, "--out", out, t=self.t, env=env)
+                self.assertEqual(r.returncode, 1, (tag, data.name, r.stderr))
+                self.assertIn("refused", r.stderr, (tag, data.name))        # cartella dei dati: anche cartella protetta
+                self.assertEqual(tree_bytes(out.parent), before)
+                shutil.rmtree(data)
+            (out / "manifests" / "a.csv").mkdir()
+            before = tree_bytes(out.parent)
+            r = run(script, "build", *ds, "--out", out, t=self.t, env=env_for(self.t / f"{tag}-b"))
+            self.assertEqual(r.returncode, 1)
+            self.assertIn("a.csv in the output folder is a folder, not a removable output: refused before any change", r.stderr)
+            self.assertEqual(tree_bytes(out.parent), before, tag)
+
+    def test_non_regular_objects_refused_before_any_change(self):
+        # caso del docente: dopo un run riuscito overlap_report.md diventa una cartella; poi FIFO e cartelle con nomi di
+        # temporanei: rifiuto prima di togliere qualsiasi file, uscite PASS lasciate identiche
+        for tag in ("rgb", "nuaa"):
+            for k, (name, kind) in enumerate((("overlap_report.md", "folder"), ("overlap_report_public.md", "FIFO"),
+                                              ("overlap_report.json.tmp", "folder"), (".overlap_report_public.json.x1.tmp", "folder"),
+                                              ("overlap_self_test.json", "FIFO"))):
+                d = self.t / f"{tag}-nr-{k}"
+                rp = self.world(tag, d)
+                out = d / "out"
+                r = self.overlap(tag, rp, d / "manifests", out)
+                self.assertEqual(r.returncode, 0, r.stderr)
+                q = out / name
+                if q.exists():
+                    q.unlink()
+                q.mkdir() if kind == "folder" else os.mkfifo(q)
+                before = tree_bytes(out) if kind == "folder" else {n: v for n, v in tree_bytes_no_fifo(out).items()}
+                r = self.overlap(tag, rp, d / "manifests", out)
+                self.assertEqual(r.returncode, 1, (tag, name))
+                self.assertIn(f"{name} in the output folder is a {kind}, not a removable output: refused before any change, nothing removed",
+                              r.stderr, (tag, name))
+                self.assertEqual(tree_bytes_no_fifo(out) if kind == "FIFO" else tree_bytes(out), before, (tag, name))
+                self.assertTrue(json.loads((out / "overlap_report_public.json").read_text())["passed"])      # il PASS del run riuscito
+            # report: cartella con il nome di un rapporto breve
+            d = self.t / f"{tag}-nr-report"
+            d.mkdir()
+            report = RM.report_outputs("casia_fasd")[1] if tag == "rgb" else NM.REPORT_OUTPUTS[1]
+            (d / "out").mkdir()
+            (d / "out" / report).mkdir()
+            script, ds = self.cli(tag)
+            r = run(script, "report", *ds, "--out", d / "out", t=self.t)
+            self.assertEqual(r.returncode, 1)
+            self.assertIn(f"{report} in the output folder is a folder", r.stderr)
+
+    def test_invalidation_stopped_midway_is_completed(self):
+        # l'invalidazione si ferma (SystemExit) dopo la prima uscita: le altre uscite del comando e quelle a valle sono
+        # tolte comunque, rifiuto esplicito, nessun PASS; per build, check-overlap e report, nelle due CLI
+        for tag, mod in (("rgb", "rgb_manifests"), ("nuaa", "nuaa_manifests")):
+            if tag == "rgb":
+                own = {"build": RM.build_outputs("casia_fasd"), "check-overlap": RM.overlap_outputs() + RM.report_outputs("casia_fasd"),
+                       "report": RM.report_outputs("casia_fasd")}
+            else:
+                own = {"build": list(NM.BUILD_OUTPUTS + NM.OVERLAP_OUTPUTS + NM.REPORT_OUTPUTS),
+                       "check-overlap": list(NM.OVERLAP_OUTPUTS + NM.REPORT_OUTPUTS), "report": list(NM.REPORT_OUTPUTS)}
+            script, ds = self.cli(tag)
+            for cmd, names in own.items():
+                d = self.t / f"{tag}-mid-{cmd}"
+                rp = self.world(tag, d)
+                out = d / "out"
+                out.mkdir()
+                for n in own["build"]:
+                    (out / n).write_text('{"passed": true}\n')
+                args = ([cmd, *ds, "--out", out] if cmd != "check-overlap" else
+                        ["check-overlap", *ds, "--rules", rp, "--manifests-dir", d / "manifests", "--out", out])
+                r = run_driver(self.t, mod, "midinv", "-", "RuntimeError", *args, env=env_for(d))
+                self.assertEqual(r.returncode, 1, (tag, cmd, r.stderr))
+                self.assertIn("the invalidation of the previous outputs stopped (SystemExit): the other outputs were removed or marked FAIL", r.stderr)
+                self.assertNotIn("Traceback", r.stderr)
+                self.assertEqual(sorted(p.name for p in out.iterdir()), sorted(set(own["build"]) - set(names)), (tag, cmd))
+
+    def test_export_folders_and_uploaded_sums(self):
+        m2 = self.t / "m2"
+        m2.mkdir()
+        (m2 / "SHA256SUMS").write_text("")
+        real = self.t / "real_m2"
+        real.mkdir()
+        (self.t / "m2_link").symlink_to(real)
+        out = self.t / "exp"
+        self.assertIn("symbolic link", EX.export_paths_problem({"--m2 folder": self.t / "m2_link"}))
+        self.assertIn("--uploaded-sums is inside", EX.export_paths_problem({"--m2 folder": m2}, m2 / "SHA256SUMS"))
+        self.assertEqual(EX.export_paths_problem({"--m2 folder": m2}, self.t / "elsewhere"), "")
+        rid = ["--trial", "--dry-run", "--run-id", "20261023-M2-rgb-seed42-test000"]
+        for extra, msg in ((["--m2", self.t / "m2_link"], "symbolic link"),
+                           (["--m2", m2, "--uploaded-run", "20261008-M2-rgb-seed42-abc1234", "--uploaded-on", "2026-10-08",
+                             "--uploaded-sums", m2 / "SHA256SUMS"], "--uploaded-sums is inside")):
+            before = tree_bytes(self.t / "real_m2"), (m2 / "SHA256SUMS").read_bytes()
+            r = run(ROOT / "scripts" / "export_m2_rgb.py", *rid, *extra, "--out", out, t=self.t)
+            self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+            self.assertIn(msg, r.stderr)
+            self.assertEqual((tree_bytes(self.t / "real_m2"), (m2 / "SHA256SUMS").read_bytes()), before)
+
+
+@contextlib.contextmanager
+def same_file_as(alias, real):
+    """Simula un secondo nome per lo stesso file su ogni filesystem: os.stat e os.lstat riportano per `alias`
+    l'identità di `real` (come un filesystem che non distingue le maiuscole per un'altra grafia)."""
+    rs, rl, a, r = os.stat, os.lstat, os.fspath(alias), os.fspath(real)
+
+    def fs(p, *x, **k):
+        return rs(r if isinstance(p, (str, os.PathLike)) and os.fspath(p) == a else p, *x, **k)
+
+    def fl(p, *x, **k):
+        return rl(r if isinstance(p, (str, os.PathLike)) and os.fspath(p) == a else p, *x, **k)
+    with mock.patch.object(os, "stat", fs), mock.patch.object(os, "lstat", fl):
+        yield
+
+
+class TestAttackReview23(Base):
+    """Revisione avversaria delle correzioni del 23/10: (F1) grafie diverse e alias degli ingressi (filesystem che non
+    distinguono le maiuscole): confronto per identità con le voci reali che la pulizia toglierebbe e per nome senza
+    distinzione di maiuscole; (F2) voci delle cartelle d'ingresso (manifest) e altri file letti, collegati a nomi della
+    pulizia; (F3) uscite che non si possono togliere (cartella senza scrittura, file immutabili o «solo aggiunta»):
+    rifiuto prima di qualunque modifica."""
+
+    def world(self, tag, d):
+        d.mkdir(parents=True, exist_ok=True)
+        return CR.write_world(d, CR.casia_world()) if tag == "rgb" else CN.write_world(d, CN.clean_world())
+
+    def cli(self, tag):
+        return (RGB, ["--dataset", "casia_fasd"]) if tag == "rgb" else (NUAA, [])
+
+    def overlap(self, tag, rules, man, out):
+        script, ds = self.cli(tag)
+        return run(script, "check-overlap", *ds, "--rules", rules, "--manifests-dir", man, "--out", out, t=self.t)
+
+    def refused(self, r, what, text="removes or rewrites"):
+        self.assertEqual(r.returncode, 1, (what, r.stderr))
+        self.assertIn(text, r.stderr, what)
+        self.assertNotIn("Traceback", r.stderr, what)
+
+    def test_other_spellings_and_aliases_of_clean_up_names(self):
+        # grafie diverse del nome di un'uscita o di un suo temporaneo: rifiutate su ogni filesystem (per identità dove il
+        # filesystem non distingue le maiuscole, per nome altrove); il file vero resta identico
+        for tag in ("rgb", "nuaa"):
+            report = (RM.report_outputs("casia_fasd") if tag == "rgb" else NM.REPORT_OUTPUTS)[0]
+            for k, (real, spelled) in enumerate(((".overlap_report.json.savedrules.tmp", ".OVERLAP_REPORT.JSON.savedrules.tmp"),
+                                                 (".overlap_report.json.savedrules.tmp", ".overlap_report.json.savedrules.TMP"),
+                                                 ("overlap_report.json", "Overlap_Report.json"), ("overlap_report.json.tmp", "overlap_report.JSON.tmp"),
+                                                 ("overlap_self_test.md", "OVERLAP_SELF_TEST.MD"))):
+                d = self.t / f"{tag}-sp-{k}"
+                rp = self.world(tag, d)
+                out = d / "out"
+                out.mkdir()
+                (out / real).write_bytes(rp.read_bytes())
+                before = tree_bytes(d)
+                self.refused(self.overlap(tag, out / spelled, d / "manifests", out), (tag, spelled))
+                self.assertEqual(tree_bytes(d), before, (tag, spelled))
+            # alias/..: un collegamento a una sottocartella di <out> e poi ".."
+            d = self.t / f"{tag}-alias"
+            rp = self.world(tag, d)
+            out = d / "out"
+            (out / "sub").mkdir(parents=True)
+            (out / ".overlap_report.json.savedrules.tmp").write_bytes(rp.read_bytes())
+            (d / "alias").symlink_to(out / "sub")
+            before = tree_bytes(d)
+            self.refused(self.overlap(tag, d / "alias" / ".." / ".overlap_report.json.savedrules.tmp", d / "manifests", out), (tag, "alias/.."))
+            self.assertEqual(tree_bytes(d), before, tag)
+            # report --template con un'altra grafia del rapporto breve o del suo temporaneo univoco
+            script, ds = self.cli(tag)
+            for real, spelled in ((report, report.upper()), (f".{report}.abc.tmp", f".{report.upper()}.abc.tmp")):
+                d = self.t / f"{tag}-tm-{len(spelled)}"
+                (d / "out").mkdir(parents=True)
+                (d / "out" / real).write_text("{x}\n")
+                before = tree_bytes(d)
+                self.refused(run(script, "report", *ds, "--out", d / "out", "--template", d / "out" / spelled, t=self.t), (tag, spelled))
+                self.assertEqual(tree_bytes(d), before, (tag, spelled))
+
+    def test_identity_alias_simulated(self):
+        # un secondo nome qualsiasi dello stesso file (alias simulato con os.stat/os.lstat, su ogni filesystem): rifiutato
+        # per identità anche quando il nome non somiglia a quello di un'uscita
+        for tag, problem in (("rgb", lambda o, i: RM.outputs_problem(o, "casia_fasd", RM.overlap_outputs(), i)),
+                             ("nuaa", lambda o, i: NM.outputs_problem(o, list(NM.OVERLAP_OUTPUTS), i))):
+            out = self.t / f"{tag}-id" / "out"
+            out.mkdir(parents=True)
+            real = out / ".overlap_report.md.keep.tmp"
+            real.write_text("rules\n")
+            alias = self.t / f"{tag}-id" / "elsewhere" / "rules_alias.json"
+            self.assertEqual(problem(out, {"--rules": alias}), "")              # senza alias: un altro file
+            with same_file_as(alias, real):
+                msg = problem(out, {"--rules": alias})
+            self.assertIn("the same file", msg, tag)
+            self.assertEqual(real.read_text(), "rules\n")
+            # un'altra grafia di un nome della pulizia che ancora non esiste: rifiutata per nome, senza distinzione di maiuscole
+            for spelled in (".OVERLAP_REPORT.MD.new.TMP", "Overlap_Report_Public.JSON"):
+                self.assertFalse(os.path.lexists(out / spelled) and not os.path.samefile(out / spelled, real))
+                self.assertNotEqual(problem(out, {"--rules": out / spelled}), "", (tag, spelled))
+
+    def test_entries_of_input_folders_and_files_read(self):
+        # un manifest collegato a un nome della pulizia; per report, i file letti nella cartella di uscita; per build, una
+        # voce della cartella dei dati: rifiuto prima di qualunque modifica, bersaglio identico
+        for tag in ("rgb", "nuaa"):
+            script, ds = self.cli(tag)
+            d = self.t / f"{tag}-man"
+            rp = self.world(tag, d)
+            out = d / "out"
+            out.mkdir()
+            man = sorted((d / "manifests").glob("*.csv"))[0]
+            target = out / ".overlap_report.md.keep.tmp"
+            man.rename(target)
+            man.symlink_to(target)
+            before = tree_bytes(d)
+            self.refused(self.overlap(tag, rp, d / "manifests", out), (tag, "manifest link"))
+            self.assertIn("entry", self.overlap(tag, rp, d / "manifests", out).stderr)
+            self.assertEqual(tree_bytes(d), before, tag)
+            # report: un file letto (riepilogo) collegato al temporaneo di un rapporto breve
+            report = (RM.report_outputs("casia_fasd") if tag == "rgb" else NM.REPORT_OUTPUTS)[1]
+            summary = "casia_fasd_manifests_summary.json" if tag == "rgb" else "nuaa_manifests_summary.json"
+            o2 = self.t / f"{tag}-rep" / "out"
+            o2.mkdir(parents=True)
+            (o2 / f".{report}.keep.tmp").write_text('{"passed": true}\n')
+            (o2 / summary).symlink_to(o2 / f".{report}.keep.tmp")
+            before = tree_bytes(o2)
+            self.refused(run(script, "report", *ds, "--out", o2, t=self.t), (tag, "report input"))
+            self.assertEqual(tree_bytes(o2), before, tag)
+            # build: una voce della cartella dei dati collegata al temporaneo del riepilogo
+            t = self.t / f"{tag}-bd"
+            o3 = t / "out"
+            o3.mkdir(parents=True)
+            (o3 / f".{summary}.keep.tmp").write_text("kept\n")
+            (t / "data").mkdir()
+            (t / "data" / "x").symlink_to(o3 / f".{summary}.keep.tmp")
+            before = tree_bytes(t)
+            self.refused(run(script, "build", *ds, "--out", o3, t=self.t, env=env_for(t)), (tag, "data entry"))
+            self.assertEqual(tree_bytes(t), before, tag)
+
+    def passed_run(self, tag, name):
+        d = self.t / name
+        rp = self.world(tag, d)
+        r = self.overlap(tag, rp, d / "manifests", d / "out")
+        self.assertEqual(r.returncode, 0, r.stderr)
+        return d, rp
+
+    def test_folder_that_does_not_accept_writes(self):
+        # cartella di uscita senza scrittura: rifiuto prima di qualunque modifica; os.access simulato su ogni sistema
+        # (anche dove l'utente è root e i permessi non contano) e permessi veri 555 dove contano
+        for tag, problem in (("rgb", lambda o: RM.outputs_problem(o, "casia_fasd", RM.overlap_outputs(), {})),
+                             ("nuaa", lambda o: NM.outputs_problem(o, list(NM.OVERLAP_OUTPUTS), {}))):
+            d, rp = self.passed_run(tag, f"{tag}-ro")
+            out = d / "out"
+            real = os.access
+            with mock.patch.object(os, "access", lambda p, m, *a, **k: False if Path(p) == out else real(p, m, *a, **k)):
+                self.assertIn("does not accept writes", problem(out), tag)
+            self.assertEqual(problem(out), "")
+            if hasattr(os, "geteuid") and os.geteuid() != 0:     # da root i permessi non fermano le cancellazioni
+                before = tree_bytes(out)
+                os.chmod(out, 0o555)
+                try:
+                    r = self.overlap(tag, rp, d / "manifests", out)
+                finally:
+                    os.chmod(out, 0o755)
+                self.refused(r, tag, "does not accept writes: its outputs could not be removed; refused before any change, nothing removed")
+                self.assertEqual(tree_bytes(out), before, tag)
+                self.assertTrue(json.loads((out / "overlap_report_public.json").read_text())["passed"])
+
+    def test_immutable_or_append_only_outputs(self):
+        for tag, problem in (("rgb", lambda o: RM.outputs_problem(o, "casia_fasd", RM.overlap_outputs(), {})),
+                             ("nuaa", lambda o: NM.outputs_problem(o, list(NM.OVERLAP_OUTPUTS), {}))):
+            d, rp = self.passed_run(tag, f"{tag}-imm")
+            out = d / "out"
+            # simulato su ogni sistema: os.lstat riporta l'indicatore immutabile (o «solo aggiunta») per un'uscita
+            for flag in ("UF_IMMUTABLE", "UF_APPEND"):
+                q, rl = out / "overlap_report.json", os.lstat
+
+                def fl(p, *a, **k):
+                    st = rl(p, *a, **k)
+                    if isinstance(p, (str, os.PathLike)) and Path(p) == q:
+                        return types.SimpleNamespace(st_mode=st.st_mode, st_dev=st.st_dev, st_ino=st.st_ino, st_flags=getattr(stat, flag))
+                    return st
+                with mock.patch.object(os, "lstat", fl):
+                    self.assertIn("immutable, append-only or read-only", problem(out), (tag, flag))
+            # vero, solo dove esiste os.chflags (asserzione in più; la parte simulata sopra vale su ogni sistema)
+            if not hasattr(os, "chflags"):
+                continue
+            before = tree_bytes(out)
+            os.chflags(out / "overlap_report.json", stat.UF_IMMUTABLE)
+            try:
+                r = self.overlap(tag, rp, d / "manifests", out)
+            finally:
+                os.chflags(out / "overlap_report.json", 0)
+            self.refused(r, tag, "overlap_report.json in the output folder is immutable, append-only or read-only: it could not be removed; refused before any change, nothing removed")
+            self.assertEqual(tree_bytes(out), before, tag)
+
+    def test_message_when_nothing_could_be_removed(self):
+        out = self.t / "stuck"
+        out.mkdir()
+        for n in ("a.json", "b.md"):
+            (out / n).write_text('{"passed": true}\n')
+        err = io.StringIO()
+
+        def no(*a, **k):
+            raise PermissionError(13, "injected EACCES")
+        with mock.patch.object(MW, "invalidate", no), mock.patch.object(MW, "write_all", no), contextlib.redirect_stderr(err), \
+                self.assertRaises(SystemExit):
+            MW.invalidate_all(out, ["a.json", "b.md"])
+        self.assertIn("the invalidation of the previous outputs stopped (PermissionError): outputs that could be neither removed "
+                      "nor marked FAIL: a.json, b.md", err.getvalue())
+        self.assertNotIn("the other outputs were removed", err.getvalue().split("stopped (PermissionError):")[1].split(";")[0])
+
+
+def tree_bytes_no_fifo(d: Path) -> dict:
+    """Come tree_bytes, ma un FIFO è registrato come tale (leggerlo bloccherebbe)."""
+    out = {}
+    for dp, dns, fns in os.walk(d):
+        for n in fns + [x for x in dns if (Path(dp) / x).is_symlink()]:
+            q = Path(dp) / n
+            import stat as _st
+            out[str(q.relative_to(d))] = ("fifo",) if _st.S_ISFIFO(os.lstat(q).st_mode) else ("link", os.readlink(q)) if q.is_symlink() else q.read_bytes()
+    return out
 
 
 # ----------------------------------------------------------------------------- radici protette
@@ -882,7 +1284,7 @@ class TestMaintenanceDeclaration(unittest.TestCase):
         self.assertEqual(MW.MAINTENANCE["scripts/nuaa_manifests.py"]["changed"],
                          common + ("VALIDATED", "run_self_test", "cmd_check_overlap", "overlap_run", "self_test_failure",
                                    "cmd_report", "main", "unexpected_failure", "RGB_OUTPUTS"))
-        self.assertEqual(MW.MAINTENANCE["scripts/export_m2_rgb.py"]["changed"], ("CODE", "deletion_problem", "reference_state", "reference_report", "main"))
+        self.assertEqual(MW.MAINTENANCE["scripts/export_m2_rgb.py"]["changed"], ("CODE", "deletion_problem", "export_paths_problem", "reference_state", "reference_report", "main"))
         for m in MW.MAINTENANCE.values():
             self.assertEqual(m["added"], ("import m2_writers as mw",))
         self.assertEqual({f: m["accepted"][:12] for f, m in MW.MAINTENANCE.items()},
@@ -956,7 +1358,7 @@ class TestMaintenanceDeclaration(unittest.TestCase):
 
 def main() -> int:
     suite = unittest.TestSuite(unittest.defaultTestLoader.loadTestsFromTestCase(c)
-                               for c in (TestWriters, TestCommands, TestFailuresNeverLeaveAPass, TestProtectedRoots, TestExportMain, TestMaintenanceDeclaration))
+                               for c in (TestWriters, TestCommands, TestFailuresNeverLeaveAPass, TestTeacherReview23, TestAttackReview23, TestProtectedRoots, TestExportMain, TestMaintenanceDeclaration))
     log = io.StringIO()
     result = unittest.TextTestRunner(stream=log, verbosity=2).run(suite)
     if "--verbose" in sys.argv or not result.wasSuccessful():
