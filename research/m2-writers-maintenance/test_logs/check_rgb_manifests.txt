@@ -1,0 +1,4 @@
+skipped test_real_casia: missing input: real manifests not available (run rgb_manifests.py build, or pass --real-dir) (casia_fasd)
+skipped test_real_celeba: missing input: real manifests not available (run rgb_manifests.py build, or pass --real-dir) (celeba_spoof)
+tests run: 57, failures: 0, errors: 0, skipped: 2
+RESULT: PASS

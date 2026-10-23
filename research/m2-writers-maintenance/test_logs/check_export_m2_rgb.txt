@@ -1,0 +1,4 @@
+skipped test_helpers_identical_to_the_original_exports: missing input: scripts/export_m1.py and scripts/export_m2.py are development-only: the copy cannot be compared here
+skipped test_registers_have_run_id_and_authorisation: missing input: the dataset register drafts are restricted: they are in the development repository only, not in the public package
+tests run: 29, failures: 0, errors: 0, skipped: 2
+RESULT: PASS
