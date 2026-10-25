@@ -1,0 +1,159 @@
+{
+ "schema": "n1-nuaa-stability-config/1",
+ "study": "N1 part 2: small NUAA training pilot",
+ "architecture": "LivenessNet",
+ "dataset": "nuaa",
+ "protocol": "official",
+ "train_seeds": [
+  42,
+  43,
+  44
+ ],
+ "split_seed": 42,
+ "split": "GroupShuffleSplit(n_splits=1, test_size=0.2, random_state=split_seed) on the subject array s_train",
+ "training": {
+  "max_epochs": 12,
+  "batch": 16,
+  "initial_learning_rate": 0.001,
+  "early_stopping_patience": 4,
+  "checkpoint": "weights of the epoch with minimum val_loss (EarlyStopping restore_best_weights; set_weights when the epochs end first)",
+  "optimizer": "tf.keras.optimizers.legacy.Adam(learning_rate=initial_learning_rate, clipnorm=1.0)",
+  "loss": "CategoricalCrossentropy, one-hot labels (index 0 bona fide, 1 attack)",
+  "class_weight": "balanced on the fitting set: n / (2 * n_class)",
+  "augmentation": "RandomFlip(horizontal), RandomRotation(0.03), RandomZoom(0.12, 0.12), RandomTranslation(0.06, 0.06), RandomBrightness(0.15, value_range=(0, 1)), RandomContrast(0.2), GaussianNoise(0.02); fitting set only",
+  "scheduler": "ReduceLROnPlateau(monitor=val_loss, factor=0.5, patience=2, min_lr=1e-6)",
+  "shuffle": "tf.data shuffle(4096, seed=train_seed)",
+  "seeds": "train_seed for random, numpy and TensorFlow (weight initialisation, augmentation, batch order); split_seed only for the split",
+  "device": "CPU"
+ },
+ "scoring": {
+  "device": "CPU",
+  "batch": 16,
+  "batchnorm": "inference (training=False)",
+  "input": "frames of the cache / 255",
+  "score": "softmax output, column 1 (attack probability)"
+ },
+ "metrics": {
+  "threshold": 0.5,
+  "decision": "attack if score_attack > 0.5 (tie = bona fide)",
+  "reported": [
+   "APCER",
+   "BPCER",
+   "ACER",
+   "AUROC"
+  ],
+  "sets": [
+   "test_3000",
+   "c1_300"
+  ],
+  "aggregation": "values of every seed, median and range (minimum-maximum); no seed selection"
+ },
+ "data": {
+  "m2_run": "20261006-M2-seed42-36c677a",
+  "cache": {
+   "file": "nuaa_1500.npz",
+   "sha256": "dc286dc371e61d638da1842c062a38c5368a9ec4da07ccbc36b7fff6f3177920",
+   "per_class": 1500,
+   "members": {
+    "X_train": {
+     "dtype": "|u1",
+     "shape": [
+      3000,
+      256,
+      256,
+      3
+     ]
+    },
+    "y_train": {
+     "dtype": "<i8",
+     "shape": [
+      3000
+     ]
+    },
+    "s_train": {
+     "dtype": "<U4",
+     "shape": [
+      3000
+     ]
+    },
+    "X_test": {
+     "dtype": "|u1",
+     "shape": [
+      3000,
+      256,
+      256,
+      3
+     ]
+    },
+    "y_test": {
+     "dtype": "<i8",
+     "shape": [
+      3000
+     ]
+    },
+    "s_test": {
+     "dtype": "<U4",
+     "shape": [
+      3000
+     ]
+    }
+   }
+  },
+  "manifests": {
+   "official_train": {
+    "file": "nuaa_official_train.csv",
+    "sha256": "2a7e8906f98b8e3cf0c42cd0a2cf10e15868750b1ac82e85b62a9e0b59aad648",
+    "rows": 3491,
+    "n_bona_fide": 1743,
+    "n_attack": 1748,
+    "n_subjects": 9
+   },
+   "official_test": {
+    "file": "nuaa_official_test.csv",
+    "sha256": "2fad23ff295cb2c1d3d0be238deef02faad252aa717933c30588bd5a9c4106c7",
+    "rows": 9123,
+    "n_bona_fide": 3362,
+    "n_attack": 5761,
+    "n_subjects": 16
+   },
+   "cnn_train": {
+    "file": "nuaa_cnn_train.csv",
+    "sha256": "6d46ec7da7bfc32b1cce9ed3e331f8ed4377e5fc2df31e1b77ac7f6a0c2bc33c",
+    "rows": 2507,
+    "n_bona_fide": 1345,
+    "n_attack": 1162,
+    "n_subjects": 7
+   },
+   "cnn_es": {
+    "file": "nuaa_cnn_early_stopping.csv",
+    "sha256": "17282be8ef300e5e178ae87cd137ffd875786f1b353924e7cfb6eb14db1584c1",
+    "rows": 493,
+    "n_bona_fide": 155,
+    "n_attack": 338,
+    "n_subjects": 2
+   },
+   "cnn_test": {
+    "file": "nuaa_cnn_test.csv",
+    "sha256": "ce9669dccae37041e778ff7bcba5f4cef08fa79f50d65be84806b084c5d95748",
+    "rows": 3000,
+    "n_bona_fide": 1500,
+    "n_attack": 1500,
+    "n_subjects": 16
+   },
+   "c1": {
+    "file": "nuaa_c1_v2.csv",
+    "sha256": "1c2cf97cb7115e7ae98640103670c628a3910a37c25b89f76369cc7ecad87426",
+    "rows": 300,
+    "n_bona_fide": 150,
+    "n_attack": 150,
+    "n_subjects": 16
+   }
+  },
+  "previous_checkpoints_sha256": [
+   "d861c5969f24376aff5aaac30c2b2b8793e0cd142dd016756dc82f188ccd99a5",
+   "5d503ea2acf76a0f64578df420063db8470be5810a41e586219cdce249427606",
+   "2456c9f3bda446badf519de2b2d80ba99b99add32c5c9e452e0d7a208023ba9b",
+   "16d462e6c3537158ee5c06e9b8d027202a5dd9cc948fd2ed36ab60175f80e7f5"
+  ]
+ }
+}

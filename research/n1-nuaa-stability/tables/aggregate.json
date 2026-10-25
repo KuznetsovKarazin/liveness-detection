@@ -1,0 +1,288 @@
+{
+ "passed": true,
+ "step": "aggregate",
+ "run_id": "20261024-N1-LivenessNet-fb93496",
+ "config_sha256": "ffaf934b9a24ecc7ae9643ebadef318f566e12d8d6ea7935281754c0475ccfaa",
+ "check_sha256": "fd93353edeb59448eb44262b5c4b7f802789fb6f96f1d3d857fda48f35172feb",
+ "commit": "fb9349685dfc15fae99f97706ea86f4eabd67c6b",
+ "dirty_at_check": false,
+ "code_sha256": {
+  "scripts/n1_train.py": "78ae3e1da70c9214a3ef97f69c8e78eddbd0fc109fea08898877bd8c6c0c8b3c",
+  "scripts/n1_trainer.py": "d1c449824a32a575f8d856a8c53e77d789c12281d4b9ae143edf869f7e78da93",
+  "scripts/nuaa_manifests.py": "a719ce2ed83479ab07883398d21eb1d869a4d4be273dda04b8cf34f8c99cfa44",
+  "scripts/select_threshold.py": "cacb709672c9c7be5cd68d61923e79bb640e1e8ee77a78864f6786577d07e93c",
+  "scripts/path_guard.py": "e5fa9c835c23745ff932e157a44d3104eb9713d86bbdecc9cdbbd3caa7a7ee34",
+  "scripts/m2_writers.py": "22760abc368dede3aa0a690a241f6622afe1ba586940422497db8a33994ee34a",
+  "scripts/package_rules.py": "96ec7ffab4b089bac71fd18918fcd32af72d15980cdfa1361cc84bb43e0e4c11",
+  "src/tesi_app/evaluation.py": "5deb4426538322807878895d5423a336b7a928288393b95e071cb35b783fa94e",
+  "src/tesi_app/paths.py": "9af10e66def18f866f1a66a23d4877f058825bc42d49231e3195a45def7a16c9",
+  "LIVENESSLAB_LIVEDETECTION/src/architectures.py": "a83c02b0788bd6f98262abf00f5fe970abed501f231edba348820482aea64d30"
+ },
+ "train_seeds": [
+  42,
+  43,
+  44
+ ],
+ "split_seed": 42,
+ "sets": {
+  "test_3000": "test (3,000 frames of nuaa_cnn_test)",
+  "c1_300": "C1 subset (300 frames of nuaa_c1_v2, inside the test)"
+ },
+ "threshold": 0.5,
+ "decision": "attack if score_attack > 0.5 (tie = bona fide)",
+ "seeds": {
+  "42": {
+   "metrics": {
+    "test_3000": {
+     "n": 3000,
+     "n_bona_fide": 1500,
+     "n_attack": 1500,
+     "accepted_attacks": 160,
+     "rejected_bona_fide": 1155,
+     "ties_at_threshold": 0,
+     "threshold": 0.5,
+     "decision": "attack if score_attack > 0.5 (tie = bona fide)",
+     "apcer": 0.10666666666666667,
+     "bpcer": 0.77,
+     "acer": 0.43833333333333335,
+     "auroc": 0.3484928888888889
+    },
+    "c1_300": {
+     "n": 300,
+     "n_bona_fide": 150,
+     "n_attack": 150,
+     "accepted_attacks": 13,
+     "rejected_bona_fide": 117,
+     "ties_at_threshold": 0,
+     "threshold": 0.5,
+     "decision": "attack if score_attack > 0.5 (tie = bona fide)",
+     "apcer": 0.08666666666666667,
+     "bpcer": 0.78,
+     "acer": 0.43333333333333335,
+     "auroc": 0.3374222222222222
+    }
+   },
+   "training": {
+    "epochs_run": 9,
+    "restored_epoch": 5,
+    "restored_by": "early stopping",
+    "best_val_loss": 0.0008984822197817266,
+    "wall_seconds": 496.0,
+    "weights_sha256": "c63a858107b6f60375a27222a915e9b4b35f267fe9f34cf16117d673ca06546e",
+    "keras_sha256": "b9115fc6571604b63ccfe12240727401a6c8b8e8bfc6a0941ef496a0b786ad10",
+    "val_loss_recomputed": 0.0008985418677042216,
+    "device": {
+     "tensorflow": "2.15.0",
+     "tensorflow-metal": "1.1.0",
+     "keras": "2.15.0",
+     "numpy": "1.26.4",
+     "scikit-learn": "1.3.2",
+     "visible_devices": [
+      "CPU"
+     ],
+     "python": "3.11.16",
+     "platform": "darwin"
+    }
+   },
+   "scores_sha256": "60e6c401c39ddd91d2e620b80528eaa9be24eac8db220cf817a922978d1dd037"
+  },
+  "43": {
+   "metrics": {
+    "test_3000": {
+     "n": 3000,
+     "n_bona_fide": 1500,
+     "n_attack": 1500,
+     "accepted_attacks": 391,
+     "rejected_bona_fide": 1152,
+     "ties_at_threshold": 0,
+     "threshold": 0.5,
+     "decision": "attack if score_attack > 0.5 (tie = bona fide)",
+     "apcer": 0.26066666666666666,
+     "bpcer": 0.768,
+     "acer": 0.5143333333333333,
+     "auroc": 0.3754402222222223
+    },
+    "c1_300": {
+     "n": 300,
+     "n_bona_fide": 150,
+     "n_attack": 150,
+     "accepted_attacks": 38,
+     "rejected_bona_fide": 117,
+     "ties_at_threshold": 0,
+     "threshold": 0.5,
+     "decision": "attack if score_attack > 0.5 (tie = bona fide)",
+     "apcer": 0.25333333333333335,
+     "bpcer": 0.78,
+     "acer": 0.5166666666666667,
+     "auroc": 0.37139999999999995
+    }
+   },
+   "training": {
+    "epochs_run": 12,
+    "restored_epoch": 12,
+    "restored_by": "end of epochs (set_weights)",
+    "best_val_loss": 0.012337423861026764,
+    "wall_seconds": 671.0,
+    "weights_sha256": "34bac22cafd3f4470895ee1ea3e22d86e8cd67139e036491fc94955925d9f0d6",
+    "keras_sha256": "fce403563d320d863c4cf6154eeb20794d98deddfe6f47955c862d4a1d944491",
+    "val_loss_recomputed": 0.01233743150327383,
+    "device": {
+     "tensorflow": "2.15.0",
+     "tensorflow-metal": "1.1.0",
+     "keras": "2.15.0",
+     "numpy": "1.26.4",
+     "scikit-learn": "1.3.2",
+     "visible_devices": [
+      "CPU"
+     ],
+     "python": "3.11.16",
+     "platform": "darwin"
+    }
+   },
+   "scores_sha256": "a1a71b6ecc6f9c084762648486f35d440ff3426298ad367db5e85194775a84be"
+  },
+  "44": {
+   "metrics": {
+    "test_3000": {
+     "n": 3000,
+     "n_bona_fide": 1500,
+     "n_attack": 1500,
+     "accepted_attacks": 72,
+     "rejected_bona_fide": 1131,
+     "ties_at_threshold": 0,
+     "threshold": 0.5,
+     "decision": "attack if score_attack > 0.5 (tie = bona fide)",
+     "apcer": 0.048,
+     "bpcer": 0.754,
+     "acer": 0.401,
+     "auroc": 0.45821866666666666
+    },
+    "c1_300": {
+     "n": 300,
+     "n_bona_fide": 150,
+     "n_attack": 150,
+     "accepted_attacks": 6,
+     "rejected_bona_fide": 115,
+     "ties_at_threshold": 0,
+     "threshold": 0.5,
+     "decision": "attack if score_attack > 0.5 (tie = bona fide)",
+     "apcer": 0.04,
+     "bpcer": 0.7666666666666667,
+     "acer": 0.4033333333333334,
+     "auroc": 0.4641111111111111
+    }
+   },
+   "training": {
+    "epochs_run": 12,
+    "restored_epoch": 8,
+    "restored_by": "early stopping",
+    "best_val_loss": 0.0005424584960564971,
+    "wall_seconds": 671.4,
+    "weights_sha256": "41c128484ff76b4d754c75085f2c17f95c22897a59f34d8d27e7f4b940d23432",
+    "keras_sha256": "54241106419434a4cf1f48808c78393f61e6e3d774af092c03c5818cfdd008dc",
+    "val_loss_recomputed": 0.0005424938608113391,
+    "device": {
+     "tensorflow": "2.15.0",
+     "tensorflow-metal": "1.1.0",
+     "keras": "2.15.0",
+     "numpy": "1.26.4",
+     "scikit-learn": "1.3.2",
+     "visible_devices": [
+      "CPU"
+     ],
+     "python": "3.11.16",
+     "platform": "darwin"
+    }
+   },
+   "scores_sha256": "943d1b46770351fd25b3fd9eaa32c17e12dcefc6d82a22b1cbb3a4924757c691"
+  }
+ },
+ "summary": {
+  "test_3000": {
+   "apcer": {
+    "values": [
+     0.10666666666666667,
+     0.26066666666666666,
+     0.048
+    ],
+    "median": 0.10666666666666667,
+    "min": 0.048,
+    "max": 0.26066666666666666
+   },
+   "bpcer": {
+    "values": [
+     0.77,
+     0.768,
+     0.754
+    ],
+    "median": 0.768,
+    "min": 0.754,
+    "max": 0.77
+   },
+   "acer": {
+    "values": [
+     0.43833333333333335,
+     0.5143333333333333,
+     0.401
+    ],
+    "median": 0.43833333333333335,
+    "min": 0.401,
+    "max": 0.5143333333333333
+   },
+   "auroc": {
+    "values": [
+     0.3484928888888889,
+     0.3754402222222223,
+     0.45821866666666666
+    ],
+    "median": 0.3754402222222223,
+    "min": 0.3484928888888889,
+    "max": 0.45821866666666666
+   }
+  },
+  "c1_300": {
+   "apcer": {
+    "values": [
+     0.08666666666666667,
+     0.25333333333333335,
+     0.04
+    ],
+    "median": 0.08666666666666667,
+    "min": 0.04,
+    "max": 0.25333333333333335
+   },
+   "bpcer": {
+    "values": [
+     0.78,
+     0.78,
+     0.7666666666666667
+    ],
+    "median": 0.78,
+    "min": 0.7666666666666667,
+    "max": 0.78
+   },
+   "acer": {
+    "values": [
+     0.43333333333333335,
+     0.5166666666666667,
+     0.4033333333333334
+    ],
+    "median": 0.43333333333333335,
+    "min": 0.4033333333333334,
+    "max": 0.5166666666666667
+   },
+   "auroc": {
+    "values": [
+     0.3374222222222222,
+     0.37139999999999995,
+     0.4641111111111111
+    ],
+    "median": 0.37139999999999995,
+    "min": 0.3374222222222222,
+    "max": 0.4641111111111111
+   }
+  }
+ },
+ "selection": "none: every seed of the configuration, no seed chosen on the test",
+ "created": "2026-10-24T21:35:05+0200"
+}

@@ -1,0 +1,15 @@
+$ python scripts/n1_metal_relu_repro.py
+TensorFlow 2.15.0, GPUs 1, disable_meta_optimizer False
+  relu gpu_eager 1.93e-07  gpu_graph 3.59e+00  cpu_graph 5.51e-07  gpu_graph == pre-activation: yes  WRONG
+  none gpu_eager 2.80e-07  gpu_graph 2.80e-07  cpu_graph 7.76e-07  gpu_graph == pre-activation: n/a  ok
+  tanh gpu_eager 2.08e-07  gpu_graph 2.08e-07  cpu_graph 3.55e-07  gpu_graph == pre-activation: no  ok
+MISMATCH: ReLU after MatMul+BiasAdd dropped on GPU in graph mode
+exit code: 1
+
+$ python scripts/n1_metal_relu_repro.py --disable-meta-optimizer
+TensorFlow 2.15.0, GPUs 1, disable_meta_optimizer True
+  relu gpu_eager 1.93e-07  gpu_graph 1.93e-07  cpu_graph 5.51e-07  gpu_graph == pre-activation: no  ok
+  none gpu_eager 2.80e-07  gpu_graph 2.80e-07  cpu_graph 7.76e-07  gpu_graph == pre-activation: n/a  ok
+  tanh gpu_eager 2.08e-07  gpu_graph 2.08e-07  cpu_graph 3.55e-07  gpu_graph == pre-activation: no  ok
+NO MISMATCH
+exit code: 0
