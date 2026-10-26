@@ -1,0 +1,5 @@
+$ python scripts/check_n1_subject_sensitivity.py   (package layout research/n1-nuaa-stability/livenesslab, without the restricted C1 and M1 run folders)
+skipped test_check_inputs_real: missing input: the accepted C1 and M1 run folders are not present (export/drive/02_Experiments/C1 and M1)
+skipped test_run_real_reproduces_accepted_table: missing input: the accepted C1 and M1 run folders are not present (export/drive/02_Experiments/C1 and M1)
+tests run: 47, failures: 0, errors: 0, skipped: 2
+RESULT: PASS

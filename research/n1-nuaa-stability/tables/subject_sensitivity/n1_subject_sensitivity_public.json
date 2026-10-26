@@ -1,0 +1,247 @@
+{
+ "task": "N1 part 1: sensitivity of the accepted M1 result to the test subjects",
+ "nature": "sensitivity analysis of existing results: not cross-validation, not a new independent validation",
+ "run_id": "20261024-N1-subjects-a5fcbbc",
+ "commit": "a5fcbbc",
+ "dirty": false,
+ "date": "2026-10-24T20:55:03+0200",
+ "decision_rule": "attack if score_attack > threshold (tie = bona fide)",
+ "fixed_threshold": 0.5,
+ "thresholds": "the four frozen M1 thresholds of threshold.json, applied unchanged (no recalibration on the test set)",
+ "delta_definition": "delta ACER = ACER at the M1 threshold - ACER at 0.5; leave-one-subject-out: one subject excluded from the computation only",
+ "sign_change": "sign (+, 0, -) of the leave-one-out delta different from the sign of the full delta; NA when a class is absent",
+ "na_rule": "a class absent after the exclusion gives NA for its error rate, for ACER and for delta, never 0",
+ "n_images": 300,
+ "n_subjects": 16,
+ "accepted_m1_table_reproduced": {
+  "result": true,
+  "cells_checked": {
+   "main": 56,
+   "without the dev subjects": 56
+  }
+ },
+ "inputs_sha256": {
+  "c1_scores": "0a52d875eaeabe61173162dd645ec415349822e9855572b0c5c22bf3db594ed0",
+  "c1_manifest": "86095da1531b1f24b1233c9668ac1ab37714978e444b313456732c028ccfb40c",
+  "m1_scores_test_dev_threshold": "4a279428b0873632958ac4d88f7d680a1519bdbbff146dd8b3c2c1e5edd46825",
+  "m1_threshold": "cd1df877cf7b965ee4f9b7264928d510adc6830bd4da9b2bc861aeae17f54c35",
+  "m1_table": "60728fbe5c7f62fff1239cdc756b68c7ee0422138d4c654c06a54d7a3fee71cc",
+  "m1_dev_manifest": "d4637ea67f30da2bb0e6ddcdec688c97aa3833c41709417ac3e93ee00b6fa938"
+ },
+ "config_sha256": "c77b72413e1f06c87fe4f0eba62198e8329e16ed47c6c5573966ca0e86ae9531",
+ "code_sha256": {
+  "scripts/n1_subject_sensitivity.py": "9df02cf7676eed6fc30eed38a8fbb9cb51927b9cf3f145dbd2e624b019a7e05d",
+  "scripts/m2_writers.py": "22760abc368dede3aa0a690a241f6622afe1ba586940422497db8a33994ee34a",
+  "scripts/path_guard.py": "e5fa9c835c23745ff932e157a44d3104eb9713d86bbdecc9cdbbd3caa7a7ee34"
+ },
+ "analyzers": {
+  "livenessnet__nuaa": {
+   "m1_threshold": 0.181054949760437,
+   "full": {
+    "n_bona_fide": 150,
+    "n_attack": 150,
+    "at_0_5": {
+     "fa": 24,
+     "fr": 109,
+     "apcer": "0.160000",
+     "bpcer": "0.726667",
+     "acer": "0.443333"
+    },
+    "at_m1": {
+     "fa": 5,
+     "fr": 118,
+     "apcer": "0.033333",
+     "bpcer": "0.786667",
+     "acer": "0.410000"
+    },
+    "delta_acer": "-0.033333",
+    "delta_acer_exact": "-1/30",
+    "sign": "-"
+   },
+   "leave_one_subject_out": {
+    "n_exclusions": 16,
+    "n_defined": 16,
+    "n_na": 0,
+    "delta_min": "-0.051750",
+    "delta_max": "-0.009568",
+    "delta_min_exact": "-485/9372",
+    "delta_max_exact": "-133/13900",
+    "deviation_from_full_min": "-0.018417",
+    "deviation_from_full_max": "0.023765",
+    "n_sign_changes": 0,
+    "n_opposite_sign": 0,
+    "n_zero": 0,
+    "n_positive": 0,
+    "n_negative": 16,
+    "n_bona_fide_after_exclusion": [
+     128,
+     150
+    ],
+    "n_attack_after_exclusion": [
+     138,
+     150
+    ],
+    "subjects_both_classes": 8,
+    "subjects_attack_only": 7,
+    "subjects_bona_fide_only": 1
+   }
+  },
+  "attacknet_v1__nuaa": {
+   "m1_threshold": 0.32923662662506104,
+   "full": {
+    "n_bona_fide": 150,
+    "n_attack": 150,
+    "at_0_5": {
+     "fa": 42,
+     "fr": 40,
+     "apcer": "0.280000",
+     "bpcer": "0.266667",
+     "acer": "0.273333"
+    },
+    "at_m1": {
+     "fa": 37,
+     "fr": 44,
+     "apcer": "0.246667",
+     "bpcer": "0.293333",
+     "acer": "0.270000"
+    },
+    "delta_acer": "-0.003333",
+    "delta_acer_exact": "-1/300",
+    "sign": "-"
+   },
+   "leave_one_subject_out": {
+    "n_exclusions": 16,
+    "n_defined": 16,
+    "n_na": 0,
+    "delta_min": "-0.010165",
+    "delta_max": "0.002542",
+    "delta_min_exact": "-37/3640",
+    "delta_max_exact": "53/20850",
+    "deviation_from_full_min": "-0.006832",
+    "deviation_from_full_max": "0.005875",
+    "n_sign_changes": 2,
+    "n_opposite_sign": 2,
+    "n_zero": 0,
+    "n_positive": 2,
+    "n_negative": 14,
+    "n_bona_fide_after_exclusion": [
+     128,
+     150
+    ],
+    "n_attack_after_exclusion": [
+     138,
+     150
+    ],
+    "subjects_both_classes": 8,
+    "subjects_attack_only": 7,
+    "subjects_bona_fide_only": 1
+   }
+  },
+  "attacknet_v2_1__nuaa": {
+   "m1_threshold": 0.8703288733959198,
+   "full": {
+    "n_bona_fide": 150,
+    "n_attack": 150,
+    "at_0_5": {
+     "fa": 3,
+     "fr": 115,
+     "apcer": "0.020000",
+     "bpcer": "0.766667",
+     "acer": "0.393333"
+    },
+    "at_m1": {
+     "fa": 11,
+     "fr": 91,
+     "apcer": "0.073333",
+     "bpcer": "0.606667",
+     "acer": "0.340000"
+    },
+    "delta_acer": "-0.053333",
+    "delta_acer_exact": "-4/75",
+    "sign": "-"
+   },
+   "leave_one_subject_out": {
+    "n_exclusions": 16,
+    "n_defined": 16,
+    "n_na": 0,
+    "delta_min": "-0.067033",
+    "delta_max": "-0.019845",
+    "delta_min_exact": "-61/910",
+    "delta_max_exact": "-64/3225",
+    "deviation_from_full_min": "-0.013700",
+    "deviation_from_full_max": "0.033488",
+    "n_sign_changes": 0,
+    "n_opposite_sign": 0,
+    "n_zero": 0,
+    "n_positive": 0,
+    "n_negative": 16,
+    "n_bona_fide_after_exclusion": [
+     128,
+     150
+    ],
+    "n_attack_after_exclusion": [
+     138,
+     150
+    ],
+    "subjects_both_classes": 8,
+    "subjects_attack_only": 7,
+    "subjects_bona_fide_only": 1
+   }
+  },
+  "attacknet_v2_2__nuaa": {
+   "m1_threshold": 0.6969330608844757,
+   "full": {
+    "n_bona_fide": 150,
+    "n_attack": 150,
+    "at_0_5": {
+     "fa": 22,
+     "fr": 118,
+     "apcer": "0.146667",
+     "bpcer": "0.786667",
+     "acer": "0.466667"
+    },
+    "at_m1": {
+     "fa": 38,
+     "fr": 112,
+     "apcer": "0.253333",
+     "bpcer": "0.746667",
+     "acer": "0.500000"
+    },
+    "delta_acer": "0.033333",
+    "delta_acer_exact": "1/30",
+    "sign": "+"
+   },
+   "leave_one_subject_out": {
+    "n_exclusions": 16,
+    "n_defined": 16,
+    "n_na": 0,
+    "delta_min": "0.019910",
+    "delta_max": "0.048762",
+    "delta_min_exact": "119/5977",
+    "delta_max_exact": "457/9372",
+    "deviation_from_full_min": "-0.013424",
+    "deviation_from_full_max": "0.015429",
+    "n_sign_changes": 0,
+    "n_opposite_sign": 0,
+    "n_zero": 0,
+    "n_positive": 16,
+    "n_negative": 0,
+    "n_bona_fide_after_exclusion": [
+     128,
+     150
+    ],
+    "n_attack_after_exclusion": [
+     138,
+     150
+    ],
+    "subjects_both_classes": 8,
+    "subjects_attack_only": 7,
+    "subjects_bona_fide_only": 1
+   }
+  }
+ },
+ "limits": [
+  "the test images include persons already present in training (NUAA is not subject-disjoint between its official train and test splits): the result does not show generalisation",
+  "16 subjects with unbalanced class composition: the leave-one-out values are not independent and are not a confidence interval"
+ ]
+}

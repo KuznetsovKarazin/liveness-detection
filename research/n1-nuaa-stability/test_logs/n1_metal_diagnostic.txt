@@ -1,0 +1,15 @@
+$ python scripts/n1_metal_diagnostic.py
+TensorFlow 2.15.0, visible devices ['CPU', 'GPU'], grappler options {'remapping': False}
+  default device, eager    max |p - p_cpu_eager| = 1.788e-07; dense1 3.129e-07; largest difference at layer conv2_1
+  default device, graph    max |p - p_cpu_eager| = 8.852e-02; dense1 3.121e-01; largest difference at layer dense1
+  CPU, graph               max |p - p_cpu_eager| = 0.000e+00; dense1 0.000e+00; largest difference at layer conv1_1
+  numpy dense1 vs CPU eager: 1.214e-07
+GRAPH-MODE MISMATCH
+
+$ python scripts/n1_metal_diagnostic.py --disable-meta-optimizer
+TensorFlow 2.15.0, visible devices ['CPU', 'GPU'], grappler options {'disable_meta_optimizer': True}
+  default device, eager    max |p - p_cpu_eager| = 1.788e-07; dense1 3.129e-07; largest difference at layer conv2_1
+  default device, graph    max |p - p_cpu_eager| = 1.788e-07; dense1 3.129e-07; largest difference at layer conv2_1
+  CPU, graph               max |p - p_cpu_eager| = 0.000e+00; dense1 0.000e+00; largest difference at layer conv1_1
+  numpy dense1 vs CPU eager: 1.214e-07
+NO MISMATCH

@@ -1,0 +1,25 @@
+$ python scripts/n1_metal_checks.py fit-steps
+TensorFlow 2.15.0, disable_meta_optimizer False
+  fit 5 steps (synthetic), max |w_cpu - w_gpu| = 1.02e-01
+WEIGHTS DIFFER
+exit code: 1
+
+$ python scripts/n1_metal_checks.py fit-steps --disable-meta-optimizer
+TensorFlow 2.15.0, disable_meta_optimizer True
+  fit 5 steps (synthetic), max |w_cpu - w_gpu| = 1.19e-07
+WEIGHTS AGREE
+exit code: 0
+
+$ python scripts/n1_metal_checks.py c1-rescore --config ../n1_nuaa_stability.json --manifests <M2 manifests> --cache <nuaa_1500.npz> --weights <C1 LivenessNet__nuaa.h5> --c1-scores <C1 run>/scores.csv
+C1 LivenessNet checkpoint d861c5969f24… scored on the CPU (n1_train.py path), configuration ffaf934b9a24…
+  C1 300: Pearson correlation with the accepted C1 scores 0.9995, max |difference| 0.0515
+  C1 300: AUROC new 0.3813, accepted C1 scores 0.3782
+  test 3000: AUROC 0.3910
+exit code: 0
+
+$ python scripts/n1_metal_checks.py c1-linear --weights <C1 LivenessNet__nuaa.h5>
+C1 LivenessNet checkpoint d861c5969f24…, 32 smooth random inputs, TensorFlow 2.15.0; p_attack on the CPU in [0.5701, 0.9730]
+  max |p_gpu_predict - p_cpu| = 2.91e-01; max |p_gpu_predict - p_cpu_with_linear_dense1| = 2.38e-07
+PREDICT EQUALS LINEAR DENSE1
+exit code: 1
+
