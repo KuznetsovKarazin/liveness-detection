@@ -1,0 +1,46 @@
+== python:3.12 container (machine, Python, NumPy, scikit-learn), from livenesslab/ of this package; last lines of each run
+$ python scripts/check_c2_pilot.py; python scripts/check_c2_mutations.py
+
+aarch64 3.12.15 2.5.4 1.9.1
+tests run: 216, failures: 0, errors: 0, skipped: 0
+RESULT: PASS
+KILLED    device: not recorded in train.json (tests run: 216, failures: 104, errors: 0, skipped: 2)
+mutations killed: 362/362
+RESULT: PASS
+
+== python:3.11 container, aarch64 (machine, Python, TensorFlow, physical devices), TensorFlow 2.15.0, no GPU
+$ LIVENESSLAB_LIVEDETECTION=<group repository> python scripts/check_c2_device_tf.py
+aarch64 3.11.18 2.15.0 [PhysicalDevice(name='/physical_device:CPU:0', device_type='CPU')]
+  validazione per soggetto: 2 soggetti su 8 tenuti fuori dal training
+4/4 - 2s - loss: 1.1711 - accuracy: 0.5667 - val_loss: 0.6538 - val_accuracy: 1.0000 - lr: 0.0010 - 2s/epoch - 494ms/step
+  dispositivo: richiesto CPU, effettivo CPU:0 (visibili ['CPU'], scarto grafo/eager 0.000e+00 in None)
+== LivenessNet su casia_fasd [official]: 1 epoche in 2s | val acc 1.000 | TEST not evaluated (--no-test-eval) → LivenessNet__casia_fasd.keras
+  validazione per soggetto: 2 soggetti su 8 tenuti fuori dal training
+4/4 - 4s - loss: 0.9132 - accuracy: 0.4667 - val_loss: 0.0120 - val_accuracy: 1.0000 - lr: 0.0010 - 4s/epoch - 991ms/step
+  dispositivo: richiesto default, effettivo CPU:0 (visibili ['CPU'], scarto grafo/eager 1.213e-06 in evaluate)
+== AttackNetV2_2 su casia_fasd [official]: 1 epoche in 4s | val acc 1.000 | TEST not evaluated (--no-test-eval) → AttackNetV2_2__casia_fasd.keras
+TensorFlow 2.15.0, GPU visible: False
+  LivenessNet: requested CPU, effective CPU:0, visible ['CPU'], graph/eager max relative difference 0.000e+00 (None)
+  AttackNetV2_2: requested default, effective CPU:0, visible ['CPU'], graph/eager max relative difference 1.213e-06 (evaluate)
+  no GPU visible: comparison with the GPU-hidden run and negative control on the GPU skipped
+RESULT: PASS
+
+== python:3.11 container, x86_64 (machine, Python, TensorFlow, physical devices), TensorFlow 2.15.0, no GPU
+$ LIVENESSLAB_LIVEDETECTION=<group repository> python scripts/check_c2_device_tf.py
+x86_64 3.11.18 2.15.0 [PhysicalDevice(name='/physical_device:CPU:0', device_type='CPU')]
+2026-10-27 20:35:57.532954: E external/local_xla/xla/stream_executor/cuda/cuda_dnn.cc:9261] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
+2026-10-27 20:35:57.534145: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:607] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered
+2026-10-27 20:35:57.558163: E external/local_xla/xla/stream_executor/cuda/cuda_blas.cc:1515] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+  validazione per soggetto: 2 soggetti su 8 tenuti fuori dal training
+4/4 - 5s - loss: 1.1717 - accuracy: 0.5667 - val_loss: 0.6509 - val_accuracy: 1.0000 - lr: 0.0010 - 5s/epoch - 1s/step
+  dispositivo: richiesto CPU, effettivo CPU:0 (visibili ['CPU'], scarto grafo/eager 0.000e+00 in None)
+== LivenessNet su casia_fasd [official]: 1 epoche in 5s | val acc 1.000 | TEST not evaluated (--no-test-eval) → LivenessNet__casia_fasd.keras
+  validazione per soggetto: 2 soggetti su 8 tenuti fuori dal training
+4/4 - 8s - loss: 0.9197 - accuracy: 0.4667 - val_loss: 0.0114 - val_accuracy: 1.0000 - lr: 0.0010 - 8s/epoch - 2s/step
+  dispositivo: richiesto default, effettivo CPU:0 (visibili ['CPU'], scarto grafo/eager 7.174e-07 in evaluate)
+== AttackNetV2_2 su casia_fasd [official]: 1 epoche in 9s | val acc 1.000 | TEST not evaluated (--no-test-eval) → AttackNetV2_2__casia_fasd.keras
+TensorFlow 2.15.0, GPU visible: False
+  LivenessNet: requested CPU, effective CPU:0, visible ['CPU'], graph/eager max relative difference 0.000e+00 (None)
+  AttackNetV2_2: requested default, effective CPU:0, visible ['CPU'], graph/eager max relative difference 7.174e-07 (evaluate)
+  no GPU visible: comparison with the GPU-hidden run and negative control on the GPU skipped
+RESULT: PASS

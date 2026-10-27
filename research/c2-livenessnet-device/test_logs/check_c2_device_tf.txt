@@ -1,0 +1,14 @@
+  validazione per soggetto: 2 soggetti su 8 tenuti fuori dal training
+4/4 - 2s - loss: 1.1718 - accuracy: 0.5667 - val_loss: 0.6502 - val_accuracy: 1.0000 - lr: 0.0010 - 2s/epoch - 514ms/step
+  dispositivo: richiesto CPU, effettivo CPU:0 (visibili ['CPU', 'GPU'], scarto grafo/eager 0.000e+00 in None)
+== LivenessNet su casia_fasd [official]: 1 epoche in 2s | val acc 1.000 | TEST not evaluated (--no-test-eval) → LivenessNet__casia_fasd.keras
+  validazione per soggetto: 2 soggetti su 8 tenuti fuori dal training
+4/4 - 6s - loss: 0.8609 - accuracy: 0.6667 - val_loss: 0.0025 - val_accuracy: 1.0000 - lr: 0.0010 - 6s/epoch - 1s/step
+  dispositivo: richiesto default, effettivo GPU:0 (visibili ['CPU', 'GPU'], scarto grafo/eager 4.647e-06 in evaluate)
+== AttackNetV2_2 su casia_fasd [official]: 1 epoche in 6s | val acc 1.000 | TEST not evaluated (--no-test-eval) → AttackNetV2_2__casia_fasd.keras
+TensorFlow 2.15.0, GPU visible: True
+  LivenessNet: requested CPU, effective CPU:0, visible ['CPU', 'GPU'], graph/eager max relative difference 0.000e+00 (None)
+  AttackNetV2_2: requested default, effective GPU:0, visible ['CPU', 'GPU'], graph/eager max relative difference 4.647e-06 (evaluate)
+  LivenessNet weights, CPU scope with GPU visible vs GPU hidden: 32 arrays, max |diff| = 0.000e+00; that run: effective CPU:0, graph/eager 0.000e+00 (None)
+  LivenessNet weights, CPU scope with GPU visible vs GPU, policy default (negative control): 32 arrays, max |diff| = 6.502e+00; that run: effective GPU:0, graph/eager 1.689e+00 (bn_dense)
+RESULT: PASS
