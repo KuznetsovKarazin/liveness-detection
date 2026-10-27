@@ -5,15 +5,15 @@ training, no inference). Part 2 (item 2): one architecture (LivenessNet), three 
 and 44, on the local cache `nuaa_1500.npz` with the M2 preprocessing and split (2,507 fitting / 493 validation / 3,000
 test frames); split seed 42 for every run. This folder holds the code, the configuration saved before the runs, the
 run reports, the publishable aggregate tables and the test logs. Per-image scores, per-subject tables, logs,
-checkpoint cards and hashes go to the restricted area.
+checkpoint cards and hashes are in the restricted area.
 
 
 ## Delivery status
 
-- Restricted folders (ready; uploaded when `02_Experiments/N1/` is shared by the coordinator):
-  `02_Experiments/N1/20261024-N1-subjects-a5fcbbc/` and `02_Experiments/N1/20261024-N1-LivenessNet-fb93496/` and, as
-  first execution, `02_Experiments/N1/20261024-N1-subjects-2c44c64-dev/` and
-  `02_Experiments/N1/20261024-N1-LivenessNet-2c44c64/`; weights excluded.
+- Restricted folders, uploaded on 26 October 2026 to the N1 folder created and shared by the coordinator (92 files;
+  no images, cache or weights): `20261024-N1-subjects-a5fcbbc/` and `20261024-N1-LivenessNet-fb93496/` and, as first
+  execution, `20261024-N1-subjects-2c44c64-dev/` and `20261024-N1-LivenessNet-2c44c64/` (with
+  `20261024-N1-LivenessNet-2c44c64.SHA256SUMS` next to it).
 - Part 1: run `20261024-N1-subjects-a5fcbbc` on 24 October 2026, from the clean commit `a5fcbbc` of the
   development repository (dirty tree: no). An earlier run from a modified tree (`20261024-N1-subjects-2c44c64-dev`)
   gave the same values; only run id, commit, date and tree state differ.
@@ -25,7 +25,7 @@ checkpoint cards and hashes go to the restricted area.
   machine (CPU, same software): same weights SHA-256 for the three seeds, `scores_test.csv` identical except the
   `run_id` column, aggregate identical except the training wall times. Nothing is claimed beyond this machine and
   software.
-- Images and cache stay local. Checkpoint cards and SHA-256 go to the restricted folders; the weights (`.h5`,
+- Images and cache stay local. Checkpoint cards and SHA-256 are in the restricted folders; the weights (`.h5`,
   `.keras`) are kept by the operator, within the already authorised scope, available to the coordinator on request,
   never uploaded publicly.
 
@@ -244,14 +244,17 @@ and 44, at the end of the 12 epochs for seed 43. Full SHA-256 of the `.h5` and `
   epoch of minimum `val_loss` ranges from 5 to 12.
 - The C1 subset (300 of the 3,000 test frames) gives values within about 0.02 of the full test for every seed and
   metric; being a subset of the test, it is not independent evidence.
-- Session shift: fitting and validation frames come from sessions 01-02, the whole test from session 03. The drop is
-  not limited to new people: on the 1,325 test frames of the 7 fitting subjects BPCER is 0.687 for every seed and
-  AUROC 0.319-0.453 (on the other 1,675 frames BPCER 0.800-0.827, AUROC 0.412-0.471).
-- The validation is weak as a selector: 2 subjects and 493 frames from the training sessions; `val_loss` is very
-  unstable, and `val_accuracy` is 0.6856 (= 338/493, every frame called an attack) in 5 of the 33 epochs. The epoch
-  chosen is therefore noisy, consistent with the spread of APCER between seeds.
+- Session shift, a possible explanation to be verified: fitting and validation frames come from sessions 01-02, the
+  whole test from session 03. The poor test results are not limited to new people: on the 1,325 test frames of the 7
+  fitting subjects BPCER is 0.687 for every seed and AUROC 0.319-0.453 (on the other 1,675 frames BPCER 0.800-0.827,
+  AUROC 0.412-0.471).
+- Weak validation, a possible explanation to be verified: 2 subjects and 493 frames from the training sessions;
+  `val_loss` is very unstable, and `val_accuracy` is 0.6856 (= 338/493, accuracy matching an all-attack baseline) in
+  5 of the 33 epochs. The chosen epoch may therefore be noisy, which could contribute to the spread of APCER between
+  seeds.
 - What these runs measure is the instability of this training recipe on NUAA with this validation, not a property of
-  LivenessNet in general; the session shift is a description, not a tested cause.
+  LivenessNet in general; session shift and weak validation are possible explanations to be verified, not tested
+  causes.
 
 #### Historical comparison (descriptive only)
 
@@ -308,7 +311,7 @@ Restricted folders in the project document workspace (see "Delivery status"):
 first execution, kept as it was:
 `02_Experiments/N1/20261024-N1-subjects-2c44c64-dev/` (with its own `SHA256SUMS` in `public/` and `restricted/`,
 written by the script) and `02_Experiments/N1/20261024-N1-LivenessNet-2c44c64/`, whose checksum file
-`20261024-N1-LivenessNet-2c44c64.SHA256SUMS` (weights excluded) is produced at upload time, outside the original
+`20261024-N1-LivenessNet-2c44c64.SHA256SUMS` (weights excluded) was produced at upload time, outside the original
 folder, and uploaded next to it (never committed into it). Weights excluded (see "Delivery status").
 
 Part 1, run folder `20261024-N1-subjects-a5fcbbc/` (with its own `SHA256SUMS` files, written by the script): `status.json`;

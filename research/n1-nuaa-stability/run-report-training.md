@@ -29,7 +29,7 @@
   `41c128484ff76b4d754c75085f2c17f95c22897a59f34d8d27e7f4b940d23432`; `.keras` `b9115fc6…`, `fce40356…`, `54241106…`;
   cards `5c828deed64350d1b0f0d1a73c320042eab6e95944d03e417777855a595ddbe9`,
   `845103da264c8e06f90a56720df1a27ae8fb6476f16d1b4a29166f759179f586`,
-  `1c4096a34cc0d2f3da6aa9ae4f14e2b8bb17b7115b83f6cae96495d379959ca7`. Cards and SHA-256 go to the
+  `1c4096a34cc0d2f3da6aa9ae4f14e2b8bb17b7115b83f6cae96495d379959ca7`. Cards and SHA-256 are in the
   restricted folder; the weights are kept by the operator, within the authorised scope, available to the coordinator
   on request, never uploaded publicly; the four previous LivenessNet NUAA checkpoints of C1 are refused by hash.
 - Pretraining / external data: none.
@@ -69,7 +69,7 @@
 
 ## Evidence
 - Restricted score file location and SHA-256: `02_Experiments/N1/20261024-N1-LivenessNet-fb93496/` (with the three
-  checkpoint cards `seed<N>/checkpoints/LivenessNet__nuaa.json`, without `.h5`/`.keras`; the first execution goes to
+  checkpoint cards `seed<N>/checkpoints/LivenessNet__nuaa.json`, without `.h5`/`.keras`; the first execution is in
   `02_Experiments/N1/20261024-N1-LivenessNet-2c44c64/`), with its `SHA256SUMS`
   `668e3fec4b68758741160c00850a648db8669f64881f104048b631fbea07ace0` (34 files); per-image scores `scores_test.csv`:
   seed 42 `60e6c401…`, seed 43 `a1a71b6e…`, seed 44 `943d1b46…`; per subject `per_subject.csv` `22848d2d…`,
@@ -104,14 +104,15 @@
 - Research question answered: how much the result of the current LivenessNet training recipe on NUAA varies with the
   training seed, with split, preprocessing and protocol fixed.
 - Observed result and comparison: near-zero validation loss in every run, but poor test results: BPCER 0.754–0.770,
-  AUROC below 0.5 for every seed; the variation between seeds is mostly in APCER (0.048–0.261). The drop is not
-  limited to new people: on the 1,325 test frames of the 7 fitting subjects BPCER is 0.687 for every seed and AUROC
-  0.319–0.453. The C1 subset is within 0.02 of the full test (a subset, not independent evidence). The earlier C1
+  AUROC below 0.5 for every seed; the variation between seeds is mostly in APCER (0.048–0.261). The poor test results
+  are not limited to new people: on the 1,325 test frames of the 7 fitting subjects BPCER is 0.687 for every seed and
+  AUROC 0.319–0.453. The C1 subset is within 0.02 of the full test (a subset, not independent evidence). The earlier C1
   LivenessNet checkpoint scored through the same CPU path gives AUROC 0.3910 on the 3,000 frames and 0.3813 on the C1
   300 (`n1_metal_checks.py c1-rescore`), descriptive only (different checkpoint rule and training device).
-- Limitations / failed checks: test subjects already seen in training; session shift between training (01–02) and test
-  (03), a description, not a tested cause; validation of 2 subjects and 493 frames, `val_loss` very unstable and
-  `val_accuracy` 0.6856 (every frame called an attack) in 5 of 33 epochs, so the selected epoch is noisy; the C1
+- Limitations / failed checks: test subjects already seen in training; possible explanations of the poor test results,
+  to be verified and not tested causes: the session shift between training (01–02) and test (03), and the weak
+  validation (2 subjects and 493 frames, `val_loss` very unstable, `val_accuracy` 0.6856, accuracy matching an
+  all-attack baseline, in 5 of 33 epochs), which may make the selected epoch noisy; the C1
   subset is secondary; image-level counts with correlated frames. Device: with TensorFlow 2.15 and tensorflow-metal
   the ReLU after Dense (MatMul+BiasAdd+ReLU) is dropped on the GPU in graph mode; eager GPU and CPU are correct; only
   `disable_meta_optimizer` fixes it; the AttackNets are unaffected; hence CPU only. Established with the scripts of
