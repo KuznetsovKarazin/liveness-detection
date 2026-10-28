@@ -38,7 +38,7 @@ errore e nessun peso salvato se falliscono: prima del fit le variabili del model
 fit lo sono anche quelle dell'ottimizzatore, e per LivenessNet la modalità grafo (dove la ReLU viene saltata) coincide con
 l'eager su 4 frame di validazione: uscite di tutti gli strati con una tf.function, probabilità di model.predict e loss di
 model.evaluate (le funzioni di Keras del test e della validazione), scarto relativo massimo entro GRAPH_EAGER_TOL; lo
-scarto è registrato per ogni architettura. Scheda e
+scarto è registrato per ogni architettura e, se non è finito, ferma il training per ogni architettura. Scheda e
 manifest registrano training_device (richiesto, atteso, effettivo, dispositivi visibili e fisici, scarto grafo/eager).
 
 Riproducibilità: seed 42 per split, mescolamento, inizializzazione dei pesi e augmentation. Su GPU (Metal) alcune
@@ -229,12 +229,12 @@ def device_scope(tf, requested: str):
 
 def device_problem(arch_name: str, requested: str, expected: str, effective: list, gap: float = None) -> str:
     """Motivo per cui il training non rispetta la politica del dispositivo ("" se la rispetta): un solo dispositivo per
-    le variabili, uguale a quello atteso; per la politica CPU, quando è stato misurato, scarto grafo/eager entro
-    GRAPH_EAGER_TOL."""
+    le variabili, uguale a quello atteso; quando è stato misurato, scarto grafo/eager finito per ogni architettura e,
+    per la politica CPU, entro GRAPH_EAGER_TOL."""
     stop = " (CPU execution not guaranteed: training stopped, no weights saved)" if requested == "CPU" else " (training stopped, no weights saved)"
     if effective != [expected]:
         return f"{arch_name}: device policy {requested!r} requires every variable on {expected}, found {effective or 'none'}{stop}"
-    if requested == "CPU" and gap is not None and not np.isfinite(gap):
+    if gap is not None and not np.isfinite(gap):
         return f"{arch_name}: graph/eager comparison not finite ({gap}): outputs not finite after training (training stopped, no weights saved)"
     if requested == "CPU" and gap is not None and not gap <= GRAPH_EAGER_TOL:
         return (f"{arch_name}: graph-mode outputs differ from eager by {gap:.3e} (relative), above {GRAPH_EAGER_TOL:g}{stop}")
@@ -344,6 +344,9 @@ def _train_in_scope(tf, arch, arch_name, ds, data, epochs, batch, lr, protocol, 
     hist = model.fit(ds_tr, validation_data=ds_va, epochs=epochs, class_weight=cw, callbacks=cbs, verbose=2)
     train_s = time.time() - t0
     es = cbs[0]
+    if not all(np.isfinite(v) for v in hist.history["val_loss"]):
+        # un val_loss NaN o infinito renderebbe arbitraria l'epoca ripristinata: per ogni architettura, prima di salvare
+        raise SystemExit(f"ERROR: {arch_name}: validation loss not finite after training ({hist.history['val_loss']}) (training stopped, no weights saved)")
     best_epoch = int(np.argmin(hist.history["val_loss"]))
     if es.stopped_epoch == 0 and es.best_weights is not None:
         # Keras ripristina i pesi migliori solo quando l'early stopping scatta: se le epoche finiscono prima, lo si fa qui
@@ -352,6 +355,9 @@ def _train_in_scope(tf, arch, arch_name, ds, data, epochs, batch, lr, protocol, 
     # di validazione (il difetto di tensorflow-metal compare solo in grafo); nessun effetto su pesi, seed e storia
     effective = sorted({short_device(v.device) for v in list(model.variables) + list(model.optimizer.variables())})
     gap, gap_layer = graph_eager_gap(tf, model, Xva[:4], Yva[:4])
+    if not isinstance(gap, float):
+        # dopo il fit lo scarto va sempre misurato (None vale solo per il controllo prima del fit)
+        raise SystemExit(f"ERROR: {arch_name}: graph/eager comparison not measured after training ({gap!r}) (training stopped, no weights saved)")
     if msg := device_problem(arch_name, requested, expected, effective, gap):
         raise SystemExit(f"ERROR: {msg}")
     device = {"requested": requested, "expected": expected, "effective": effective[0], "visible": visible, "physical": physical,

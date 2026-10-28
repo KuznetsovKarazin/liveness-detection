@@ -1,5 +1,5 @@
 NOTE: imports blocked for this run: tensorflow, keras, h5py, cv2
 NOTE: OpenCV (cv2) not available: tesi_app.evaluation imported with an empty cv2 stand-in (its image functions are not used)
 blocked imports attempted: 1; blocked packages loaded: none
-tests run: 216, failures: 0, errors: 0, skipped: 0
+tests run: 219, failures: 0, errors: 0, skipped: 0
 RESULT: PASS

@@ -613,7 +613,9 @@ DEVICE_MUTANTS = [
     ("device: Keras evaluate not compared", TRAIN, 'np.asarray(model.evaluate(X, Y, batch_size=len(X), verbose=0, return_dict=True)["loss"])]', "np.asarray(loss)]"),
     ("device: comparison in training mode", TRAIN, "    eager = [np.asarray(t) for t in sub(xb, training=False)]", "    eager = [np.asarray(t) for t in sub(xb, training=True)]"),
     ("device: comparison on no frame", TRAIN, "graph_eager_gap(tf, model, Xva[:4], Yva[:4])", "graph_eager_gap(tf, model, Xva[:0], Yva[:0])"),
-    ("device: non-finite comparison reported as a device failure", TRAIN, '    if requested == "CPU" and gap is not None and not np.isfinite(gap):\n', "    if False:\n"),
+    ("device: non-finite comparison reported as a device failure", TRAIN, '    if gap is not None and not np.isfinite(gap):\n', "    if False:\n"),
+    ("device: non-finite comparison refused only for the CPU policy", TRAIN, '    if gap is not None and not np.isfinite(gap):\n',
+     '    if requested == "CPU" and gap is not None and not np.isfinite(gap):\n'),
     ("device: layer named when every difference is 0", TRAIN, "(names[worst] if rel[worst] > 0 else None)", "names[worst]"),
     ("device: optimizer variables not checked", TRAIN, "list(model.variables) + list(model.optimizer.variables())", "list(model.variables)"),
     ("device: one variable on the right device is enough", TRAIN, "    if effective != [expected]:\n", "    if expected not in effective:\n"),
@@ -642,6 +644,14 @@ DEVICE_MUTANTS = [
     ("device: graph/eager layer type not checked", PILOT, " or layer is not None and not (isinstance(layer, str) and layer):", ":"),
     ("device: train.json and card not compared", PILOT, '    if entry.get("training_device") != d:\n', "    if False:\n"),
     ("device: not recorded in train.json", PILOT, ', "training_device": info.get("training_device")}', "}"),
+    ("train_cnn: non-finite validation loss accepted", TRAIN, '    if not all(np.isfinite(v) for v in hist.history["val_loss"]):\n', "    if False:\n"),
+    ("device: unmeasured graph/eager comparison accepted after fit", TRAIN, "    if not isinstance(gap, float):\n", "    if False:\n"),
+    ("config: training device not checked", PILOT,
+     '    tdev = cfg.get("training", {}).get("device") if isinstance(cfg.get("training"), dict) else None\n',
+     '    tdev = {**TRAINING_DEVICE, "note": "accepted"}\n'),
+    ("config: training device policy not compared", PILOT, " or {a: tdev[a] for a in ARCHS} != TRAINING_DEVICE", ""),
+    ("config: extra training device fields accepted", PILOT, 'sorted(tdev) != sorted([*ARCHS, "note"])', 'not {*ARCHS, "note"} <= set(tdev)'),
+    ("config: training device note not checked", PILOT, ' \\\n            or not isinstance(tdev["note"], str) or not tdev["note"].strip():', ":"),
 ]
 MUTANTS = [(n, PILOT, a, b) for n, a, b in PILOT_MUTANTS] + [(n, TRAIN, a, b) for n, a, b in TRAIN_MUTANTS]
 MUTANTS += [tuple(m) for m in SWEEP_MUTANTS]

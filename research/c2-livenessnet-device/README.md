@@ -10,8 +10,37 @@ scoring; synthetic regressions are added to the existing test harness.
 **Technical change only: no dataset, no full training, no C2 experiment, no inference on real data.** Every test uses
 synthetic inputs in temporary folders. The accepted packages (`research/c1-livenesslab/`, `research/m1-metrics/`,
 `research/m2-*`, `research/n1-nuaa-stability/`) and their results are unchanged; the approved configuration
-`research/m2-c2-pilot-protocol/c2_pilot_casia_to_nuaa.json` is unchanged (SHA-256 `4065d853…f84f7a`). No new workaround
-of the graph optimizer: the existing `remapping: False` of `train_cnn.py` (for the AttackNets) stays as it was.
+`research/m2-c2-pilot-protocol/c2_pilot_casia_to_nuaa.json` is unchanged (SHA-256 `4065d853…f84f7a`), and its amended
+version `c2_pilot_casia_to_nuaa_v2.json`, in this folder, differs only in `training.device`. No new workaround of the
+graph optimizer: the existing `remapping: False` of `train_cnn.py` (for the AttackNets) stays as it was.
+
+## Review of 28 October 2026
+
+Two corrections requested on the C2 card, in this same PR; no new experiment:
+
+1. **Non-finite graph/eager difference refused for every architecture.** In `train_cnn.py` the finiteness check was
+   applied to the CPU policy only, so an AttackNet with a NaN or infinite difference could save its weights and card
+   (`c2_pilot.py` refused it later). It now stops the training of every architecture before anything is saved; the
+   tolerance 1e-5 still applies to LivenessNet only. Regression: `test_not_finite_comparison_stops`, NaN and infinity
+   for LivenessNet and for AttackNet V2.2 (4 cases); new mutation "non-finite comparison refused only for the CPU
+   policy" (the code before this fix). Closed in the same place, from our own independent review: a NaN or infinite
+   `val_loss` in any epoch (which would make the restored epoch arbitrary) and a graph/eager comparison not measured
+   after `fit` also stop the training of every architecture before saving (`test_not_finite_validation_loss_stops`,
+   `test_not_measured_comparison_stops`, 2 mutations); the C2 runner already refused a non-finite `val_loss` history.
+2. **Amended configuration.** `c2_pilot_casia_to_nuaa_v2.json` is the approved configuration with `training.device`
+   changed from "Metal GPU" to the device policy of each architecture (LivenessNet `"CPU"`, AttackNetV2_2
+   `"default"`, with a note) and an `amends` block naming the original file, its SHA-256 and the changed field. The
+   original stays unchanged in `research/m2-c2-pilot-protocol/`. `APPROVED_CONFIG_SHA256` of `c2_pilot.py` is now
+   the SHA-256 of the amended file, `4905f950…6f14e9`, so a non-trial run accepts only that one; the runner also
+   requires `training.device` to give exactly the policy of `TRAINING_DEVICE`, so the original is refused with an
+   explicit message. Two texts are kept as in the original on purpose, since only `training.device` changes:
+   `seed_scope` ("Metal GPU kernels are not guaranteed deterministic", still true for AttackNet V2.2 on a Mac) and
+   `status` ("DRAFT for review …"; the approval is PR #7, recorded in `amends`). `test_approved_config` checks that, apart from `training.device` and `amends`, the two files are
+   equal as JSON values, with the same 28 top-level fields in the same order (`schema` … `run_steps`: among them
+   `direction`, `seed`, `models`, `checkpoints`, `budget`, `manifests`, `derived_frames`, `preprocessing`, `training`
+   with its `split`, `threshold`, `evaluations`, `metrics`, `scoring`), that the policy equals `TRAINING_DEVICE` and `DEVICE_POLICY`, and that
+   the original is refused; 8 new refusal cases, `test_original_training_device_refused` (`check` with the original
+   text) and 4 new mutations cover the new configuration check.
 
 ## Delivery status
 
@@ -55,10 +84,11 @@ Compared with `research/m2-c2-pilot-impl/livenesslab/` (accepted, PR #8):
       prove where the kernels ran (a function can compute on the GPU with its variables on the CPU); this comparison
       detects the defect in the graphs it runs, whatever the placement of the variables. It runs in inference mode
       (`training=False`) after training and changes no weights or history. A comparison that is not finite (outputs not
-      finite after training) also stops the training, with its own message.
+      finite after training) stops the training of every architecture, AttackNets included, with its own message.
     - Expected device: `CPU:0` for the CPU policy. For `default` it is `GPU:0` when a GPU is visible, otherwise `CPU:0`;
       for the AttackNets this verifies the default policy, so a CPU scope left open would be detected. Their
-      graph/eager difference is recorded, not enforced (they are not affected by the defect).
+      graph/eager difference is recorded and must be finite; the tolerance is not enforced (they are not affected by
+      the defect).
     - Every failure stops with an explicit `ERROR: …` line, before any weights, Keras file, card or `manifest.json`
       entry is written. A device or graph/eager failure of LivenessNet ends with `(CPU execution not guaranteed:
       training stopped, no weights saved)`; a non-finite comparison, a hidden GPU and an architecture without a policy
@@ -75,6 +105,9 @@ Compared with `research/m2-c2-pilot-impl/livenesslab/` (accepted, PR #8):
     the `sklearn` import, which now comes after the seeding instead of before it).
 - **`scripts/c2_pilot.py`**
   - `TRAINING_DEVICE` (LivenessNet `"CPU"`, AttackNetV2_2 `"default"`, equal to `DEVICE_POLICY`; a test compares them).
+  - `APPROVED_CONFIG_SHA256` is the SHA-256 of the amended configuration `c2_pilot_casia_to_nuaa_v2.json`; the
+    configuration check requires `training.device` with exactly `LivenessNet`, `AttackNetV2_2` (equal to
+    `TRAINING_DEVICE`) and a non-empty `note`, so the original "Metal GPU" text is refused.
   - `train.json` records `training_device` for each model.
   - The weights check (end of `train`, then before every `score`, `select` and `apply`) adds `device_problems`:
     - the card must record `training_device`;
@@ -97,11 +130,14 @@ Compared with `research/m2-c2-pilot-impl/livenesslab/` (accepted, PR #8):
   for LivenessNet when computing on the GPU, about 4e-6 for the AttackNets, 0 on the CPU); and injected faults (scope
   ignored by variable placement, computation on the GPU with variables on the CPU, optimizer variables elsewhere,
   Keras's own `predict` or `evaluate` on the GPU while a new `tf.function` stays in the CPU scope, Dropout noise in
-  training mode, an imposed graph/eager difference). New class `TestTrainingDevice`, 31 tests, including both training
+  training mode, an imposed graph/eager difference). New class `TestTrainingDevice`, 33 tests, including both training
   orders in the same process. The behavioural test of the default card now expects the single new field, and the test
-  without test evaluation now allows the single `predict` on 4 validation frames of the device check.
-- **`scripts/check_c2_mutations.py`**: 48 new declared mutations of the device code in `train_cnn.py` and
-  `c2_pilot.py`; the pattern of one earlier mutation (`sweep 55`) follows the extended `train.json` line;
+  without test evaluation now allows the single `predict` on 4 validation frames of the device check. In `TestConfig`
+  (review of 28 October), `test_approved_config` compares the amended configuration with the original, 8 new refusal
+  cases cover `training.device`, and the new `test_original_training_device_refused` runs `check` with the original
+  text (219 tests in all).
+- **`scripts/check_c2_mutations.py`**: 55 new declared mutations of the device code in `train_cnn.py` and
+  `c2_pilot.py` and of the configuration check (7 of them after the review of 28 October); the pattern of one earlier mutation (`sweep 55`) follows the extended `train.json` line;
   `m2_writers.py` is copied into each mutated tree when present (`OPTIONAL`), since the maintained manifest modules
   import it.
 - **`scripts/check_c2_device_tf.py`** (new): check with the real TensorFlow, synthetic data only (see below).
@@ -132,7 +168,9 @@ TensorFlow 2.15.0, GPU visible: True
 RESULT: PASS
 ```
 
-`None` means that every difference is 0. On the GPU the largest graph/eager difference of LivenessNet is in `bn_dense`,
+`None` means that every difference is 0. The AttackNet V2.2 difference on the GPU varies between runs (4.647e-06 in
+this log and in that of commit `ae171b4`, 2.105e-06 in another run of 28 October; Metal kernels are not
+deterministic); it is recorded and must be finite, the tolerance does not apply to it. On the GPU the largest graph/eager difference of LivenessNet is in `bn_dense`,
 the BatchNormalization right after `dense1`, as expected if its ReLU is skipped. The 6.5 weight difference alone would
 not show the defect (random data, GPU non-determinism); the graph/eager difference does.
 
@@ -153,13 +191,41 @@ and 3 (declared) and expects `CPU:0` for both models. It is not part of the offl
 lines are in Italian and the cards are labelled `casia_fasd` (the dataset argument of `train_cnn.train`): the data are
 random.
 
-## Difference from the approved protocol
+## Amended configuration
 
 The approved configuration says `training.device`: "Metal GPU (not deterministic; evidence = saved weights SHA-256)"
 for both trainings. With this change LivenessNet is trained on the CPU, as requested; AttackNet V2.2 stays on the
-default device. The configuration file is not edited (its SHA-256 is a constant of `c2_pilot.py` and of the approval);
-the device actually used is recorded in each card and in `train.json`. Whether to amend the configuration text is the
-coordinator's decision.
+default device. As confirmed by the coordinator on 28 October, the configuration is amended in a new file,
+`c2_pilot_casia_to_nuaa_v2.json` (SHA-256 `4905f950c05512ce60412acab3b65fc7dde445a99158f7303b5b87bdb36f14e9`), with
+the original approved file kept unchanged:
+
+```json
+"device": {"LivenessNet": "CPU", "AttackNetV2_2": "default", "note": "LivenessNet: created, trained and validated inside tf.device(\"/CPU:0\"), …"}
+```
+
+plus the `amends` block (original file, its SHA-256 `4065d853…f84f7a`, approval PR #7, changed field). Every other
+field is equal to the approved one, which `test_approved_config` checks. The device actually used is also recorded in
+each card and in `train.json` and checked before scoring.
+
+## Commands (real run: not executed, needs the coordinator's go-ahead)
+
+As in `research/m2-c2-pilot-impl/README.md`, with the scripts and the configuration of this folder; from inside
+`livenesslab/`:
+
+```bash
+CFG=../c2_pilot_casia_to_nuaa_v2.json; RUN=<restricted folder>/YYYYMMDD-C2-seed42-<shortcommit>
+IN="--source-manifests $CASIA_MANIFESTS --target-manifests $NUAA_MANIFESTS --source-cache $CACHE/casia_fasd_1500.npz --target-cache $CACHE/nuaa_1500.npz"
+python scripts/c2_pilot.py check  --config $CFG --run-dir $RUN $IN                                  # no detector, no weights, no TensorFlow
+python scripts/c2_pilot.py train  --config $CFG --run-dir $RUN $IN --epochs 12 --i-am-authorized
+python scripts/c2_pilot.py score  --config $CFG --run-dir $RUN $IN --set dev --i-am-authorized      # CPU
+python scripts/c2_pilot.py select --config $CFG --run-dir $RUN $IN
+python scripts/c2_pilot.py score  --config $CFG --run-dir $RUN $IN --set source_test,target --i-am-authorized
+python scripts/c2_pilot.py apply  --config $CFG --run-dir $RUN $IN
+```
+
+With `../../m2-c2-pilot-protocol/c2_pilot_casia_to_nuaa.json` (the original) `check` fails at the configuration
+check (`test_original_training_device_refused`), and every later step needs a passing `check` with the same
+configuration SHA-256.
 
 Expected cost, an estimate not measured on C2 data: in N1 the CPU training of LivenessNet took 496–671 s (9–12
 epochs, early stopping) on 2,507 fitting frames; C2 fits on 1,339 CASIA-FASD frames, so the LivenessNet training is
@@ -179,25 +245,25 @@ In a git work tree with `../../m2-c2-pilot-protocol/` next to this folder (as in
 the last two lines of `check_c2_pilot.py` are:
 
 ```
-tests run: 216, failures: 0, errors: 0, skipped: 0
+tests run: 219, failures: 0, errors: 0, skipped: 0
 RESULT: PASS
 ```
 
-`check_c2_mutations.py` applies 362 declared mutations (314 of PR #8 and 48 new ones), each to a fresh copy of the code,
+`check_c2_mutations.py` applies 369 declared mutations (314 of PR #8 and 55 new ones), each to a fresh copy of the code,
 and counts a mutation only if the suite ran to its summary with at least one failure or error:
 
 ```
-mutations killed: 362/362
+mutations killed: 369/369
 RESULT: PASS
 ```
 
 With `--block tensorflow,keras,h5py,cv2` the suite prints the OpenCV `NOTE`, `blocked imports attempted: 1; blocked
-packages loaded: none` and the same `tests run: 216, failures: 0, errors: 0, skipped: 0`, `RESULT: PASS`.
+packages loaded: none` and the same `tests run: 219, failures: 0, errors: 0, skipped: 0`, `RESULT: PASS`.
 
 Verified on macOS 27.0.1 (Apple M4, Python 3.11.16, NumPy 1.26.4, scikit-learn 1.3.2). Also run on Linux, in the
 official `python:3.12` container (Python 3.12.15, aarch64, NumPy 2.5.4, scikit-learn 1.9.1, without TensorFlow and
-OpenCV), from this folder laid out as in `research/`: after the OpenCV `NOTE` line, `tests run: 216, failures: 0,
-errors: 0, skipped: 0`, `RESULT: PASS`; there `check_c2_mutations.py` gives `mutations killed: 362/362`. The offline
+OpenCV), from this folder laid out as in `research/`: after the OpenCV `NOTE` line, `tests run: 219, failures: 0,
+errors: 0, skipped: 0`, `RESULT: PASS`; there `check_c2_mutations.py` gives `mutations killed: 369/369`. The offline
 suite was not run on x86_64 by the author (only the check with the real TensorFlow above).
 
 ## Test logs
@@ -235,10 +301,10 @@ Run from this package layout (git work tree, `../../m2-c2-pilot-protocol/` next 
 
 ## Files and integrity
 
-This `README.md`, `SHA256SUMS`, `test_logs/` (5 files) and `livenesslab/` (`requirements.txt`; `scripts/`:
+This `README.md`, `c2_pilot_casia_to_nuaa_v2.json`, `SHA256SUMS`, `test_logs/` (5 files) and `livenesslab/` (`requirements.txt`; `scripts/`:
 `c2_pilot.py`, `check_c2_pilot.py`, `check_c2_mutations.py`, `check_c2_device_tf.py`, `train_cnn.py`,
 `select_threshold.py`, `path_guard.py`, `rgb_manifests.py`, `nuaa_manifests.py`, `m2_writers.py`, `package_rules.py`;
-`src/tesi_app/`: `__init__.py`, `paths.py`, `evaluation.py`, `core.py`, `face.py`): 23 files listed in `SHA256SUMS`,
+`src/tesi_app/`: `__init__.py`, `paths.py`, `evaluation.py`, `core.py`, `face.py`): 24 files listed in `SHA256SUMS`,
 plus `SHA256SUMS`. From inside this folder:
 
 ```bash

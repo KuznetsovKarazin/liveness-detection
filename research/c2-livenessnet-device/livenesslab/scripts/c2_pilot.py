@@ -1,7 +1,8 @@
 """
 Pilota C2 (CASIA-FASD → NUAA, LivenessNet e AttackNet V2.2, seed 42): implementazione minima del protocollo approvato
 (delivery/c2/pilot/, o ../../m2-c2-pilot-protocol/ nel pacchetto: README.md, c2_pilot_casia_to_nuaa.json,
-manifest_table.md).
+manifest_table.md), con la configurazione emendata nel solo dispositivo del training (c2_pilot_casia_to_nuaa_v2.json:
+delivery/c2/livenessnet_device/, o ../c2_pilot_casia_to_nuaa_v2.json nel pacchetto; l'originale approvata resta invariata).
 
 Sottocomandi, sempre con --config <file JSON> e --run-dir <cartella del run>:
   check    solo manifest, cache e split, prima di qualunque training: SHA-256 e conteggi dei manifest contro la
@@ -51,7 +52,7 @@ Comportamento su errore e su rifiuto (unico stato corrente: status.json nella ca
     successo status.json = PASS (se non si può scrivere, il comando fallisce).
 La cartella del run deve chiamarsi YYYYMMDD-C2-seed42-<commit breve> ed essere nuova al check (inesistente, vuota o con
 il solo file regolare status.json: anche un .DS_Store la rende non nuova), oppure finire con -trial; dentro il
-repository è ammessa solo sotto results/c2/. Un run non -trial richiede la configurazione approvata
+repository è ammessa solo sotto results/c2/. Un run non -trial richiede la configurazione emendata
 (APPROVED_CONFIG_SHA256), un albero git pulito, il commit del nome del run e lo stesso commit in ogni passo.
 
 Dipendenze: numpy (tutti i passi); scikit-learn per train (split) e per select/apply (AUC, tramite
@@ -90,8 +91,10 @@ except ModuleNotFoundError as _e:   # dipendenza mancante: messaggio chiaro, mai
     sys.exit(1)
 from tesi_app.paths import DATA, LIVEDETECTION, RESULTS, WEIGHTS, load_module  # noqa: E402
 
-# SHA-256 della configurazione approvata (delivery/c2/pilot/SHA256SUMS, PR #7): un run non -trial accetta solo questa
-APPROVED_CONFIG_SHA256 = "4065d8535d86b3743db3b58c399123afc57b3fa482c3964449f2d29f36c84f7a"
+# SHA-256 della configurazione emendata (delivery/c2/livenessnet_device/SHA256SUMS, PR #12): quella approvata con la PR #7
+# (4065d853…f84f7a) con il solo training.device per architettura, uguale a TRAINING_DEVICE; un run non -trial accetta
+# solo questa
+APPROVED_CONFIG_SHA256 = "4905f950c05512ce60412acab3b65fc7dde445a99158f7303b5b87bdb36f14e9"
 CONFIG_SCHEMA = "c2-pilot-config/draft-1"
 SEED = 42
 RUN_ID_RE = re.compile(r"^(\d{8})-C2-seed42-([0-9a-f]{7,40})(-trial)?$")
@@ -295,6 +298,11 @@ def config_problems(cfg: dict) -> list:
         bad.append("evaluations must be E1-E4: each model on source_test and on target_test, in the declared order")
     if not isinstance(cfg.get("scoring"), dict) or cfg["scoring"].get("device") != "CPU":
         bad.append("scoring.device must be CPU")
+    tdev = cfg.get("training", {}).get("device") if isinstance(cfg.get("training"), dict) else None
+    if not isinstance(tdev, dict) or sorted(tdev) != sorted([*ARCHS, "note"]) or {a: tdev[a] for a in ARCHS} != TRAINING_DEVICE \
+            or not isinstance(tdev["note"], str) or not tdev["note"].strip():
+        bad.append(f"training.device must give exactly the device policy of each architecture, {TRAINING_DEVICE}, and a note "
+                   "(amended configuration c2_pilot_casia_to_nuaa_v2.json)")
     return bad
 
 
@@ -692,7 +700,7 @@ def cmd_check(a) -> None:
     m = RUN_ID_RE.match(run.name)
     if not trial:
         if cfg_sha != APPROVED_CONFIG_SHA256:
-            fail(f"non-trial run: configuration SHA-256 {cfg_sha[:12]}… is not the approved one ({APPROVED_CONFIG_SHA256[:12]}…)")
+            fail(f"non-trial run: configuration SHA-256 {cfg_sha[:12]}… is not the approved (amended) one ({APPROVED_CONFIG_SHA256[:12]}…)")
         if state.get("dirty") or not str(state.get("commit", "")).startswith(m.group(2)):
             fail("non-trial run: the working tree must be clean and the run id must carry the current commit")
     remove_outputs(run, "check")
@@ -1394,7 +1402,7 @@ def parser() -> argparse.ArgumentParser:
     sub = ap.add_subparsers(dest="cmd", required=True)
     for name in COMMANDS:
         p = sub.add_parser(name)
-        p.add_argument("--config", required=True, help="configuration JSON (c2_pilot_casia_to_nuaa.json)")
+        p.add_argument("--config", required=True, help="configuration JSON (c2_pilot_casia_to_nuaa_v2.json)")
         p.add_argument("--run-dir", required=True, help="run folder YYYYMMDD-C2-seed42-<shortcommit>[-trial]")
         p.add_argument("--source-manifests", default=str(RESULTS / "m2_rgb" / "casia_fasd" / "manifests"))
         p.add_argument("--target-manifests", default=str(RESULTS / "m2" / "manifests"))

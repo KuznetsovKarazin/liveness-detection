@@ -70,8 +70,9 @@ DECOY.write_bytes(b"decoy weights")
 
 # I soli motivi per cui un test di questa suite si salta: ingressi mancanti dichiarati qui (nessuno di piattaforma)
 MISSING_INPUT = {
-    "approved configuration": "the approved configuration c2_pilot_casia_to_nuaa.json is not next to the code "
-                              "(delivery/c2/pilot/, or ../../m2-c2-pilot-protocol/ in the package): not compared",
+    "approved configuration": "the approved configuration c2_pilot_casia_to_nuaa.json (delivery/c2/pilot/, or "
+                              "../../m2-c2-pilot-protocol/ in the package) or its amended version c2_pilot_casia_to_nuaa_v2.json "
+                              "(delivery/c2/livenessnet_device/, or ../ in the package) is not next to the code: not compared",
     "git": "git not available or the code is not in a git work tree: the repository-state sentinel is not compared",
 }
 
@@ -518,7 +519,8 @@ class World:
                             {"id": "E2", "model": "attacknet_v2_2__casia_fasd_c2", "set": "source_test"},
                             {"id": "E3", "model": "livenessnet__casia_fasd_c2", "set": "target_test"},
                             {"id": "E4", "model": "attacknet_v2_2__casia_fasd_c2", "set": "target_test"}],
-            "scoring": {"device": "CPU"}}
+            "scoring": {"device": "CPU"},
+            "training": {"device": {"LivenessNet": "CPU", "AttackNetV2_2": "default", "note": "synthetic"}}}
 
     def write_manifest(self, role, rows=None, redeclare=True, raw_rows=False):
         if rows is not None:
@@ -657,14 +659,36 @@ class TestConfig(Base):
         self.assertEqual(C2.config_problems(w.cfg), [])
 
     def test_approved_config(self):
-        cands = [ROOT / "delivery" / "c2" / "pilot" / "c2_pilot_casia_to_nuaa.json",
-                 ROOT.parent.parent / "m2-c2-pilot-protocol" / "c2_pilot_casia_to_nuaa.json"]
-        p = next((c for c in cands if c.is_file()), None)
-        if p is None:
-            skip_missing(self, "approved configuration")
-        cfg, sha = C2.load_config(p)
+        """Configurazione emendata (PR #12) accanto al codice, con lo SHA-256 del runner; uguale come valori JSON
+        all'originale approvata (PR #7, invariata) salvo training.device, che dà la politica di TRAINING_DEVICE e di
+        DEVICE_POLICY di train_cnn.py; l'originale (training.device "Metal GPU") è rifiutata."""
+        orig = next((c for c in (ROOT / "delivery" / "c2" / "pilot" / "c2_pilot_casia_to_nuaa.json",
+                                 ROOT.parent.parent / "m2-c2-pilot-protocol" / "c2_pilot_casia_to_nuaa.json") if c.is_file()), None)
+        amended = next((c for c in (ROOT / "delivery" / "c2" / "livenessnet_device" / "c2_pilot_casia_to_nuaa_v2.json",
+                                    ROOT.parent / "c2_pilot_casia_to_nuaa_v2.json") if c.is_file()), None)
+        if orig is None or amended is None:
+            skip_missing(self, "approved configuration", "original" if orig is None else "amended")
+        cfg, sha = C2.load_config(amended)
         self.assertEqual(sha, C2.APPROVED_CONFIG_SHA256)
         self.assertEqual([m["arch"] for m in cfg["models"]], ["LivenessNet", "AttackNetV2_2"])
+        self.assertEqual({a: cfg["training"]["device"][a] for a in C2.ARCHS}, C2.TRAINING_DEVICE)
+        self.assertEqual(C2.TRAINING_DEVICE, {a: TC.DEVICE_POLICY[a] for a in C2.ARCHS})
+        raw = orig.read_bytes()
+        base = json.loads(raw)
+        self.assertEqual(hashlib.sha256(raw).hexdigest(), "4065d8535d86b3743db3b58c399123afc57b3fa482c3964449f2d29f36c84f7a")
+        self.assertEqual(cfg["amends"], {**cfg["amends"], "sha256": hashlib.sha256(raw).hexdigest(), "changed": ["training.device"],
+                                         "file": "research/m2-c2-pilot-protocol/c2_pilot_casia_to_nuaa.json", "approved_in": "PR #7"})
+        self.assertEqual(sorted(cfg["amends"]), ["approved_in", "changed", "file", "reason", "sha256", "unchanged"])
+        self.assertTrue(str(base["training"]["device"]).startswith("Metal GPU"))
+        rest = copy.deepcopy(cfg)
+        del rest["amends"]
+        rest["training"]["device"] = base["training"]["device"]
+        self.assertEqual(rest, base)                                    # split, seed, modelli, budget, soglia, ... identici
+        self.assertEqual(list(rest), list(base))
+        self.assertTrue(any("training.device" in b for b in C2.config_problems(base)))
+        with self.assertRaises(C2.C2Error) as cm:
+            C2.load_config(orig)
+        self.assertIn("refused: training.device must give exactly the device policy", str(cm.exception))
 
     def test_refusals(self):
         w = self.world()
@@ -687,11 +711,27 @@ class TestConfig(Base):
             "rows": lambda c: c["manifests"]["source_test"].update(rows=c["manifests"]["source_test"]["rows"] + 1),
             "budget": lambda c: c["budget"].update(learning_rate=1),
             "architectures": lambda c: c["models"][1].update(arch="AttackNetV1"),
+            "training device missing": lambda c: c.pop("training"),
+            "training device as text": lambda c: c["training"].update(device="Metal GPU (not deterministic; evidence = saved weights SHA-256)"),
+            "LivenessNet on the default device": lambda c: c["training"]["device"].update(LivenessNet="default"),
+            "AttackNet on the CPU": lambda c: c["training"]["device"].update(AttackNetV2_2="CPU"),
+            "architecture without a device": lambda c: c["training"]["device"].pop("AttackNetV2_2"),
+            "extra training device field": lambda c: c["training"]["device"].update(AttackNetV1="default"),
+            "training device note missing": lambda c: c["training"]["device"].pop("note"),
+            "training device note empty": lambda c: c["training"]["device"].update(note=" "),
         }
         for name, fn in cases.items():
             c = copy.deepcopy(w.cfg)
             fn(c)
             self.assertTrue(C2.config_problems(c), name)
+
+    def test_original_training_device_refused(self):
+        """Il training.device della configurazione originale ("Metal GPU") è rifiutato dal check, senza uscite."""
+        w = self.world()
+        w.cfg["training"]["device"] = "Metal GPU (not deterministic; evidence = saved weights SHA-256)"
+        w.write_config()
+        self.assertFail(run_c2(w.args("check")), "training.device must give exactly the device policy", "check")
+        self.assertNoOutputs(w.run, "check")
 
     def test_config_changed_after_check_refused(self):
         w = self.world()
@@ -775,7 +815,7 @@ class TestRunFolder(Base):
 
     def test_non_trial_needs_approved_config_clean_tree_and_commit(self):
         w = self.world(RUN)
-        self.assertFail(run_c2(w.args("check")), "not the approved one")
+        self.assertFail(run_c2(w.args("check")), "is not the approved (amended) one")
         with mock.patch.object(C2, "APPROVED_CONFIG_SHA256", C2.sha256_file(w.config)):
             with mock.patch.object(C2, "REPO_STATE", lambda run: {"commit": "abcdef0" + "0" * 33, "dirty": True}):
                 self.assertFail(run_c2(w.args("check")), "must be clean")
@@ -3419,8 +3459,32 @@ class TestTrainingDevice(Base):
             self.assertStopped(FakeDevices(gpu=True, keras_on="GPU:0", keras_paths=(path,)), "LivenessNet", "graph-mode outputs differ", fitted=True)
 
     def test_not_finite_comparison_stops(self):
-        msg = self.assertStopped(FakeDevices(gpu=True, gap=float("nan")), "LivenessNet", "graph/eager comparison not finite (nan)", fitted=True)
-        self.assertNotIn("CPU execution not guaranteed", msg)
+        """Scarto grafo/eager NaN o infinito: training fermato prima di salvare per ogni architettura, anche per la
+        politica "default" di AttackNet (la tolleranza resta solo di LivenessNet)."""
+        for arch in ("LivenessNet", "AttackNetV2_2"):
+            for gap in (float("nan"), float("inf")):
+                with self.subTest(arch=arch, gap=gap):
+                    msg = self.assertStopped(FakeDevices(gpu=True, gap=gap), arch, f"graph/eager comparison not finite ({gap})", fitted=True)
+                    self.assertTrue(msg.startswith(f"ERROR: {arch}: "), msg)
+                    self.assertNotIn("CPU execution not guaranteed", msg)
+
+    def test_not_measured_comparison_stops(self):
+        """Dopo il fit lo scarto grafo/eager deve essere un numero: None (non misurato) ferma il training prima di salvare."""
+        for arch in ("LivenessNet", "AttackNetV2_2"):
+            with self.subTest(arch=arch), mock.patch.object(TC, "graph_eager_gap", return_value=(None, None)):
+                self.assertStopped(FakeDevices(gpu=True), arch, f"ERROR: {arch}: graph/eager comparison not measured after training (None)", fitted=True)
+
+    def test_not_finite_validation_loss_stops(self):
+        """val_loss NaN o infinito in una qualunque epoca: training fermato prima di salvare, per ogni architettura."""
+        for arch in ("LivenessNet", "AttackNetV2_2"):
+            for bad in (float("nan"), float("inf")):
+                with self.subTest(arch=arch, bad=bad):
+                    out = self.tmp / f"val_loss_{arch}_{bad}"
+                    with self.assertRaises(SystemExit) as cm, contextlib.redirect_stdout(io.StringIO()):
+                        fake_trainer(plan=lambda e, b=bad: [0.6, b, 0.4], devs=FakeDevices(gpu=True))(
+                            arch, "casia_fasd", self.data(), 12, 16, 1e-3, out_dir=out, test_eval=False)
+                    self.assertIn(f"ERROR: {arch}: validation loss not finite after training", str(cm.exception.code))
+                    self.assertFalse(out.exists())                      # nessun peso, file Keras o scheda
 
     def test_gap_at_the_tolerance(self):
         """Scarto uguale alla tolleranza accettato; appena sopra rifiutato."""
