@@ -1,0 +1,60 @@
+{
+ "passed": true,
+ "step": "cache-check",
+ "run_id": "20261029-N2-sessions-2ac3e29",
+ "config_sha256": "41e6bfe7cff404fc69117610499fa7158575414d214fd708a618f38aa824e43f",
+ "check_sha256": "772dc4822bf7df3220dd969e51141761e1029356a36ac9ddf20114e7634c2bd2",
+ "step_size": 1,
+ "rule": "every one of the 6,000 frames of the cache (X_train and X_test, in sampling order) must be reproduced bit for bit from its original file with the frozen detector and the chain above; one different frame fails the check",
+ "cache": {
+  "train": {
+   "compared": 3000,
+   "equal": 3000,
+   "different": 0,
+   "worst_max_abs_diff": 0,
+   "detectors": {
+    "Haar": 51,
+    "RetinaFace": 2949
+   },
+   "duplicates_within": 0
+  },
+  "test": {
+   "compared": 3000,
+   "equal": 3000,
+   "different": 0,
+   "worst_max_abs_diff": 0,
+   "detectors": {
+    "Haar": 3,
+    "RetinaFace": 2996,
+    "none": 1
+   },
+   "duplicates_within": 0
+  }
+ },
+ "target_frames": {
+  "n": 491,
+  "detectors": {
+   "Haar": 13,
+   "RetinaFace": 478
+  },
+  "duplicates_within": 0,
+  "shared_with_cache": 0,
+  "cache_train_test_shared": 0
+ },
+ "frozen_face_sha256": "c72f7fa8a9f3b099babce2255530466e5a34731fb5d021f97fd412a98cb58261",
+ "tensorflow": "not imported",
+ "environment": {
+  "tensorflow": "2.15.0",
+  "tensorflow-metal": "1.1.0",
+  "keras": "2.15.0",
+  "numpy": "1.26.4",
+  "scikit-learn": "1.3.2",
+  "python": "3.11.16",
+  "platform": "darwin",
+  "opencv": "4.11.0"
+ },
+ "files": {
+  "frames_target.csv": "60d583262aeb0e29b10d2db24ef29b4da57e31b3c4fb35f99d52a3c0d5813167"
+ },
+ "created": "2026-10-29T17:18:49+0100"
+}
