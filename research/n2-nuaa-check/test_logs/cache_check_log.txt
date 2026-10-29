@@ -1,0 +1,8 @@
+
+===== 2026-10-29T17:17:54+0100 cache-check =====
+== N2 cache-check: study 20261029-N2-sessions-2ac3e29, frozen detector, step 1
+   X_train: 3000 equal, 0 different (step 1), detectors {'Haar': 51, 'RetinaFace': 2949}
+   X_test: 3000 equal, 0 different (step 1), detectors {'Haar': 3, 'RetinaFace': 2996, 'none': 1}
+   target: 491 frames, detectors {'Haar': 13, 'RetinaFace': 478}, duplicates within 0, shared with the cache 0
+== cache-check PASS: 6000 cache frames reproduced bit for bit (step 1), 491 target frames preprocessed, no duplicated derived frame
+RESULT: PASS (cache-check)

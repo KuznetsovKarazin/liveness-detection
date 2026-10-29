@@ -1,0 +1,120 @@
+{
+ "schema": "n2-nuaa-combined-config/1",
+ "study": "N2 part 2: the historical AttackNetV2.2 combined checkpoint on the 3,000 NUAA test frames of N1, two image-preparation variants fixed before the test (whole image; face crop), no retraining",
+ "architecture": "AttackNetV2_2 (historical checkpoint, loaded as saved)",
+ "dataset": "nuaa",
+ "protocol": "official",
+ "model": {
+  "file": "AttackNetV2_2_combined_all_final.h5",
+  "sha256": "3dd0c85341e323a5d1c0342b1196d3825af41ceb286798b62779a391bdcf6039",
+  "bytes": 201809888,
+  "source": "shared by the coordinator (Google Drive file of 7 July 2026), downloaded on 29 October 2026; training data per the historical code: combined_all = 3DMAD, CSMAD, Replay-Attack, MSSpoof, Our Dataset (no NUAA)",
+  "keras_version": "2.15.0",
+  "input_shape": [
+   256,
+   256,
+   3
+  ],
+  "output": "Dense(2, softmax)",
+  "parameters": 16806722,
+  "loading": "tf.keras.models.load_model(path, compile=False) on the CPU (GPU hidden), no custom objects, SHA-256 verified before loading",
+  "classes": {
+   "0": "bona fide",
+   "1": "attack"
+  },
+  "score": "softmax output, column 1 (attack probability), as in the historical evaluation code (argmax = attack if column 1 > 0.5)"
+ },
+ "variants": {
+  "whole_image": {
+   "description": "the whole original frame, as create_datasets.py processes the files it receives",
+   "crop": "none",
+   "chain": "cv2.imread (BGR) -> BGR to RGB -> cv2.resize 256x256 INTER_LANCZOS4 -> advanced_image_enhancement (reference create_datasets.py) -> uint8 -> float32 / 255 -> (x - 0.5) * 2 (reference dataset_loader.py, normalize=True)"
+  },
+  "face_crop": {
+   "description": "the face region found by the current application detector, then the same chain",
+   "detector": {
+    "file": "src/tesi_app/face.py (current application version)",
+    "sha256": "ca0d41cb2a83dfe6369c970f222862c67f5f06ea2e9d8d0332ed670ae31af536"
+   },
+   "crop": "Face.crop(margin=0.15, square=True) of the detected box (RetinaFace via OpenCV DNN, Haar cascade when RetinaFace finds nothing)",
+   "fallback": "the whole frame when no face is found (recorded per frame; no frame excluded)",
+   "chain": "cv2.imread (BGR) -> detector -> crop -> BGR to RGB -> cv2.resize 256x256 INTER_LANCZOS4 -> advanced_image_enhancement -> uint8 -> float32 / 255 -> (x - 0.5) * 2"
+  }
+ },
+ "detector_resources": {
+  "deploy.prototxt": "9fe2f141b4baee039ed9442da2833e216af40a6ff3e639e7b39258812bcda808",
+  "Widerface-RetinaFace.caffemodel": "d08338a2c207df16a9c566f767fea67fb43ba6fff76ce11e938fe3fabefb9402",
+  "haarcascade_frontalface_default.xml": "0f7d4527844eb514d4a4948e822da90fbb16a34a0bbbbc6adc6498747a5aafb0"
+ },
+ "reference_code_sha256": {
+  "LIVENESSLAB_LIVEDETECTION/scripts/create_datasets.py": "306ea1c84143f1df4796cc6c93893498a0c4b3efc3a60a773efeaf95a152d46d",
+  "LIVENESSLAB_LIVEDETECTION/src/dataset_loader.py": "169365b56841383df5a67d7de24d8d86491a402a6730f36b8a11c1fae5900167"
+ },
+ "quality_filter": "none: every one of the 3,000 frames is scored (the historical quality filter 0.65 is not applied; declared)",
+ "scoring": {
+  "device": "CPU",
+  "batch": 16,
+  "batchnorm": "inference (training=False)",
+  "input": "[-1, 1] as above",
+  "score": "softmax output, column 1"
+ },
+ "metrics": {
+  "threshold": 0.5,
+  "decision": "attack if score_attack > 0.5 (tie = bona fide)",
+  "threshold_origin": "fixed before the test, as in the historical argmax rule and in N1; not calibrated on the historical source validation (not available here) nor on this test; no score inversion",
+  "reported": [
+   "APCER",
+   "BPCER",
+   "ACER",
+   "AUROC"
+  ],
+  "sets": [
+   "test_3000",
+   "c1_300"
+  ],
+  "comparison": "one row per variant next to the three N1 LivenessNet rows (study 20261024-N1-LivenessNet-fb93496, aggregate.json), same 3,000 frames, same threshold; the comparison changes architecture, training recipe and training data at once",
+  "distributions": "score_attack histogram per class, 10 bins of width 0.1 on [0, 1], per variant",
+  "public": "aggregate.json, aggregate.md, figure_distributions.png: no identifiers, no per-image rows",
+  "restricted": "<variant>/scores_test.csv, <variant>/per_subject.csv, <variant>/frames.csv"
+ },
+ "n1_reference": {
+  "run_id": "20261024-N1-LivenessNet-fb93496",
+  "aggregate_file": "aggregate.json",
+  "aggregate_sha256": "d74e764356770bcb4b37b7ee61ce5a7a7e76c05238e49b7fba921313cd1cfb92",
+  "train_seeds": [
+   42,
+   43,
+   44
+  ]
+ },
+ "data": {
+  "m2_run": "20261006-M2-seed42-36c677a",
+  "manifests": {
+   "official_test": {
+    "file": "nuaa_official_test.csv",
+    "sha256": "2fad23ff295cb2c1d3d0be238deef02faad252aa717933c30588bd5a9c4106c7",
+    "rows": 9123,
+    "n_bona_fide": 3362,
+    "n_attack": 5761,
+    "n_subjects": 16
+   },
+   "cnn_test": {
+    "file": "nuaa_cnn_test.csv",
+    "sha256": "ce9669dccae37041e778ff7bcba5f4cef08fa79f50d65be84806b084c5d95748",
+    "rows": 3000,
+    "n_bona_fide": 1500,
+    "n_attack": 1500,
+    "n_subjects": 16
+   },
+   "c1": {
+    "file": "nuaa_c1_v2.csv",
+    "sha256": "1c2cf97cb7115e7ae98640103670c628a3910a37c25b89f76369cc7ecad87426",
+    "rows": 300,
+    "n_bona_fide": 150,
+    "n_attack": 150,
+    "n_subjects": 16
+   }
+  },
+  "originals": "every file located by key under the images folder, SHA-256 and size equal to the manifest row before use"
+ }
+}
