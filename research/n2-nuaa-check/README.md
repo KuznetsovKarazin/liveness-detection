@@ -9,7 +9,7 @@ as saved to the same 3,000 NUAA test frames of N1 with two image-preparation var
 image; face crop), as a sensitivity analysis to the image preparation. This folder holds the code, the two
 configurations saved before the runs, the frozen detector module, the run reports, the publishable tables and
 figures, the note and the test logs. Per-image scores, the 491-frame manifest, per-subject tables and logs go to
-the restricted area (upload pending the shared folder; see "Delivery status").
+the restricted area (see "Delivery status").
 
 ## Delivery status
 
@@ -22,9 +22,29 @@ the restricted area (upload pending the shared folder; see "Delivery status").
   modified tree (not part of the delivery) gave the same scores for every frame.
 - Restricted folders: `20261029-N2-sessions-2ac3e29/` and `20261029-N2-combined-247dfd7/` (per-image scores, the 491 manifest with keys and
   SHA-256, frames, parity rows, per-subject and per-stratum tables, logs, records; no images, no cache, no weights),
-  ready for upload to `02_Experiments/N2/` as soon as the folder is shared; status in the Trello card.
+  uploaded on 2026-11-01 to the shared N1 folder of the restricted area, the provisional destination given by the
+  coordinator on 2026-10-31: the two folders keep their names and sit next to the N1 runs, which are unchanged; the
+  move to `02_Experiments/N2/` is the coordinator's reorganisation.
 - Images, cache and weights stay local (the N1 weights within the already authorised scope; the historical combined
   checkpoint as shared by the coordinator).
+
+### Errata (2026-11-01, after the coordinator's review of 2026-10-31)
+
+- Figures. The module docstring of `livenesslab/scripts/n2_sessions.py` (entry `aggregate`) names
+  `figure_distributions.png` and `figure_strata.png` as the publishable figures. That sentence is stale: the code
+  (`PUBLIC_FIGURES`, `RESTRICTED_FIGURES`), the `figures` entry of `aggregate.json` and this README treat
+  `figure_distributions.png` and `figure_groups.png` as public and `figure_strata.png` (per-subject values) as
+  restricted, and `tables/sessions/` holds the first two (as PDF, see below). The script is kept as executed (SHA-256 `c609e2a5…`,
+  recorded in both `check.json` and in `SHA256SUMS`); the docstring is not changed in this delivery.
+- AUROC against N1. This README, `N2_note.md` and `run-report-combined.md` said that neither variant improves on N1
+  on ACER or AUROC. For AUROC that was overstated: the face-crop AUROC (0.371) lies inside the N1 range, above
+  seed 42 (0.348) and below seeds 43 and 44 (0.375, 0.458). The three documents now say: on ACER both variants are
+  above every N1 seed; on AUROC the whole image is below every N1 seed and the face crop is inside the N1 range,
+  so there is no consistent improvement. The delivery comment of 2026-10-29 on the Trello card carries the earlier
+  sentence; the pull-request description is updated with this revision.
+- Only `README.md`, `N2_note.md`, `run-report-sessions.md` (delivery status, review outcome), `run-report-combined.md`
+  and `SHA256SUMS` change in this revision; scripts, configurations, study records, tables, figures and test logs are
+  unchanged.
 
 ## What is delivered
 
@@ -246,9 +266,11 @@ Image preparation: whole image, no detector; face crop: Haar 3, RetinaFace 2996,
   rejected; APCER 0.148) and ranks bona fide frames above attacks (AUROC 0.217). Face crop: the collapse is smaller
   (BPCER 0.816, APCER 0.235, ACER 0.526) and the ranking improves (AUROC 0.371) but stays below 0.5. The C1 300 subset is
   within about 0.02 of the full test for both variants (largest difference 0.021, the AUROC of the face crop).
-- Against N1 (ACER 0.401-0.514, AUROC 0.348-0.458 on the same frames): neither variant improves on N1 on ACER or AUROC;
-  the face-crop ACER is above the N1 range, its AUROC inside it; the whole-image variant is worse than every N1 seed on
-  BPCER, ACER and AUROC, while its APCER (0.148) falls inside the N1 range (0.048-0.261).
+- Against N1 on the same frames (seeds 42/43/44: ACER 0.438/0.514/0.401, AUROC 0.348/0.375/0.458): neither variant
+  improves on N1 on ACER (0.571 and 0.526 are above every N1 seed). On AUROC the whole-image variant (0.217) is below
+  every N1 seed; the face crop (0.371) falls inside the N1 range, above seed 42 and below seeds 43 and 44, so there is
+  no consistent improvement on AUROC either. Both variants are worse than every N1 seed on BPCER (N1 0.754-0.770),
+  while both APCERs (0.148, 0.235) fall inside the N1 range (0.048-0.261).
 - The image preparation matters: between the two variants BPCER changes by 0.18 and AUROC by 0.15, with the same
   checkpoint, frames and threshold. Score distributions (`figure_distributions.pdf`): with the whole image 98 % of the
   bona fide and 75 % of the attacks score above 0.9; with the face crop 14 % of the bona fide move below 0.1.
@@ -272,6 +294,10 @@ Image preparation: whole image, no detector; face crop: Haar 3, RetinaFace 2996,
 
 ## Restricted area (not in this repository)
 
+Uploaded on 2026-11-01 into the shared N1 folder (provisional destination given by the coordinator on 2026-10-31), as
+the two folders named below, next to the unchanged N1 runs; `02_Experiments/N2/` is the final location, the
+coordinator's reorganisation.
+
 `02_Experiments/N2/20261029-N2-sessions-2ac3e29/`: `status.json`, `check.json`, `check.log`, `target_manifest.csv` (491 rows: key,
 label, subject, session, file SHA-256 and size), `parity_keys.csv` (24 rows), `cache_check.json`, `cache_check.log`, `frames_target.csv` (per frame:
 detector, file and frame SHA-256), `parity.json`, `parity.csv` (24 keys × 3 seeds: stored and recomputed scores),
@@ -279,7 +305,7 @@ detector, file and frame SHA-256), `parity.json`, `parity.csv` (24 keys × 3 see
 group, M1-dev flag, score with exact round trip, decision at 0.5, detector, file, frame, checkpoint and configuration
 SHA-256; `per_subject.csv`; `metrics.json`), `aggregate.log`, `aggregate.json`, `aggregate.md`,
 `per_subject_all_seeds.csv`, `strata_all_seeds.csv` (subject × class × set × seed: n, errors, error rate or NA), the
-three figures (the two public ones and the per-subject `figure_strata.png`). `02_Experiments/N2/20261029-N2-combined-247dfd7/`: `status.json`, `check.json`, `check.log`, `<variant>/` (`status.json`,
+three figures (`figure_distributions.png` and `figure_groups.png`, the public ones, and the per-subject `figure_strata.png`, restricted). `02_Experiments/N2/20261029-N2-combined-247dfd7/`: `status.json`, `check.json`, `check.log`, `<variant>/` (`status.json`,
 `score.log`, `score.json`, `scores_test.csv` with 3,000 rows, `frames.csv`, `per_subject.csv`, `metrics.json`),
 `aggregate.log`, `aggregate.json`, `aggregate.md`, `per_subject_all_variants.csv`, the figure. `SHA256SUMS` of each
 folder next to it.
@@ -380,6 +406,7 @@ figures and the repository state: no image, no model, no detector, no TensorFlow
 
 ## Files and integrity
 
-`SHA256SUMS` lists the 41 files of `research/n2-nuaa-check/` other than itself (42 files in all); check
+`SHA256SUMS` lists the 41 files of `research/n2-nuaa-check/` other than itself (42 files in all; updated on 2026-11-01
+for the four documents corrected in the errata); check
 with `shasum -a 256 -c SHA256SUMS` from this folder. No file of the folder is ignored by the `.gitignore` of the group
 repository; the tables are in `tables/` because `results/` is ignored there.

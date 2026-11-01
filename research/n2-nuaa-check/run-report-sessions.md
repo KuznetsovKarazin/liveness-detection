@@ -64,8 +64,8 @@
 - Source-only development rule for external targets: not applicable (intra-dataset NUAA; nothing chosen on the target).
 
 ## Evidence
-- Restricted score file location and SHA-256: `02_Experiments/N2/20261029-N2-sessions-2ac3e29/` (to be uploaded when the folder is
-  shared; see README "Delivery status"): per seed `scores_sessions.csv` (491 rows) `1505aa92…`, `24811e3d…`,
+- Restricted score file location and SHA-256: `02_Experiments/N2/20261029-N2-sessions-2ac3e29/` (uploaded on 2026-11-01 to the
+  shared N1 folder, provisional destination; see README "Delivery status"): per seed `scores_sessions.csv` (491 rows) `1505aa92…`, `24811e3d…`,
   `4831b639…`; `target_manifest.csv` `5b481818…`; `frames_target.csv` `60d58326…`; `parity.csv` `b76e70d2…`;
   `strata_all_seeds.csv` `82a2e0a0…`; `check.json` `772dc482…`; folder `SHA256SUMS` `40ee121e…` (37
   files).
@@ -111,4 +111,6 @@
 - Next decision: to be discussed with the reviewer (see the note): whether to examine the session shift directly (for example a split by session with a held-out training-session
   subset, or capture-condition descriptors per session) before any further training on NUAA; no new experiment is
   proposed here.
-- Reviewer and review outcome: pending.
+- Reviewer and review outcome: coordinator, 2026-10-31: code checks positive (126 synthetic tests, 41/41 checksums,
+  metrics recomputed from the counts, 13 histograms); one document correction requested on this study (the figure names
+  in the module docstring, README errata of 2026-11-01); scientific review pending the restricted files.

@@ -1,7 +1,7 @@
 # N2 — NUAA diagnostic check: note
 
 Study `20261029-N2-sessions-2ac3e29` (part 1, commit `2ac3e29`) and `20261029-N2-combined-247dfd7` (part 2, commit `247dfd7`, which
-adds only the results of part 1; same code), 2026-10-29. Details, SHA-256 and
+adds only the results of part 1; same code), 2026-10-29; revised 2026-11-01 (AUROC comparison with N1, section 3; README errata). Details, SHA-256 and
 commands in `README.md`, `run-report-sessions.md` and `run-report-combined.md`.
 
 ## 1. Question
@@ -72,9 +72,11 @@ conditions with the training frames).
 
 With the whole image the checkpoint calls almost every frame an attack (BPCER 0.995) and ranks bona fide above attacks
 (AUROC 0.217); with the face crop the collapse is smaller (BPCER 0.816, ACER 0.526, AUROC 0.371) but the ranking stays
-below chance. Neither variant improves on N1 on ACER or AUROC on the same frames (ACER 0.401–0.514, AUROC 0.348–0.458); the
-whole-image APCER (0.148) and the face-crop APCER (0.235) fall inside the N1 range (0.048–0.261). The image
-preparation alone moves BPCER by 0.18 and AUROC by 0.15.
+below chance. Against N1 on the same frames (seeds 42/43/44: ACER 0.438/0.514/0.401, AUROC 0.348/0.375/0.458): neither
+variant improves on N1 on ACER (0.571 and 0.526 are above every N1 seed); on AUROC the whole image (0.217) is below
+every N1 seed, while the face crop (0.371) falls inside the N1 range, above seed 42 and below seeds 43 and 44, so
+there is no consistent improvement on AUROC either. The whole-image APCER (0.148) and the face-crop APCER (0.235)
+fall inside the N1 range (0.048–0.261). The image preparation alone moves BPCER by 0.18 and AUROC by 0.15.
 
 ## 4. Recommendation (to be verified on separate data, not a result of this test)
 

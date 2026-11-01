@@ -54,7 +54,8 @@
 - Source-only development rule for external targets: the threshold is fixed a priori; nothing is chosen on the target.
 
 ## Evidence
-- Restricted score file location and SHA-256: `02_Experiments/N2/20261029-N2-combined-247dfd7/`: `whole_image/scores_test.csv`
+- Restricted score file location and SHA-256: `02_Experiments/N2/20261029-N2-combined-247dfd7/` (uploaded on 2026-11-01 to the
+  shared N1 folder, provisional destination; see README "Delivery status"): `whole_image/scores_test.csv`
   `2fdbb0ca…`, `face_crop/scores_test.csv` `cc22b93e…`, `frames.csv` and `per_subject.csv` per variant, `check.json`
   `0399be93…`, folder `SHA256SUMS` `bfa3e257…` (22 files).
 - APCER / BPCER / ACER with denominators (threshold 0.5), next to the N1 rows (study `20261024-N1-LivenessNet-fb93496`,
@@ -84,8 +85,10 @@
   the historical combined AttackNetV2.2 on the NUAA test of N1, and whether that checkpoint improves on the N1 result,
   with the threshold fixed before the test.
 - Observed result and comparison: whole image: APCER 0.148, BPCER 0.995, ACER 0.571, AUROC 0.217; face crop: APCER 0.235, BPCER 0.816, ACER 0.526,
-  AUROC 0.371 (C1 300 within about 0.02, largest difference 0.021). Neither variant improves on the N1 rows on ACER or
-  AUROC (ACER 0.401–0.514, AUROC 0.348–0.458); the
+  AUROC 0.371 (C1 300 within about 0.02, largest difference 0.021). Against the N1 rows (seeds 42/43/44: ACER
+  0.438/0.514/0.401, AUROC 0.348/0.375/0.458): neither variant improves on ACER (both above every N1 seed); on AUROC
+  the whole image is below every N1 seed and the face crop is inside the N1 range (above seed 42, below seeds 43 and
+  44), so no consistent improvement (sentence corrected on 2026-11-01, see README errata); the
   preparation alone moves BPCER by 0.18 and AUROC by 0.15. Recommendation in the note: the face-crop variant, if one is
   verified on separate data; neither is usable at 0.5 on NUAA.
 - Limitations / failed checks: sensitivity analysis to the image preparation, not a reproduction of the historical
@@ -96,4 +99,6 @@
 - Next decision: the coordinator's choice of the candidate variant to verify on separate data (the note recommends the face crop)
   and whether the preparation of the historical training files can be documented, which would replace the two variants
   with one.
-- Reviewer and review outcome: pending.
+- Reviewer and review outcome: coordinator, 2026-10-31: code checks positive (126 synthetic tests, 41/41 checksums,
+  metrics recomputed from the counts); one document correction requested on this study (the AUROC sentence above,
+  applied on 2026-11-01); scientific review pending the restricted files.
