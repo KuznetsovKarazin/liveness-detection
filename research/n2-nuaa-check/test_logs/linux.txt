@@ -1,0 +1,20 @@
+== python:3.12 container (machine, Python, NumPy, scikit-learn), from livenesslab/ of the package layout; no OpenCV, no TensorFlow, no matplotlib, no data
+aarch64 3.12.15 2.5.4 1.9.1
+$ python scripts/check_n2_sessions.py
+NOTE: OpenCV not installed: an empty cv2 module is registered (evaluation.py uses it only to read images)
+tests run: 93, failures: 0, errors: 0, skipped: 0
+RESULT: PASS
+$ python scripts/check_n2_combined.py
+NOTE: OpenCV not installed: an empty cv2 module is registered (evaluation.py uses it only to read images)
+tests run: 33, failures: 0, errors: 0, skipped: 0
+RESULT: PASS
+$ python scripts/check_n2_mutations.py
+unmutated copy (after): PASS (tests run: 93, failures: 0, errors: 0)
+mutations killed: 85/85
+control mutations survived: 1/1
+RESULT: PASS
+$ python scripts/check_n2_combined_mutations.py
+unmutated copy (after): PASS (tests run: 33, failures: 0, errors: 0)
+mutations killed: 43/43
+control mutations survived: 1/1
+RESULT: PASS

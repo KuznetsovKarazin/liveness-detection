@@ -1,0 +1,250 @@
+{
+ "schema": "n2-nuaa-sessions-config/1",
+ "study": "N2 part 1: the three N1 LivenessNet checkpoints on the NUAA official-train frames of sessions 01-02 not used for fitting or early stopping",
+ "architecture": "LivenessNet",
+ "dataset": "nuaa",
+ "protocol": "official",
+ "n1_study": {
+  "run_id": "20261024-N1-LivenessNet-fb93496",
+  "config_sha256": "ffaf934b9a24ecc7ae9643ebadef318f566e12d8d6ea7935281754c0475ccfaa",
+  "check_sha256": "fd93353edeb59448eb44262b5c4b7f802789fb6f96f1d3d857fda48f35172feb",
+  "train_seeds": [
+   42,
+   43,
+   44
+  ],
+  "seeds": {
+   "42": {
+    "weights_sha256": "c63a858107b6f60375a27222a915e9b4b35f267fe9f34cf16117d673ca06546e",
+    "card_sha256": "5c828deed64350d1b0f0d1a73c320042eab6e95944d03e417777855a595ddbe9",
+    "scores_test_sha256": "60e6c401c39ddd91d2e620b80528eaa9be24eac8db220cf817a922978d1dd037"
+   },
+   "43": {
+    "weights_sha256": "34bac22cafd3f4470895ee1ea3e22d86e8cd67139e036491fc94955925d9f0d6",
+    "card_sha256": "845103da264c8e06f90a56720df1a27ae8fb6476f16d1b4a29166f759179f586",
+    "scores_test_sha256": "a1a71b6ecc6f9c084762648486f35d440ff3426298ad367db5e85194775a84be"
+   },
+   "44": {
+    "weights_sha256": "41c128484ff76b4d754c75085f2c17f95c22897a59f34d8d27e7f4b940d23432",
+    "card_sha256": "1c4096a34cc0d2f3da6aa9ae4f14e2b8bb17b7115b83f6cae96495d379959ca7",
+    "scores_test_sha256": "943d1b46770351fd25b3fd9eaa32c17e12dcefc6d82a22b1cbb3a4924757c691"
+   }
+  },
+  "weights_file": "checkpoints/LivenessNet__nuaa.h5",
+  "scores_file": "scores_test.csv",
+  "scores_columns": [
+   "run_id",
+   "train_seed",
+   "sample_id",
+   "subject_id",
+   "session_id",
+   "label",
+   "score_attack",
+   "prediction",
+   "in_c1_subset",
+   "file_sha256",
+   "checkpoint_sha256",
+   "config_sha256"
+  ]
+ },
+ "preprocessing": {
+  "frozen_face": {
+   "file": "face_0ac7143.py",
+   "sha256": "c72f7fa8a9f3b099babce2255530466e5a34731fb5d021f97fd412a98cb58261",
+   "source": "src/tesi_app/face.py of the development repository at commit 0ac7143 (16 September 2026), the earliest committed version of our detector module, which reproduces the cache nuaa_1500.npz (built on 12 September 2026) bit for bit (cache-check); from 24 September (our change 44971f3) the RetinaFace box is one pixel narrower and shorter",
+   "loaded_as": "tesi_app.face_0ac7143 (registered in sys.modules; the current face.py is never used by this study)"
+  },
+  "detector_resources": {
+   "deploy.prototxt": "9fe2f141b4baee039ed9442da2833e216af40a6ff3e639e7b39258812bcda808",
+   "Widerface-RetinaFace.caffemodel": "d08338a2c207df16a9c566f767fea67fb43ba6fff76ce11e938fe3fabefb9402",
+   "haarcascade_frontalface_default.xml": "0f7d4527844eb514d4a4948e822da90fbb16a34a0bbbbc6adc6498747a5aafb0"
+  },
+  "chain": "train_cnn.preprocess (unchanged): cv2.imread, detector.detect, Face.crop(margin=0.15, square=True) or the whole image when no face, cv2.resize 256x256 INTER_AREA, BGR to RGB, advanced_image_enhancement of the reference create_datasets.py, uint8",
+  "reference_code_sha256": {
+   "LIVENESSLAB_LIVEDETECTION/scripts/create_datasets.py": "306ea1c84143f1df4796cc6c93893498a0c4b3efc3a60a773efeaf95a152d46d",
+   "LIVENESSLAB_LIVEDETECTION/src/architectures.py": "a83c02b0788bd6f98262abf00f5fe970abed501f231edba348820482aea64d30"
+  },
+  "cache_environment": "OpenCV 4.11.0 (opencv-python==4.11.0.86 pinned in requirements.txt), under which the cache of 12 September 2026 reproduces; recorded at every step (a different OpenCV may change the detector output)"
+ },
+ "cache_check": {
+  "rule": "every one of the 6,000 frames of the cache (X_train and X_test, in sampling order) must be reproduced bit for bit from its original file with the frozen detector and the chain above; one different frame fails the check",
+  "frames": 6000,
+  "step": 1
+ },
+ "parity": {
+  "rule": "for every key of the parity list and every N1 seed: the frame reproduced from the original equals the cache row bit for bit, and |score_attack recomputed on CPU - score_attack stored in the N1 scores_test.csv| <= tolerance_abs; one divergence fails the check",
+  "selection": "per test subject of nuaa_cnn_test, the first bona fide key and the first attack key in key order (a rule fixed before any computation; subjects without a class give one key); the list is ordered by subject, then class (bona fide first); it must have n_keys entries and the SHA-256 below (one key per line, newline-terminated); it is written at check to the restricted parity_keys.csv, never to a public file",
+  "tolerance_abs": 1e-06,
+  "n_keys": 24,
+  "keys_sha256": "b3995a57a29156daddc2bc9643d33a8a6efacdf436edcfc605444066027b9578"
+ },
+ "target": {
+  "name": "sessions_01_02",
+  "definition": "rows of nuaa_official_train.csv whose key is neither in nuaa_cnn_train.csv nor in nuaa_cnn_early_stopping.csv, sorted by key",
+  "manifest_file": "target_manifest.csv",
+  "manifest_sha256": "5b481818c050c2d35aff44030d49ac4d420d0b9a2a7e2549822ddb8b771af11d",
+  "rows": 491,
+  "n_bona_fide": 243,
+  "n_attack": 248,
+  "n_subjects": 9,
+  "by_session": {
+   "01": 244,
+   "02": 247
+  },
+  "in_m1_dev": 81,
+  "in_c1": 0,
+  "in_cnn_test": 0,
+  "groups": {
+   "fitting": "subjects of nuaa_cnn_train.csv (7)",
+   "validation": "subjects of nuaa_cnn_early_stopping.csv (2)"
+  },
+  "originals": "every file located by key under the images folder, in the prepared layout <class>_<split>/<name> or in the raw mirror layout ClientRaw|ImposterRaw/<subject>/<name without the leading subject field>; a symbolic link is refused; SHA-256 and size must equal the manifest row before use"
+ },
+ "reference": {
+  "name": "session_03",
+  "definition": "the 3,000 nuaa_cnn_test scores of the N1 study (scores_test.csv of every seed, SHA-256 above), read as they are: no rescoring",
+  "strata": "subject x class, for the 9 subjects of the target; a class absent in a set gives NA, never 0"
+ },
+ "scoring": {
+  "device": "CPU",
+  "batch": 16,
+  "batchnorm": "inference (training=False)",
+  "input": "preprocessed frames / 255",
+  "score": "softmax output, column 1 (attack probability)",
+  "scorer": "n1_train.tf_scorer (unchanged): the N1 scoring path"
+ },
+ "metrics": {
+  "threshold": 0.5,
+  "decision": "attack if score_attack > 0.5 (tie = bona fide)",
+  "reported": [
+   "APCER",
+   "BPCER",
+   "ACER",
+   "AUROC"
+  ],
+  "sets": [
+   "sessions_01_02_491",
+   "sessions_01_02_fitting_subjects",
+   "sessions_01_02_validation_subjects",
+   "sessions_01_02_not_in_m1_dev",
+   "session_03_3000",
+   "session_03_9_subjects",
+   "session_03_fitting_subjects",
+   "session_03_validation_subjects"
+  ],
+  "aggregation": "values of every seed, median and range (minimum-maximum); no seed selection, no threshold change, no score inversion",
+  "distributions": "score_attack histogram per class, 10 bins of width 0.1 on [0, 1] (last bin closed), per seed, for the 491 target frames, the 3,000 session 03 frames and the session 03 frames of the target subjects",
+  "public": "aggregate.json, aggregate.md, figure_distributions.png, figure_groups.png (both figures built from aggregate.json only): no identifiers, no per-image rows, no per-subject values (checked by the forbidden-content scan)",
+  "restricted": "target_manifest.csv, parity_keys.csv, frames_target.csv, parity.csv, seed<N>/scores_sessions.csv, seed<N>/per_subject.csv, per_subject_all_seeds.csv, strata_all_seeds.csv, figure_strata.png (per-subject strata, no identifiers)"
+ },
+ "data": {
+  "m2_run": "20261006-M2-seed42-36c677a",
+  "cache": {
+   "file": "nuaa_1500.npz",
+   "sha256": "dc286dc371e61d638da1842c062a38c5368a9ec4da07ccbc36b7fff6f3177920",
+   "per_class": 1500,
+   "members": {
+    "X_train": {
+     "dtype": "|u1",
+     "shape": [
+      3000,
+      256,
+      256,
+      3
+     ]
+    },
+    "y_train": {
+     "dtype": "<i8",
+     "shape": [
+      3000
+     ]
+    },
+    "s_train": {
+     "dtype": "<U4",
+     "shape": [
+      3000
+     ]
+    },
+    "X_test": {
+     "dtype": "|u1",
+     "shape": [
+      3000,
+      256,
+      256,
+      3
+     ]
+    },
+    "y_test": {
+     "dtype": "<i8",
+     "shape": [
+      3000
+     ]
+    },
+    "s_test": {
+     "dtype": "<U4",
+     "shape": [
+      3000
+     ]
+    }
+   }
+  },
+  "manifests": {
+   "official_train": {
+    "file": "nuaa_official_train.csv",
+    "sha256": "2a7e8906f98b8e3cf0c42cd0a2cf10e15868750b1ac82e85b62a9e0b59aad648",
+    "rows": 3491,
+    "n_bona_fide": 1743,
+    "n_attack": 1748,
+    "n_subjects": 9
+   },
+   "official_test": {
+    "file": "nuaa_official_test.csv",
+    "sha256": "2fad23ff295cb2c1d3d0be238deef02faad252aa717933c30588bd5a9c4106c7",
+    "rows": 9123,
+    "n_bona_fide": 3362,
+    "n_attack": 5761,
+    "n_subjects": 16
+   },
+   "cnn_train": {
+    "file": "nuaa_cnn_train.csv",
+    "sha256": "6d46ec7da7bfc32b1cce9ed3e331f8ed4377e5fc2df31e1b77ac7f6a0c2bc33c",
+    "rows": 2507,
+    "n_bona_fide": 1345,
+    "n_attack": 1162,
+    "n_subjects": 7
+   },
+   "cnn_es": {
+    "file": "nuaa_cnn_early_stopping.csv",
+    "sha256": "17282be8ef300e5e178ae87cd137ffd875786f1b353924e7cfb6eb14db1584c1",
+    "rows": 493,
+    "n_bona_fide": 155,
+    "n_attack": 338,
+    "n_subjects": 2
+   },
+   "cnn_test": {
+    "file": "nuaa_cnn_test.csv",
+    "sha256": "ce9669dccae37041e778ff7bcba5f4cef08fa79f50d65be84806b084c5d95748",
+    "rows": 3000,
+    "n_bona_fide": 1500,
+    "n_attack": 1500,
+    "n_subjects": 16
+   },
+   "c1": {
+    "file": "nuaa_c1_v2.csv",
+    "sha256": "1c2cf97cb7115e7ae98640103670c628a3910a37c25b89f76369cc7ecad87426",
+    "rows": 300,
+    "n_bona_fide": 150,
+    "n_attack": 150,
+    "n_subjects": 16
+   },
+   "m1_dev": {
+    "file": "nuaa_m1_dev.csv",
+    "sha256": "1e4e49c4e541d0c401a590392230238412407cc9cf754ce79f7824406c940ead",
+    "rows": 574,
+    "n_bona_fide": 180,
+    "n_attack": 394,
+    "n_subjects": 2
+   }
+  }
+ }
+}

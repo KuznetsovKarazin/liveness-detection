@@ -1,0 +1,1261 @@
+{
+ "passed": true,
+ "step": "aggregate",
+ "run_id": "20261029-N2-sessions-2ac3e29",
+ "config_sha256": "41e6bfe7cff404fc69117610499fa7158575414d214fd708a618f38aa824e43f",
+ "check_sha256": "772dc4822bf7df3220dd969e51141761e1029356a36ac9ddf20114e7634c2bd2",
+ "commit": "2ac3e290c9081454e9d058a294ab84156de96235",
+ "dirty_at_check": false,
+ "code_sha256": {
+  "scripts/n2_sessions.py": "c609e2a5ae38179d1d77f0315a6562044aca7b2139800fba345490d866ec2e36",
+  "scripts/n1_train.py": "78ae3e1da70c9214a3ef97f69c8e78eddbd0fc109fea08898877bd8c6c0c8b3c",
+  "scripts/train_cnn.py": "cbb010124d6a8b49e79a23cdc60b98c7962bc77006688dc5fdbe39c15e9e116c",
+  "scripts/nuaa_manifests.py": "a719ce2ed83479ab07883398d21eb1d869a4d4be273dda04b8cf34f8c99cfa44",
+  "scripts/select_threshold.py": "cacb709672c9c7be5cd68d61923e79bb640e1e8ee77a78864f6786577d07e93c",
+  "scripts/path_guard.py": "e5fa9c835c23745ff932e157a44d3104eb9713d86bbdecc9cdbbd3caa7a7ee34",
+  "scripts/m2_writers.py": "22760abc368dede3aa0a690a241f6622afe1ba586940422497db8a33994ee34a",
+  "scripts/package_rules.py": "96ec7ffab4b089bac71fd18918fcd32af72d15980cdfa1361cc84bb43e0e4c11",
+  "src/tesi_app/evaluation.py": "5deb4426538322807878895d5423a336b7a928288393b95e071cb35b783fa94e",
+  "src/tesi_app/paths.py": "9af10e66def18f866f1a66a23d4877f058825bc42d49231e3195a45def7a16c9",
+  "src/tesi_app/face.py": "ca0d41cb2a83dfe6369c970f222862c67f5f06ea2e9d8d0332ed670ae31af536",
+  "LIVENESSLAB_LIVEDETECTION/scripts/create_datasets.py": "306ea1c84143f1df4796cc6c93893498a0c4b3efc3a60a773efeaf95a152d46d",
+  "LIVENESSLAB_LIVEDETECTION/src/architectures.py": "a83c02b0788bd6f98262abf00f5fe970abed501f231edba348820482aea64d30",
+  "frozen_face": "c72f7fa8a9f3b099babce2255530466e5a34731fb5d021f97fd412a98cb58261"
+ },
+ "train_seeds": [
+  42,
+  43,
+  44
+ ],
+ "n1_study": "20261024-N1-LivenessNet-fb93496",
+ "sets": {
+  "sessions_01_02_491": "sessions 01-02: the 491 target frames",
+  "sessions_01_02_fitting_subjects": "sessions 01-02: target frames of the 7 fitting subjects",
+  "sessions_01_02_validation_subjects": "sessions 01-02: target frames of the 2 validation subjects",
+  "sessions_01_02_not_in_m1_dev": "sessions 01-02: target frames outside the M1 dev set",
+  "session_03_3000": "session 03: the 3,000 nuaa_cnn_test frames (N1 scores, read as stored)",
+  "session_03_9_subjects": "session 03: test frames of the 9 target subjects (N1 scores)",
+  "session_03_fitting_subjects": "session 03: test frames of the 7 fitting subjects (N1 scores)",
+  "session_03_validation_subjects": "session 03: test frames of the 2 validation subjects (N1 scores)"
+ },
+ "pairs": [
+  [
+   "sessions_01_02_491",
+   "session_03_9_subjects"
+  ],
+  [
+   "sessions_01_02_fitting_subjects",
+   "session_03_fitting_subjects"
+  ],
+  [
+   "sessions_01_02_validation_subjects",
+   "session_03_validation_subjects"
+  ]
+ ],
+ "threshold": 0.5,
+ "decision": "attack if score_attack > 0.5 (tie = bona fide)",
+ "target": {
+  "rows": 491,
+  "n_bona_fide": 243,
+  "n_attack": 248,
+  "n_subjects": 9,
+  "by_session": {
+   "01": 244,
+   "02": 247
+  },
+  "in_m1_dev": 81,
+  "n_fitting_subjects": 7,
+  "n_validation_subjects": 2,
+  "n_frames_fitting_subjects": 410,
+  "n_frames_validation_subjects": 81
+ },
+ "cache_check": {
+  "frames": 6000,
+  "reproduced": 6000,
+  "different": 0,
+  "step_size": 1,
+  "target_detectors": {
+   "Haar": 13,
+   "RetinaFace": 478
+  },
+  "frozen_face_sha256": "c72f7fa8a9f3b099babce2255530466e5a34731fb5d021f97fd412a98cb58261",
+  "opencv": "4.11.0"
+ },
+ "parity": {
+  "n_keys": 24,
+  "tolerance_abs": 1e-06,
+  "max_abs_diff": 0.0,
+  "per_seed": {
+   "42": 0.0,
+   "43": 0.0,
+   "44": 0.0
+  }
+ },
+ "seeds": {
+  "42": {
+   "metrics": {
+    "sessions_01_02_491": {
+     "n": 491,
+     "n_bona_fide": 243,
+     "n_attack": 248,
+     "accepted_attacks": 0,
+     "rejected_bona_fide": 0,
+     "ties_at_threshold": 0,
+     "threshold": 0.5,
+     "decision": "attack if score_attack > 0.5 (tie = bona fide)",
+     "apcer": 0.0,
+     "bpcer": 0.0,
+     "acer": 0.0,
+     "auroc": 1.0
+    },
+    "sessions_01_02_fitting_subjects": {
+     "n": 410,
+     "n_bona_fide": 218,
+     "n_attack": 192,
+     "accepted_attacks": 0,
+     "rejected_bona_fide": 0,
+     "ties_at_threshold": 0,
+     "threshold": 0.5,
+     "decision": "attack if score_attack > 0.5 (tie = bona fide)",
+     "apcer": 0.0,
+     "bpcer": 0.0,
+     "acer": 0.0,
+     "auroc": 1.0
+    },
+    "sessions_01_02_validation_subjects": {
+     "n": 81,
+     "n_bona_fide": 25,
+     "n_attack": 56,
+     "accepted_attacks": 0,
+     "rejected_bona_fide": 0,
+     "ties_at_threshold": 0,
+     "threshold": 0.5,
+     "decision": "attack if score_attack > 0.5 (tie = bona fide)",
+     "apcer": 0.0,
+     "bpcer": 0.0,
+     "acer": 0.0,
+     "auroc": 1.0
+    },
+    "sessions_01_02_not_in_m1_dev": {
+     "n": 410,
+     "n_bona_fide": 218,
+     "n_attack": 192,
+     "accepted_attacks": 0,
+     "rejected_bona_fide": 0,
+     "ties_at_threshold": 0,
+     "threshold": 0.5,
+     "decision": "attack if score_attack > 0.5 (tie = bona fide)",
+     "apcer": 0.0,
+     "bpcer": 0.0,
+     "acer": 0.0,
+     "auroc": 1.0
+    },
+    "session_03_3000": {
+     "n": 3000,
+     "n_bona_fide": 1500,
+     "n_attack": 1500,
+     "accepted_attacks": 160,
+     "rejected_bona_fide": 1155,
+     "ties_at_threshold": 0,
+     "threshold": 0.5,
+     "decision": "attack if score_attack > 0.5 (tie = bona fide)",
+     "apcer": 0.10666666666666667,
+     "bpcer": 0.77,
+     "acer": 0.43833333333333335,
+     "auroc": 0.3484928888888889
+    },
+    "session_03_9_subjects": {
+     "n": 1538,
+     "n_bona_fide": 614,
+     "n_attack": 924,
+     "accepted_attacks": 154,
+     "rejected_bona_fide": 422,
+     "ties_at_threshold": 0,
+     "threshold": 0.5,
+     "decision": "attack if score_attack > 0.5 (tie = bona fide)",
+     "apcer": 0.16666666666666666,
+     "bpcer": 0.6872964169381107,
+     "acer": 0.4269815418023887,
+     "auroc": 0.3229999506465305
+    },
+    "session_03_fitting_subjects": {
+     "n": 1325,
+     "n_bona_fide": 614,
+     "n_attack": 711,
+     "accepted_attacks": 116,
+     "rejected_bona_fide": 422,
+     "ties_at_threshold": 0,
+     "threshold": 0.5,
+     "decision": "attack if score_attack > 0.5 (tie = bona fide)",
+     "apcer": 0.1631504922644163,
+     "bpcer": 0.6872964169381107,
+     "acer": 0.42522345460126354,
+     "auroc": 0.3255840056442044
+    },
+    "session_03_validation_subjects": {
+     "n": 213,
+     "n_bona_fide": 0,
+     "n_attack": 213,
+     "accepted_attacks": 38,
+     "rejected_bona_fide": 0,
+     "ties_at_threshold": 0,
+     "threshold": 0.5,
+     "decision": "attack if score_attack > 0.5 (tie = bona fide)",
+     "apcer": 0.1784037558685446,
+     "bpcer": null,
+     "acer": null,
+     "auroc": null
+    }
+   },
+   "distributions": {
+    "sessions_01_02_491": {
+     "bona_fide": [
+      242,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "attack": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      248
+     ],
+     "bin_edges": [
+      0.0,
+      0.1,
+      0.2,
+      0.3,
+      0.4,
+      0.5,
+      0.6,
+      0.7,
+      0.8,
+      0.9,
+      1.0
+     ]
+    },
+    "session_03_3000": {
+     "bona_fide": [
+      329,
+      9,
+      5,
+      1,
+      1,
+      1,
+      2,
+      1,
+      3,
+      1148
+     ],
+     "attack": [
+      102,
+      27,
+      14,
+      9,
+      8,
+      17,
+      19,
+      21,
+      38,
+      1245
+     ],
+     "bin_edges": [
+      0.0,
+      0.1,
+      0.2,
+      0.3,
+      0.4,
+      0.5,
+      0.6,
+      0.7,
+      0.8,
+      0.9,
+      1.0
+     ]
+    },
+    "session_03_9_subjects": {
+     "bona_fide": [
+      192,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      422
+     ],
+     "attack": [
+      99,
+      27,
+      13,
+      9,
+      6,
+      14,
+      17,
+      16,
+      33,
+      690
+     ],
+     "bin_edges": [
+      0.0,
+      0.1,
+      0.2,
+      0.3,
+      0.4,
+      0.5,
+      0.6,
+      0.7,
+      0.8,
+      0.9,
+      1.0
+     ]
+    }
+   },
+   "strata_summary": {
+    "fitting/bona_fide": {
+     "strata": 7,
+     "lower_in_01_02": 2,
+     "equal": 1,
+     "higher_in_01_02": 0,
+     "not_comparable": 4
+    },
+    "fitting/attack": {
+     "strata": 7,
+     "lower_in_01_02": 7,
+     "equal": 0,
+     "higher_in_01_02": 0,
+     "not_comparable": 0
+    },
+    "validation/bona_fide": {
+     "strata": 2,
+     "lower_in_01_02": 0,
+     "equal": 0,
+     "higher_in_01_02": 0,
+     "not_comparable": 2
+    },
+    "validation/attack": {
+     "strata": 2,
+     "lower_in_01_02": 2,
+     "equal": 0,
+     "higher_in_01_02": 0,
+     "not_comparable": 0
+    }
+   },
+   "weights_sha256": "c63a858107b6f60375a27222a915e9b4b35f267fe9f34cf16117d673ca06546e",
+   "scores_sha256": "1505aa92f0b0f0dc4c3d51bcbbe0e630d1588817420095c0bca35eeaa63cb26a",
+   "n1_scores_sha256": "60e6c401c39ddd91d2e620b80528eaa9be24eac8db220cf817a922978d1dd037",
+   "detectors": {
+    "Haar": 13,
+    "RetinaFace": 478
+   }
+  },
+  "43": {
+   "metrics": {
+    "sessions_01_02_491": {
+     "n": 491,
+     "n_bona_fide": 243,
+     "n_attack": 248,
+     "accepted_attacks": 0,
+     "rejected_bona_fide": 0,
+     "ties_at_threshold": 0,
+     "threshold": 0.5,
+     "decision": "attack if score_attack > 0.5 (tie = bona fide)",
+     "apcer": 0.0,
+     "bpcer": 0.0,
+     "acer": 0.0,
+     "auroc": 1.0
+    },
+    "sessions_01_02_fitting_subjects": {
+     "n": 410,
+     "n_bona_fide": 218,
+     "n_attack": 192,
+     "accepted_attacks": 0,
+     "rejected_bona_fide": 0,
+     "ties_at_threshold": 0,
+     "threshold": 0.5,
+     "decision": "attack if score_attack > 0.5 (tie = bona fide)",
+     "apcer": 0.0,
+     "bpcer": 0.0,
+     "acer": 0.0,
+     "auroc": 1.0
+    },
+    "sessions_01_02_validation_subjects": {
+     "n": 81,
+     "n_bona_fide": 25,
+     "n_attack": 56,
+     "accepted_attacks": 0,
+     "rejected_bona_fide": 0,
+     "ties_at_threshold": 0,
+     "threshold": 0.5,
+     "decision": "attack if score_attack > 0.5 (tie = bona fide)",
+     "apcer": 0.0,
+     "bpcer": 0.0,
+     "acer": 0.0,
+     "auroc": 1.0
+    },
+    "sessions_01_02_not_in_m1_dev": {
+     "n": 410,
+     "n_bona_fide": 218,
+     "n_attack": 192,
+     "accepted_attacks": 0,
+     "rejected_bona_fide": 0,
+     "ties_at_threshold": 0,
+     "threshold": 0.5,
+     "decision": "attack if score_attack > 0.5 (tie = bona fide)",
+     "apcer": 0.0,
+     "bpcer": 0.0,
+     "acer": 0.0,
+     "auroc": 1.0
+    },
+    "session_03_3000": {
+     "n": 3000,
+     "n_bona_fide": 1500,
+     "n_attack": 1500,
+     "accepted_attacks": 391,
+     "rejected_bona_fide": 1152,
+     "ties_at_threshold": 0,
+     "threshold": 0.5,
+     "decision": "attack if score_attack > 0.5 (tie = bona fide)",
+     "apcer": 0.26066666666666666,
+     "bpcer": 0.768,
+     "acer": 0.5143333333333333,
+     "auroc": 0.3754402222222223
+    },
+    "session_03_9_subjects": {
+     "n": 1538,
+     "n_bona_fide": 614,
+     "n_attack": 924,
+     "accepted_attacks": 359,
+     "rejected_bona_fide": 422,
+     "ties_at_threshold": 0,
+     "threshold": 0.5,
+     "decision": "attack if score_attack > 0.5 (tie = bona fide)",
+     "apcer": 0.38852813852813856,
+     "bpcer": 0.6872964169381107,
+     "acer": 0.5379122777331247,
+     "auroc": 0.3170713651169677
+    },
+    "session_03_fitting_subjects": {
+     "n": 1325,
+     "n_bona_fide": 614,
+     "n_attack": 711,
+     "accepted_attacks": 270,
+     "rejected_bona_fide": 422,
+     "ties_at_threshold": 0,
+     "threshold": 0.5,
+     "decision": "attack if score_attack > 0.5 (tie = bona fide)",
+     "apcer": 0.379746835443038,
+     "bpcer": 0.6872964169381107,
+     "acer": 0.5335216261905744,
+     "auroc": 0.31905674899325165
+    },
+    "session_03_validation_subjects": {
+     "n": 213,
+     "n_bona_fide": 0,
+     "n_attack": 213,
+     "accepted_attacks": 89,
+     "rejected_bona_fide": 0,
+     "ties_at_threshold": 0,
+     "threshold": 0.5,
+     "decision": "attack if score_attack > 0.5 (tie = bona fide)",
+     "apcer": 0.41784037558685444,
+     "bpcer": null,
+     "acer": null,
+     "auroc": null
+    }
+   },
+   "distributions": {
+    "sessions_01_02_491": {
+     "bona_fide": [
+      243,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "attack": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      2,
+      245
+     ],
+     "bin_edges": [
+      0.0,
+      0.1,
+      0.2,
+      0.3,
+      0.4,
+      0.5,
+      0.6,
+      0.7,
+      0.8,
+      0.9,
+      1.0
+     ]
+    },
+    "session_03_3000": {
+     "bona_fide": [
+      334,
+      5,
+      3,
+      0,
+      6,
+      7,
+      5,
+      9,
+      17,
+      1114
+     ],
+     "attack": [
+      184,
+      60,
+      52,
+      52,
+      43,
+      34,
+      23,
+      37,
+      73,
+      942
+     ],
+     "bin_edges": [
+      0.0,
+      0.1,
+      0.2,
+      0.3,
+      0.4,
+      0.5,
+      0.6,
+      0.7,
+      0.8,
+      0.9,
+      1.0
+     ]
+    },
+    "session_03_9_subjects": {
+     "bona_fide": [
+      192,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      422
+     ],
+     "attack": [
+      171,
+      53,
+      49,
+      47,
+      39,
+      28,
+      17,
+      28,
+      53,
+      439
+     ],
+     "bin_edges": [
+      0.0,
+      0.1,
+      0.2,
+      0.3,
+      0.4,
+      0.5,
+      0.6,
+      0.7,
+      0.8,
+      0.9,
+      1.0
+     ]
+    }
+   },
+   "strata_summary": {
+    "fitting/bona_fide": {
+     "strata": 7,
+     "lower_in_01_02": 2,
+     "equal": 1,
+     "higher_in_01_02": 0,
+     "not_comparable": 4
+    },
+    "fitting/attack": {
+     "strata": 7,
+     "lower_in_01_02": 7,
+     "equal": 0,
+     "higher_in_01_02": 0,
+     "not_comparable": 0
+    },
+    "validation/bona_fide": {
+     "strata": 2,
+     "lower_in_01_02": 0,
+     "equal": 0,
+     "higher_in_01_02": 0,
+     "not_comparable": 2
+    },
+    "validation/attack": {
+     "strata": 2,
+     "lower_in_01_02": 2,
+     "equal": 0,
+     "higher_in_01_02": 0,
+     "not_comparable": 0
+    }
+   },
+   "weights_sha256": "34bac22cafd3f4470895ee1ea3e22d86e8cd67139e036491fc94955925d9f0d6",
+   "scores_sha256": "24811e3d697471b247b6565a237dd40db96a7bb7036c2cfe606244486cc06169",
+   "n1_scores_sha256": "a1a71b6ecc6f9c084762648486f35d440ff3426298ad367db5e85194775a84be",
+   "detectors": {
+    "Haar": 13,
+    "RetinaFace": 478
+   }
+  },
+  "44": {
+   "metrics": {
+    "sessions_01_02_491": {
+     "n": 491,
+     "n_bona_fide": 243,
+     "n_attack": 248,
+     "accepted_attacks": 0,
+     "rejected_bona_fide": 0,
+     "ties_at_threshold": 0,
+     "threshold": 0.5,
+     "decision": "attack if score_attack > 0.5 (tie = bona fide)",
+     "apcer": 0.0,
+     "bpcer": 0.0,
+     "acer": 0.0,
+     "auroc": 1.0
+    },
+    "sessions_01_02_fitting_subjects": {
+     "n": 410,
+     "n_bona_fide": 218,
+     "n_attack": 192,
+     "accepted_attacks": 0,
+     "rejected_bona_fide": 0,
+     "ties_at_threshold": 0,
+     "threshold": 0.5,
+     "decision": "attack if score_attack > 0.5 (tie = bona fide)",
+     "apcer": 0.0,
+     "bpcer": 0.0,
+     "acer": 0.0,
+     "auroc": 1.0
+    },
+    "sessions_01_02_validation_subjects": {
+     "n": 81,
+     "n_bona_fide": 25,
+     "n_attack": 56,
+     "accepted_attacks": 0,
+     "rejected_bona_fide": 0,
+     "ties_at_threshold": 0,
+     "threshold": 0.5,
+     "decision": "attack if score_attack > 0.5 (tie = bona fide)",
+     "apcer": 0.0,
+     "bpcer": 0.0,
+     "acer": 0.0,
+     "auroc": 1.0
+    },
+    "sessions_01_02_not_in_m1_dev": {
+     "n": 410,
+     "n_bona_fide": 218,
+     "n_attack": 192,
+     "accepted_attacks": 0,
+     "rejected_bona_fide": 0,
+     "ties_at_threshold": 0,
+     "threshold": 0.5,
+     "decision": "attack if score_attack > 0.5 (tie = bona fide)",
+     "apcer": 0.0,
+     "bpcer": 0.0,
+     "acer": 0.0,
+     "auroc": 1.0
+    },
+    "session_03_3000": {
+     "n": 3000,
+     "n_bona_fide": 1500,
+     "n_attack": 1500,
+     "accepted_attacks": 72,
+     "rejected_bona_fide": 1131,
+     "ties_at_threshold": 0,
+     "threshold": 0.5,
+     "decision": "attack if score_attack > 0.5 (tie = bona fide)",
+     "apcer": 0.048,
+     "bpcer": 0.754,
+     "acer": 0.401,
+     "auroc": 0.45821866666666666
+    },
+    "session_03_9_subjects": {
+     "n": 1538,
+     "n_bona_fide": 614,
+     "n_attack": 924,
+     "accepted_attacks": 63,
+     "rejected_bona_fide": 422,
+     "ties_at_threshold": 0,
+     "threshold": 0.5,
+     "decision": "attack if score_attack > 0.5 (tie = bona fide)",
+     "apcer": 0.06818181818181818,
+     "bpcer": 0.6872964169381107,
+     "acer": 0.3777391175599645,
+     "auroc": 0.45693997913053286
+    },
+    "session_03_fitting_subjects": {
+     "n": 1325,
+     "n_bona_fide": 614,
+     "n_attack": 711,
+     "accepted_attacks": 42,
+     "rejected_bona_fide": 422,
+     "ties_at_threshold": 0,
+     "threshold": 0.5,
+     "decision": "attack if score_attack > 0.5 (tie = bona fide)",
+     "apcer": 0.05907172995780591,
+     "bpcer": 0.6872964169381107,
+     "acer": 0.37318407344795834,
+     "auroc": 0.4525637149127027
+    },
+    "session_03_validation_subjects": {
+     "n": 213,
+     "n_bona_fide": 0,
+     "n_attack": 213,
+     "accepted_attacks": 21,
+     "rejected_bona_fide": 0,
+     "ties_at_threshold": 0,
+     "threshold": 0.5,
+     "decision": "attack if score_attack > 0.5 (tie = bona fide)",
+     "apcer": 0.09859154929577464,
+     "bpcer": null,
+     "acer": null,
+     "auroc": null
+    }
+   },
+   "distributions": {
+    "sessions_01_02_491": {
+     "bona_fide": [
+      242,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "attack": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      248
+     ],
+     "bin_edges": [
+      0.0,
+      0.1,
+      0.2,
+      0.3,
+      0.4,
+      0.5,
+      0.6,
+      0.7,
+      0.8,
+      0.9,
+      1.0
+     ]
+    },
+    "session_03_3000": {
+     "bona_fide": [
+      353,
+      10,
+      4,
+      1,
+      1,
+      2,
+      1,
+      3,
+      4,
+      1121
+     ],
+     "attack": [
+      39,
+      10,
+      9,
+      9,
+      5,
+      15,
+      17,
+      39,
+      54,
+      1303
+     ],
+     "bin_edges": [
+      0.0,
+      0.1,
+      0.2,
+      0.3,
+      0.4,
+      0.5,
+      0.6,
+      0.7,
+      0.8,
+      0.9,
+      1.0
+     ]
+    },
+    "session_03_9_subjects": {
+     "bona_fide": [
+      186,
+      5,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      422
+     ],
+     "attack": [
+      38,
+      9,
+      5,
+      6,
+      5,
+      14,
+      16,
+      33,
+      47,
+      751
+     ],
+     "bin_edges": [
+      0.0,
+      0.1,
+      0.2,
+      0.3,
+      0.4,
+      0.5,
+      0.6,
+      0.7,
+      0.8,
+      0.9,
+      1.0
+     ]
+    }
+   },
+   "strata_summary": {
+    "fitting/bona_fide": {
+     "strata": 7,
+     "lower_in_01_02": 2,
+     "equal": 1,
+     "higher_in_01_02": 0,
+     "not_comparable": 4
+    },
+    "fitting/attack": {
+     "strata": 7,
+     "lower_in_01_02": 6,
+     "equal": 1,
+     "higher_in_01_02": 0,
+     "not_comparable": 0
+    },
+    "validation/bona_fide": {
+     "strata": 2,
+     "lower_in_01_02": 0,
+     "equal": 0,
+     "higher_in_01_02": 0,
+     "not_comparable": 2
+    },
+    "validation/attack": {
+     "strata": 2,
+     "lower_in_01_02": 1,
+     "equal": 1,
+     "higher_in_01_02": 0,
+     "not_comparable": 0
+    }
+   },
+   "weights_sha256": "41c128484ff76b4d754c75085f2c17f95c22897a59f34d8d27e7f4b940d23432",
+   "scores_sha256": "4831b639fc173774d88d6d97d65401eb7d1407c7a44d7a87e450092721598cc9",
+   "n1_scores_sha256": "943d1b46770351fd25b3fd9eaa32c17e12dcefc6d82a22b1cbb3a4924757c691",
+   "detectors": {
+    "Haar": 13,
+    "RetinaFace": 478
+   }
+  }
+ },
+ "summary": {
+  "sessions_01_02_491": {
+   "apcer": {
+    "values": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "median": 0.0,
+    "min": 0.0,
+    "max": 0.0
+   },
+   "bpcer": {
+    "values": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "median": 0.0,
+    "min": 0.0,
+    "max": 0.0
+   },
+   "acer": {
+    "values": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "median": 0.0,
+    "min": 0.0,
+    "max": 0.0
+   },
+   "auroc": {
+    "values": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "median": 1.0,
+    "min": 1.0,
+    "max": 1.0
+   }
+  },
+  "sessions_01_02_fitting_subjects": {
+   "apcer": {
+    "values": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "median": 0.0,
+    "min": 0.0,
+    "max": 0.0
+   },
+   "bpcer": {
+    "values": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "median": 0.0,
+    "min": 0.0,
+    "max": 0.0
+   },
+   "acer": {
+    "values": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "median": 0.0,
+    "min": 0.0,
+    "max": 0.0
+   },
+   "auroc": {
+    "values": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "median": 1.0,
+    "min": 1.0,
+    "max": 1.0
+   }
+  },
+  "sessions_01_02_validation_subjects": {
+   "apcer": {
+    "values": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "median": 0.0,
+    "min": 0.0,
+    "max": 0.0
+   },
+   "bpcer": {
+    "values": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "median": 0.0,
+    "min": 0.0,
+    "max": 0.0
+   },
+   "acer": {
+    "values": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "median": 0.0,
+    "min": 0.0,
+    "max": 0.0
+   },
+   "auroc": {
+    "values": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "median": 1.0,
+    "min": 1.0,
+    "max": 1.0
+   }
+  },
+  "sessions_01_02_not_in_m1_dev": {
+   "apcer": {
+    "values": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "median": 0.0,
+    "min": 0.0,
+    "max": 0.0
+   },
+   "bpcer": {
+    "values": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "median": 0.0,
+    "min": 0.0,
+    "max": 0.0
+   },
+   "acer": {
+    "values": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "median": 0.0,
+    "min": 0.0,
+    "max": 0.0
+   },
+   "auroc": {
+    "values": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "median": 1.0,
+    "min": 1.0,
+    "max": 1.0
+   }
+  },
+  "session_03_3000": {
+   "apcer": {
+    "values": [
+     0.10666666666666667,
+     0.26066666666666666,
+     0.048
+    ],
+    "median": 0.10666666666666667,
+    "min": 0.048,
+    "max": 0.26066666666666666
+   },
+   "bpcer": {
+    "values": [
+     0.77,
+     0.768,
+     0.754
+    ],
+    "median": 0.768,
+    "min": 0.754,
+    "max": 0.77
+   },
+   "acer": {
+    "values": [
+     0.43833333333333335,
+     0.5143333333333333,
+     0.401
+    ],
+    "median": 0.43833333333333335,
+    "min": 0.401,
+    "max": 0.5143333333333333
+   },
+   "auroc": {
+    "values": [
+     0.3484928888888889,
+     0.3754402222222223,
+     0.45821866666666666
+    ],
+    "median": 0.3754402222222223,
+    "min": 0.3484928888888889,
+    "max": 0.45821866666666666
+   }
+  },
+  "session_03_9_subjects": {
+   "apcer": {
+    "values": [
+     0.16666666666666666,
+     0.38852813852813856,
+     0.06818181818181818
+    ],
+    "median": 0.16666666666666666,
+    "min": 0.06818181818181818,
+    "max": 0.38852813852813856
+   },
+   "bpcer": {
+    "values": [
+     0.6872964169381107,
+     0.6872964169381107,
+     0.6872964169381107
+    ],
+    "median": 0.6872964169381107,
+    "min": 0.6872964169381107,
+    "max": 0.6872964169381107
+   },
+   "acer": {
+    "values": [
+     0.4269815418023887,
+     0.5379122777331247,
+     0.3777391175599645
+    ],
+    "median": 0.4269815418023887,
+    "min": 0.3777391175599645,
+    "max": 0.5379122777331247
+   },
+   "auroc": {
+    "values": [
+     0.3229999506465305,
+     0.3170713651169677,
+     0.45693997913053286
+    ],
+    "median": 0.3229999506465305,
+    "min": 0.3170713651169677,
+    "max": 0.45693997913053286
+   }
+  },
+  "session_03_fitting_subjects": {
+   "apcer": {
+    "values": [
+     0.1631504922644163,
+     0.379746835443038,
+     0.05907172995780591
+    ],
+    "median": 0.1631504922644163,
+    "min": 0.05907172995780591,
+    "max": 0.379746835443038
+   },
+   "bpcer": {
+    "values": [
+     0.6872964169381107,
+     0.6872964169381107,
+     0.6872964169381107
+    ],
+    "median": 0.6872964169381107,
+    "min": 0.6872964169381107,
+    "max": 0.6872964169381107
+   },
+   "acer": {
+    "values": [
+     0.42522345460126354,
+     0.5335216261905744,
+     0.37318407344795834
+    ],
+    "median": 0.42522345460126354,
+    "min": 0.37318407344795834,
+    "max": 0.5335216261905744
+   },
+   "auroc": {
+    "values": [
+     0.3255840056442044,
+     0.31905674899325165,
+     0.4525637149127027
+    ],
+    "median": 0.3255840056442044,
+    "min": 0.31905674899325165,
+    "max": 0.4525637149127027
+   }
+  },
+  "session_03_validation_subjects": {
+   "apcer": {
+    "values": [
+     0.1784037558685446,
+     0.41784037558685444,
+     0.09859154929577464
+    ],
+    "median": 0.1784037558685446,
+    "min": 0.09859154929577464,
+    "max": 0.41784037558685444
+   },
+   "bpcer": {
+    "values": [
+     null,
+     null,
+     null
+    ],
+    "median": null,
+    "min": null,
+    "max": null
+   },
+   "acer": {
+    "values": [
+     null,
+     null,
+     null
+    ],
+    "median": null,
+    "min": null,
+    "max": null
+   },
+   "auroc": {
+    "values": [
+     null,
+     null,
+     null
+    ],
+    "median": null,
+    "min": null,
+    "max": null
+   }
+  }
+ },
+ "selection": "none: every N1 seed, threshold 0.5 fixed before the run, no score inversion",
+ "figures": {
+  "public": {
+   "figure_distributions.png": "attack-score distributions per class, sessions 01-02 and session 03, per seed (from aggregate.json)",
+   "figure_groups.png": "error rate at 0.5 per group (fitting / validation subjects) and class, sessions 01-02 against session 03, per seed (from aggregate.json)"
+  },
+  "restricted": {
+   "figure_strata.png": "subject x class strata: error rate in sessions 01-02 against session 03, per seed (per-subject values, no identifiers)"
+  }
+ },
+ "created": "2026-10-29T17:19:37+0100"
+}
