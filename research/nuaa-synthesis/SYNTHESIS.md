@@ -142,23 +142,46 @@ their recipe (a reading, not a tested cause; descriptive rows: the probes saw th
 
 ## 5. Proposed next experiment (to be agreed before any training)
 
-**Subject-held-out, session-matched check on NUAA.** One architecture (AttackNet V1, the best AUROC and ACER among the
-NUAA CNNs in C1, or LivenessNet to stay comparable with N1: one of the two, to be chosen together), the recipe and
-preprocessing of N1 (CPU, cache extractor, ≤ 12 epochs, three training seeds), the metrics and rules above. Question:
-when the capture session is represented in training, does the recipe generalise to subjects it has never seen? A low
-error would locate the N1/C1 failure in the session shift (then: session diversity or illumination normalisation); a
-high error would point at the recipe.
+In every accepted session-03 result the two factors change together: session 03 is never in training, and 7 of its 16
+subjects are never in training. The proposal keeps one factor fixed and moves the other.
 
-Unit = subject. The 16 subjects go into K = 4 folds, fixed before the run and stratified so that every fold holds both
-classes in session 03 (in session 03, 9 subjects have bona fide frames and 15 attacks: 8 both, 7 attacks only, 1 bona
-fide only — N1 part 1, C2 protocol; only 3 of the 9 training subjects have bona fide frames there, N2; the 7 test-only
-subjects have no session 01–02 frames). For each fold: fitting on the frames of the other subjects from all three
-sessions (a fixed count per class and session, sampled by rule as in M2), early stopping and EER threshold on a
+**Recommended: subject-held-out, session-matched check on NUAA.** One architecture (AttackNet V1, the best AUROC and
+ACER among the NUAA CNNs in C1, or LivenessNet to stay comparable with N1: one of the two, to be chosen together), the
+recipe and preprocessing of N1 (CPU, cache extractor, ≤ 12 epochs, three training seeds). Question: when the capture
+session is represented in training, does the recipe generalise to subjects it has never seen? Unit = subject. The 16
+subjects go into K = 4 folds, fixed before the run and stratified so that every fold holds both classes in session 03
+(in session 03, 9 subjects have bona fide frames and 15 attacks: 8 both, 7 attacks only, 1 bona fide only — N1 part 1,
+C2 protocol; only 3 of the 9 training subjects have bona fide frames there, N2; the 7 test-only subjects have no
+session 01–02 frames). For each fold: fitting on the frames of the other subjects from all three sessions (a fixed
+count per class and session, drawn with the deterministic `spread` rule of M2; cache frames where present, otherwise
+extracted with the frozen cache extractor, `face.py` 0ac7143, N2), early stopping and EER threshold on a
 subject-disjoint part of those subjects, test on the held-out subjects in every session; per fold and seed, per-session
 strata (NA where a class is absent), APCER/BPCER/ACER at 0.5 and at the dev threshold, AUROC, a bootstrap over subjects
 as the uncertainty; nothing chosen on the test. Declared as a diagnostic protocol, not a benchmark: it mixes sessions in
 training and does not preserve the official NUAA protocol; per-subject counts are unbalanced; frames stay correlated.
-Budget: 12 trainings of the N1 size (about 8–11 min each on the CPU) plus scoring. Complement, not alternative: the C2
-pilot (CASIA-FASD → NUAA, independent source units, source-dev threshold), already protocolled and awaiting the CASIA-FASD
-agreement and the pending split checks, covers the dataset transfer. Both stay separate from C1/M1/N1/N2 and from the R2
-reference.
+Budget: 12 trainings of about the N1 size (LivenessNet: about 8–11 min each on the CPU in N1; AttackNet V1 not timed on
+the CPU) plus scoring. Why this one: the subject is the independent unit of NUAA (the frames of one subject in one
+session are correlated: consecutive frames of one capture, M2), it addresses the question the accepted runs leave open,
+and it needs no new dataset and no CASIA-FASD agreement. Reading caveat: adding session 03 to training also adds
+variety, so a low error on the held-out subjects would locate the N1/C1 failure in "session not represented, or
+training data too narrow", not in the session alone (the extension below separates the two); a high error would point
+at the recipe.
+
+**Step zero, without training or inference.** Per-class and per-session image statistics (brightness, contrast,
+saturation, sharpness, face-box size) on the training frames and on the 300 and 3,000 test frames, set against the
+per-image scores already delivered with C1, N1 and N2 (restricted folders). An AUROC below 0.5 in session 03 (N1 on
+the 3,000; N2 on the 9 training subjects; two of the four C1 CNNs on the 300: LivenessNet 0.3782, AttackNet V2.2 0.4985
+at chance level) means that the checkpoints give the session-03 bona fide frames a higher attack score than the
+attacks (bona fide ranked above attacks, as in §3.2); this is consistent with a cue that is class-correlated in
+sessions 01–02 and reversed in 03. The statistics would say which cue, if any, and sharpen the design above (for
+instance illumination normalisation as a factor). It would precede the training, on the coordinator's word.
+
+**Optional extension: session-held-out, every subject of the held-out session present in training.** Train on 01+03
+and test on 02, train on 02+03 and test on 01, next to the official 01+02 → 03 already measured by N1: same recipe,
+three seeds, 6 more trainings. It would show whether session 03 is special or whether any session change breaks the
+recipe; with the recommended check it forms a two-factor design (subject × session).
+
+**To decide together:** the scope (the recommended check alone, or with the extension) and the architecture (AttackNet
+V1 or LivenessNet). Complement, not alternative: the C2 pilot (CASIA-FASD → NUAA, independent source units, source-dev
+threshold), already protocolled and implemented, awaiting the CASIA-FASD agreement and the coordinator's go-ahead for
+the real run, covers the dataset transfer.
