@@ -1,0 +1,74 @@
+# Linux container python:3.12 (aarch64), Python 3.12.15, 2026-11-02T14:07Z; run from the repository root, standard library only
+$ python -I research/nuaa-synthesis/livenesslab/scripts/check_nuaa_synthesis.py -v
+test_annexes_cell_by_cell (__main__.TestBuild.test_annexes_cell_by_cell) ... ok
+test_c1_and_m1_rows_cell_by_cell (__main__.TestBuild.test_c1_and_m1_rows_cell_by_cell) ... ok
+test_combined_and_crop_rows_cell_by_cell (__main__.TestBuild.test_combined_and_crop_rows_cell_by_cell) ... ok
+test_csv_round_trip (__main__.TestBuild.test_csv_round_trip) ... ok
+test_n1_rows_cell_by_cell (__main__.TestBuild.test_n1_rows_cell_by_cell) ... ok
+test_n2_session_rows_cell_by_cell (__main__.TestBuild.test_n2_session_rows_cell_by_cell) ... ok
+test_outputs_deterministic_and_compact_table (__main__.TestBuild.test_outputs_deterministic_and_compact_table) ... ok
+test_rows_and_annexes (__main__.TestBuild.test_rows_and_annexes) ... ok
+test_sources_hashed_and_runs_recorded (__main__.TestBuild.test_sources_hashed_and_runs_recorded) ... ok
+test_build_reports_consistency_error_and_writes_nothing (__main__.TestCommands.test_build_reports_consistency_error_and_writes_nothing) ... ok
+test_build_then_check_pass_and_tamper_fails (__main__.TestCommands.test_build_then_check_pass_and_tamper_fails) ... ok
+test_check_is_byte_exact (__main__.TestCommands.test_check_is_byte_exact) ... ok
+test_check_synthesis_lines (__main__.TestCommands.test_check_synthesis_lines) ... ok
+test_malformed_source_reports_fail_without_traceback (__main__.TestCommands.test_malformed_source_reports_fail_without_traceback) ... ok
+test_auroc_na_only_with_an_absent_class (__main__.TestConsistency.test_auroc_na_only_with_an_absent_class) ... ok
+test_c1_and_m1_denominators_disagree (__main__.TestConsistency.test_c1_and_m1_denominators_disagree) ... ok
+test_c1_and_m1_rates_disagree (__main__.TestConsistency.test_c1_and_m1_rates_disagree) ... ok
+test_c1_row_missing (__main__.TestConsistency.test_c1_row_missing) ... ok
+test_combined_denominators_not_cnn_test (__main__.TestConsistency.test_combined_denominators_not_cnn_test) ... ok
+test_combined_reference_differs_from_n1 (__main__.TestConsistency.test_combined_reference_differs_from_n1) ... ok
+test_combined_variant_missing (__main__.TestConsistency.test_combined_variant_missing) ... ok
+test_context_row_missing (__main__.TestConsistency.test_context_row_missing) ... ok
+test_count_not_integer (__main__.TestConsistency.test_count_not_integer) ... ok
+test_crop_c1_extractor_row_must_reproduce_reference (__main__.TestConsistency.test_crop_c1_extractor_row_must_reproduce_reference) ... ok
+test_crop_denominators_differ (__main__.TestConsistency.test_crop_denominators_differ) ... ok
+test_crop_extractor_missing (__main__.TestConsistency.test_crop_extractor_missing) ... ok
+test_crop_paired_field_missing (__main__.TestConsistency.test_crop_paired_field_missing) ... ok
+test_crop_reference_counts_differ_from_c1 (__main__.TestConsistency.test_crop_reference_counts_differ_from_c1) ... ok
+test_crop_reference_rates_differ_from_c1 (__main__.TestConsistency.test_crop_reference_rates_differ_from_c1) ... ok
+test_crop_reference_run_is_c1 (__main__.TestConsistency.test_crop_reference_run_is_c1) ... ok
+test_cross_rows_count (__main__.TestConsistency.test_cross_rows_count) ... ok
+test_dev_flag_non_informative_is_refused (__main__.TestConsistency.test_dev_flag_non_informative_is_refused) ... ok
+test_duplicate_rows_are_refused (__main__.TestConsistency.test_duplicate_rows_are_refused) ... ok
+test_json_rates_must_match_counts (__main__.TestConsistency.test_json_rates_must_match_counts) ... ok
+test_m1_counts_not_matching_rates (__main__.TestConsistency.test_m1_counts_not_matching_rates) ... ok
+test_m1_denominators_not_the_c1_manifest (__main__.TestConsistency.test_m1_denominators_not_the_c1_manifest) ... ok
+test_m1_dev_counts_not_matching_rates (__main__.TestConsistency.test_m1_dev_counts_not_matching_rates) ... ok
+test_m1_row_missing (__main__.TestConsistency.test_m1_row_missing) ... ok
+test_m2_subjects_and_exclusions_cross_checked (__main__.TestConsistency.test_m2_subjects_and_exclusions_cross_checked) ... ok
+test_metric_field_missing (__main__.TestConsistency.test_metric_field_missing) ... ok
+test_missing_columns (__main__.TestConsistency.test_missing_columns) ... ok
+test_n1_denominators_not_cnn_test (__main__.TestConsistency.test_n1_denominators_not_cnn_test) ... ok
+test_n1_threshold_not_half (__main__.TestConsistency.test_n1_threshold_not_half) ... ok
+test_n2_491_denominators_not_the_target (__main__.TestConsistency.test_n2_491_denominators_not_the_target) ... ok
+test_n2_seeds_differ_from_n1 (__main__.TestConsistency.test_n2_seeds_differ_from_n1) ... ok
+test_n2_session_03_differs_from_n1 (__main__.TestConsistency.test_n2_session_03_differs_from_n1) ... ok
+test_n2_study_not_n1 (__main__.TestConsistency.test_n2_study_not_n1) ... ok
+test_n2_subset_sums_and_denominators (__main__.TestConsistency.test_n2_subset_sums_and_denominators) ... ok
+test_n2_weights_differ_from_n1 (__main__.TestConsistency.test_n2_weights_differ_from_n1) ... ok
+test_passed_false_and_dirty_true_are_refused (__main__.TestConsistency.test_passed_false_and_dirty_true_are_refused) ... ok
+test_required_json_fields (__main__.TestConsistency.test_required_json_fields) ... ok
+test_run_id_must_end_with_the_recorded_commit (__main__.TestConsistency.test_run_id_must_end_with_the_recorded_commit) ... ok
+test_seed_listed_but_missing (__main__.TestConsistency.test_seed_listed_but_missing) ... ok
+test_source_missing (__main__.TestConsistency.test_source_missing) ... ok
+test_subject_acer_at_m1_differs (__main__.TestConsistency.test_subject_acer_at_m1_differs) ... ok
+test_subject_analyzer_missing (__main__.TestConsistency.test_subject_analyzer_missing) ... ok
+test_subject_counts_at_0_5_differ_from_m1 (__main__.TestConsistency.test_subject_counts_at_0_5_differ_from_m1) ... ok
+test_subject_counts_differ_from_m1 (__main__.TestConsistency.test_subject_counts_differ_from_m1) ... ok
+test_subject_table_not_reproduced (__main__.TestConsistency.test_subject_table_not_reproduced) ... ok
+test_subject_threshold_differs_from_m1 (__main__.TestConsistency.test_subject_threshold_differs_from_m1) ... ok
+test_f4_and_fmt (__main__.TestMarkdown.test_f4_and_fmt) ... ok
+test_keyed_rows_refuses_duplicates (__main__.TestMarkdown.test_keyed_rows_refuses_duplicates) ... ok
+test_md_tables_parsing (__main__.TestMarkdown.test_md_tables_parsing) ... ok
+
+----------------------------------------------------------------------
+Ran 63 tests in 0.316s
+
+OK
+
+$ python -I research/nuaa-synthesis/livenesslab/scripts/nuaa_synthesis.py check --research research --out research/nuaa-synthesis/tables --synthesis research/nuaa-synthesis/SYNTHESIS.md
+CHECK: 7 files + synthesis, 0 problems
+RESULT: PASS
