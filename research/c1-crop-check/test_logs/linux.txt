@@ -1,0 +1,14 @@
+
+== python:3.12 container (machine, Python, NumPy, scikit-learn), from livenesslab/ of the package layout; no OpenCV, no TensorFlow, no matplotlib, no data
+aarch64 3.12.15 2.5.4 1.9.1
+$ python scripts/check_c1crop.py
+OK
+tests run: 52, failures: 0, errors: 0, skipped: 0
+RESULT: PASS
+$ python scripts/check_c1crop_mutations.py
+unmutated copy (before): PASS (tests run: 52, failures: 0, errors: 0)
+  control: comment only in c1crop_check.py: survived (as required)
+unmutated copy (after): PASS (tests run: 52, failures: 0, errors: 0)
+mutations killed: 74/74
+control mutations survived: 1/1
+RESULT: PASS

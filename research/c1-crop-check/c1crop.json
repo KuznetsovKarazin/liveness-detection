@@ -1,0 +1,182 @@
+{
+ "schema": "c1-crop-check-config/1",
+ "study": "C1 crop check: the extractor that built the training cache (face.py at commit 0ac7143) against the extractor of the C1 evaluation (face.py at commit a80f6f9) on the same AttackNet V2.1 official NUAA checkpoint and the same 300 C1 images; weights, inputs, chain, normalisation, CPU and threshold unchanged, only the extractor varies; no training",
+ "architecture": "AttackNetV2_1",
+ "dataset": "nuaa",
+ "protocol": "official",
+ "weights": {
+  "file": "AttackNetV2_1__nuaa.h5",
+  "sha256": "67d9138d6c43e33164d4510b4b34868c2fdc0a637f27664816c388c4e059f8dc",
+  "bytes": 134417864,
+  "source": "the C1 checkpoint (models/weights, trained on 2026-09-12 on the training cache; the fingerprint recorded in the 300 C1 rows of attacknet_v2_1__nuaa)",
+  "loading": "reference architectures.py: create_model('AttackNetV2_1').get_model().load_weights(file) on the CPU (GPU hidden), grappler remapping off, SHA-256 verified before loading (the application loads the same file the same way)",
+  "classes": {
+   "0": "bona fide",
+   "1": "attack"
+  },
+  "score": "softmax output, column 1 (attack probability)"
+ },
+ "extractors": {
+  "cache_0ac7143": {
+   "file": "face_0ac7143.py",
+   "commit": "0ac7143fb186a57a705488072b0ab0a7369f2227",
+   "sha256": "c72f7fa8a9f3b099babce2255530466e5a34731fb5d021f97fd412a98cb58261",
+   "role": "the extractor that built the training cache nuaa_1500.npz of 2026-09-12 (reproduced bit for bit by N2: 6,000/6,000 cache frames); same copy as delivery/n2/face_0ac7143.py",
+   "retinaface_box": "w, h = int(min(W, r) - x + 1), int(min(H, b) - y + 1)"
+  },
+  "c1_a80f6f9": {
+   "file": "face_a80f6f9.py",
+   "commit": "a80f6f9e9f8e644cd9012881b31f838e29dbe391",
+   "sha256": "ca0d41cb2a83dfe6369c970f222862c67f5f06ea2e9d8d0332ed670ae31af536",
+   "role": "the extractor of the C1 evaluation of 2026-09-28 (application src/tesi_app/face.py since commit 44971f3 of 2026-09-24, unchanged since: the current file must have this SHA-256, checked)",
+   "retinaface_box": "w, h = int(min(W, r)) - x, int(min(H, b)) - y"
+  }
+ },
+ "difference": "with the C1 extractor the RetinaFace box is 1 px narrower and 1 px shorter (the +1 removed on 2026-09-24 in commit 44971f3); detector, face choice (highest confidence, minimum 0.6, boxes under 16 px rejected), Haar cascade fallback, margin 0.15, square crop and the whole-image fallback are identical in the two files",
+ "chain": "cv2.imread (BGR) -> detector -> Face.crop(margin=0.15, square=True), the whole frame when no face is found -> cv2.resize 256x256 INTER_AREA -> BGR to RGB -> advanced_image_enhancement (reference create_datasets.py) -> uint8 -> float32 / 255 at scoring: scripts/train_cnn.py preprocess, unchanged (the chain of the training cache and, extractor for extractor, of the application analyzer used in C1: same enhancement steps, same reader)",
+ "detector_resources": {
+  "deploy.prototxt": "9fe2f141b4baee039ed9442da2833e216af40a6ff3e639e7b39258812bcda808",
+  "Widerface-RetinaFace.caffemodel": "d08338a2c207df16a9c566f767fea67fb43ba6fff76ce11e938fe3fabefb9402",
+  "haarcascade_frontalface_default.xml": "0f7d4527844eb514d4a4948e822da90fbb16a34a0bbbbc6adc6498747a5aafb0"
+ },
+ "reference_code_sha256": {
+  "LIVENESSLAB_LIVEDETECTION/scripts/create_datasets.py": "306ea1c84143f1df4796cc6c93893498a0c4b3efc3a60a773efeaf95a152d46d",
+  "LIVENESSLAB_LIVEDETECTION/src/architectures.py": "a83c02b0788bd6f98262abf00f5fe970abed501f231edba348820482aea64d30"
+ },
+ "scoring": {
+  "device": "CPU",
+  "batch": 16,
+  "batchnorm": "inference (training=False)",
+  "input": "frames / 255 in [0, 1]",
+  "score": "softmax output, column 1"
+ },
+ "metrics": {
+  "threshold": 0.5,
+  "decision": "attack if score_attack > 0.5 (tie = bona fide)",
+  "threshold_origin": "fixed a priori in C1 (nuaa_config.json) and unchanged; no calibration on the test, no new threshold, no score inversion",
+  "reported": [
+   "APCER",
+   "BPCER",
+   "ACER",
+   "AUROC"
+  ],
+  "set": "c1_300",
+  "paired": "per image: score with each extractor, absolute and signed difference (cache minus C1), decision at 0.5 with each extractor, changed decisions by direction and by class; maximum, median and mean absolute difference; counts by detector pair",
+  "public": "aggregate.json, aggregate.md (aggregates only) and figure_paired.png (one point per image, no identifiers), plus the step records check.json, frames.json, parity.json, score.json, metrics.json and status.json (counts, SHA-256 and aggregates, no identifiers; a non-trial run is refused unless the work tree is clean, so check.json lists no local path)",
+  "restricted": "frames.csv, parity.csv, scores_paired.csv, per_subject.csv (per-image rows and identifiers) and the logs (an error message can name an image)"
+ },
+ "cache": {
+  "file": "nuaa_1500.npz",
+  "sha256": "dc286dc371e61d638da1842c062a38c5368a9ec4da07ccbc36b7fff6f3177920",
+  "per_class": 1500,
+  "members": {
+   "X_test": {
+    "dtype": "|u1",
+    "shape": [
+     3000,
+     256,
+     256,
+     3
+    ]
+   },
+   "X_train": {
+    "dtype": "|u1",
+    "shape": [
+     3000,
+     256,
+     256,
+     3
+    ]
+   },
+   "s_test": {
+    "dtype": "<U4",
+    "shape": [
+     3000
+    ]
+   },
+   "s_train": {
+    "dtype": "<U4",
+    "shape": [
+     3000
+    ]
+   },
+   "y_test": {
+    "dtype": "<i8",
+    "shape": [
+     3000
+    ]
+   },
+   "y_train": {
+    "dtype": "<i8",
+    "shape": [
+     3000
+    ]
+   }
+  },
+  "rule": "the 300 C1 images preprocessed with the cache extractor must equal bit for bit their rows of X_test (sampling order of the official test list, as in N1 and N2); any difference stops the study before any score (the chain of the cache is then not reconstructed)"
+ },
+ "c1_reference": {
+  "run_id": "20260928-C1-seed42-a80f6f9",
+  "file": "scores.csv",
+  "sha256": "0a52d875eaeabe61173162dd645ec415349822e9855572b0c5c22bf3db594ed0",
+  "analyzer_id": "attacknet_v2_1__nuaa",
+  "rows": 300,
+  "config_sha256": "f0dfdb90a1f61b86fa21e1519a742f180c632bdf677a6c9c45b022526ca8fa89",
+  "columns": [
+   "run_id",
+   "sample_id",
+   "dataset_id",
+   "split",
+   "subject_id",
+   "session_id",
+   "video_id",
+   "attack_type",
+   "modality",
+   "label",
+   "score_attack",
+   "threshold",
+   "prediction",
+   "checkpoint_sha256",
+   "config_sha256",
+   "analyzer_id"
+  ],
+  "device": "the C1 scores were computed by the application on the Metal GPU, one image at a time; here CPU, batch 16",
+  "parity": {
+   "tolerance_abs": 1e-05,
+   "rule": "with the C1 extractor every score recomputed on the CPU (batch 16, the scoring of this study) within 1e-5 of the stored C1 score and the same decision at 0.5; any violation stops the study before any comparison (the chain of C1 is then not reconstructed)",
+   "tolerance_origin": "the absolute tolerance of the coordinator's R2 replication package for the same checkpoint and the same 300 images (1e-5, no discordant decision). The stored C1 scores come from the application on the Metal GPU one image at a time; a trial with 1e-6 on 2026-11-02 found 8 of 300 CPU-batch-16 scores between 1e-6 and 2.9e-6 (all decisions equal), while the reproduction in the C1 conditions (GPU, one image at a time) stayed within 9e-8: the residual is device and batch arithmetic, not the chain",
+   "informative": "parity also recomputes the 300 scores in the C1 conditions (the default device of the process, one image at a time) and on the CPU one image at a time, and records the maximum differences and the counts within 1e-5, 1e-6 and 1e-7; informative only, the binding check is the CPU batch-16 one (the scoring of the study)"
+  },
+  "session_id": "the session_id column of the C1 rows follows the C1 manifest of 2026-09 (third field of the file name, the glasses field of the M2 schema): bound by key, subject and label, not by session"
+ },
+ "data": {
+  "m2_run": "20261006-M2-seed42-36c677a",
+  "manifests": {
+   "official_test": {
+    "file": "nuaa_official_test.csv",
+    "sha256": "2fad23ff295cb2c1d3d0be238deef02faad252aa717933c30588bd5a9c4106c7",
+    "rows": 9123,
+    "n_bona_fide": 3362,
+    "n_attack": 5761,
+    "n_subjects": 16
+   },
+   "cnn_test": {
+    "file": "nuaa_cnn_test.csv",
+    "sha256": "ce9669dccae37041e778ff7bcba5f4cef08fa79f50d65be84806b084c5d95748",
+    "rows": 3000,
+    "n_bona_fide": 1500,
+    "n_attack": 1500,
+    "n_subjects": 16
+   },
+   "c1": {
+    "file": "nuaa_c1_v2.csv",
+    "sha256": "1c2cf97cb7115e7ae98640103670c628a3910a37c25b89f76369cc7ecad87426",
+    "rows": 300,
+    "n_bona_fide": 150,
+    "n_attack": 150,
+    "n_subjects": 16
+   }
+  },
+  "originals": "every file located by key under the images folder, SHA-256 and size equal to the manifest row before use"
+ }
+}
