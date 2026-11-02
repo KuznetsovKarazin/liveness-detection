@@ -1,0 +1,8 @@
+
+===== 2026-11-02T10:55:47+0100 parity =====
+== C1CROP parity: study 20261102-C1CROP-f6747cc, extractor c1_a80f6f9 against the stored C1 scores, tolerance 1e-05, CPU
+   C1 conditions (GPU, batch 1): max |recomputed - stored| 8.941e-08, within 1e-6 300, same decision 300
+   CPU, batch 1 (informative): max |recomputed - stored| 6.998e-05, within 1e-5 297, same decision 300
+   CPU, batch 16: max |recomputed - stored| 2.891e-06 over 300 images, within tolerance 300, same decision 300
+== parity PASS: 300 scores within 1e-05 of the stored C1 scores, same decisions; C1 reference row ACER 0.39333333333333337, AUROC 0.7102666666666667
+RESULT: PASS (parity)

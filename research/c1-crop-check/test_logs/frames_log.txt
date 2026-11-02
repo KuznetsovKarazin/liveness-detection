@@ -1,0 +1,7 @@
+
+===== 2026-11-02T10:55:40+0100 frames =====
+== C1CROP frames: study 20261102-C1CROP-f6747cc, two extractors, no TensorFlow
+   cache_0ac7143: detectors {'RetinaFace': 300}, frames equal to the cache rows 300/300
+   c1_a80f6f9: detectors {'RetinaFace': 300}, frames equal to the cache rows 0/300
+== frames PASS: 300 images, cache chain reconstructed bit for bit with cache_0ac7143, 300 frames differ between the extractors, detector pairs {'RetinaFace/RetinaFace': 300}
+RESULT: PASS (frames)

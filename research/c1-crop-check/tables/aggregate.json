@@ -1,0 +1,202 @@
+{
+ "passed": true,
+ "step": "aggregate",
+ "run_id": "20261102-C1CROP-f6747cc",
+ "config_sha256": "caa1156ac7608089790c12b337040cfc4f2443611be7735599ebe32b75d8e4ae",
+ "check_sha256": "c21a1666229d7f6ff3e5004693740313011654da6eb144015971055fcedbec65",
+ "commit": "f6747cc9e56657976403a63f6f85a16720650149",
+ "dirty_at_check": false,
+ "code_sha256": {
+  "scripts/c1crop_check.py": "fc25c5f0a01c769eb5d9dfcbc58c8605bfdf5c88c85238716a0ca5b628119883",
+  "scripts/n2_sessions.py": "c609e2a5ae38179d1d77f0315a6562044aca7b2139800fba345490d866ec2e36",
+  "scripts/n1_train.py": "78ae3e1da70c9214a3ef97f69c8e78eddbd0fc109fea08898877bd8c6c0c8b3c",
+  "scripts/train_cnn.py": "cbb010124d6a8b49e79a23cdc60b98c7962bc77006688dc5fdbe39c15e9e116c",
+  "scripts/nuaa_manifests.py": "a719ce2ed83479ab07883398d21eb1d869a4d4be273dda04b8cf34f8c99cfa44",
+  "scripts/select_threshold.py": "cacb709672c9c7be5cd68d61923e79bb640e1e8ee77a78864f6786577d07e93c",
+  "scripts/path_guard.py": "e5fa9c835c23745ff932e157a44d3104eb9713d86bbdecc9cdbbd3caa7a7ee34",
+  "scripts/m2_writers.py": "22760abc368dede3aa0a690a241f6622afe1ba586940422497db8a33994ee34a",
+  "scripts/package_rules.py": "96ec7ffab4b089bac71fd18918fcd32af72d15980cdfa1361cc84bb43e0e4c11",
+  "src/tesi_app/evaluation.py": "5deb4426538322807878895d5423a336b7a928288393b95e071cb35b783fa94e",
+  "src/tesi_app/paths.py": "9af10e66def18f866f1a66a23d4877f058825bc42d49231e3195a45def7a16c9",
+  "src/tesi_app/face.py": "ca0d41cb2a83dfe6369c970f222862c67f5f06ea2e9d8d0332ed670ae31af536",
+  "LIVENESSLAB_LIVEDETECTION/scripts/create_datasets.py": "306ea1c84143f1df4796cc6c93893498a0c4b3efc3a60a773efeaf95a152d46d",
+  "LIVENESSLAB_LIVEDETECTION/src/architectures.py": "a83c02b0788bd6f98262abf00f5fe970abed501f231edba348820482aea64d30",
+  "extractor:cache_0ac7143": "c72f7fa8a9f3b099babce2255530466e5a34731fb5d021f97fd412a98cb58261",
+  "extractor:c1_a80f6f9": "ca0d41cb2a83dfe6369c970f222862c67f5f06ea2e9d8d0332ed670ae31af536"
+ },
+ "weights": {
+  "file": "AttackNetV2_1__nuaa.h5",
+  "sha256": "67d9138d6c43e33164d4510b4b34868c2fdc0a637f27664816c388c4e059f8dc",
+  "bytes": 134417864,
+  "source": "the C1 checkpoint (models/weights, trained on 2026-09-12 on the training cache; the fingerprint recorded in the 300 C1 rows of attacknet_v2_1__nuaa)"
+ },
+ "extractors": {
+  "cache_0ac7143": {
+   "file": "face_0ac7143.py",
+   "commit": "0ac7143fb186a57a705488072b0ab0a7369f2227",
+   "sha256": "c72f7fa8a9f3b099babce2255530466e5a34731fb5d021f97fd412a98cb58261",
+   "role": "the extractor that built the training cache nuaa_1500.npz of 2026-09-12 (reproduced bit for bit by N2: 6,000/6,000 cache frames); same copy as delivery/n2/face_0ac7143.py",
+   "retinaface_box": "w, h = int(min(W, r) - x + 1), int(min(H, b) - y + 1)"
+  },
+  "c1_a80f6f9": {
+   "file": "face_a80f6f9.py",
+   "commit": "a80f6f9e9f8e644cd9012881b31f838e29dbe391",
+   "sha256": "ca0d41cb2a83dfe6369c970f222862c67f5f06ea2e9d8d0332ed670ae31af536",
+   "role": "the extractor of the C1 evaluation of 2026-09-28 (application src/tesi_app/face.py since commit 44971f3 of 2026-09-24, unchanged since: the current file must have this SHA-256, checked)",
+   "retinaface_box": "w, h = int(min(W, r)) - x, int(min(H, b)) - y"
+  }
+ },
+ "difference": "with the C1 extractor the RetinaFace box is 1 px narrower and 1 px shorter (the +1 removed on 2026-09-24 in commit 44971f3); detector, face choice (highest confidence, minimum 0.6, boxes under 16 px rejected), Haar cascade fallback, margin 0.15, square crop and the whole-image fallback are identical in the two files",
+ "chain": "cv2.imread (BGR) -> detector -> Face.crop(margin=0.15, square=True), the whole frame when no face is found -> cv2.resize 256x256 INTER_AREA -> BGR to RGB -> advanced_image_enhancement (reference create_datasets.py) -> uint8 -> float32 / 255 at scoring: scripts/train_cnn.py preprocess, unchanged (the chain of the training cache and, extractor for extractor, of the application analyzer used in C1: same enhancement steps, same reader)",
+ "set": "c1_300",
+ "n": 300,
+ "threshold": 0.5,
+ "decision": "attack if score_attack > 0.5 (tie = bona fide)",
+ "threshold_origin": "fixed a priori in C1 (nuaa_config.json) and unchanged; no calibration on the test, no new threshold, no score inversion",
+ "metrics": {
+  "cache_0ac7143": {
+   "n": 300,
+   "n_bona_fide": 150,
+   "n_attack": 150,
+   "accepted_attacks": 4,
+   "rejected_bona_fide": 121,
+   "ties_at_threshold": 0,
+   "threshold": 0.5,
+   "decision": "attack if score_attack > 0.5 (tie = bona fide)",
+   "apcer": 0.02666666666666667,
+   "bpcer": 0.8066666666666666,
+   "acer": 0.41666666666666663,
+   "auroc": 0.7091777777777778
+  },
+  "c1_a80f6f9": {
+   "n": 300,
+   "n_bona_fide": 150,
+   "n_attack": 150,
+   "accepted_attacks": 3,
+   "rejected_bona_fide": 115,
+   "ties_at_threshold": 0,
+   "threshold": 0.5,
+   "decision": "attack if score_attack > 0.5 (tie = bona fide)",
+   "apcer": 0.02,
+   "bpcer": 0.7666666666666667,
+   "acer": 0.39333333333333337,
+   "auroc": 0.710288888888889
+  }
+ },
+ "paired": {
+  "n": 300,
+  "max_abs_diff": 0.3213531970977783,
+  "median_abs_diff": 8.64267349243164e-06,
+  "mean_abs_diff": 0.014237046589454015,
+  "max_signed_diff_cache_minus_c1": 0.3213531970977783,
+  "min_signed_diff_cache_minus_c1": -0.3163982629776001,
+  "mean_signed_diff_cache_minus_c1": 0.0043352693443497025,
+  "abs_diff_bins": {
+   "zero": 97,
+   "(0, 0.0001]": 84,
+   "(0.0001, 0.001]": 36,
+   "(0.001, 0.01]": 37,
+   "(0.01, 0.1]": 28,
+   "(0.1, 1]": 18
+  },
+  "decision_changes_c1_to_cache": {
+   "unchanged": {
+    "all": 291,
+    "bona_fide": 142,
+    "attack": 149
+   },
+   "attack_to_bona_fide": {
+    "all": 2,
+    "bona_fide": 1,
+    "attack": 1
+   },
+   "bona_fide_to_attack": {
+    "all": 7,
+    "bona_fide": 7,
+    "attack": 0
+   }
+  },
+  "frames_equal": 0,
+  "detector_pairs": {
+   "RetinaFace/RetinaFace": 300
+  }
+ },
+ "frames": {
+  "n": 300,
+  "detectors": {
+   "cache_0ac7143": {
+    "RetinaFace": 300
+   },
+   "c1_a80f6f9": {
+    "RetinaFace": 300
+   }
+  },
+  "detector_pairs": {
+   "RetinaFace/RetinaFace": 300
+  },
+  "equal_to_cache": {
+   "cache_0ac7143": 300,
+   "c1_a80f6f9": 0
+  },
+  "frames_equal_between_extractors": 0,
+  "frames_different_between_extractors": 300,
+  "max_abs_pixel_difference": 250,
+  "mean_abs_pixel_difference_over_different_frames": 6.417098914252388,
+  "box_delta_c1_minus_cache": {
+   "dx 0, dy 0, dw -1, dh -1": 300
+  },
+  "rule": "the 300 C1 images preprocessed with the cache extractor must equal bit for bit their rows of X_test (sampling order of the official test list, as in N1 and N2); any difference stops the study before any score (the chain of the cache is then not reconstructed)"
+ },
+ "parity": {
+  "tolerance_abs": 1e-05,
+  "n": 300,
+  "max_abs_diff": 2.8908252716064453e-06,
+  "median_abs_diff": 4.435059963725507e-08,
+  "within_tolerance": 300,
+  "within_1e-6": 292,
+  "within_1e-7": 209,
+  "same_decision": 300,
+  "stored_device": "the C1 scores were computed by the application on the Metal GPU, one image at a time; here CPU, batch 16",
+  "c1_conditions": {
+   "device": "GPU",
+   "batch": 1,
+   "max_abs_diff": 8.940696716308594e-08,
+   "within_1e-6": 300,
+   "within_1e-7": 300,
+   "same_decision": 300,
+   "note": "informative only: the default device of this process, one image at a time, as the application computed the C1 scores; not the scoring of the study"
+  },
+  "cpu_batch1": {
+   "device": "CPU",
+   "batch": 1,
+   "max_abs_diff": 6.99758529663086e-05,
+   "within_1e-5": 297,
+   "within_1e-6": 284,
+   "same_decision": 300,
+   "note": "informative only: the CPU one image at a time (a CPU replication of the stored scores one image at a time, as an R2-like run would do); not the scoring of the study"
+  }
+ },
+ "c1_reference": {
+  "run_id": "20260928-C1-seed42-a80f6f9",
+  "scores_sha256": "0a52d875eaeabe61173162dd645ec415349822e9855572b0c5c22bf3db594ed0",
+  "metrics": {
+   "n": 300,
+   "n_bona_fide": 150,
+   "n_attack": 150,
+   "accepted_attacks": 3,
+   "rejected_bona_fide": 115,
+   "ties_at_threshold": 0,
+   "threshold": 0.5,
+   "decision": "attack if score_attack > 0.5 (tie = bona fide)",
+   "apcer": 0.02,
+   "bpcer": 0.7666666666666667,
+   "acer": 0.39333333333333337,
+   "auroc": 0.7102666666666667
+  }
+ },
+ "selection": "none: both extractors reported on the same images with the same checkpoint and threshold; no score inversion",
+ "figures": {
+  "figure_paired.png": "paired attack scores per image (C1 extractor on x, cache extractor on y), one colour per class, no identifiers"
+ },
+ "created": "2026-11-02T10:56:32+0100"
+}
