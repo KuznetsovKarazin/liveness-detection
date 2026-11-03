@@ -30,8 +30,9 @@ within a subject and session; the only uncertainty is a bootstrap over subjects 
   folder). The configuration (`nuaa_step_zero.json`, SHA-256 in `SHA256SUMS`) was written and every input verified with
   `check-inputs` before the run (log in `test_logs/check_nuaa_step_zero.txt`).
 - Restricted folder (`per_image_raw.csv`, `per_image_crop.csv`, `per_subject.csv`, `per_subject_auroc.csv`,
-  `public_SHA256SUMS.sha256`, `SHA256SUMS`; no images, no cache, no weights, no scores copied): to be uploaded to the
-  shared N1 folder (provisional destination, as for N2); this line is updated at the upload.
+  `public_SHA256SUMS.sha256`, `SHA256SUMS`; no images, no cache, no weights, no scores copied): uploaded on 2026-11-03
+  to the shared N1 folder (provisional destination, as for N2) as `20261103-STEPZERO-78ca9e4/` with `public/`,
+  `restricted/` and `status.json`.
 - Images, cache and scores stay local.
 
 ## Inputs (read-only, fixed by SHA-256 in the configuration)
