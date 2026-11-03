@@ -535,7 +535,7 @@
    "row": "N2C-whole_image",
    "block": "N2 combined",
    "model": "AttackNet V2.2 combined (coordinator's checkpoint, SHA-256 3dd0c853…)",
-   "training_data": "3DMAD, CSMAD, Replay-Attack, MSSpoof, Our Dataset (historical code; no NUAA)",
+   "training_data": "3DMAD, CSMAD, Replay-Attack, MSSpoof, Our Dataset (historical code; NUAA not among them; provenance of the training images not verified here)",
    "early_stopping": "historical (not reproduced here)",
    "test_set": "nuaa_cnn_test 3,000 (1,500 + 1,500), session 03, 16 subjects",
    "unit": "image (frame)",
@@ -552,14 +552,14 @@
    "acer": "0.5713",
    "auroc": "0.2169",
    "run_id": "20261029-N2-combined-247dfd7",
-   "transfer": "dataset transfer (zero-shot: model never trained on NUAA)",
+   "transfer": "dataset transfer (no NUAA training in our experiment: NUAA is not among the training datasets named in the historical code; the provenance of its training images is not verified here)",
    "source": "n2-nuaa-check/tables/combined/aggregate.json (420dbcf89a77)"
   },
   {
    "row": "N2C-face_crop",
    "block": "N2 combined",
    "model": "AttackNet V2.2 combined (coordinator's checkpoint, SHA-256 3dd0c853…)",
-   "training_data": "3DMAD, CSMAD, Replay-Attack, MSSpoof, Our Dataset (historical code; no NUAA)",
+   "training_data": "3DMAD, CSMAD, Replay-Attack, MSSpoof, Our Dataset (historical code; NUAA not among them; provenance of the training images not verified here)",
    "early_stopping": "historical (not reproduced here)",
    "test_set": "nuaa_cnn_test 3,000 (1,500 + 1,500), session 03, 16 subjects",
    "unit": "image (frame)",
@@ -576,7 +576,7 @@
    "acer": "0.5257",
    "auroc": "0.3706",
    "run_id": "20261029-N2-combined-247dfd7",
-   "transfer": "dataset transfer (zero-shot: model never trained on NUAA)",
+   "transfer": "dataset transfer (no NUAA training in our experiment: NUAA is not among the training datasets named in the historical code; the provenance of its training images is not verified here)",
    "source": "n2-nuaa-check/tables/combined/aggregate.json (420dbcf89a77)"
   },
   {
@@ -842,7 +842,7 @@
   {
    "analyzer": "minifasnet",
    "model": "MiniFASNet (Silent-Face, pre-trained)",
-   "trained_on": "not trained on NUAA",
+   "trained_on": "no NUAA training in our experiment; third-party pretraining, NUAA in its data not verified",
    "n_bona_fide": "150",
    "n_attack": "150",
    "apcer": "0.0000",
@@ -854,7 +854,7 @@
   {
    "analyzer": "clip_zeroshot",
    "model": "CLIP ViT-B/32 zero-shot",
-   "trained_on": "not trained on NUAA",
+   "trained_on": "no NUAA training in our experiment; third-party pretraining, NUAA in its data not verified",
    "n_bona_fide": "150",
    "n_attack": "150",
    "apcer": "0.0133",
@@ -866,7 +866,7 @@
   {
    "analyzer": "clip_probe",
    "model": "linear probe on CLIP ViT-B/32",
-   "trained_on": "all 3,000 sampled NUAA training images (dev included)",
+   "trained_on": "probe: all 3,000 sampled NUAA training images (dev included); encoder: third-party pretraining, NUAA in its data not verified",
    "n_bona_fide": "150",
    "n_attack": "150",
    "apcer": "0.0267",
@@ -878,7 +878,7 @@
   {
    "analyzer": "dinov2_probe",
    "model": "linear probe on DINOv2-small",
-   "trained_on": "all 3,000 sampled NUAA training images (dev included)",
+   "trained_on": "probe: all 3,000 sampled NUAA training images (dev included); encoder: third-party pretraining, NUAA in its data not verified",
    "n_bona_fide": "150",
    "n_attack": "150",
    "apcer": "0.0000",
@@ -890,7 +890,7 @@
   {
    "analyzer": "depth",
    "model": "Depth Anything V2 (depth statistics)",
-   "trained_on": "not trained on NUAA",
+   "trained_on": "no NUAA training in our experiment; third-party pretraining, NUAA in its data not verified",
    "n_bona_fide": "150",
    "n_attack": "150",
    "apcer": "0.6933",
@@ -902,7 +902,7 @@
   {
    "analyzer": "lbp",
    "model": "LBP + SVM",
-   "trained_on": "all 3,000 sampled NUAA training images (dev included)",
+   "trained_on": "SVM: all 3,000 sampled NUAA training images (dev included); no pre-trained component",
    "n_bona_fide": "150",
    "n_attack": "150",
    "apcer": "0.3067",
@@ -914,7 +914,7 @@
   {
    "analyzer": "fourier",
    "model": "Fourier spectrum rule",
-   "trained_on": "not trained on NUAA",
+   "trained_on": "no training (hand-crafted rule)",
    "n_bona_fide": "150",
    "n_attack": "150",
    "apcer": "0.2400",
@@ -926,7 +926,7 @@
   {
    "analyzer": "ida",
    "model": "IDA features + SVM",
-   "trained_on": "all 3,000 sampled NUAA training images (dev included)",
+   "trained_on": "SVM: all 3,000 sampled NUAA training images (dev included); no pre-trained component",
    "n_bona_fide": "150",
    "n_attack": "150",
    "apcer": "0.2733",
@@ -938,7 +938,7 @@
   {
    "analyzer": "dog",
    "model": "DoG features + SVM",
-   "trained_on": "all 3,000 sampled NUAA training images (dev included)",
+   "trained_on": "SVM: all 3,000 sampled NUAA training images (dev included); no pre-trained component",
    "n_bona_fide": "150",
    "n_attack": "150",
    "apcer": "0.0267",
@@ -950,7 +950,7 @@
   {
    "analyzer": "iqa",
    "model": "IQA features + SVM",
-   "trained_on": "all 3,000 sampled NUAA training images (dev included)",
+   "trained_on": "SVM: all 3,000 sampled NUAA training images (dev included); no pre-trained component",
    "n_bona_fide": "150",
    "n_attack": "150",
    "apcer": "0.3200",

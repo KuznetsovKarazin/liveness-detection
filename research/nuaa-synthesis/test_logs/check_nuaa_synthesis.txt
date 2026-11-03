@@ -1,4 +1,4 @@
-# macOS, Python 3.14.7, 2026-11-02 15:07 CET; run from the repository root, standard library only
+# macOS, Python 3.14.7, 2026-11-03 14:28 CET; run from the repository root, standard library only
 $ python3 -I research/nuaa-synthesis/livenesslab/scripts/check_nuaa_synthesis.py -v
 test_annexes_cell_by_cell (__main__.TestBuild.test_annexes_cell_by_cell) ... ok
 test_c1_and_m1_rows_cell_by_cell (__main__.TestBuild.test_c1_and_m1_rows_cell_by_cell) ... ok
@@ -65,7 +65,7 @@ test_keyed_rows_refuses_duplicates (__main__.TestMarkdown.test_keyed_rows_refuse
 test_md_tables_parsing (__main__.TestMarkdown.test_md_tables_parsing) ... ok
 
 ----------------------------------------------------------------------
-Ran 63 tests in 0.284s
+Ran 63 tests in 0.910s
 
 OK
 

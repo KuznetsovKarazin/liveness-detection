@@ -1,4 +1,4 @@
-# Linux container python:3.12 (aarch64), Python 3.12.15, 2026-11-02T14:07Z; run from the repository root, standard library only
+# Linux container python:3.12 (aarch64), Python 3.12.15, 2026-11-03T13:28Z; run from the repository root, standard library only
 $ python -I research/nuaa-synthesis/livenesslab/scripts/check_nuaa_synthesis.py -v
 test_annexes_cell_by_cell (__main__.TestBuild.test_annexes_cell_by_cell) ... ok
 test_c1_and_m1_rows_cell_by_cell (__main__.TestBuild.test_c1_and_m1_rows_cell_by_cell) ... ok
@@ -65,7 +65,7 @@ test_keyed_rows_refuses_duplicates (__main__.TestMarkdown.test_keyed_rows_refuse
 test_md_tables_parsing (__main__.TestMarkdown.test_md_tables_parsing) ... ok
 
 ----------------------------------------------------------------------
-Ran 63 tests in 0.316s
+Ran 63 tests in 1.291s
 
 OK
 

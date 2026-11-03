@@ -4,6 +4,8 @@ Synthesis of the NUAA results run between 28 September and 2 November 2026 and m
 (29 September – 2 November), written on the coordinator's request of 2 November. Every number comes from the public
 aggregate of the run named next to it; the unified table (`tables/summary_table.md`; compact form below) is rebuilt by
 `nuaa_synthesis.py` from those files and `check` fails if a cell differs. No inference, no training, no new number.
+Revised on 3 November after the coordinator's review (three precisions: the subject × session cell already measured
+by N2, the dev threshold, the provenance of the external models; labels of the generated tables; checksums).
 
 ## 1. Question
 
@@ -18,15 +20,15 @@ preprocessing difference.
 
 **Data and units.** NUAA Photograph Imposter Database (Tan et al., ECCV 2010), public mirror
 `akahana/anti-spoofing-nuaaaa` (archive SHA-256 `c0780c6f…`; accepted M2 package `20261006-M2-seed42-36c677a`; counts
-read here from the public aggregate regenerated at `5fcc1f8`, PR #6). The official split is a *session* split: training = sessions 01–02 of 9 subjects
-(1,743 bona fide + 1,748 print attacks), test = session 03 of 16 subjects (3,362 + 5,761); the 9 training subjects
-reappear in the test, 7 subjects are test-only. Sampled sets, versioned as manifests with per-image SHA-256 (15 overlap
-rules, PASS: no image shared between any training-side and test-side manifest by key or content): `cnn_train` 2,507
-frames of 7 subjects (fitting), `cnn_es` 493 frames of the 2 other training subjects (early stopping), `m1_dev` 574 =
-all official training frames of those 2 subjects, `cnn_test` 3,000 (1,500 + 1,500, one every k over the official
-lists), `c1` 300 (150 + 150, same rule, inside `cnn_test`), N2 target 491 = official training list minus fitting minus
-early stopping (243 + 248, 9 subjects; 81 of them are in `m1_dev`). Unit = image frame; frames of one subject and
-session are correlated; no video exists.
+read here from the public aggregate regenerated at `5fcc1f8`, PR #6). The official split is a *session* split: training
+= sessions 01–02 of 9 subjects (1,743 bona fide + 1,748 print attacks), test = session 03 of 16 subjects (3,362 +
+5,761); the 9 training subjects reappear in the test, 7 subjects are test-only. Sampled sets, versioned as manifests
+with per-image SHA-256 (15 overlap rules, PASS: no image shared between any training-side and test-side manifest by key
+or content): `cnn_train` 2,507 frames of 7 subjects (fitting), `cnn_es` 493 frames of the 2 other training subjects
+(early stopping), `m1_dev` 574 = all official training frames of those 2 subjects, `cnn_test` 3,000 (1,500 + 1,500, one
+every k over the official lists), `c1` 300 (150 + 150, same rule, inside `cnn_test`), N2 target 491 = official training
+list minus fitting minus early stopping (243 + 248, 9 subjects; 81 of them are in `m1_dev`). Unit = image frame; frames
+of one subject and session are correlated; no video exists.
 
 **Preprocessing.** RetinaFace (Haar fallback, whole frame without a face), square crop with margin 0.15, 256×256
 `INTER_AREA`, BGR→RGB, the reference enhancement of the historical code, /255. Two extractor versions: `cache_0ac7143`
@@ -43,7 +45,9 @@ the C1 LivenessNet checkpoint was trained on the GPU, it was trained with that l
 are unaffected). N1 retrained LivenessNet three times on the CPU (training seeds 42, 43, 44; split seed 42; same
 hyper-parameters, minimum-`val_loss` weights restored); every later scoring runs on the CPU. The combined model is the
 coordinator's AttackNet V2.2 checkpoint (SHA-256 `3dd0c853…`), trained per the historical code on 3DMAD, CSMAD,
-Replay-Attack, MSSpoof and Our Dataset, never on NUAA, loaded as saved.
+Replay-Attack, MSSpoof and Our Dataset (NUAA is not among the training datasets named in that code, so there is no
+NUAA training in our experiment; the checkpoint was trained by the coordinator's group and the provenance of its
+training images is not verified here), loaded as saved.
 
 **Thresholds and metrics.** Score = probability of attack (label 0 bona fide, 1 attack); attack if score > t, tie =
 bona fide. t = 0.5 fixed a priori in C1, N1, N2 and the crop check; in M1 t = the EER threshold of `m1_dev`, frozen
@@ -94,8 +98,8 @@ part 1 / part 2; ckpt = checkpoint; "rejected bf / accepted att." = numerators o
 never used for fitting or early stopping: ACER 0.0000 and AUROC 1.0000 for every seed, on the 410 frames of the 7
 fitting subjects and on the 81 frames of the 2 early-stopping subjects alike (N2 part 1). The four C1 checkpoints
 separate the 574 source-dev frames of those 2 subjects completely as well: dev AUROC (`dev AUC`) 1.0000 and operational
-dev EER 0.0000 for all four (M1), so the dev does not identify a unique threshold. Caveats: the 493 early-stopping frames
-chose the saved epoch; 2 subjects; 81 of the 491 are also dev frames.
+dev EER 0.0000 for all four (M1), so the dev does not identify a unique threshold. Caveats: the 493 early-stopping
+frames chose the saved epoch; 2 subjects; 81 of the 491 are also dev frames.
 
 **3.2 Session transfer (01–02 → 03).** At 0.5 on the 300 C1 images the four C1 checkpoints give ACER 0.2733–0.4667 and
 AUROC 0.3782–0.7547; three reject most bona fide frames (BPCER 0.7267–0.7867), AttackNet V1 does not (BPCER 0.2667).
@@ -116,56 +120,69 @@ checkpoints trained on CASIA-FASD, CelebA-Spoof and SynthASpoof, applied to the 
 adaptation, range from ACER 0.2000 (AttackNet V1 on CASIA-FASD, AUROC 0.8106) to 0.7667, most near or below chance
 (`tables/cross_dataset_table.md`).
 
-**3.4 Context (same 300 images, C1 table).** Two pre-trained models never trained on NUAA separate the session 03 images
-almost perfectly at 0.5 (MiniFASNet ACER 0.0000, CLIP zero-shot 0.0100), as do linear probes on frozen encoders fitted
-on the 3,000 sampled training images (DINOv2 0.0000, CLIP 0.0133); hand-crafted features fitted on the same images give
-ACER 0.32–0.39, the untrained Fourier rule 0.12 and Depth Anything 0.36 (`tables/context_rows_table.md`). The images are
-separable by other analyzers at the same threshold; the failure is specific to these NUAA-trained CNN checkpoints and
-their recipe (a reading, not a tested cause; descriptive rows: the probes saw the dev frames, one threshold, no seed).
+**3.4 Context (same 300 images, C1 table).** Two third-party pre-trained models with no NUAA training in our experiment
+separate the session 03 images almost perfectly at 0.5 (MiniFASNet ACER 0.0000, CLIP zero-shot 0.0100), as do linear
+probes on frozen third-party encoders fitted on the 3,000 sampled training images (DINOv2 0.0000, CLIP 0.0133);
+hand-crafted features fitted on the same images give ACER 0.32–0.39, the untrained Fourier rule 0.12 and Depth Anything
+0.36 (`tables/context_rows_table.md`). "No NUAA training in our experiment" is what C1 establishes for these models
+and encoders ("zero-shot" names the C1 analyzer: classification by text prompts, no classifier fitted on NUAA; it
+says nothing about the pretraining data); their training data are those declared by their authors (C1
+`inventory.md`), and whether NUAA appears in them is not verified here and would need a provenance check. The
+images are separable by other analyzers at the same threshold; the failure is specific to these NUAA-trained CNN
+checkpoints and their recipe (a reading, not a tested cause; descriptive rows: the probes saw the dev frames, one
+threshold, no seed).
 
 ## 4. Reading and limits
 
 - Within the training sessions the recipe makes no error on the frames it never used, including the 2 subjects it never
-  fitted; across the session change it collapses, for the subjects it was trained on as well as for new ones. The
-  session shift separates the two readings. The result is consistent with a session-shift explanation and does not prove
-  it; the weak validation (2 subjects, sessions 01–02, near-zero loss) remains an untested alternative explanation (N1,
-  N2); no causal test has been run.
-- Not explained by (accepted runs): the training seed (N1 range), the composition of the 300 (N1 part 1), the threshold
-  choice (M1: the dev does not identify a unique threshold, dev EER 0, dev AUROC 1), the 1 px box (crop check), the
-  numerical path (CPU/GPU parity within 1e-5, decisions unchanged). Not tested: the effect of the GPU defect on the
-  training of the 12 September LivenessNet checkpoint (its C1 scores are not affected: eager scoring, and the CPU
-  rescoring agrees, N1; N1 retrained on the CPU and found the same picture), the enhancement chain, the recipe itself.
-- Limits: image-level counts with correlated frames; three seeds give a range, not a confidence interval; one dataset
-  and one attack type (print); NUAA is not subject-disjoint by design; the 12 September checkpoints come from a script
-  that predates the repository; the historical preparation of the combined model is not documented (the two variants
-  bracket it); the C1 subset is one session; the source-dev threshold carries no information (dev EER 0).
+  fitted; across the session change it collapses, for the subjects it was trained on as well as for new ones. The design
+  difference between the two readings is the session shift. The result is consistent with a session-shift explanation
+  and does not prove it; the weak validation (2 subjects, sessions 01–02, near-zero loss) remains an untested
+  alternative explanation (N1, N2); no causal test has been run. - Not explained by (accepted runs): the training seed
+  (N1 range), the composition of the 300 (N1 part 1), the threshold choice (M1: the dev does not identify a unique
+  threshold, dev EER 0, dev AUROC 1), the 1 px box (crop check), the numerical path (CPU/GPU parity within 1e-5,
+  decisions unchanged). Not tested: the effect of the GPU defect on the training of the 12 September LivenessNet
+  checkpoint (its C1 scores are not affected: eager scoring, and the CPU rescoring agrees, N1; N1 retrained on the CPU
+  and found the same picture), the enhancement chain, the recipe itself. - Limits: image-level counts with correlated
+  frames; three seeds give a range, not a confidence interval; one dataset and one attack type (print); NUAA is not
+  subject-disjoint by design; the 12 September checkpoints come from a script that predates the repository; the
+  historical preparation of the combined model is not documented (the two variants bracket it); the C1 subset is one
+  session; the source-dev threshold is not uniquely identified (dev EER 0, dev AUROC 1: every threshold between the two
+  dev classes gives EER 0) and the dev gives no guarantee of transfer to session 03.
 
-## 5. Proposed next experiment (to be agreed before any training)
+## 5. Next experiment (architecture and scope decided on 3 November; fold schema to be fixed before any training)
 
-In every accepted session-03 result the two factors change together: session 03 is never in training, and 7 of its 16
-subjects are never in training. The proposal keeps one factor fixed and moves the other.
+In every accepted session-03 result, session 03 is never in training, and 7 of its 16 subjects are never in training.
+One cell of the subject × session design is already measured: N2 scores the 9 training subjects in session 03 (seen
+subjects, new session: BPCER 0.6873 for every seed, AUROC 0.3171–0.4569, §3.2). The cell that no accepted run measures
+is the opposite one, new subjects with the session represented in training; the proposal measures it. It remains a
+diagnostic design, not a complete causal isolation: adding session 03 to training also adds variety (reading caveat
+below).
 
-**Recommended: subject-held-out, session-matched check on NUAA.** One architecture (AttackNet V1, the best AUROC and
-ACER among the NUAA CNNs in C1, or LivenessNet to stay comparable with N1: one of the two, to be chosen together), the
-recipe and preprocessing of N1 (CPU, cache extractor, ≤ 12 epochs, three training seeds). Question: when the capture
-session is represented in training, does the recipe generalise to subjects it has never seen? Unit = subject. The 16
-subjects go into K = 4 folds, fixed before the run and stratified so that every fold holds both classes in session 03
-(in session 03, 9 subjects have bona fide frames and 15 attacks: 8 both, 7 attacks only, 1 bona fide only — N1 part 1,
-C2 protocol; only 3 of the 9 training subjects have bona fide frames there, N2; the 7 test-only subjects have no
-session 01–02 frames). For each fold: fitting on the frames of the other subjects from all three sessions (a fixed
-count per class and session, drawn with the deterministic `spread` rule of M2; cache frames where present, otherwise
-extracted with the frozen cache extractor, `face.py` 0ac7143, N2), early stopping and EER threshold on a
+**Recommended: subject-held-out, session-matched check on NUAA.** One architecture: LivenessNet, chosen by the
+coordinator on 3 November to stay comparable with N1 (AttackNet V1 had the best AUROC and ACER among the NUAA CNNs in
+C1), with the recipe and preprocessing of N1 (CPU, cache extractor, ≤ 12 epochs, three training seeds). Question: when
+the capture session is represented in training, does the recipe generalise to subjects it has never seen? Unit =
+subject. The 16 subjects go into K = 4 folds, fixed before the run and stratified so that every fold holds both classes
+in session 03 (in session 03, 9 subjects have bona fide frames and 15 attacks: 8 both, 7 attacks only, 1 bona fide only
+— N1 part 1, C2 protocol; only 3 of the 9 training subjects have bona fide frames there, N2; the 7 test-only subjects
+have no session 01–02 frames). For each fold: fitting on the frames of the other subjects from all three sessions (a
+fixed count per class and session, drawn with the deterministic `spread` rule of M2; cache frames where present,
+otherwise extracted with the frozen cache extractor, `face.py` 0ac7143, N2), early stopping and EER threshold on a
 subject-disjoint part of those subjects, test on the held-out subjects in every session; per fold and seed, per-session
 strata (NA where a class is absent), APCER/BPCER/ACER at 0.5 and at the dev threshold, AUROC, a bootstrap over subjects
-as the uncertainty; nothing chosen on the test. Declared as a diagnostic protocol, not a benchmark: it mixes sessions in
-training and does not preserve the official NUAA protocol; per-subject counts are unbalanced; frames stay correlated.
-Budget: 12 trainings of about the N1 size (LivenessNet: about 8–11 min each on the CPU in N1; AttackNet V1 not timed on
-the CPU) plus scoring. Why this one: the subject is the independent unit of NUAA (the frames of one subject in one
-session are correlated: consecutive frames of one capture, M2), it addresses the question the accepted runs leave open,
-and it needs no new dataset and no CASIA-FASD agreement. Reading caveat: adding session 03 to training also adds
-variety, so a low error on the held-out subjects would locate the N1/C1 failure in "session not represented, or
-training data too narrow", not in the session alone (the extension below separates the two); a high error would point
-at the recipe.
+as the uncertainty; nothing chosen on the test. Declared as a diagnostic protocol, not a benchmark and not a complete
+causal isolation: it mixes sessions in training and does not preserve the official NUAA protocol; per-subject counts are
+unbalanced; frames stay correlated. Budget: 12 trainings of about the N1 size (LivenessNet: about 8–11 min each on the
+CPU in N1) plus scoring. The concrete schema (the four subject folds, the three seeds, the counts per class and session,
+the fitting/dev/test separation, the budget) will be delivered as a separate package and is to be fixed with the
+coordinator before any training (C2 card, 3 November). Why this one: the subject is the independent unit of NUAA (the
+frames of one subject in one session are correlated: consecutive frames of one capture, M2), it addresses the question
+the accepted runs leave open, and it needs no new dataset and no CASIA-FASD agreement. Reading caveat: adding session 03
+to training also adds variety, so a low error on the held-out subjects would be consistent with an N1/C1 failure due to
+"session not represented, or training data too narrow" rather than to the session alone (the extension below, left out
+for now, would help to separate the two); a high error would be consistent with a failure of the recipe; both readings
+stay diagnostic, not causal.
 
 **Step zero, without training or inference.** Per-class and per-session image statistics (brightness, contrast,
 saturation, sharpness, face-box size) on the training frames and on the 300 and 3,000 test frames, set against the
@@ -173,15 +190,20 @@ per-image scores already delivered with C1, N1 and N2 (restricted folders). An A
 the 3,000; N2 on the 9 training subjects; two of the four C1 CNNs on the 300: LivenessNet 0.3782, AttackNet V2.2 0.4985
 at chance level) means that the checkpoints give the session-03 bona fide frames a higher attack score than the
 attacks (bona fide ranked above attacks, as in §3.2); this is consistent with a cue that is class-correlated in
-sessions 01–02 and reversed in 03. The statistics would say which cue, if any, and sharpen the design above (for
-instance illumination normalisation as a factor). It would precede the training, on the coordinator's word.
+sessions 01–02 and reversed in 03. The statistics can show which image statistics are associated with the class, the
+session and the delivered scores; they indicate associations, not causes, and would sharpen the design above (for
+instance illumination normalisation as a factor). Authorised by the coordinator on 3 November on the NUAA materials
+already authorised (C2 card); to be delivered as a separate package before any training.
 
 **Optional extension: session-held-out, every subject of the held-out session present in training.** Train on 01+03
 and test on 02, train on 02+03 and test on 01, next to the official 01+02 → 03 already measured by N1: same recipe,
 three seeds, 6 more trainings. It would show whether session 03 is special or whether any session change breaks the
-recipe; with the recommended check it forms a two-factor design (subject × session).
+recipe; with the recommended check it forms a two-factor design (subject × session). Left out for now (coordinator,
+3 November).
 
-**To decide together:** the scope (the recommended check alone, or with the extension) and the architecture (AttackNet
-V1 or LivenessNet). Complement, not alternative: the C2 pilot (CASIA-FASD → NUAA, independent source units, source-dev
-threshold), already protocolled and implemented, awaiting the CASIA-FASD agreement and the coordinator's go-ahead for
-the real run, covers the dataset transfer.
+**Decided on 3 November (coordinator, C2 card):** LivenessNet, to stay comparable with N1; the step zero authorised on
+the NUAA materials already authorised; the concrete fold schema (four subject folds, three seeds, counts per class and
+session, fitting/dev/test separation, budget) to be prepared and fixed before any training; the extension to the other
+session directions left out for now. Complement, not alternative: the C2 pilot (CASIA-FASD → NUAA, independent source
+units, source-dev threshold), already protocolled and implemented, awaiting the CASIA-FASD agreement and the
+coordinator's go-ahead for the real run, covers the dataset transfer.

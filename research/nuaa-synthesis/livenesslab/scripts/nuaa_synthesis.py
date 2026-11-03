@@ -75,17 +75,24 @@ CNN_NAMES = {
 CROSS_SOURCES = {"casia_fasd": "CASIA-FASD", "celeba_spoof": "CelebA-Spoof", "synthaspoof": "SynthASpoof"}
 ARCH_NAMES = {"livenessnet": "LivenessNet", "attacknet_v1": "AttackNet V1", "attacknet_v2_1": "AttackNet V2.1",
               "attacknet_v2_2": "AttackNet V2.2"}
+# "trained on" of the context rows: "no NUAA training in our experiment" is what the C1 run establishes; whether
+# NUAA appears in the pretraining data of a third-party model or encoder is not verified here (provenance check).
+TRAINED_PRETRAINED = "no NUAA training in our experiment; third-party pretraining, NUAA in its data not verified"
+TRAINED_PROBE = ("probe: all 3,000 sampled NUAA training images (dev included); encoder: third-party p"
+                 "retraining, NUAA in its data not verified")
+TRAINED_SVM = "SVM: all 3,000 sampled NUAA training images (dev included); no pre-trained component"
+TRAINED_RULE = "no training (hand-crafted rule)"
 CONTEXT_ROWS = {
-    "minifasnet": ("MiniFASNet (Silent-Face, pre-trained)", "not trained on NUAA"),
-    "clip_zeroshot": ("CLIP ViT-B/32 zero-shot", "not trained on NUAA"),
-    "clip_probe": ("linear probe on CLIP ViT-B/32", "all 3,000 sampled NUAA training images (dev included)"),
-    "dinov2_probe": ("linear probe on DINOv2-small", "all 3,000 sampled NUAA training images (dev included)"),
-    "depth": ("Depth Anything V2 (depth statistics)", "not trained on NUAA"),
-    "lbp": ("LBP + SVM", "all 3,000 sampled NUAA training images (dev included)"),
-    "fourier": ("Fourier spectrum rule", "not trained on NUAA"),
-    "ida": ("IDA features + SVM", "all 3,000 sampled NUAA training images (dev included)"),
-    "dog": ("DoG features + SVM", "all 3,000 sampled NUAA training images (dev included)"),
-    "iqa": ("IQA features + SVM", "all 3,000 sampled NUAA training images (dev included)"),
+    "minifasnet": ("MiniFASNet (Silent-Face, pre-trained)", TRAINED_PRETRAINED),
+    "clip_zeroshot": ("CLIP ViT-B/32 zero-shot", TRAINED_PRETRAINED),
+    "clip_probe": ("linear probe on CLIP ViT-B/32", TRAINED_PROBE),
+    "dinov2_probe": ("linear probe on DINOv2-small", TRAINED_PROBE),
+    "depth": ("Depth Anything V2 (depth statistics)", TRAINED_PRETRAINED),
+    "lbp": ("LBP + SVM", TRAINED_SVM),
+    "fourier": ("Fourier spectrum rule", TRAINED_RULE),
+    "ida": ("IDA features + SVM", TRAINED_SVM),
+    "dog": ("DoG features + SVM", TRAINED_SVM),
+    "iqa": ("IQA features + SVM", TRAINED_SVM),
 }
 
 C1_RUN = "20260928-C1-seed42-a80f6f9"
@@ -96,11 +103,13 @@ EXTRACTOR_CACHE = "cache_0ac7143"
 THR_FIXED = "fixed a priori (C1)"
 PREP_REF = "detector crop (margin 0.15, square; whole frame without a face), 256x256 INTER_AREA, BGR to RGB, reference enhancement, /255 in [0, 1]"
 PREP_HIST = "historical chain of the combined model: BGR to RGB, 256x256 Lanczos, reference enhancement, (x/255 - 0.5) * 2 in [-1, 1]"
-TRAIN_COMB = "3DMAD, CSMAD, Replay-Attack, MSSpoof, Our Dataset (historical code; no NUAA)"
+TRAIN_COMB = ("3DMAD, CSMAD, Replay-Attack, MSSpoof, Our Dataset (historical code; NUAA not among them; "
+              "provenance of the training images not verified here)")
 TRANSFER_SESSION_ALL = "session transfer (01-02 to 03; the training subjects and the test-only subjects)"
 TRANSFER_SESSION_9 = "session transfer (01-02 to 03; the training subjects only)"
 TRANSFER_SAME = "same sessions as training (01-02), fitting and early-stopping subjects, frames never used"
-TRANSFER_DATASET = "dataset transfer (zero-shot: model never trained on NUAA)"
+TRANSFER_DATASET = ("dataset transfer (no NUAA training in our experiment: NUAA is not among the training datasets "
+                    "named in the historical code; the provenance of its training images is not verified here)")
 VARIANTS = {"whole_image": "whole image (no face detection)", "face_crop": "face crop (current detector, margin 0.15, square; whole frame without a face)"}
 EXTRACTOR_LABELS = {EXTRACTOR_CACHE: "cache_0ac7143 (the training-cache extractor)",
                     EXTRACTOR_C1: "c1_a80f6f9 (the C1 extractor; box 1 px narrower and shorter)"}
@@ -739,8 +748,13 @@ def context_md(doc: dict) -> str:
     labels = {"trained_on": "trained on", "n_bona_fide": "n bona fide", "n_attack": "n attack", "apcer": "APCER",
               "bpcer": "BPCER", "acer": "ACER", "eer": "EER", "auroc": "AUROC"}
     return ("# Annex: the other analyzers of the C1 table on the same 300 NUAA images (threshold 0.5, run `%s`)\n\n"
-            "Context only: pre-trained models never trained on NUAA, hand-crafted rules, and classifiers fitted on all 3,000 "
-            "sampled NUAA training images (the dev images included; no early stopping involved). Source: `%s`.\n\n" % (C1_RUN, SOURCES["c1_table"])
+            "Context only: third-party pre-trained models with no NUAA training in our experiment (whether NUAA appears in "
+            "their pretraining data is not verified here: it would need a provenance check; \"zero-shot\" names the C1 analyzer, "
+            "classification by text prompts with no classifier fitted on NUAA, and says nothing about the pretraining data), "
+            "hand-crafted rules, linear probes "
+            "on third-party encoders (same caveat for the encoders) and SVMs on hand-crafted features, the probes and the SVMs "
+            "fitted on all 3,000 sampled NUAA training images (the dev images included; no early stopping involved). "
+            "Source: `%s`.\n\n" % (C1_RUN, SOURCES["c1_table"])
             + md_table(cols, doc["context_rows"], labels))
 
 

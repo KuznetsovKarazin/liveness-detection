@@ -27,7 +27,7 @@
 Legend. Blocks: C1, M1, N1 (part 2), N2-S (N2 part 1, sessions), N2-C (N2 part 2, combined model), CROP (C1 crop check); ckpt = checkpoint; "rejected bf / accepted att." = rejected bona fide / accepted attacks, the numerators of BPCER and APCER. Unit = image (frame) in every row; attack if score_attack > threshold (tie = bona fide); label 0 bona fide, 1 attack; score = probability of attack; APCER = accepted attacks / attacks, BPCER = rejected bona fide / bona fide, ACER = their mean, AUROC threshold-free (`auc` in the C1 table, `test AUC` in the M1 table).
 
 - `T-NUAA` (training): NUAA official train, sessions 01-02: 2,507 fitting frames (7 subjects); early stopping on 493 frames of 2 other subjects, sessions 01-02 (early stopping)
-- `T-COMB` (training): 3DMAD, CSMAD, Replay-Attack, MSSpoof, Our Dataset (historical code; no NUAA); historical early stopping
+- `T-COMB` (training): 3DMAD, CSMAD, Replay-Attack, MSSpoof, Our Dataset (historical code; NUAA not among them; provenance of the training images not verified here); historical early stopping
 - `S-300` (test): C1 300 (150 + 150), session 03, 16 subjects
 - `S-3000` (test): nuaa_cnn_test 3,000 (1,500 + 1,500), session 03, 16 subjects
 - `S-491` (test): 491 frames of the official training list outside fitting and early stopping (243 + 248), sessions 01-02, 9 subjects
@@ -41,6 +41,6 @@ Legend. Blocks: C1, M1, N1 (part 2), N2-S (N2 part 1, sessions), N2-C (N2 part 2
 - `same` (transfer): same sessions as training (01-02), fitting and early-stopping subjects, frames never used
 - `session` (transfer): session transfer (01-02 to 03; the training subjects and the test-only subjects)
 - `session/9` (transfer): session transfer (01-02 to 03; the training subjects only)
-- `dataset` (transfer): dataset transfer (zero-shot: model never trained on NUAA)
+- `dataset` (transfer): dataset transfer (no NUAA training in our experiment: NUAA is not among the training datasets named in the historical code; the provenance of its training images is not verified here)
 
 Runs: C1 `20260928-C1-seed42-a80f6f9`, M1 `20261003-M1-seed42-e67ecc7`, N1 `20261024-N1-LivenessNet-fb93496`, N1_subjects `20261024-N1-subjects-a5fcbbc`, N2_sessions `20261029-N2-sessions-2ac3e29`, N2_combined `20261029-N2-combined-247dfd7`, C1_crop_check `20261102-C1CROP-f6747cc`.
