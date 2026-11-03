@@ -1,0 +1,72 @@
+# macOS, Python 3.11.16, NumPy 1.26.4, OpenCV 4.11.0, 2026-11-03 15:08 CET; run from the development repository root with the real inputs present
+$ .venv/bin/python -I scripts/check_nuaa_step_zero.py --verbose
+test_auroc_known (__main__.TestKnownAnswers.test_auroc_known) ... ok
+test_bootstrap_matches_the_declared_recipe (__main__.TestKnownAnswers.test_bootstrap_matches_the_declared_recipe) ... ok
+test_bootstrap_non_degenerate_fixture (__main__.TestKnownAnswers.test_bootstrap_non_degenerate_fixture)
+Dieci soggetti sbilanciati con valori continui: AUROC a forza bruta sulle coppie, stessi indici per ogni ... ok
+test_bootstrap_recipe_literal (__main__.TestKnownAnswers.test_bootstrap_recipe_literal) ... ok
+test_constant_red_image (__main__.TestKnownAnswers.test_constant_red_image) ... ok
+test_image_stats_refuses_wrong_shape (__main__.TestKnownAnswers.test_image_stats_refuses_wrong_shape) ... ok
+test_parse_name (__main__.TestKnownAnswers.test_parse_name) ... ok
+test_public_problems (__main__.TestKnownAnswers.test_public_problems) ... ok
+test_quartiles (__main__.TestKnownAnswers.test_quartiles) ... ok
+test_ranks_with_ties (__main__.TestKnownAnswers.test_ranks_with_ties) ... ok
+test_spearman_known (__main__.TestKnownAnswers.test_spearman_known) ... ok
+test_spread_copies_the_rule (__main__.TestKnownAnswers.test_spread_copies_the_rule) ... ok
+test_two_tone_image (__main__.TestKnownAnswers.test_two_tone_image) ... ok
+test_within_subject_auroc (__main__.TestKnownAnswers.test_within_subject_auroc) ... ok
+test_within_subject_summary_median_min_max (__main__.TestKnownAnswers.test_within_subject_summary_median_min_max) ... ok
+test_aggregate_counts_and_recomputation (__main__.TestWorld.test_aggregate_counts_and_recomputation) ... ok
+test_check_inputs_pass_and_reads_only (__main__.TestWorld.test_check_inputs_pass_and_reads_only) ... ok
+test_dirty_tree_gives_dev_run_id (__main__.TestWorld.test_dirty_tree_gives_dev_run_id) ... ok
+test_figure_present_with_plotter_and_skipped_without (__main__.TestWorld.test_figure_present_with_plotter_and_skipped_without) ... ok
+test_forbidden_public_content_stops_the_run (__main__.TestWorld.test_forbidden_public_content_stops_the_run) ... ok
+test_public_has_no_identifiers (__main__.TestWorld.test_public_has_no_identifiers) ... ok
+test_rejected_vs_accepted_and_boxes (__main__.TestWorld.test_rejected_vs_accepted_and_boxes) ... ok
+test_restricted_rows_and_hand_values (__main__.TestWorld.test_restricted_rows_and_hand_values) ... ok
+test_run_outputs_and_sums (__main__.TestWorld.test_run_outputs_and_sums) ... ok
+test_run_requires_authorisation (__main__.TestWorld.test_run_requires_authorisation) ... ok
+test_score_associations (__main__.TestWorld.test_score_associations) ... ok
+test_box_rows_mismatch (__main__.TestFailures.test_box_rows_mismatch) ... ok
+test_box_with_zero_width (__main__.TestFailures.test_box_with_zero_width) ... ok
+test_c1_outside_cnn_test (__main__.TestFailures.test_c1_outside_cnn_test) ... ok
+test_cache_changed_configuration_unchanged (__main__.TestFailures.test_cache_changed_configuration_unchanged) ... ok
+test_cache_fortran_and_pickle_members_refused (__main__.TestFailures.test_cache_fortran_and_pickle_members_refused) ... ok
+test_cache_label_mismatch (__main__.TestFailures.test_cache_label_mismatch) ... ok
+test_cache_schema_mismatch (__main__.TestFailures.test_cache_schema_mismatch) ... ok
+test_config_errors (__main__.TestFailures.test_config_errors) ... ok
+test_configuration_counts_altered (__main__.TestFailures.test_configuration_counts_altered) ... ok
+test_declarations_closed_set (__main__.TestFailures.test_declarations_closed_set) ... ok
+test_expected_cache_frames (__main__.TestFailures.test_expected_cache_frames) ... ok
+test_foreign_entry_in_run_folder_refused (__main__.TestFailures.test_foreign_entry_in_run_folder_refused) ... ok
+test_inconsistent_prediction (__main__.TestFailures.test_inconsistent_prediction) ... ok
+test_inputs_untouched_by_a_run (__main__.TestFailures.test_inputs_untouched_by_a_run) ... ok
+test_label_different_from_key_folder (__main__.TestFailures.test_label_different_from_key_folder) ... ok
+test_manifest_session_differs_from_name (__main__.TestFailures.test_manifest_session_differs_from_name) ... ok
+test_manifest_sha_mismatch (__main__.TestFailures.test_manifest_sha_mismatch) ... ok
+test_missing_and_altered_original (__main__.TestFailures.test_missing_and_altered_original) ... ok
+test_missing_column (__main__.TestFailures.test_missing_column) ... ok
+test_non_finite_score (__main__.TestFailures.test_non_finite_score) ... ok
+test_official_lists_sharing_a_file (__main__.TestFailures.test_official_lists_sharing_a_file) ... ok
+test_official_split_differs_from_the_list (__main__.TestFailures.test_official_split_differs_from_the_list) ... ok
+test_old_pass_removed_after_fail (__main__.TestFailures.test_old_pass_removed_after_fail) ... ok
+test_protected_out_root_refused (__main__.TestFailures.test_protected_out_root_refused) ... ok
+test_run_folder_inside_input_package_refused (__main__.TestFailures.test_run_folder_inside_input_package_refused) ... ok
+test_sample_outside_set_and_wrong_subject (__main__.TestFailures.test_sample_outside_set_and_wrong_subject) ... ok
+test_score_sha_and_sums (__main__.TestFailures.test_score_sha_and_sums) ... ok
+test_symbolic_link_input_refused (__main__.TestFailures.test_symbolic_link_input_refused) ... ok
+test_tie_at_the_threshold_is_bona_fide (__main__.TestFailures.test_tie_at_the_threshold_is_bona_fide) ... ok
+test_real_check_inputs_read_only (__main__.TestRealInputs.test_real_check_inputs_read_only) ... ok
+test_every_skip_is_a_missing_input (__main__.TestSuite.test_every_skip_is_a_missing_input) ... ok
+
+----------------------------------------------------------------------
+Ran 57 tests in 20.090s
+
+OK
+
+tests run: 57, failures: 0, errors: 0, skipped: 0
+RESULT: PASS
+
+$ .venv/bin/python -I scripts/nuaa_step_zero.py check-inputs
+inputs: 6 manifests, 6000 cache frames, 12 score files, face boxes, 12614 originals verified against the configuration
+RESULT: PASS (check-inputs)

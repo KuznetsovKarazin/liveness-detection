@@ -1,0 +1,8 @@
+# Linux container python:3.12 (aarch64), Python 3.12.15, NumPy 2.5.4, OpenCV 5.0.0, no matplotlib, no scikit-learn, no scipy, 2026-11-03T14:08Z; numpy and opencv-python-headless installed in the container; proof 1: development layout with the real inputs (read-only mount), temporary folders only
+$ python -I scripts/check_nuaa_step_zero.py
+tests run: 57, failures: 0, errors: 0, skipped: 0
+RESULT: PASS
+
+$ python -I scripts/nuaa_step_zero.py check-inputs
+inputs: 6 manifests, 6000 cache frames, 12 score files, face boxes, 12614 originals verified against the configuration
+RESULT: PASS (check-inputs)
