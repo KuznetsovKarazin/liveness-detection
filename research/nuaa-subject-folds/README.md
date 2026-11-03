@@ -15,10 +15,10 @@ because the NUAA session-03 results are already known: every choice is a rule fi
 
 ## Delivery status
 
-- Run `20261103-FOLDS-67b7f3d` from the clean commit `67b7f3d` of the development repository: `public/` copied here as
-  `tables/`; `restricted/` (fold members, per-subject counts, the twelve per-fold manifests and the anchor of the public
-  folder: 15 files plus `SHA256SUMS`) to be uploaded to the shared N1 folder (provisional destination, as for N2); this
-  line is updated at the upload.
+- Run `20261103-FOLDS-67b7f3d` from the clean commit `67b7f3d` of the development repository: `public/` copied here as `tables/`;
+  `restricted/` (fold members, per-subject counts, the twelve per-fold manifests and the anchor of the public folder: 15
+  files plus `SHA256SUMS`) uploaded on 2026-11-03 to the shared N1 folder (provisional destination, as for N2) as
+  `20261103-FOLDS-67b7f3d/` with `public/`, `restricted/` and `status.json`.
 - Status: proposed; to be fixed with the coordinator before any training. The training run is a separate package.
 
 ## The schema
