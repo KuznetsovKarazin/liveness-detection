@@ -1,0 +1,142 @@
+{
+ "schema": "nuaa-subject-folds-config/1",
+ "status": "proposed schema, to be fixed with the coordinator before any training; nothing trained, nothing scored, no image read",
+ "task": "Subject-held-out, session-matched check on NUAA with LivenessNet (coordinator, C2 card, 3 November 2026): four subject folds, three training seeds, counts per class and session, fitting/dev/test separation and budget, fixed before the training. Diagnostic design, not a benchmark and not a complete causal isolation: it mixes the three sessions in training and does not preserve the official NUAA protocol. Exploratory: the NUAA session-03 results of C1, M1, N1 and N2 are already known; every choice below is a rule fixed before any training, none is chosen on a result.",
+ "question": "When the capture session is represented in training, does the N1 recipe generalise to subjects it has never seen? N2 already measured the opposite cell (the 9 training subjects in session 03: BPCER 0.6873 for every seed, AUROC 0.3171-0.4569); this schema measures new subjects with every session represented in training.",
+ "manifests": {
+  "official_train": {
+   "file": "nuaa_official_train.csv",
+   "sha256": "2a7e8906f98b8e3cf0c42cd0a2cf10e15868750b1ac82e85b62a9e0b59aad648",
+   "rows": 3491,
+   "n_bona_fide": 1743,
+   "n_attack": 1748,
+   "n_subjects": 9
+  },
+  "official_test": {
+   "file": "nuaa_official_test.csv",
+   "sha256": "2fad23ff295cb2c1d3d0be238deef02faad252aa717933c30588bd5a9c4106c7",
+   "rows": 9123,
+   "n_bona_fide": 3362,
+   "n_attack": 5761,
+   "n_subjects": 16
+  },
+  "cnn_train": {
+   "file": "nuaa_cnn_train.csv",
+   "sha256": "6d46ec7da7bfc32b1cce9ed3e331f8ed4377e5fc2df31e1b77ac7f6a0c2bc33c",
+   "rows": 2507,
+   "n_bona_fide": 1345,
+   "n_attack": 1162,
+   "n_subjects": 7
+  },
+  "cnn_es": {
+   "file": "nuaa_cnn_early_stopping.csv",
+   "sha256": "17282be8ef300e5e178ae87cd137ffd875786f1b353924e7cfb6eb14db1584c1",
+   "rows": 493,
+   "n_bona_fide": 155,
+   "n_attack": 338,
+   "n_subjects": 2
+  },
+  "cnn_test": {
+   "file": "nuaa_cnn_test.csv",
+   "sha256": "ce9669dccae37041e778ff7bcba5f4cef08fa79f50d65be84806b084c5d95748",
+   "rows": 3000,
+   "n_bona_fide": 1500,
+   "n_attack": 1500,
+   "n_subjects": 16
+  }
+ },
+ "manifests_source": "M2 package 20261006-M2-seed42-36c677a (accepted); the manifests are restricted; their SHA-256 and counts are those recorded in the accepted N1 and N2 configurations",
+ "expected": {
+  "n_subjects": 16,
+  "n_images": 12614,
+  "n_cache_frames": 6000,
+  "note": "official lists: 3,491 + 9,123 images of 16 subjects (9 with sessions 01-02, 16 in session 03); cache nuaa_1500.npz = cnn_train + cnn_es + cnn_test"
+ },
+ "unit": "subject (the independent unit of NUAA: the frames of one subject in one session are correlated, consecutive frames of one capture, M2)",
+ "folds": {
+  "k": 4,
+  "strata": [
+   "A",
+   "B",
+   "C",
+   "D"
+  ],
+  "strata_definition": {
+   "A": "frames in sessions 01-02 and bona fide frames in session 03",
+   "B": "frames in sessions 01-02, no bona fide frame in session 03",
+   "C": "no frame in sessions 01-02, bona fide frames in session 03",
+   "D": "no frame in sessions 01-02, no bona fide frame in session 03"
+  },
+  "dealing": "balanced: subjects in stratum order A, B, C, D and ascending identifier, each to the fold with the fewest subjects, ties to the fold with the fewest subjects sharing a property (frames in sessions 01-02 for A and B, bona fide in session 03 for A and C, both counts for A), then the lowest index",
+  "dealing_text": "one subject at a time, in stratum order A, B, C, D and ascending identifier, to the fold with the fewest subjects; ties go to the fold with the fewest subjects sharing a property with the subject (frames in sessions 01-02 for A and B, bona fide frames in session 03 for A and C, the sum of the two counts for A), then to the lowest fold index; no random number",
+  "constraints": "every fold must hold at least two subjects with bona fide frames in session 03, two with attack frames in session 03 and two with frames in sessions 01-02 (so no test or dev stratum rests on one subject); otherwise FAIL, no fallback",
+  "dev_fold": "fold (k mod K) + 1 for the held-out fold k",
+  "fitting_folds": "the other K - 2 folds",
+  "roles_text": "for the held-out fold k: test = the subjects of fold k (all their frames, every session); dev = the subjects of fold k mod K + 1 (early stopping, learning-rate schedule, checkpoint restore and the EER threshold); fitting = the subjects of the other two folds; the three roles are disjoint by subject, so no subject of the test fold is ever seen in fitting or dev",
+  "members": "restricted output fold_members.csv (subject identifiers are never public); its SHA-256 is in the public schema"
+ },
+ "sampling": {
+  "fitting_per_cell": 350,
+  "dev_per_cell": 100,
+  "rule": "spread(sorted file names of the cell, n): one every len/n, from the first",
+  "test": "all frames of the held-out subjects",
+  "text": "fitting: 350 frames per cell (class x session, 6 cells, 2,100 frames) of the fitting subjects, dev: 100 frames per cell (600 frames) of the dev subjects, both taken with the deterministic spread rule of M2 and train_cnn.py over the file names of the cell sorted ascending; a cell with fewer frames than required is FAIL; test: every frame of the held-out subjects, reported per session stratum (NA where a class is absent)",
+  "why_fixed_counts": "equal weight of the three sessions in fitting (the session is the factor under study), fitting size close to N1 (2,507 frames), dev size close to N1 (493 frames); the counts are the largest multiples of 50 below the smallest availability over the four held-out folds (fitting: 361 bona fide frames of session 02 for held-out fold 3, so 350; dev: 117 bona fide frames of session 02 for held-out fold 1, so 100); in session 03 the fixed counts use a minority of the available frames (about 18-25% of the bona fide and 11-13% of the attacks), in sessions 01-02 most of them (about 69-97%): declared in the limits"
+ },
+ "frames": {
+  "cache": "frames whose key is in cnn_train, cnn_es or cnn_test are read from the training cache nuaa_1500.npz (SHA-256 dc286dc371e61d638da1842c062a38c5368a9ec4da07ccbc36b7fff6f3177920), reproduced bit for bit from the originals in N2",
+  "to_extract": "the other frames are extracted from the originals with the frozen cache extractor face.py of commit 0ac7143 (SHA-256 c72f7fa8a9f3b099babce2255530466e5a34731fb5d021f97fd412a98cb58261, delivered with N2) and the unchanged chain of train_cnn.preprocess (RetinaFace, Haar fallback, whole frame without a face; square crop margin 0.15; 256x256 INTER_AREA; BGR to RGB; reference enhancement; uint8), with the N2 cache check (every cache frame reproduced bit for bit) repeated before the extraction",
+  "detector_per_frame": "recorded (RetinaFace, Haar, none) for every extracted frame, restricted"
+ },
+ "architecture": "LivenessNet (src/architectures.py of the coordinator's liveness-detection repository, the architecture used in C1 and N1), chosen by the coordinator on 3 November 2026 to stay comparable with N1",
+ "train_seeds": [
+  42,
+  43,
+  44
+ ],
+ "training": {
+  "recipe": "N1 part 2 (n1_nuaa_stability.json, study 20261024-N1-LivenessNet-fb93496), unchanged",
+  "max_epochs": 12,
+  "batch": 16,
+  "initial_learning_rate": 0.001,
+  "early_stopping_patience": 4,
+  "checkpoint": "weights of the epoch with minimum val_loss on the dev frames (EarlyStopping restore_best_weights; set_weights when the epochs end first)",
+  "optimizer": "tf.keras.optimizers.legacy.Adam(learning_rate=initial_learning_rate, clipnorm=1.0)",
+  "loss": "CategoricalCrossentropy, one-hot labels (index 0 bona fide, 1 attack)",
+  "class_weight": "balanced on the fitting set: n / (2 * n_class)",
+  "augmentation": "RandomFlip(horizontal), RandomRotation(0.03), RandomZoom(0.12, 0.12), RandomTranslation(0.06, 0.06), RandomBrightness(0.15, value_range=(0, 1)), RandomContrast(0.2), GaussianNoise(0.02); fitting set only",
+  "scheduler": "ReduceLROnPlateau(monitor=val_loss, factor=0.5, patience=2, min_lr=1e-6)",
+  "shuffle": "tf.data shuffle(4096, seed=train_seed)",
+  "seeds": "train_seed for random, numpy and TensorFlow (weight initialisation, augmentation, batch order); no split seed: the folds and the samples are deterministic",
+  "device": "CPU (training and scoring; the Metal GPU defect of N1)",
+  "trainings": "K folds x 3 seeds = 12, one checkpoint each; weights restricted, cards and SHA-256 delivered"
+ },
+ "threshold": {
+  "set": "dev fold only",
+  "criterion": "eer, the M1 protocol: candidates = distinct dev scores plus nextafter(min, -inf) if >= 0; attack if score > value (tie = bona fide); minimum of |fp * n_attack - fn * n_bona_fide| on integers, ties to the highest value",
+  "frozen_before_test": "written from the dev scores before any test scoring; SHA-256 recorded; applied unchanged",
+  "also_reported": "the fixed threshold 0.5 of C1, N1 and N2, labelled",
+  "dev_reuse_declared": "the dev frames drive early stopping, learning-rate reduction, the restored epoch and the threshold (as in N1 and in the C2 protocol); the dev does not identify a unique threshold when its classes separate completely (M1) and gives no guarantee of transfer"
+ },
+ "metrics": {
+  "per_unit": "per fold, seed and session stratum of the held-out subjects (01, 02, 03 and all), NA where a class is absent: n_bona_fide, n_attack, accepted attacks, rejected bona fide, APCER, BPCER, ACER at 0.5 and at the dev threshold, AUROC (threshold-free)",
+  "per_subject": "the same per held-out subject (restricted)",
+  "aggregation": "values of every fold and seed; median and range over seeds per fold; pooled counts over the four folds per session (every subject held out exactly once, so the pooled session-03 test covers the 16 subjects); no fold or seed selection",
+  "uncertainty": "bootstrap over subjects: 1,000 resamples with replacement of the 16 held-out subjects (pooled over the four folds, per seed), percentile 2.5-97.5 of the pooled ACER and AUROC per session; random seed 0, fixed here; no statistical test. Declared: the pooled estimate is a cross-validation aggregate scored by four models with four dev thresholds; the session strata hold at most 9 subjects (sessions 01-02: 9; session 03 bona fide: 9), so the interval is coarse; no interval for a stratum with fewer than 5 subjects",
+  "pre_commitment": "reported whatever the outcome; no change of recipe, threshold criterion, folds or counts after any score is read"
+ },
+ "budget": {
+  "trainings_formula": "K folds x 3 seeds",
+  "max_epochs_each": 12,
+  "estimate": "about 8-11 min per training on the CPU for 2,507 fitting frames in N1 (wall 496-671 s); 2,100 fitting frames here, so at most about 2.5 h of training; extraction of the frames outside the cache with the frozen extractor, once, before the trainings (the N2 cache check of 6,000 frames and the extraction of 491 ran in minutes); scoring of every frame of the held-out subjects, 12 passes; wall-time cap 6 h, else stop, no result, reported as a failed run",
+  "wall_time_cap_minutes": 360,
+  "on_cap_exceeded": "stop, no results; report as a failed run"
+ },
+ "declarations": {
+  "no_training_here": "this package derives the schema only: no training, no inference, no image read, no face detection",
+  "diagnostic": "diagnostic protocol, not a benchmark and not a complete causal isolation: adding session 03 to training also adds variety, so a low error on the held-out subjects would be consistent with an N1/C1 failure due to 'session not represented, or training data too narrow' rather than to the session alone; a high error would be consistent with a failure of the recipe; both readings are diagnostic, not causal",
+  "exploratory": "the NUAA session-03 results are already known (C1, M1, N1, N2): the schema is a rule fixed before any training, not a confirmatory test",
+  "limits": "frames of one subject and session stay correlated; per-subject counts are unbalanced (session 03 bona fide for 9 of 16 subjects, 3 of them training subjects); sessions 01-02 exist for 9 subjects only, so the session 01-02 test and dev strata rest on 2-3 subjects per fold and a single session x class cell there can rest on one subject (two training subjects lack bona fide frames in one of the two sessions); the fixed fitting counts under-sample session 03 (about 18-25% of its bona fide and 11-13% of its attacks are used) and use most of sessions 01-02; the dev of a held-out fold is the test fold of the next one, so the four fold results are not independent (different models, no leakage); three seeds give a range, not a confidence interval; one dataset, one attack type (print)",
+  "public_restricted": "public: rules, counts per fold, role, session and class, SHA-256 of the restricted lists, budget; restricted: fold members, per-subject counts, the twelve per-fold manifests with keys and SHA-256"
+ }
+}

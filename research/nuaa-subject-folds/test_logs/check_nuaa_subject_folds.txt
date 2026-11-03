@@ -1,0 +1,66 @@
+# macOS, Python 3.11.16, 2026-11-03 14:26 CET; from the development repository root, standard library only, restricted manifests present
+$ .venv/bin/python scripts/check_nuaa_subject_folds.py
+...........................................
+----------------------------------------------------------------------
+Ran 43 tests in 3.024s
+
+OK
+tests run: 43, failures: 0, errors: 0, skipped: 0
+RESULT: PASS
+
+$ .venv/bin/python scripts/check_nuaa_subject_folds_mutations.py
+baseline: 43 tests, skipped 0
+SURVIVED control: comment only (must survive)
+KILLED   strata: bona fide in session 03 ignored (13 failures, 3 errors)
+KILLED   strata: subjects without 01-02 frames treated as having them (4 failures, 1 errors)
+KILLED   dealing: fold size ignored (property count first) (5 failures, 0 errors)
+KILLED   dealing: shared property ignored (size, then index) (11 failures, 3 errors)
+KILLED   dealing: strata order reversed (12 failures, 3 errors)
+KILLED   dealing: bona fide 03 not a shared property (11 failures, 3 errors)
+KILLED   constraint: minimum subjects per property not checked (2 failures, 0 errors)
+KILLED   constraint: minimum lowered to one (3 failures, 0 errors)
+KILLED   constraint: sessions 01-02 property not checked (1 failures, 0 errors)
+KILLED   roles: dev fold = held-out fold (9 failures, 3 errors)
+KILLED   roles: fitting includes the dev fold (9 failures, 3 errors)
+KILLED   sampling: shortfall silently truncated (2 failures, 0 errors)
+KILLED   sampling: spread replaced by the first n names (1 failures, 0 errors)
+KILLED   sampling: test role sampled like dev (4 failures, 0 errors)
+KILLED   spread: unsorted input (1 failures, 0 errors)
+KILLED   inputs: manifest SHA-256 not compared (2 failures, 0 errors)
+KILLED   inputs: counts not compared (1 failures, 0 errors)
+KILLED   inputs: columns not checked (1 failures, 0 errors)
+KILLED   inputs: name/session agreement not checked (2 failures, 0 errors)
+KILLED   inputs: duplicated keys accepted (1 failures, 0 errors)
+KILLED   inputs: official lists overlap accepted (1 failures, 0 errors)
+KILLED   inputs: duplicated content inside a list accepted (1 failures, 0 errors)
+KILLED   inputs: cache key outside the official lists accepted (2 failures, 0 errors)
+KILLED   inputs: cache row compared on the SHA-256 only (1 failures, 0 errors)
+KILLED   inputs: cache manifests sharing keys accepted (1 failures, 0 errors)
+KILLED   inputs: expected n_images not compared (1 failures, 0 errors)
+KILLED   inputs: test list with sessions 01-02 accepted (1 failures, 0 errors)
+KILLED   inputs: subject of the name not compared (1 failures, 0 errors)
+KILLED   inputs: malformed sha256 accepted (1 failures, 0 errors)
+KILLED   config: schema not checked (1 failures, 0 errors)
+KILLED   config: duplicated seeds accepted (1 failures, 0 errors)
+KILLED   inputs: symbolic links accepted (1 failures, 0 errors)
+KILLED   config: missing top-level field accepted (1 failures, 0 errors)
+KILLED   outputs: availability of another role in the public JSON (1 failures, 0 errors)
+KILLED   outputs: dirty flag inverted in the public JSON (2 failures, 0 errors)
+KILLED   outputs: public SHA256SUMS listing one file (1 failures, 0 errors)
+KILLED   outputs: public JSON not scanned for identifiers (1 failures, 0 errors)
+KILLED   outputs: run inside the manifests folder accepted (1 failures, 0 errors)
+KILLED   outputs: symbolic output root accepted (1 failures, 0 errors)
+KILLED   outputs: manifests read before the invalidation (1 failures, 0 errors)
+KILLED   outputs: in_cache flag inverted (1 failures, 0 errors)
+KILLED   outputs: public manifest SHA-256 of another text (1 failures, 0 errors)
+SURVIVED declared redundant (must survive): outputs of a previous run not invalidated at the start; the failure path removes them and write_all is atomic, so no test can observe it; kept for symmetry with the other packages after the m2_writers review of 23 October
+KILLED   outputs: failure leaves the outputs (1 failures, 0 errors)
+KILLED   outputs: foreign entries in the run folder accepted (1 failures, 0 errors)
+KILLED   outputs: public identifiers not scanned (1 failures, 0 errors)
+KILLED   run id: dirty tree without -dev (1 failures, 0 errors)
+mutations killed: 46/46; survived: 0; invalid: 0; control survived: yes
+RESULT: PASS
+
+$ .venv/bin/python scripts/nuaa_subject_folds.py check-inputs
+CHECK-INPUTS: configuration d1d43c148f76, 5 manifests verified, 4 folds, 16 subjects, nothing written
+RESULT: PASS (check-inputs)
