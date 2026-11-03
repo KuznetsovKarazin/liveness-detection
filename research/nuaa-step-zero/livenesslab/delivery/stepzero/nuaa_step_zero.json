@@ -1,0 +1,368 @@
+{
+ "schema": "nuaa-step-zero-config/1",
+ "task": "NUAA step zero: descriptive image statistics of the authorised NUAA materials, set against the per-image scores already delivered (C1, N1, N2)",
+ "nature": "descriptive: no training, no inference, no face detection, no new threshold; the measures show associations between image statistics, class, session and delivered scores, not causes",
+ "authorisation": "coordinator's comment on the C2 card, 2026-11-03: the step zero may proceed on the NUAA materials already authorised",
+ "declarations": {
+  "no_training": true,
+  "no_inference": true,
+  "no_face_detection": true,
+  "no_new_threshold": true,
+  "associations_not_causes": true,
+  "unit": "image frame; frames of one subject and session are correlated"
+ },
+ "threshold": 0.5,
+ "decision_rule": "attack if score_attack > threshold (tie = bona fide)",
+ "statistics": {
+  "lum_mean": "mean of the OpenCV grey image (0.299 R + 0.587 G + 0.114 B, uint8), 0-255",
+  "lum_std": "population standard deviation of the grey image, 0-255",
+  "sat_mean": "mean of the S channel of the OpenCV HSV conversion, 0-255",
+  "lap_var": "population variance of the 3x3 Laplacian of the grey image (cv2.Laplacian, CV_64F, ksize 1)",
+  "width": "image width in pixels (raw view only)",
+  "height": "image height in pixels (raw view only)",
+  "bytes": "size of the original file in bytes, from the manifest (raw view only)"
+ },
+ "views": {
+  "raw": "the original file read with cv2.imread (BGR), every image of the two official lists",
+  "crop": "the 6,000 frames of the training cache nuaa_1500.npz (RGB uint8 256x256: detector crop of the original, resize, then the reference enhancement chain: bilateral filter, CLAHE, unsharp mask, gamma and a final linear contrast/brightness step): cnn_train, cnn_es, cnn_test. The crop view describes the network input after the reference enhancement chain, not the face region of the original"
+ },
+ "measures": {
+  "quartiles": "median, first and third quartile (linear interpolation) per set, session and class",
+  "class_auroc": "AUROC of the statistic as a class separator: label 1 = attack, higher statistic -> attack; Mann-Whitney U with ties counted 0.5; a value below 0.5 means bona fide frames have the higher statistic",
+  "class_auroc_ci": "percentiles 2.5 and 97.5 of the class AUROC over 1,000 resamples with replacement of the subjects of the session (seed 0, the same resamples for every statistic); a resample without one of the classes does not count (valid_resamples)",
+  "within_subject_auroc": "class AUROC computed inside each subject x session with both classes; median, minimum and maximum over those subjects, with their number (per-subject values in the restricted per_subject_auroc.csv)",
+  "all_row": "in the all row of a set with two sessions the sessions of a subject are pooled, for the within-subject AUROC and for the bootstrap alike",
+  "spearman": "Spearman rank correlation (average ranks for ties) between the statistic and score_attack; NA with fewer than 3 pairs or a constant variable",
+  "rejected_vs_accepted": "bona fide frames of session 03: AUROC of the statistic between the frames rejected (prediction 1) and accepted at 0.5; rejected = positive",
+  "crop_view": "the crop view describes the network input after the reference enhancement chain (bilateral filter, CLAHE, unsharp mask, gamma and a final linear contrast/brightness step), not the face region of the original",
+  "reading": "associations between image statistics, class, session and delivered scores; the aggregate class AUROC and the within-class Spearman confound subject and class, the within-subject AUROC holds the subject fixed; they indicate associations, not causes"
+ },
+ "bootstrap": {
+  "resamples": 1000,
+  "seed": 0,
+  "percentiles": [
+   2.5,
+   97.5
+  ]
+ },
+ "manifests": {
+  "folder": "results/m2/manifests",
+  "origin": "M2 package 20261006-M2-seed42-36c677a (accepted), aggregate regenerated at 5fcc1f8",
+  "files": {
+   "official_train": {
+    "file": "nuaa_official_train.csv",
+    "sha256": "2a7e8906f98b8e3cf0c42cd0a2cf10e15868750b1ac82e85b62a9e0b59aad648",
+    "rows": 3491,
+    "n_bona_fide": 1743,
+    "n_attack": 1748,
+    "n_subjects": 9,
+    "sessions": [
+     "01",
+     "02"
+    ]
+   },
+   "official_test": {
+    "file": "nuaa_official_test.csv",
+    "sha256": "2fad23ff295cb2c1d3d0be238deef02faad252aa717933c30588bd5a9c4106c7",
+    "rows": 9123,
+    "n_bona_fide": 3362,
+    "n_attack": 5761,
+    "n_subjects": 16,
+    "sessions": [
+     "03"
+    ]
+   },
+   "cnn_train": {
+    "file": "nuaa_cnn_train.csv",
+    "sha256": "6d46ec7da7bfc32b1cce9ed3e331f8ed4377e5fc2df31e1b77ac7f6a0c2bc33c",
+    "rows": 2507,
+    "n_bona_fide": 1345,
+    "n_attack": 1162,
+    "n_subjects": 7,
+    "sessions": [
+     "01",
+     "02"
+    ]
+   },
+   "cnn_es": {
+    "file": "nuaa_cnn_early_stopping.csv",
+    "sha256": "17282be8ef300e5e178ae87cd137ffd875786f1b353924e7cfb6eb14db1584c1",
+    "rows": 493,
+    "n_bona_fide": 155,
+    "n_attack": 338,
+    "n_subjects": 2,
+    "sessions": [
+     "01",
+     "02"
+    ]
+   },
+   "cnn_test": {
+    "file": "nuaa_cnn_test.csv",
+    "sha256": "ce9669dccae37041e778ff7bcba5f4cef08fa79f50d65be84806b084c5d95748",
+    "rows": 3000,
+    "n_bona_fide": 1500,
+    "n_attack": 1500,
+    "n_subjects": 16,
+    "sessions": [
+     "03"
+    ]
+   },
+   "c1": {
+    "file": "nuaa_c1_v2.csv",
+    "sha256": "1c2cf97cb7115e7ae98640103670c628a3910a37c25b89f76369cc7ecad87426",
+    "rows": 300,
+    "n_bona_fide": 150,
+    "n_attack": 150,
+    "n_subjects": 16,
+    "sessions": [
+     "03"
+    ]
+   }
+  }
+ },
+ "images": {
+  "folder": "data/NUAA/images",
+  "layout": "<bonafide|attack>_<training|validation>/<name>; every file accepted only with SHA-256 and bytes equal to the manifest row"
+ },
+ "cache": {
+  "path": "data/processed/nuaa_1500.npz",
+  "sha256": "dc286dc371e61d638da1842c062a38c5368a9ec4da07ccbc36b7fff6f3177920",
+  "per_class": 1500,
+  "members": {
+   "X_train": {
+    "dtype": "|u1",
+    "shape": [
+     3000,
+     256,
+     256,
+     3
+    ]
+   },
+   "y_train": {
+    "dtype": "<i8",
+    "shape": [
+     3000
+    ]
+   },
+   "s_train": {
+    "dtype": "<U4",
+    "shape": [
+     3000
+    ]
+   },
+   "X_test": {
+    "dtype": "|u1",
+    "shape": [
+     3000,
+     256,
+     256,
+     3
+    ]
+   },
+   "y_test": {
+    "dtype": "<i8",
+    "shape": [
+     3000
+    ]
+   },
+   "s_test": {
+    "dtype": "<U4",
+    "shape": [
+     3000
+    ]
+   }
+  },
+  "order": "X_train = spread per class of the official training list (bona fide first) = cnn_train + cnn_es; X_test = spread of the official test list = cnn_test (M2 rule, N2 check)",
+  "built": "2026-09-12 with the extractor face.py 0ac7143 (reproduced bit for bit in N2)"
+ },
+ "scores": {
+  "n1_seed42": {
+   "path": "results/n1/20261024-N1-LivenessNet-fb93496/seed42/scores_test.csv",
+   "sha256": "60e6c401c39ddd91d2e620b80528eaa9be24eac8db220cf817a922978d1dd037",
+   "sums": "results/n1/20261024-N1-LivenessNet-fb93496/SHA256SUMS",
+   "sums_sha256": "668e3fec4b68758741160c00850a648db8669f64881f104048b631fbea07ace0",
+   "set": "cnn_test",
+   "rows": 3000,
+   "filter": {
+    "train_seed": "42"
+   },
+   "rejected_vs_accepted": true,
+   "label": "N1 LivenessNet seed 42, session 03 (cnn_test 3,000), run 20261024-N1-LivenessNet-fb93496"
+  },
+  "n1_seed43": {
+   "path": "results/n1/20261024-N1-LivenessNet-fb93496/seed43/scores_test.csv",
+   "sha256": "a1a71b6ecc6f9c084762648486f35d440ff3426298ad367db5e85194775a84be",
+   "sums": "results/n1/20261024-N1-LivenessNet-fb93496/SHA256SUMS",
+   "sums_sha256": "668e3fec4b68758741160c00850a648db8669f64881f104048b631fbea07ace0",
+   "set": "cnn_test",
+   "rows": 3000,
+   "filter": {
+    "train_seed": "43"
+   },
+   "rejected_vs_accepted": true,
+   "label": "N1 LivenessNet seed 43, session 03 (cnn_test 3,000), run 20261024-N1-LivenessNet-fb93496"
+  },
+  "n1_seed44": {
+   "path": "results/n1/20261024-N1-LivenessNet-fb93496/seed44/scores_test.csv",
+   "sha256": "943d1b46770351fd25b3fd9eaa32c17e12dcefc6d82a22b1cbb3a4924757c691",
+   "sums": "results/n1/20261024-N1-LivenessNet-fb93496/SHA256SUMS",
+   "sums_sha256": "668e3fec4b68758741160c00850a648db8669f64881f104048b631fbea07ace0",
+   "set": "cnn_test",
+   "rows": 3000,
+   "filter": {
+    "train_seed": "44"
+   },
+   "rejected_vs_accepted": true,
+   "label": "N1 LivenessNet seed 44, session 03 (cnn_test 3,000), run 20261024-N1-LivenessNet-fb93496"
+  },
+  "n2_sessions_seed42": {
+   "path": "results/n2/20261029-N2-sessions-2ac3e29/seed42/scores_sessions.csv",
+   "sha256": "1505aa92f0b0f0dc4c3d51bcbbe0e630d1588817420095c0bca35eeaa63cb26a",
+   "sums": "results/n2/20261029-N2-sessions-2ac3e29/SHA256SUMS",
+   "sums_sha256": "40ee121eaf74cba97a3f73f495cf1598de8e50e42af80916b9781b6910bd52e2",
+   "set": "target_491",
+   "rows": 491,
+   "filter": {
+    "train_seed": "42"
+   },
+   "rejected_vs_accepted": false,
+   "label": "N2 part 1, N1 checkpoint seed 42, sessions 01-02 (491 target frames), study 20261029-N2-sessions-2ac3e29"
+  },
+  "n2_sessions_seed43": {
+   "path": "results/n2/20261029-N2-sessions-2ac3e29/seed43/scores_sessions.csv",
+   "sha256": "24811e3d697471b247b6565a237dd40db96a7bb7036c2cfe606244486cc06169",
+   "sums": "results/n2/20261029-N2-sessions-2ac3e29/SHA256SUMS",
+   "sums_sha256": "40ee121eaf74cba97a3f73f495cf1598de8e50e42af80916b9781b6910bd52e2",
+   "set": "target_491",
+   "rows": 491,
+   "filter": {
+    "train_seed": "43"
+   },
+   "rejected_vs_accepted": false,
+   "label": "N2 part 1, N1 checkpoint seed 43, sessions 01-02 (491 target frames), study 20261029-N2-sessions-2ac3e29"
+  },
+  "n2_sessions_seed44": {
+   "path": "results/n2/20261029-N2-sessions-2ac3e29/seed44/scores_sessions.csv",
+   "sha256": "4831b639fc173774d88d6d97d65401eb7d1407c7a44d7a87e450092721598cc9",
+   "sums": "results/n2/20261029-N2-sessions-2ac3e29/SHA256SUMS",
+   "sums_sha256": "40ee121eaf74cba97a3f73f495cf1598de8e50e42af80916b9781b6910bd52e2",
+   "set": "target_491",
+   "rows": 491,
+   "filter": {
+    "train_seed": "44"
+   },
+   "rejected_vs_accepted": false,
+   "label": "N2 part 1, N1 checkpoint seed 44, sessions 01-02 (491 target frames), study 20261029-N2-sessions-2ac3e29"
+  },
+  "n2_combined_whole_image": {
+   "path": "results/n2/20261029-N2-combined-247dfd7/whole_image/scores_test.csv",
+   "sha256": "2fdbb0ca64fac33476756a0a9ea6dcbc8b0faf81d3c691eb64070a5b8a803140",
+   "sums": "results/n2/20261029-N2-combined-247dfd7/SHA256SUMS",
+   "sums_sha256": "bfa3e2572d1be6880d62f87233dd206723d9a25a3bff6c9835f7b20fb8b73411",
+   "set": "cnn_test",
+   "rows": 3000,
+   "filter": {
+    "variant": "whole_image"
+   },
+   "rejected_vs_accepted": false,
+   "label": "N2 part 2, combined AttackNet V2.2, whole image, session 03 (cnn_test 3,000), study 20261029-N2-combined-247dfd7"
+  },
+  "n2_combined_face_crop": {
+   "path": "results/n2/20261029-N2-combined-247dfd7/face_crop/scores_test.csv",
+   "sha256": "cc22b93edbed0fb4a4c725fcbb39f789b01722b577d88fed438afd1ec04e448e",
+   "sums": "results/n2/20261029-N2-combined-247dfd7/SHA256SUMS",
+   "sums_sha256": "bfa3e2572d1be6880d62f87233dd206723d9a25a3bff6c9835f7b20fb8b73411",
+   "set": "cnn_test",
+   "rows": 3000,
+   "filter": {
+    "variant": "face_crop"
+   },
+   "rejected_vs_accepted": false,
+   "label": "N2 part 2, combined AttackNet V2.2, face crop, session 03 (cnn_test 3,000), study 20261029-N2-combined-247dfd7"
+  },
+  "c1_livenessnet__nuaa": {
+   "path": "export/drive/02_Experiments/C1/20260928-C1-seed42-a80f6f9/scores.csv",
+   "sha256": "0a52d875eaeabe61173162dd645ec415349822e9855572b0c5c22bf3db594ed0",
+   "sums": "export/drive/02_Experiments/C1/20260928-C1-seed42-a80f6f9/SHA256SUMS",
+   "sums_sha256": "c32099d24182e380602b523ac153d8f69bc379e2e628a812100a1dd460912bab",
+   "set": "c1",
+   "rows": 300,
+   "filter": {
+    "analyzer_id": "livenessnet__nuaa"
+   },
+   "rejected_vs_accepted": true,
+   "label": "C1 LivenessNet (NUAA checkpoint of 2026-09-12), session 03 (c1 300), run 20260928-C1-seed42-a80f6f9"
+  },
+  "c1_attacknet_v1__nuaa": {
+   "path": "export/drive/02_Experiments/C1/20260928-C1-seed42-a80f6f9/scores.csv",
+   "sha256": "0a52d875eaeabe61173162dd645ec415349822e9855572b0c5c22bf3db594ed0",
+   "sums": "export/drive/02_Experiments/C1/20260928-C1-seed42-a80f6f9/SHA256SUMS",
+   "sums_sha256": "c32099d24182e380602b523ac153d8f69bc379e2e628a812100a1dd460912bab",
+   "set": "c1",
+   "rows": 300,
+   "filter": {
+    "analyzer_id": "attacknet_v1__nuaa"
+   },
+   "rejected_vs_accepted": true,
+   "label": "C1 AttackNet V1 (NUAA checkpoint of 2026-09-12), session 03 (c1 300), run 20260928-C1-seed42-a80f6f9"
+  },
+  "c1_attacknet_v2_1__nuaa": {
+   "path": "export/drive/02_Experiments/C1/20260928-C1-seed42-a80f6f9/scores.csv",
+   "sha256": "0a52d875eaeabe61173162dd645ec415349822e9855572b0c5c22bf3db594ed0",
+   "sums": "export/drive/02_Experiments/C1/20260928-C1-seed42-a80f6f9/SHA256SUMS",
+   "sums_sha256": "c32099d24182e380602b523ac153d8f69bc379e2e628a812100a1dd460912bab",
+   "set": "c1",
+   "rows": 300,
+   "filter": {
+    "analyzer_id": "attacknet_v2_1__nuaa"
+   },
+   "rejected_vs_accepted": true,
+   "label": "C1 AttackNet V2.1 (NUAA checkpoint of 2026-09-12), session 03 (c1 300), run 20260928-C1-seed42-a80f6f9"
+  },
+  "c1_attacknet_v2_2__nuaa": {
+   "path": "export/drive/02_Experiments/C1/20260928-C1-seed42-a80f6f9/scores.csv",
+   "sha256": "0a52d875eaeabe61173162dd645ec415349822e9855572b0c5c22bf3db594ed0",
+   "sums": "export/drive/02_Experiments/C1/20260928-C1-seed42-a80f6f9/SHA256SUMS",
+   "sums_sha256": "c32099d24182e380602b523ac153d8f69bc379e2e628a812100a1dd460912bab",
+   "set": "c1",
+   "rows": 300,
+   "filter": {
+    "analyzer_id": "attacknet_v2_2__nuaa"
+   },
+   "rejected_vs_accepted": true,
+   "label": "C1 AttackNet V2.2 (NUAA checkpoint of 2026-09-12), session 03 (c1 300), run 20260928-C1-seed42-a80f6f9"
+  }
+ },
+ "face_boxes": {
+  "path": "results/c1crop/20261102-C1CROP-f6747cc/frames.csv",
+  "sha256": "2e05bd9bf971edce23a3b49a8e8e4434ce8e09fc03f08360e4f5de92d01d5bb8",
+  "sums": "results/c1crop/20261102-C1CROP-f6747cc/SHA256SUMS",
+  "sums_sha256": "e058073c0d3c732bb64a29337fb13910d670cf230e5aa9a6c5c41d6f89c4a9b0",
+  "set": "c1",
+  "extractors": [
+   "cache_0ac7143",
+   "c1_a80f6f9"
+  ],
+  "rows": 600,
+  "origin": "C1 crop check 20261102-C1CROP-f6747cc: RetinaFace boxes of the 300 C1 images with the cache extractor and the C1 extractor"
+ },
+ "sets": {
+  "official_train": "nuaa_official_train.csv (sessions 01-02, 9 subjects)",
+  "official_test": "nuaa_official_test.csv (session 03, 16 subjects)",
+  "cnn_train": "fitting frames of the NUAA CNNs",
+  "cnn_es": "early-stopping frames",
+  "cnn_test": "the 3,000 test frames of N1 and N2",
+  "c1": "the 300 C1 images (manifest v2, inside cnn_test)",
+  "target_491": "official_train minus cnn_train minus cnn_es (the N2 target)"
+ },
+ "expected": {
+  "n_images": 12614,
+  "n_subjects": 16,
+  "n_cache_frames": 6000,
+  "n_target_491": 491
+ },
+ "outputs": {
+  "public": "aggregate.json, aggregate.md, figure_distributions.png (if matplotlib is available), SHA256SUMS: no keys, no image hashes, no subject identifiers",
+  "restricted": "per_image_raw.csv, per_image_crop.csv, per_subject.csv, per_subject_auroc.csv, public_SHA256SUMS.sha256, SHA256SUMS"
+ }
+}
