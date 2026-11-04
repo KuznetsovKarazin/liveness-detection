@@ -1,0 +1,115 @@
+{
+ "schema": "nuaa-folds-n1-compare-config/1",
+ "task": "Descriptive comparison of the LivenessNet run with four subject folds and three training seeds (20261103-FOLDSRUN-e174812) and of N1 (20261024-N1-LivenessNet-fb93496) on the same 3,000 frames of the manifest nuaa_cnn_test, from the existing per-frame scores and the thresholds already frozen: per seed, the metrics of both experiments, their differences, a paired bootstrap over subjects, the paired decisions per frame and counts per subject. No training, no inference, no image read, no new threshold.",
+ "request": {
+  "date": "2026-11-04",
+  "card": "C2",
+  "text": "coordinator, C2 card, 4 November 2026: 'il confronto descrittivo con N1 sugli stessi 3.000 ID, usando gli score esistenti e le soglie già congelate'"
+ },
+ "manifest": {
+  "folder": "results/m2/manifests",
+  "file": "nuaa_cnn_test.csv",
+  "sha256": "ce9669dccae37041e778ff7bcba5f4cef08fa79f50d65be84806b084c5d95748",
+  "rows": 3000,
+  "n_bona_fide": 1500,
+  "n_attack": 1500,
+  "n_subjects": 16,
+  "session": "03"
+ },
+ "n1_training_manifests": {
+  "files": {
+   "cnn_train": {
+    "file": "nuaa_cnn_train.csv",
+    "sha256": "6d46ec7da7bfc32b1cce9ed3e331f8ed4377e5fc2df31e1b77ac7f6a0c2bc33c"
+   },
+   "cnn_es": {
+    "file": "nuaa_cnn_early_stopping.csv",
+    "sha256": "17282be8ef300e5e178ae87cd137ffd875786f1b353924e7cfb6eb14db1584c1"
+   }
+  },
+  "sessions": [
+   "01",
+   "02"
+  ],
+  "training_subjects_in_set": 9
+ },
+ "schema_config": {
+  "path": "delivery/folds/nuaa_subject_folds.json",
+  "sha256": "d1d43c148f762965c5ae367a0de1c59770324f7840034fd5a6c7fad0a14e73e8"
+ },
+ "folds_run": {
+  "run_id": "20261103-FOLDSRUN-e174812",
+  "folder": "results/foldsrun/20261103-FOLDSRUN-e174812",
+  "status_sha256": "1e5447d5d69af7923bad973b9f23f3b90609442146eac24388809adb53a0a161",
+  "public_sums_sha256": "11abd9e88f997468e7d4b61f6b2ea9c2732998318742eb2bf7c04662b4269a86",
+  "restricted_sums_sha256": "1204039d7391109caaf52aea28fbfda50c635e56521b0cc3170043aacac19d63",
+  "k": 4
+ },
+ "n1_run": {
+  "run_id": "20261024-N1-LivenessNet-fb93496",
+  "folder": "results/n1/20261024-N1-LivenessNet-fb93496",
+  "sha256sums_sha256": "668e3fec4b68758741160c00850a648db8669f64881f104048b631fbea07ace0",
+  "threshold": 0.5
+ },
+ "train_seeds": [
+  42,
+  43,
+  44
+ ],
+ "decision": "attack if score_attack > threshold (tie = bona fide)",
+ "metrics": {
+  "per_seed": "on the 3,000 frames, per seed: n bona fide and attacks, rejected bona fide and accepted attacks, BPCER, APCER and ACER at 0.5 for both experiments and at the frozen dev threshold of the fold that scored the frame for the folds run; AUROC of both",
+  "auroc": "Mann-Whitney U with ties counted 0.5, score_attack as the separator, attack positive; for the folds run the scores of the four fold models are pooled",
+  "differences": "folds minus N1 per seed: ACER at 0.5 minus N1 ACER at 0.5, ACER at the dev thresholds minus N1 ACER at 0.5, AUROC minus N1 AUROC",
+  "summary": "median and range over the three seeds of every rate, AUROC and difference; no seed selection",
+  "paired_frames": "per seed and threshold (0.5; dev for the folds run, N1 always at 0.5), per class: frames correct in both experiments, only in N1, only in the folds run, in neither; frames whose decision differs",
+  "per_subject": "per seed and subject: errors, error rate and ACER (both classes only) of the two experiments, AUROC (restricted per_subject.csv); public: counts of subjects with the folds run lower, equal or higher than N1"
+ },
+ "bootstrap": {
+  "resamples": 1000,
+  "seed": 0,
+  "percentiles": [
+   2.5,
+   97.5
+  ],
+  "min_subjects": 5,
+  "recipe": "generator numpy.random.default_rng(0) (PCG64); subjects in ascending identifier order; at every resample integers(0, n, n) with n = the number of subjects (16); the generator restarts from 0 for every training seed (the same 1,000 resamples for 42, 43 and 44); every metric computed on the pooled frames of the resampled subjects, not as a mean of per-subject values; the same subject indices for both experiments; percentiles 2.5 and 97.5 with np.percentile, linear interpolation; a resample without a class does not count for the metrics that need it; no interval with fewer than 5 subjects"
+ },
+ "control_values": {
+  "source": "coordinator, C2 card, 4 November 2026, computed from the test scores of the folds run (ACER 10.90 / 15.00 / 10.00 % at 0.5, 9.53 / 15.30 / 11.70 % at the dev thresholds, AUROC 0.93851 / 0.95268 / 0.96701 for seeds 42 / 43 / 44)",
+  "acer_05_percent": [
+   10.9,
+   15.0,
+   10.0
+  ],
+  "acer_dev_percent": [
+   9.53,
+   15.3,
+   11.7
+  ],
+  "auroc": [
+   0.93851,
+   0.95268,
+   0.96701
+  ],
+  "comparison": "agreement at the digits given by the coordinator: round(100 * ACER, 2) equal to the given percentage, round(AUROC, 5) equal to the given AUROC"
+ },
+ "declarations": {
+  "descriptive": true,
+  "post_hoc": true,
+  "no_training": true,
+  "no_inference": true,
+  "no_images_read": true,
+  "no_new_threshold": true,
+  "training_roles": "The training roles differ: N1 was trained on 9 subjects (sessions 01-02 of the official train list), and 9 of the 16 subjects of the 3,000 frames are those training subjects, seen in other sessions; in the folds run every frame is scored by the model of the fold that held its subject out, so none of the 16 subjects was in the training of the model that scored it (fitting on the 8 subjects of two other folds with every session represented, dev on the 4 subjects of the next fold).",
+  "auroc_four_models": "The AUROC of the folds run pools the scores of four different models (one per fold) on one ranking; it is not the AUROC of a single model.",
+  "n1_threshold": "N1 has only the fixed threshold 0.5; the dev difference compares the folds run at its frozen dev thresholds with N1 at 0.5",
+  "indicative": "Indicative: the 3,000 frames are the fixed spread sample of session 03 on which N1 was tested (the 300 frames of C1 are inside it), correlated within subject and capture; three seeds give a range, not a confidence interval; the bootstrap over 16 subjects is coarse, and subject-level ACER is defined only for subjects with both classes.",
+  "no_causality": "No causal reading: the two experiments differ in training subjects, sessions, sample sizes, dev sets and thresholds at once; a difference is an association with the whole design, not with one factor.",
+  "limits": "One dataset, one attack type (print); post hoc comparison after both runs, requested by the coordinator; no statistical test."
+ },
+ "outputs": {
+  "public": "aggregate.json, aggregate.md, SHA256SUMS: per seed and summary metrics, differences, bootstrap intervals, paired decision tables, counts of subjects; no key, no subject identifier",
+  "restricted": "paired_frames.csv (per seed and frame: key, subject, session, label, N1 score and decision, fold, fold score, dev threshold, decisions at 0.5 and dev), per_subject.csv, public_SHA256SUMS.sha256, SHA256SUMS"
+ }
+}

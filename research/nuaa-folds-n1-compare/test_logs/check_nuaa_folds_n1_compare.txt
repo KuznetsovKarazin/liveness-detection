@@ -1,0 +1,166 @@
+# macOS, Python 3.11.16, NumPy 1.26.4, 2026-11-04 18:21 CET, code of commit 1e8c056 (scripts identical to 3b3bcca); run from the development repository root with the real inputs present
+$ .venv/bin/python -I scripts/check_nuaa_folds_n1_compare.py -v
+test_control_auroc_not_reproduced (__main__.TestAnchors.test_control_auroc_not_reproduced) ... ok
+test_control_values_agree_at_given_digits (__main__.TestAnchors.test_control_values_agree_at_given_digits) ... ok
+test_control_values_not_reproduced (__main__.TestAnchors.test_control_values_not_reproduced) ... ok
+test_folds_anchor_auroc (__main__.TestAnchors.test_folds_anchor_auroc) ... ok
+test_folds_anchor_count (__main__.TestAnchors.test_folds_anchor_count) ... ok
+test_folds_anchor_missing (__main__.TestAnchors.test_folds_anchor_missing) ... ok
+test_folds_anchor_rate (__main__.TestAnchors.test_folds_anchor_rate) ... ok
+test_n1_aggregate_anchor (__main__.TestAnchors.test_n1_aggregate_anchor) ... ok
+test_n1_anchor_apcer (__main__.TestAnchors.test_n1_anchor_apcer) ... ok
+test_n1_metrics_anchor (__main__.TestAnchors.test_n1_metrics_anchor) ... ok
+test_bootstrap (__main__.TestConfig.test_bootstrap) ... ok
+test_bootstrap_recipe (__main__.TestConfig.test_bootstrap_recipe) ... ok
+test_config_symlink (__main__.TestConfig.test_config_symlink) ... ok
+test_control_comparison (__main__.TestConfig.test_control_comparison) ... ok
+test_control_values_shape (__main__.TestConfig.test_control_values_shape) ... ok
+test_decision (__main__.TestConfig.test_decision) ... ok
+test_declaration_flag (__main__.TestConfig.test_declaration_flag) ... ok
+test_declaration_keys (__main__.TestConfig.test_declaration_keys) ... ok
+test_folds_k (__main__.TestConfig.test_folds_k) ... ok
+test_manifest_counts_add_up (__main__.TestConfig.test_manifest_counts_add_up) ... ok
+test_manifest_spec (__main__.TestConfig.test_manifest_spec) ... ok
+test_missing_field (__main__.TestConfig.test_missing_field) ... ok
+test_n1_threshold (__main__.TestConfig.test_n1_threshold) ... ok
+test_request (__main__.TestConfig.test_request) ... ok
+test_schema (__main__.TestConfig.test_schema) ... ok
+test_seeds (__main__.TestConfig.test_seeds) ... ok
+test_sha_fields (__main__.TestConfig.test_sha_fields) ... ok
+test_unknown_field (__main__.TestConfig.test_unknown_field) ... ok
+test_world_passes (__main__.TestConfig.test_world_passes) ... ok
+test_every_branch_fails (__main__.TestConfigBranches.test_every_branch_fails) ... ok
+test_not_an_object (__main__.TestConfigBranches.test_not_an_object) ... ok
+test_not_json (__main__.TestConfigBranches.test_not_json) ... ok
+test_delivered_configuration (__main__.TestDelivered.test_delivered_configuration) ... ok
+test_aggregate_not_as_listed (__main__.TestFoldsRun.test_aggregate_not_as_listed) ... ok
+test_aggregate_run_id (__main__.TestFoldsRun.test_aggregate_run_id) ... ok
+test_checkpoint_not_listed (__main__.TestFoldsRun.test_checkpoint_not_listed) ... ok
+test_checkpoint_of_row (__main__.TestFoldsRun.test_checkpoint_of_row) ... ok
+test_columns (__main__.TestFoldsRun.test_columns) ... ok
+test_folds_differ_between_seeds (__main__.TestFoldsRun.test_folds_differ_between_seeds) ... ok
+test_key_missing (__main__.TestFoldsRun.test_key_missing) ... ok
+test_key_twice (__main__.TestFoldsRun.test_key_twice) ... ok
+test_label_range (__main__.TestFoldsRun.test_label_range) ... ok
+test_prediction_05 (__main__.TestFoldsRun.test_prediction_05) ... ok
+test_prediction_dev (__main__.TestFoldsRun.test_prediction_dev) ... ok
+test_public_sums (__main__.TestFoldsRun.test_public_sums) ... ok
+test_restricted_sums (__main__.TestFoldsRun.test_restricted_sums) ... ok
+test_row_differs_from_manifest (__main__.TestFoldsRun.test_row_differs_from_manifest) ... ok
+test_row_fold (__main__.TestFoldsRun.test_row_fold) ... ok
+test_row_role (__main__.TestFoldsRun.test_row_role) ... ok
+test_row_seed (__main__.TestFoldsRun.test_row_seed) ... ok
+test_row_session_differs_from_manifest (__main__.TestFoldsRun.test_row_session_differs_from_manifest) ... ok
+test_score_file_not_listed (__main__.TestFoldsRun.test_score_file_not_listed) ... ok
+test_score_file_sha (__main__.TestFoldsRun.test_score_file_sha) ... ok
+test_score_nan (__main__.TestFoldsRun.test_score_nan) ... ok
+test_score_not_a_number (__main__.TestFoldsRun.test_score_not_a_number) ... ok
+test_score_outside_range (__main__.TestFoldsRun.test_score_outside_range) ... ok
+test_status_anchors_differ_from_config (__main__.TestFoldsRun.test_status_anchors_differ_from_config) ... ok
+test_status_not_pass (__main__.TestFoldsRun.test_status_not_pass) ... ok
+test_status_run_id (__main__.TestFoldsRun.test_status_run_id) ... ok
+test_status_sha (__main__.TestFoldsRun.test_status_sha) ... ok
+test_subject_in_two_folds (__main__.TestFoldsRun.test_subject_in_two_folds) ... ok
+test_threshold_checkpoint (__main__.TestFoldsRun.test_threshold_checkpoint) ... ok
+test_threshold_dev_of_row (__main__.TestFoldsRun.test_threshold_dev_of_row) ... ok
+test_threshold_dev_text (__main__.TestFoldsRun.test_threshold_dev_text) ... ok
+test_threshold_file_sha (__main__.TestFoldsRun.test_threshold_file_sha) ... ok
+test_threshold_not_listed (__main__.TestFoldsRun.test_threshold_not_listed) ... ok
+test_threshold_of_another_fold (__main__.TestFoldsRun.test_threshold_of_another_fold) ... ok
+test_threshold_of_another_seed (__main__.TestFoldsRun.test_threshold_of_another_seed) ... ok
+test_threshold_set (__main__.TestFoldsRun.test_threshold_set) ... ok
+test_threshold_sha_of_row (__main__.TestFoldsRun.test_threshold_sha_of_row) ... ok
+test_tie_at_05_is_bona_fide (__main__.TestFoldsRun.test_tie_at_05_is_bona_fide) ... ok
+test_tie_at_dev_is_bona_fide (__main__.TestFoldsRun.test_tie_at_dev_is_bona_fide) ... ok
+test_empty_score_file (__main__.TestFormats.test_empty_score_file) ... ok
+test_folds_public_aggregate_unlisted (__main__.TestFormats.test_folds_public_aggregate_unlisted) ... ok
+test_n1_aggregate_run_id (__main__.TestFormats.test_n1_aggregate_run_id) ... ok
+test_n1_metrics_run_id (__main__.TestFormats.test_n1_metrics_run_id) ... ok
+test_n1_metrics_sha (__main__.TestFormats.test_n1_metrics_sha) ... ok
+test_n1_weights_malformed (__main__.TestFormats.test_n1_weights_malformed) ... ok
+test_not_utf8 (__main__.TestFormats.test_not_utf8) ... ok
+test_ragged_csv (__main__.TestFormats.test_ragged_csv) ... ok
+test_sums_listed_twice (__main__.TestFormats.test_sums_listed_twice) ... ok
+test_sums_malformed_line (__main__.TestFormats.test_sums_malformed_line) ... ok
+test_threshold_not_an_object (__main__.TestFormats.test_threshold_not_an_object) ... ok
+test_threshold_value_not_a_number (__main__.TestFormats.test_threshold_value_not_a_number) ... ok
+test_manifest_counts (__main__.TestManifests.test_manifest_counts) ... ok
+test_manifest_duplicated_content (__main__.TestManifests.test_manifest_duplicated_content) ... ok
+test_manifest_duplicated_key (__main__.TestManifests.test_manifest_duplicated_key) ... ok
+test_manifest_invalid_row (__main__.TestManifests.test_manifest_invalid_row) ... ok
+test_manifest_session (__main__.TestManifests.test_manifest_session) ... ok
+test_manifest_sha (__main__.TestManifests.test_manifest_sha) ... ok
+test_manifest_symlink (__main__.TestManifests.test_manifest_symlink) ... ok
+test_schema_registers_another_cnn_test (__main__.TestManifests.test_schema_registers_another_cnn_test) ... ok
+test_schema_registers_another_training_manifest (__main__.TestManifests.test_schema_registers_another_training_manifest) ... ok
+test_schema_sha_fixed_in_code (__main__.TestManifests.test_schema_sha_fixed_in_code) ... ok
+test_schema_sha_of_config (__main__.TestManifests.test_schema_sha_of_config) ... ok
+test_training_manifest_session (__main__.TestManifests.test_training_manifest_session) ... ok
+test_training_manifest_sha (__main__.TestManifests.test_training_manifest_sha) ... ok
+test_training_manifest_shares_keys (__main__.TestManifests.test_training_manifest_shares_keys) ... ok
+test_training_subjects_in_set (__main__.TestManifests.test_training_subjects_in_set) ... ok
+test_auroc_matches_pairwise_reference (__main__.TestMetrics.test_auroc_matches_pairwise_reference) ... ok
+test_auroc_ties_count_half (__main__.TestMetrics.test_auroc_ties_count_half) ... ok
+test_bootstrap_restarts_for_every_call (__main__.TestMetrics.test_bootstrap_restarts_for_every_call) ... ok
+test_bootstrap_skips_resamples_without_a_class (__main__.TestMetrics.test_bootstrap_skips_resamples_without_a_class) ... ok
+test_bootstrap_too_few_subjects (__main__.TestMetrics.test_bootstrap_too_few_subjects) ... ok
+test_decision_table_by_hand (__main__.TestMetrics.test_decision_table_by_hand) ... ok
+test_n1_auroc_note (__main__.TestMetrics.test_n1_auroc_note) ... ok
+test_rates (__main__.TestMetrics.test_rates) ... ok
+test_summary (__main__.TestMetrics.test_summary) ... ok
+test_aggregate_not_passed (__main__.TestN1Run.test_aggregate_not_passed) ... ok
+test_aggregate_threshold (__main__.TestN1Run.test_aggregate_threshold) ... ok
+test_columns (__main__.TestN1Run.test_columns) ... ok
+test_key_missing (__main__.TestN1Run.test_key_missing) ... ok
+test_key_not_in_set (__main__.TestN1Run.test_key_not_in_set) ... ok
+test_key_twice (__main__.TestN1Run.test_key_twice) ... ok
+test_label_range (__main__.TestN1Run.test_label_range) ... ok
+test_metrics_seed (__main__.TestN1Run.test_metrics_seed) ... ok
+test_prediction (__main__.TestN1Run.test_prediction) ... ok
+test_row_checkpoint (__main__.TestN1Run.test_row_checkpoint) ... ok
+test_row_config (__main__.TestN1Run.test_row_config) ... ok
+test_row_differs_from_manifest (__main__.TestN1Run.test_row_differs_from_manifest) ... ok
+test_row_run_id (__main__.TestN1Run.test_row_run_id) ... ok
+test_row_seed (__main__.TestN1Run.test_row_seed) ... ok
+test_score_range (__main__.TestN1Run.test_score_range) ... ok
+test_scores_sha (__main__.TestN1Run.test_scores_sha) ... ok
+test_scores_sha_in_aggregate (__main__.TestN1Run.test_scores_sha_in_aggregate) ... ok
+test_status_not_listed (__main__.TestN1Run.test_status_not_listed) ... ok
+test_status_not_pass (__main__.TestN1Run.test_status_not_pass) ... ok
+test_sums_sha (__main__.TestN1Run.test_sums_sha) ... ok
+test_tie_is_bona_fide (__main__.TestN1Run.test_tie_is_bona_fide) ... ok
+test_weights_differ (__main__.TestN1Run.test_weights_differ) ... ok
+test_real_check_inputs_and_coordinator_values (__main__.TestRealInputs.test_real_check_inputs_and_coordinator_values) ... 
+   real inputs: acer_05 0.10900/0.15000/0.10000; acer_dev 0.09533/0.15300/0.11700; auroc 0.93851/0.95268/0.96701; n1_acer 0.43833/0.51433/0.40100; n1_auroc 0.34849/0.37544/0.45822
+ok
+test_bootstrap_matches_independent_resampling (__main__.TestRun.test_bootstrap_matches_independent_resampling) ... ok
+test_check_inputs_writes_nothing (__main__.TestRun.test_check_inputs_writes_nothing) ... ok
+test_configuration_inside_run_folder_refused (__main__.TestRun.test_configuration_inside_run_folder_refused) ... ok
+test_dirty_tree_dev_suffix (__main__.TestRun.test_dirty_tree_dev_suffix) ... ok
+test_existing_status_refused (__main__.TestRun.test_existing_status_refused) ... ok
+test_failure_after_writes_removes_outputs (__main__.TestRun.test_failure_after_writes_removes_outputs) ... ok
+test_failure_removes_previous_outputs (__main__.TestRun.test_failure_removes_previous_outputs) ... ok
+test_foreign_entry_refused (__main__.TestRun.test_foreign_entry_refused) ... ok
+test_input_inside_run_folder_refused (__main__.TestRun.test_input_inside_run_folder_refused) ... ok
+test_needs_authorization (__main__.TestRun.test_needs_authorization) ... ok
+test_out_root_inside_repository_refused (__main__.TestRun.test_out_root_inside_repository_refused) ... ok
+test_out_root_symlink_refused (__main__.TestRun.test_out_root_symlink_refused) ... ok
+test_pass_outputs_and_known_answers (__main__.TestRun.test_pass_outputs_and_known_answers) ... ok
+test_previous_outputs_invalidated_at_start (__main__.TestRun.test_previous_outputs_invalidated_at_start) ... ok
+test_public_files_have_no_identifiers (__main__.TestRun.test_public_files_have_no_identifiers) ... ok
+test_public_scan_blocks_identifiers (__main__.TestRun.test_public_scan_blocks_identifiers) ... ok
+test_public_scan_rules (__main__.TestRun.test_public_scan_rules) ... ok
+test_run_id_and_date (__main__.TestRun.test_run_id_and_date) ... ok
+test_unexpected_error_fails_cleanly (__main__.TestRun.test_unexpected_error_fails_cleanly) ... ok
+test_declared_skips_only (__main__.ZZRepositoryUntouched.test_declared_skips_only) ... ok
+
+----------------------------------------------------------------------
+Ran 151 tests in 5.191s
+
+OK
+tests run: 151, failures: 0, errors: 0, skipped: 0
+RESULT: PASS
+
+$ .venv/bin/python -I scripts/nuaa_folds_n1_compare.py check-inputs
+CHECK-INPUTS: configuration 78fd1424959f (delivered: True), manifest cnn_test 3000 rows (1500/1500, 16 subjects, 9 of them N1 training subjects), folds run 20261103-FOLDSRUN-e174812 (12 test score files, 3000/3000/3000 cnn_test rows per seed), N1 20261024-N1-LivenessNet-fb93496 (3000/3000/3000 rows per seed), anchors reproduced; control values reproduced: acer_05 0.10900/0.15000/0.10000; acer_dev 0.09533/0.15300/0.11700; auroc 0.93851/0.95268/0.96701; nothing written
+RESULT: PASS (check-inputs)

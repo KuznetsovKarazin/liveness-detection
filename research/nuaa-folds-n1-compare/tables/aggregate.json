@@ -1,0 +1,765 @@
+{
+ "run_id": "20261104-FOLDSCOMPARE-3b3bcca",
+ "commit": "3b3bcca",
+ "dirty": false,
+ "config_sha256": "78fd1424959f807328ad979aa1381cce2488453b5315f030e60888dcc4b003ae",
+ "delivered_configuration": true,
+ "command": "run",
+ "finished": "2026-11-04T18:21:06+0100",
+ "request": {
+  "date": "2026-11-04",
+  "card": "C2",
+  "text": "coordinator, C2 card, 4 November 2026: 'il confronto descrittivo con N1 sugli stessi 3.000 ID, usando gli score esistenti e le soglie gi\u00e0 congelate'"
+ },
+ "task": "Descriptive comparison of the LivenessNet run with four subject folds and three training seeds (20261103-FOLDSRUN-e174812) and of N1 (20261024-N1-LivenessNet-fb93496) on the same 3,000 frames of the manifest nuaa_cnn_test, from the existing per-frame scores and the thresholds already frozen: per seed, the metrics of both experiments, their differences, a paired bootstrap over subjects, the paired decisions per frame and counts per subject. No training, no inference, no image read, no new threshold.",
+ "declarations": {
+  "descriptive": true,
+  "post_hoc": true,
+  "no_training": true,
+  "no_inference": true,
+  "no_images_read": true,
+  "no_new_threshold": true,
+  "training_roles": "The training roles differ: N1 was trained on 9 subjects (sessions 01-02 of the official train list), and 9 of the 16 subjects of the 3,000 frames are those training subjects, seen in other sessions; in the folds run every frame is scored by the model of the fold that held its subject out, so none of the 16 subjects was in the training of the model that scored it (fitting on the 8 subjects of two other folds with every session represented, dev on the 4 subjects of the next fold).",
+  "auroc_four_models": "The AUROC of the folds run pools the scores of four different models (one per fold) on one ranking; it is not the AUROC of a single model.",
+  "n1_threshold": "N1 has only the fixed threshold 0.5; the dev difference compares the folds run at its frozen dev thresholds with N1 at 0.5",
+  "indicative": "Indicative: the 3,000 frames are the fixed spread sample of session 03 on which N1 was tested (the 300 frames of C1 are inside it), correlated within subject and capture; three seeds give a range, not a confidence interval; the bootstrap over 16 subjects is coarse, and subject-level ACER is defined only for subjects with both classes.",
+  "no_causality": "No causal reading: the two experiments differ in training subjects, sessions, sample sizes, dev sets and thresholds at once; a difference is an association with the whole design, not with one factor.",
+  "limits": "One dataset, one attack type (print); post hoc comparison after both runs, requested by the coordinator; no statistical test."
+ },
+ "decision": "attack if score_attack > threshold (tie = bona fide)",
+ "bootstrap": {
+  "resamples": 1000,
+  "seed": 0,
+  "percentiles": [
+   2.5,
+   97.5
+  ],
+  "min_subjects": 5,
+  "recipe": "generator numpy.random.default_rng(0) (PCG64); subjects in ascending identifier order; at every resample integers(0, n, n) with n = the number of subjects (16); the generator restarts from 0 for every training seed (the same 1,000 resamples for 42, 43 and 44); every metric computed on the pooled frames of the resampled subjects, not as a mean of per-subject values; the same subject indices for both experiments; percentiles 2.5 and 97.5 with np.percentile, linear interpolation; a resample without a class does not count for the metrics that need it; no interval with fewer than 5 subjects"
+ },
+ "metrics": {
+  "per_seed": "on the 3,000 frames, per seed: n bona fide and attacks, rejected bona fide and accepted attacks, BPCER, APCER and ACER at 0.5 for both experiments and at the frozen dev threshold of the fold that scored the frame for the folds run; AUROC of both",
+  "auroc": "Mann-Whitney U with ties counted 0.5, score_attack as the separator, attack positive; for the folds run the scores of the four fold models are pooled",
+  "differences": "folds minus N1 per seed: ACER at 0.5 minus N1 ACER at 0.5, ACER at the dev thresholds minus N1 ACER at 0.5, AUROC minus N1 AUROC",
+  "summary": "median and range over the three seeds of every rate, AUROC and difference; no seed selection",
+  "paired_frames": "per seed and threshold (0.5; dev for the folds run, N1 always at 0.5), per class: frames correct in both experiments, only in N1, only in the folds run, in neither; frames whose decision differs",
+  "per_subject": "per seed and subject: errors, error rate and ACER (both classes only) of the two experiments, AUROC (restricted per_subject.csv); public: counts of subjects with the folds run lower, equal or higher than N1"
+ },
+ "inputs": {
+  "manifest": {
+   "name": "cnn_test",
+   "sha256": "ce9669dccae37041e778ff7bcba5f4cef08fa79f50d65be84806b084c5d95748",
+   "rows": 3000,
+   "n_bona_fide": 1500,
+   "n_attack": 1500,
+   "n_subjects": 16,
+   "session": "03",
+   "schema_config_sha256": "d1d43c148f762965c5ae367a0de1c59770324f7840034fd5a6c7fad0a14e73e8",
+   "n1_training_subjects": 9,
+   "n1_training_subjects_in_set": 9
+  },
+  "folds_run": {
+   "run_id": "20261103-FOLDSRUN-e174812",
+   "status_sha256": "1e5447d5d69af7923bad973b9f23f3b90609442146eac24388809adb53a0a161",
+   "public_sums_sha256": "11abd9e88f997468e7d4b61f6b2ea9c2732998318742eb2bf7c04662b4269a86",
+   "restricted_sums_sha256": "1204039d7391109caaf52aea28fbfda50c635e56521b0cc3170043aacac19d63",
+   "score_files": 12,
+   "rows_per_seed": {
+    "42": 12614,
+    "43": 12614,
+    "44": 12614
+   },
+   "cnn_test_rows_per_seed": {
+    "42": 3000,
+    "43": 3000,
+    "44": 3000
+   },
+   "test_subjects_per_fold": {
+    "1": 4,
+    "2": 4,
+    "3": 4,
+    "4": 4
+   }
+  },
+  "n1_run": {
+   "run_id": "20261024-N1-LivenessNet-fb93496",
+   "sha256sums_sha256": "668e3fec4b68758741160c00850a648db8669f64881f104048b631fbea07ace0",
+   "config_sha256": "ffaf934b9a24ecc7ae9643ebadef318f566e12d8d6ea7935281754c0475ccfaa",
+   "rows_per_seed": {
+    "42": 3000,
+    "43": 3000,
+    "44": 3000
+   }
+  },
+  "anchors": {
+   "folds_run": "pooled_per_seed.all of aggregate.json recomputed from the 12 test score files",
+   "n1": "test_3000 of metrics.json and aggregate.json recomputed from scores_test.csv",
+   "tolerance": 1e-12
+  }
+ },
+ "code_sha256": {
+  "scripts/nuaa_folds_n1_compare.py": "f774cdc9509dd684f1b8b37f4902cae83929c007da8c609e716a94ce858d3594",
+  "scripts/m2_writers.py": "22760abc368dede3aa0a690a241f6622afe1ba586940422497db8a33994ee34a",
+  "scripts/path_guard.py": "e5fa9c835c23745ff932e157a44d3104eb9713d86bbdecc9cdbbd3caa7a7ee34",
+  "scripts/package_rules.py": "96ec7ffab4b089bac71fd18918fcd32af72d15980cdfa1361cc84bb43e0e4c11",
+  "scripts/nuaa_manifests.py": "a719ce2ed83479ab07883398d21eb1d869a4d4be273dda04b8cf34f8c99cfa44",
+  "scripts/select_threshold.py": "cacb709672c9c7be5cd68d61923e79bb640e1e8ee77a78864f6786577d07e93c",
+  "src/tesi_app/paths.py": "9af10e66def18f866f1a66a23d4877f058825bc42d49231e3195a45def7a16c9"
+ },
+ "per_seed": {
+  "42": {
+   "folds": {
+    "n": 3000,
+    "n_bona_fide": 1500,
+    "n_attack": 1500,
+    "accepted_attacks_05": 170,
+    "rejected_bona_fide_05": 157,
+    "apcer_05": 0.11333333333333333,
+    "bpcer_05": 0.10466666666666667,
+    "acer_05": 0.109,
+    "accepted_attacks_dev": 133,
+    "rejected_bona_fide_dev": 153,
+    "apcer_dev": 0.08866666666666667,
+    "bpcer_dev": 0.102,
+    "acer_dev": 0.09533333333333333,
+    "auroc": 0.9385095555555556
+   },
+   "n1": {
+    "n": 3000,
+    "n_bona_fide": 1500,
+    "n_attack": 1500,
+    "accepted_attacks_05": 160,
+    "rejected_bona_fide_05": 1155,
+    "apcer_05": 0.10666666666666667,
+    "bpcer_05": 0.77,
+    "acer_05": 0.43833333333333335,
+    "auroc": 0.3484928888888889
+   },
+   "difference_folds_minus_n1": {
+    "diff_acer_05": -0.32933333333333337,
+    "diff_acer_dev": -0.343,
+    "diff_auroc": 0.5900166666666666
+   },
+   "paired_decisions": {
+    "05": {
+     "bona_fide": {
+      "both_correct": 277,
+      "n1_only_correct": 68,
+      "folds_only_correct": 1066,
+      "both_wrong": 89
+     },
+     "attack": {
+      "both_correct": 1183,
+      "n1_only_correct": 157,
+      "folds_only_correct": 147,
+      "both_wrong": 13
+     },
+     "decisions_changed": 1438,
+     "n": 3000
+    },
+    "dev": {
+     "bona_fide": {
+      "both_correct": 279,
+      "n1_only_correct": 66,
+      "folds_only_correct": 1068,
+      "both_wrong": 87
+     },
+     "attack": {
+      "both_correct": 1215,
+      "n1_only_correct": 125,
+      "folds_only_correct": 152,
+      "both_wrong": 8
+     },
+     "decisions_changed": 1411,
+     "n": 3000
+    }
+   },
+   "per_subject_counts": {
+    "n_subjects": 16,
+    "with_both_classes": 8,
+    "comparison": {
+     "05": {
+      "error_rate": {
+       "folds_lower": 12,
+       "equal": 0,
+       "folds_higher": 4,
+       "not_defined": 0
+      },
+      "acer": {
+       "folds_lower": 5,
+       "equal": 0,
+       "folds_higher": 3,
+       "not_defined": 8
+      }
+     },
+     "dev": {
+      "error_rate": {
+       "folds_lower": 12,
+       "equal": 0,
+       "folds_higher": 4,
+       "not_defined": 0
+      },
+      "acer": {
+       "folds_lower": 5,
+       "equal": 0,
+       "folds_higher": 3,
+       "not_defined": 8
+      }
+     }
+    }
+   },
+   "test_subjects_per_fold": {
+    "1": 4,
+    "2": 4,
+    "3": 4,
+    "4": 4
+   }
+  },
+  "43": {
+   "folds": {
+    "n": 3000,
+    "n_bona_fide": 1500,
+    "n_attack": 1500,
+    "accepted_attacks_05": 213,
+    "rejected_bona_fide_05": 237,
+    "apcer_05": 0.142,
+    "bpcer_05": 0.158,
+    "acer_05": 0.15,
+    "accepted_attacks_dev": 256,
+    "rejected_bona_fide_dev": 203,
+    "apcer_dev": 0.17066666666666666,
+    "bpcer_dev": 0.13533333333333333,
+    "acer_dev": 0.153,
+    "auroc": 0.9526844444444444
+   },
+   "n1": {
+    "n": 3000,
+    "n_bona_fide": 1500,
+    "n_attack": 1500,
+    "accepted_attacks_05": 391,
+    "rejected_bona_fide_05": 1152,
+    "apcer_05": 0.26066666666666666,
+    "bpcer_05": 0.768,
+    "acer_05": 0.5143333333333333,
+    "auroc": 0.37544022222222223
+   },
+   "difference_folds_minus_n1": {
+    "diff_acer_05": -0.3643333333333333,
+    "diff_acer_dev": -0.3613333333333333,
+    "diff_auroc": 0.5772442222222223
+   },
+   "paired_decisions": {
+    "05": {
+     "bona_fide": {
+      "both_correct": 317,
+      "n1_only_correct": 31,
+      "folds_only_correct": 946,
+      "both_wrong": 206
+     },
+     "attack": {
+      "both_correct": 948,
+      "n1_only_correct": 161,
+      "folds_only_correct": 339,
+      "both_wrong": 52
+     },
+     "decisions_changed": 1477,
+     "n": 3000
+    },
+    "dev": {
+     "bona_fide": {
+      "both_correct": 326,
+      "n1_only_correct": 22,
+      "folds_only_correct": 971,
+      "both_wrong": 181
+     },
+     "attack": {
+      "both_correct": 918,
+      "n1_only_correct": 191,
+      "folds_only_correct": 326,
+      "both_wrong": 65
+     },
+     "decisions_changed": 1510,
+     "n": 3000
+    }
+   },
+   "per_subject_counts": {
+    "n_subjects": 16,
+    "with_both_classes": 8,
+    "comparison": {
+     "05": {
+      "error_rate": {
+       "folds_lower": 14,
+       "equal": 0,
+       "folds_higher": 2,
+       "not_defined": 0
+      },
+      "acer": {
+       "folds_lower": 7,
+       "equal": 0,
+       "folds_higher": 1,
+       "not_defined": 8
+      }
+     },
+     "dev": {
+      "error_rate": {
+       "folds_lower": 13,
+       "equal": 0,
+       "folds_higher": 3,
+       "not_defined": 0
+      },
+      "acer": {
+       "folds_lower": 7,
+       "equal": 0,
+       "folds_higher": 1,
+       "not_defined": 8
+      }
+     }
+    }
+   },
+   "test_subjects_per_fold": {
+    "1": 4,
+    "2": 4,
+    "3": 4,
+    "4": 4
+   }
+  },
+  "44": {
+   "folds": {
+    "n": 3000,
+    "n_bona_fide": 1500,
+    "n_attack": 1500,
+    "accepted_attacks_05": 65,
+    "rejected_bona_fide_05": 235,
+    "apcer_05": 0.043333333333333335,
+    "bpcer_05": 0.15666666666666668,
+    "acer_05": 0.1,
+    "accepted_attacks_dev": 139,
+    "rejected_bona_fide_dev": 212,
+    "apcer_dev": 0.09266666666666666,
+    "bpcer_dev": 0.14133333333333334,
+    "acer_dev": 0.11699999999999999,
+    "auroc": 0.9670086666666666
+   },
+   "n1": {
+    "n": 3000,
+    "n_bona_fide": 1500,
+    "n_attack": 1500,
+    "accepted_attacks_05": 72,
+    "rejected_bona_fide_05": 1131,
+    "apcer_05": 0.048,
+    "bpcer_05": 0.754,
+    "acer_05": 0.401,
+    "auroc": 0.45821866666666666
+   },
+   "difference_folds_minus_n1": {
+    "diff_acer_05": -0.30100000000000005,
+    "diff_acer_dev": -0.28400000000000003,
+    "diff_auroc": 0.50879
+   },
+   "paired_decisions": {
+    "05": {
+     "bona_fide": {
+      "both_correct": 275,
+      "n1_only_correct": 94,
+      "folds_only_correct": 990,
+      "both_wrong": 141
+     },
+     "attack": {
+      "both_correct": 1371,
+      "n1_only_correct": 57,
+      "folds_only_correct": 64,
+      "both_wrong": 8
+     },
+     "decisions_changed": 1205,
+     "n": 3000
+    },
+    "dev": {
+     "bona_fide": {
+      "both_correct": 275,
+      "n1_only_correct": 94,
+      "folds_only_correct": 1013,
+      "both_wrong": 118
+     },
+     "attack": {
+      "both_correct": 1305,
+      "n1_only_correct": 123,
+      "folds_only_correct": 56,
+      "both_wrong": 16
+     },
+     "decisions_changed": 1286,
+     "n": 3000
+    }
+   },
+   "per_subject_counts": {
+    "n_subjects": 16,
+    "with_both_classes": 8,
+    "comparison": {
+     "05": {
+      "error_rate": {
+       "folds_lower": 10,
+       "equal": 2,
+       "folds_higher": 4,
+       "not_defined": 0
+      },
+      "acer": {
+       "folds_lower": 4,
+       "equal": 1,
+       "folds_higher": 3,
+       "not_defined": 8
+      }
+     },
+     "dev": {
+      "error_rate": {
+       "folds_lower": 10,
+       "equal": 2,
+       "folds_higher": 4,
+       "not_defined": 0
+      },
+      "acer": {
+       "folds_lower": 4,
+       "equal": 1,
+       "folds_higher": 3,
+       "not_defined": 8
+      }
+     }
+    }
+   },
+   "test_subjects_per_fold": {
+    "1": 4,
+    "2": 4,
+    "3": 4,
+    "4": 4
+   }
+  }
+ },
+ "summary_over_seeds": {
+  "folds_bpcer_05": {
+   "values": [
+    0.10466666666666667,
+    0.158,
+    0.15666666666666668
+   ],
+   "median": 0.15666666666666668,
+   "min": 0.10466666666666667,
+   "max": 0.158
+  },
+  "folds_apcer_05": {
+   "values": [
+    0.11333333333333333,
+    0.142,
+    0.043333333333333335
+   ],
+   "median": 0.11333333333333333,
+   "min": 0.043333333333333335,
+   "max": 0.142
+  },
+  "folds_acer_05": {
+   "values": [
+    0.109,
+    0.15,
+    0.1
+   ],
+   "median": 0.109,
+   "min": 0.1,
+   "max": 0.15
+  },
+  "folds_bpcer_dev": {
+   "values": [
+    0.102,
+    0.13533333333333333,
+    0.14133333333333334
+   ],
+   "median": 0.13533333333333333,
+   "min": 0.102,
+   "max": 0.14133333333333334
+  },
+  "folds_apcer_dev": {
+   "values": [
+    0.08866666666666667,
+    0.17066666666666666,
+    0.09266666666666666
+   ],
+   "median": 0.09266666666666666,
+   "min": 0.08866666666666667,
+   "max": 0.17066666666666666
+  },
+  "folds_acer_dev": {
+   "values": [
+    0.09533333333333333,
+    0.153,
+    0.11699999999999999
+   ],
+   "median": 0.11699999999999999,
+   "min": 0.09533333333333333,
+   "max": 0.153
+  },
+  "folds_auroc": {
+   "values": [
+    0.9385095555555556,
+    0.9526844444444444,
+    0.9670086666666666
+   ],
+   "median": 0.9526844444444444,
+   "min": 0.9385095555555556,
+   "max": 0.9670086666666666
+  },
+  "n1_bpcer_05": {
+   "values": [
+    0.77,
+    0.768,
+    0.754
+   ],
+   "median": 0.768,
+   "min": 0.754,
+   "max": 0.77
+  },
+  "n1_apcer_05": {
+   "values": [
+    0.10666666666666667,
+    0.26066666666666666,
+    0.048
+   ],
+   "median": 0.10666666666666667,
+   "min": 0.048,
+   "max": 0.26066666666666666
+  },
+  "n1_acer_05": {
+   "values": [
+    0.43833333333333335,
+    0.5143333333333333,
+    0.401
+   ],
+   "median": 0.43833333333333335,
+   "min": 0.401,
+   "max": 0.5143333333333333
+  },
+  "n1_auroc": {
+   "values": [
+    0.3484928888888889,
+    0.37544022222222223,
+    0.45821866666666666
+   ],
+   "median": 0.37544022222222223,
+   "min": 0.3484928888888889,
+   "max": 0.45821866666666666
+  },
+  "diff_acer_05": {
+   "values": [
+    -0.32933333333333337,
+    -0.3643333333333333,
+    -0.30100000000000005
+   ],
+   "median": -0.32933333333333337,
+   "min": -0.3643333333333333,
+   "max": -0.30100000000000005
+  },
+  "diff_acer_dev": {
+   "values": [
+    -0.343,
+    -0.3613333333333333,
+    -0.28400000000000003
+   ],
+   "median": -0.343,
+   "min": -0.3613333333333333,
+   "max": -0.28400000000000003
+  },
+  "diff_auroc": {
+   "values": [
+    0.5900166666666666,
+    0.5772442222222223,
+    0.50879
+   ],
+   "median": 0.5772442222222223,
+   "min": 0.50879,
+   "max": 0.5900166666666666
+  }
+ },
+ "bootstrap_per_seed": {
+  "42": {
+   "n_subjects": 16,
+   "resamples": 1000,
+   "seed": 0,
+   "percentiles": [
+    2.5,
+    97.5
+   ],
+   "folds_acer_05": {
+    "low": 0.0244116905538082,
+    "high": 0.21481114291275757,
+    "valid_resamples": 1000
+   },
+   "folds_acer_dev": {
+    "low": 0.02146059425637225,
+    "high": 0.19315321407852176,
+    "valid_resamples": 1000
+   },
+   "folds_auroc": {
+    "low": 0.8649992637133865,
+    "high": 0.9960909810665696,
+    "valid_resamples": 1000
+   },
+   "n1_acer_05": {
+    "low": 0.2985381349020559,
+    "high": 0.5450066013196212,
+    "valid_resamples": 1000
+   },
+   "n1_auroc": {
+    "low": 0.1197013023387136,
+    "high": 0.633104423170857,
+    "valid_resamples": 1000
+   },
+   "diff_acer_05": {
+    "low": -0.4795633508662676,
+    "high": -0.15267116712153164,
+    "valid_resamples": 1000
+   },
+   "diff_acer_dev": {
+    "low": -0.4847089034197227,
+    "high": -0.1684466892222408,
+    "valid_resamples": 1000
+   },
+   "diff_auroc": {
+    "low": 0.28205196056001697,
+    "high": 0.8453240317412257,
+    "valid_resamples": 1000
+   }
+  },
+  "43": {
+   "n_subjects": 16,
+   "resamples": 1000,
+   "seed": 0,
+   "percentiles": [
+    2.5,
+    97.5
+   ],
+   "folds_acer_05": {
+    "low": 0.045294231091481015,
+    "high": 0.2942836390515666,
+    "valid_resamples": 1000
+   },
+   "folds_acer_dev": {
+    "low": 0.05198269783075099,
+    "high": 0.2897766923047756,
+    "valid_resamples": 1000
+   },
+   "folds_auroc": {
+    "low": 0.8601777407266301,
+    "high": 0.9967602614639419,
+    "valid_resamples": 1000
+   },
+   "n1_acer_05": {
+    "low": 0.3480468316178331,
+    "high": 0.6571689981613917,
+    "valid_resamples": 1000
+   },
+   "n1_auroc": {
+    "low": 0.14914235609212906,
+    "high": 0.6476115595027186,
+    "valid_resamples": 1000
+   },
+   "diff_acer_05": {
+    "low": -0.5270116950999397,
+    "high": -0.18411575835464628,
+    "valid_resamples": 1000
+   },
+   "diff_acer_dev": {
+    "low": -0.5206061347331217,
+    "high": -0.18555898296866494,
+    "valid_resamples": 1000
+   },
+   "diff_auroc": {
+    "low": 0.309019854182705,
+    "high": 0.8055621830529629,
+    "valid_resamples": 1000
+   }
+  },
+  "44": {
+   "n_subjects": 16,
+   "resamples": 1000,
+   "seed": 0,
+   "percentiles": [
+    2.5,
+    97.5
+   ],
+   "folds_acer_05": {
+    "low": 0.018215879533017083,
+    "high": 0.23094644357007646,
+    "valid_resamples": 1000
+   },
+   "folds_acer_dev": {
+    "low": 0.030788122868823382,
+    "high": 0.2438124232689903,
+    "valid_resamples": 1000
+   },
+   "folds_auroc": {
+    "low": 0.9075358701813666,
+    "high": 0.9989682871117497,
+    "valid_resamples": 1000
+   },
+   "n1_acer_05": {
+    "low": 0.2509541272923512,
+    "high": 0.5119042410456627,
+    "valid_resamples": 1000
+   },
+   "n1_auroc": {
+    "low": 0.2350068916482165,
+    "high": 0.7306738117923189,
+    "valid_resamples": 1000
+   },
+   "diff_acer_05": {
+    "low": -0.4599775148805468,
+    "high": -0.09451764627176115,
+    "valid_resamples": 1000
+   },
+   "diff_acer_dev": {
+    "low": -0.4439013351892788,
+    "high": -0.0814604090590852,
+    "valid_resamples": 1000
+   },
+   "diff_auroc": {
+    "low": 0.2094470350792565,
+    "high": 0.752475071159708,
+    "valid_resamples": 1000
+   }
+  }
+ },
+ "control_values": {
+  "source": "coordinator, C2 card, 4 November 2026, computed from the test scores of the folds run (ACER 10.90 / 15.00 / 10.00 % at 0.5, 9.53 / 15.30 / 11.70 % at the dev thresholds, AUROC 0.93851 / 0.95268 / 0.96701 for seeds 42 / 43 / 44)",
+  "control": {
+   "acer_05_percent": [
+    10.9,
+    15.0,
+    10.0
+   ],
+   "acer_dev_percent": [
+    9.53,
+    15.3,
+    11.7
+   ],
+   "auroc": [
+    0.93851,
+    0.95268,
+    0.96701
+   ]
+  },
+  "computed": {
+   "acer_05": [
+    0.109,
+    0.15,
+    0.1
+   ],
+   "acer_dev": [
+    0.09533333333333333,
+    0.153,
+    0.11699999999999999
+   ],
+   "auroc": [
+    0.9385095555555556,
+    0.9526844444444444,
+    0.9670086666666666
+   ]
+  },
+  "comparison": "agreement at the digits given by the coordinator: round(100 * ACER, 2) equal to the given percentage, round(AUROC, 5) equal to the given AUROC",
+  "reproduced": true
+ }
+}
