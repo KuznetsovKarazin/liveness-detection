@@ -1,8 +1,9 @@
 """
 Test di scripts/nuaa_synthesis.py su un albero research/ sintetico scritto in una cartella temporanea: nessun dato
-reale, nessuna dipendenza oltre la libreria standard. La fixture costruisce le otto sorgenti con numeri inventati,
-distinti per ogni sottoinsieme e coerenti fra loro; ogni test di coerenza guasta una sorgente per volta e verifica che
-build si fermi con il problema giusto; i test di costruzione confrontano ogni riga e ogni annesso con la fixture.
+reale, nessuna dipendenza oltre la libreria standard. La fixture costruisce le undici sorgenti (più quella facoltativa
+del confronto con N1, scritta solo dai test che la usano) con numeri inventati, distinti per ogni sottoinsieme e
+coerenti fra loro; ogni test di coerenza guasta una sorgente per volta e verifica che build si fermi con il problema
+giusto; i test di costruzione confrontano ogni riga e ogni annesso con la fixture.
 
 Uso (dalla radice del repository del gruppo): python3 -I research/nuaa-synthesis/livenesslab/scripts/check_nuaa_synthesis.py [-v]
 """
@@ -41,6 +42,40 @@ def metrics_na(n_bf, n_att, rej, acc):
 
 def f4(v):
     return "%.4f" % v
+
+
+FOLD_STRATA = ("01", "02", "03")
+
+
+def fstratum(n_bf, n_att, r05, a05, rdev, adev, auroc, n_subj):
+    """Uno strato del run a fold (soglie 0,5 e dev) con i tassi calcolati dai conteggi."""
+    d = {"n": n_bf + n_att, "n_bona_fide": n_bf, "n_attack": n_att, "n_subjects": n_subj, "auroc": auroc}
+    for t, (r, a) in (("05", (r05, a05)), ("dev", (rdev, adev))):
+        d["rejected_bona_fide_" + t], d["accepted_attacks_" + t] = r, a
+    return refresh(d)
+
+
+def refresh(d):
+    """Ricalcola i tassi di uno strato dai suoi conteggi (per guastare i conteggi senza guastare i tassi)."""
+    for t in ("05", "dev"):
+        ap = d["accepted_attacks_" + t] / d["n_attack"] if d["n_attack"] else None
+        bp = d["rejected_bona_fide_" + t] / d["n_bona_fide"] if d["n_bona_fide"] else None
+        d["apcer_" + t], d["bpcer_" + t] = ap, bp
+        d["acer_" + t] = (ap + bp) / 2 if ap is not None and bp is not None else None
+    d["n"] = d["n_bona_fide"] + d["n_attack"]
+    return d
+
+
+def fsum(parts, n_subj, auroc):
+    keys = ("n_bona_fide", "n_attack", "rejected_bona_fide_05", "accepted_attacks_05", "rejected_bona_fide_dev", "accepted_attacks_dev")
+    d = {k: sum(p[k] for p in parts) for k in keys}
+    d.update({"n_subjects": n_subj, "auroc": auroc})
+    return refresh(d)
+
+
+def summary(values):
+    vals = list(values)
+    return {"values": vals, "median": sorted(vals)[1], "min": min(vals), "max": max(vals)}
 
 
 def f6(v):
@@ -115,6 +150,146 @@ class Fixture:
                         "n2c": "247dfd79d565985a4f3133b553fee36a27a4aa26", "crop": "f6747cc9e56657976403a63f6f85a16720650149"}
         self.m2_subjects = {"fitted": 7, "early_stopping": 2}
         self.m2_exclusions = {"n": 491, "n_bona_fide": 243, "n_attack": 248, "n_subjects": 9}
+        self.folds_init()
+        self.compare = None  # None: confronto con N1 generato dallo stato corrente della fixture (compare_json)
+
+    # --- run a fold di soggetti ---
+    def folds_init(self):
+        """Schema, aggregato e record del run a fold, coerenti fra loro e con le liste ufficiali M2 della fixture."""
+        self.fold_cells = {"1": {"01": (250, 280), "02": (240, 300), "03": (930, 1230)},
+                           "2": {"01": (230, 190), "02": (120, 190), "03": (1020, 1360)},
+                           "3": {"01": (280, 180), "02": (250, 200), "03": (860, 1670)},
+                           "4": {"01": (125, 194), "02": (247, 200), "03": (553, 1515)}}
+        assert sum(c[0] for f in self.fold_cells.values() for c in f.values()) == 1743 + 3362
+        assert sum(c[1] for f in self.fold_cells.values() for c in f.values()) == 1748 + 5761
+        folds = list(self.fold_cells)
+        self.fold_totals = [sum(sum(c) for c in self.fold_cells[k].values()) for k in folds]
+        per = {}
+        for k in folds:
+            fi = int(k)
+            per[k] = {}
+            for si, s in enumerate(SEEDS):
+                blk = {}
+                for sti, st in enumerate(FOLD_STRATA):
+                    n_bf, n_att = self.fold_cells[k][st]
+                    r05, a05 = 5 * fi + 3 * si + 2 * sti + 1, 4 * fi + 2 * si + sti
+                    blk[st] = fstratum(n_bf, n_att, r05, a05, r05 + si + 1, a05 + 2 * sti, 0.90 + fi / 100 + si / 1000 + sti / 10000, 3 - sti % 2)
+                blk["all"] = fsum([blk[st] for st in FOLD_STRATA], 4, 0.95 + fi / 100 + si / 1000)
+                per[k][s] = blk
+        pooled, boot = {}, {}
+        for si, s in enumerate(SEEDS):
+            pooled[s], boot[s] = {}, {}
+            for sti, st in enumerate(FOLD_STRATA + ("all",)):
+                pooled[s][st] = fsum([per[k][s][st] for k in folds], (9, 9, 16, 16)[sti], 0.93 + si / 100 + sti / 1000)
+                m = pooled[s][st]
+                boot[s][st] = {"n_subjects": m["n_subjects"], "resamples": 1000, "seed": 0, "percentiles": [2.5, 97.5],
+                               "acer_05": {"low": m["acer_05"] / 2, "high": m["acer_05"] * 1.5 + 0.01, "valid_resamples": 1000},
+                               "acer_dev": {"low": m["acer_dev"] / 2, "high": m["acer_dev"] * 1.5 + 0.01, "valid_resamples": 1000},
+                               "auroc": {"low": m["auroc"] - 0.05, "high": min(1.0, m["auroc"] + 0.01), "valid_resamples": 1000}}
+        keys = ("apcer_05", "bpcer_05", "acer_05", "apcer_dev", "bpcer_dev", "acer_dev", "auroc")
+        training = {}
+        for k in folds:
+            for si, s in enumerate(SEEDS):
+                fi = int(k)
+                training["fold%s_seed%s" % (k, s)] = {
+                    "epochs_run": 12, "restored_epoch": 8 + (fi + si) % 5, "restored_by": "early stopping",
+                    "best_val_loss": 0.01 * (fi + si), "train_seconds": 700.0 + 10 * fi + si, "n_fitting": 2100, "n_dev": 600,
+                    "weights_sha256": "a" * 64, "dev_threshold": 0.1 * fi + 0.01 * si + 0.0012345, "dev_threshold_sha256": "b" * 64,
+                    "dev_apcer_at_threshold": 0.01 * fi, "dev_bpcer_at_threshold": 0.01 * fi}
+        self.folds_run = "20261103-FOLDSRUN-e174812"
+        bootstrap = {"resamples": 1000, "seed": 0, "percentiles": [2.5, 97.5], "min_subjects": 5}
+        self.fagg = {"run_id": self.folds_run, "commit": "e174812", "dirty": False, "config_sha256": "7" * 64,
+                     "delivered_configuration": True, "command": "run", "finished": "2026-11-04T02:41:00+0100",
+                     "bootstrap": copy.deepcopy(bootstrap), "decision": "attack if score_attack > threshold (tie = bona fide)",
+                     "strata": ["01", "02", "03", "all"], "per_fold_seed": per,
+                     "per_fold_summary_over_seeds": {k: {st: {key: summary(per[k][s][st][key] for s in SEEDS) for key in keys}
+                                                         for st in per[k]["42"]} for k in folds},
+                     "pooled_per_seed": pooled,
+                     "pooled_summary_over_seeds": {st: {key: summary(pooled[s][st][key] for s in SEEDS) for key in keys} for st in pooled["42"]},
+                     "bootstrap_per_seed": boot, "training": training}
+        self.fsch = {"schema": "nuaa-subject-folds/1", "run_id": "20261103-FOLDS-67b7f3d", "commit": "67b7f3d", "dirty": False,
+                     "config_sha256": "d" * 64, "train_seeds": [42, 43, 44], "folds": {"k": 4},
+                     "sampling": {"fitting_per_cell": 350, "dev_per_cell": 100}, "per_fold": {}}
+        for k in folds:
+            fi = int(k)
+            counts = {}
+            for st in FOLD_STRATA:
+                counts["%s/bona_fide" % st] = {"frames": self.fold_cells[k][st][0], "subjects": 2}
+                counts["%s/attack" % st] = {"frames": self.fold_cells[k][st][1], "subjects": 3}
+            counts["total"] = {"frames": sum(sum(c) for c in self.fold_cells[k].values()), "subjects": 4}
+            self.fsch["per_fold"][k] = {
+                "held_out_fold": fi, "dev_fold": fi % 4 + 1, "fitting_folds": sorted(set(range(1, 5)) - {fi, fi % 4 + 1}),
+                "roles": {"fitting": {"n_subjects": 8, "counts": {"total": {"frames": 2100}}},
+                          "dev": {"n_subjects": 4, "counts": {"total": {"frames": 600}}},
+                          "test": {"n_subjects": 4, "counts": counts}}}
+        self.frec = {"run_id": self.folds_run, "commit": "e174812", "dirty": False, "config_sha256": "7" * 64,
+                     "delivered_configuration": True, "command": "run", "finished": "2026-11-04T02:41:00+0100",
+                     "wall_seconds": 9703.3, "timings": {"train " + n: {"wall_clock_seconds": 1.0} for n in training},
+                     "checks": {"schema": {"run_id": "20261103-FOLDS-67b7f3d", "test_per_fold": list(self.fold_totals)},
+                                "schema_config": {"sha256": "d" * 64, "wall_time_cap_minutes": 360},
+                                "originals": {"located_and_hashed": 12614}},
+                     "cache_check": {"train": {"equal": 3000, "different": 0}, "test": {"equal": 3000, "different": 0}},
+                     "extraction": {"n": 6614}, "schema_run": {"run_id": "20261103-FOLDS-67b7f3d", "config_sha256": "d" * 64},
+                     "train_seeds": [42, 43, 44], "folds": 4, "models": 12, "bootstrap": copy.deepcopy(bootstrap)}
+
+    def compare_json(self) -> dict:
+        """Confronto con N1 sugli stessi 3.000 frame, nello schema dell'aggregato pubblico del pacchetto di confronto."""
+        per, boot, cv = {}, {}, {"acer_05": [], "acer_dev": [], "auroc": []}
+        for si, s in enumerate(SEEDS):
+            f = fstratum(1500, 1500, 20 + si, 15 + si, 18 + si, 16 + si, 0.94 + si / 100, 16)
+            f.pop("n_subjects")
+            n = self.n1[s]["test_3000"]
+            n1 = {"n": n["n_bona_fide"] + n["n_attack"], "n_bona_fide": n["n_bona_fide"], "n_attack": n["n_attack"],
+                  "accepted_attacks_05": n["accepted_attacks"], "rejected_bona_fide_05": n["rejected_bona_fide"],
+                  "apcer_05": n["apcer"], "bpcer_05": n["bpcer"], "acer_05": n["acer"], "auroc": n["auroc"]}
+            paired = {}
+            for t in ("05", "dev"):
+                pt, changed = {}, 0
+                for cls, nk, fk, n1k in (("bona_fide", "n_bona_fide", "rejected_bona_fide_", "rejected_bona_fide_05"),
+                                         ("attack", "n_attack", "accepted_attacks_", "accepted_attacks_05")):
+                    fc, nc = f[nk] - f[fk + t], n1[nk] - n1[n1k]
+                    bc = nc - 10
+                    pt[cls] = {"both_correct": bc, "n1_only_correct": 10, "folds_only_correct": fc - bc, "both_wrong": f[nk] - fc - 10}
+                    changed += 10 + fc - bc
+                pt.update({"decisions_changed": changed, "n": 3000})
+                paired[t] = pt
+            subj = {t: {"error_rate": {"folds_lower": 12, "equal": 0, "folds_higher": 4, "not_defined": 0},
+                        "acer": {"folds_lower": 5, "equal": 0, "folds_higher": 3, "not_defined": 8}} for t in ("05", "dev")}
+            per[s] = {"folds": f, "n1": n1,
+                      "difference_folds_minus_n1": {"diff_acer_05": f["acer_05"] - n1["acer_05"],
+                                                    "diff_acer_dev": f["acer_dev"] - n1["acer_05"], "diff_auroc": f["auroc"] - n1["auroc"]},
+                      "paired_decisions": paired,
+                      "per_subject_counts": {"n_subjects": 16, "with_both_classes": 8, "comparison": subj},
+                      "test_subjects_per_fold": {"1": 4, "2": 4, "3": 4, "4": 4}}
+            boot[s] = {"n_subjects": 16, "resamples": 1000, "seed": 0, "percentiles": [2.5, 97.5]}
+            for k in S.COMPARE_BOOT_KEYS:
+                boot[s][k] = {"low": -0.5 + si / 100, "high": 0.9 - si / 100, "valid_resamples": 1000}
+            cv["acer_05"].append(f["acer_05"]); cv["acer_dev"].append(f["acer_dev"]); cv["auroc"].append(f["auroc"])
+
+        def value(s, key):
+            side, rest = key.split("_", 1)
+            return per[s]["difference_folds_minus_n1"][key] if side == "diff" else per[s][side][rest]
+        return {"run_id": "20261104-FOLDSCOMPARE-abc1234", "commit": "abc1234", "dirty": False, "config_sha256": "c" * 64,
+                "delivered_configuration": True, "command": "run", "finished": "2026-11-04T18:00:00+0100",
+                "request": {"date": "2026-11-04"}, "task": "comparison",
+                "declarations": {k: True for k in S.COMPARE_DECLARATIONS}, "decision": "attack if score_attack > threshold (tie = bona fide)",
+                "bootstrap": {"resamples": 1000, "seed": 0, "percentiles": [2.5, 97.5], "min_subjects": 5,
+                              "recipe": "generator restarted for every seed; same resamples for both experiments"}, "metrics": {},
+                "inputs": {"manifest": {"name": "cnn_test", "sha256": "0" * 64, "rows": 3000, "n_bona_fide": 1500, "n_attack": 1500,
+                                        "n_subjects": 16, "session": "03", "schema_config_sha256": "d" * 64},
+                           "folds_run": {"run_id": self.folds_run, "rows_per_seed": {s: 12614 for s in SEEDS},
+                                         "cnn_test_rows_per_seed": {s: 3000 for s in SEEDS},
+                                         "test_subjects_per_fold": {"1": 4, "2": 4, "3": 4, "4": 4}},
+                           "n1_run": {"run_id": self.n1_run, "rows_per_seed": {s: 3000 for s in SEEDS}}},
+                "code_sha256": {}, "per_seed": per,
+                "summary_over_seeds": {k: summary(value(s, k) for s in SEEDS) for k in S.COMPARE_SUMMARY_KEYS},
+                "bootstrap_per_seed": boot,
+                "control_values": {"source": "coordinator (fixture)",
+                                   "control": {"acer_05_percent": [round(100 * v, 2) for v in cv["acer_05"]],
+                                               "acer_dev_percent": [round(100 * v, 2) for v in cv["acer_dev"]],
+                                               "auroc": [round(v, 5) for v in cv["auroc"]]},
+                                   "computed": cv, "comparison": "agreement at the digits given by the coordinator",
+                                   "reproduced": True}}
 
     # --- testi ---
     def c1_table(self) -> str:
@@ -218,7 +393,7 @@ class Fixture:
                 "c1_reference": {"run_id": self.crop_ref_run, "metrics": copy.deepcopy(self.crop_ref)}}
 
     def files(self) -> dict:
-        return {
+        out = {
             S.SOURCES["c1_table"]: self.c1_table(),
             S.SOURCES["m1_table"]: self.m1_table(),
             S.SOURCES["m2_manifests"]: json.dumps(self.m2_json(), indent=1),
@@ -227,7 +402,12 @@ class Fixture:
             S.SOURCES["n2_sessions"]: json.dumps(self.n2s_json(), indent=1),
             S.SOURCES["n2_combined"]: json.dumps(self.n2c_json(), indent=1),
             S.SOURCES["crop"]: json.dumps(self.crop_json(), indent=1),
+            S.SOURCES["folds_schema"]: json.dumps(self.fsch, indent=1),
+            S.SOURCES["folds_aggregate"]: json.dumps(self.fagg, indent=1),
+            S.SOURCES["folds_record"]: json.dumps(self.frec, indent=1),
         }
+        out[S.SOURCES["folds_n1_compare"]] = json.dumps(self.compare if self.compare is not None else self.compare_json(), indent=1)
+        return out
 
     def write(self, root: Path) -> Path:
         research = root / "research"
@@ -272,15 +452,21 @@ class Base(unittest.TestCase):
 class TestBuild(Base):
     def test_rows_and_annexes(self):
         doc = S.build(self.research())
-        self.assertEqual(len(doc["rows"]), 21)
+        self.assertEqual(len(doc["rows"]), 39)
         blocks = [r["block"] for r in doc["rows"]]
-        self.assertEqual(blocks, ["C1"] * 4 + ["M1"] * 4 + ["N1"] * 3 + ["N2 sessions"] * 6 + ["N2 combined"] * 2 + ["C1 crop check"] * 2)
+        self.assertEqual(blocks, ["C1"] * 4 + ["M1"] * 4 + ["N1"] * 3 + ["N2 sessions"] * 6 + ["N2 combined"] * 2 + ["C1 crop check"] * 2
+                         + [S.FOLDS_BLOCK] * 15 + [S.COMPARE_BLOCK] * 3)
         self.assertEqual(len(doc["cross_dataset_rows"]), 16)
         self.assertEqual(len(doc["context_rows"]), 10)
         self.assertEqual(len(doc["subject_sensitivity"]), 4)
-        self.assertEqual(len(set(r["row"] for r in doc["rows"])), 21)
+        self.assertEqual(len(set(r["row"] for r in doc["rows"])), 39)
         for r in doc["rows"]:
-            self.assertTrue(all(r[c] != "" for c in S.COLUMNS), r)
+            if r["block"] in (S.FOLDS_BLOCK, S.COMPARE_BLOCK):
+                filled = [c for c in S.COLUMNS if c != "bootstrap" or not r["row"].startswith("FOLDS-f")]
+                self.assertTrue(all(r[c] != "" for c in filled), r)
+            else:
+                self.assertTrue(all(r[c] != "" for c in S.COLUMNS if c not in S.FOLDS_ONLY_COLUMNS), r)
+                self.assertTrue(all(r[c] == "" for c in S.FOLDS_ONLY_COLUMNS), r)
             self.assertEqual(r["unit"], "image (frame)")
             self.assertIsInstance(r["n_bona_fide"], int)
             self.assertIsInstance(r["rejected_bona_fide"], int)
@@ -399,7 +585,11 @@ class TestBuild(Base):
             self.assertEqual(doc["sources"][k]["sha256"], S.sha256_file(research / rel))
             self.assertEqual(doc["sources"][k]["path"], rel)
         self.assertEqual(doc["runs"], {"C1": S.C1_RUN, "M1": S.M1_RUN, "N1": self.fx.n1_run, "N1_subjects": "20261024-N1-subjects-a5fcbbc",
-                                       "N2_sessions": self.fx.n2s_run, "N2_combined": self.fx.n2c_run, "C1_crop_check": self.fx.crop_run})
+                                       "N2_sessions": self.fx.n2s_run, "N2_combined": self.fx.n2c_run, "C1_crop_check": self.fx.crop_run,
+                                       "Fold_schema": "20261103-FOLDS-67b7f3d", "Folds_run": self.fx.folds_run,
+                                       "Folds_vs_N1": "20261104-FOLDSCOMPARE-abc1234"})
+        self.assertEqual(set(doc["sources"]), set(S.SOURCES))
+        self.assertEqual(len(S.SOURCES), 12)
         for r in doc["rows"]:
             for part in r["source"].split("; "):
                 path, prefix = part[:-1].split(" (")
@@ -410,15 +600,17 @@ class TestBuild(Base):
         a, b = S.outputs(S.build(research)), S.outputs(S.build(research))
         self.assertEqual(a, b)
         self.assertEqual(set(a), {"summary_table.md", "summary_table.csv", "summary_table.json", "summary_table_compact.md",
-                                  "cross_dataset_table.md", "context_rows_table.md", "subject_sensitivity_table.md"})
+                                  "cross_dataset_table.md", "context_rows_table.md", "subject_sensitivity_table.md",
+                                  "folds_run_table.md", "n1_same_ids_table.md"})
         compact = [l for l in a["summary_table_compact.md"].splitlines() if l.startswith("| ") and not l.startswith("| block")]
-        self.assertEqual(len(compact), 21)
+        self.assertEqual(len(compact), 39)
         text = a["summary_table_compact.md"]
         for code in ("T-NUAA", "T-COMB", "S-300", "S-3000", "S-491", "S-03/9", "E-C1", "E-CACHE", "E-WHOLE", "E-CROP", "P-REF", "P-HIST", "same", "session", "session/9", "dataset"):
             self.assertIn("- `%s` (" % code, text)
         d = self.fx.c1["attacknet_v1__nuaa"]
         self.assertIn("| M1 | AttackNet V1 (C1 ckpt 12/09) | T-NUAA | S-300 | E-C1 | P-REF | %s (dev EER) | %d / %d | %s | %s | %s | %s | %s | session |"
-                      % (f6(d["thr"]), d["rej_d"], d["acc_d"], f4(d["acc_d"] / 150), f4(d["rej_d"] / 150), f4((d["acc_d"] / 150 + d["rej_d"] / 150) / 2), f4(d["auc"]), S.M1_RUN), text)
+                      % (f6(d["thr"]), d["rej_d"], d["acc_d"], f4(d["acc_d"] / 150), f4(d["rej_d"] / 150), f4((d["acc_d"] / 150 + d["rej_d"] / 150) / 2), f4(d["auc"]),
+                         " | ".join(["\u2014"] * 6) + " | " + S.M1_RUN), text)
         m = self.fx.comb["whole_image"]
         self.assertIn("| N2-C | AttackNet V2.2 combined (coordinator's ckpt) | T-COMB | S-3000 | E-WHOLE | P-HIST | 0.5 (fixed) | %d / %d |" % (m["rejected_bona_fide"], m["accepted_attacks"]), text)
         z = self.fx.n2["43"]["sessions_01_02_491"]
@@ -431,7 +623,7 @@ class TestBuild(Base):
     def test_csv_round_trip(self):
         doc = S.build(self.research())
         rows = list(csv.DictReader(io.StringIO(S.outputs(doc)["summary_table.csv"])))
-        self.assertEqual(len(rows), 21)
+        self.assertEqual(len(rows), 39)
         self.assertEqual(set(rows[0].keys()), set(S.COLUMNS))
         self.assertEqual([r["row"] for r in rows], [r["row"] for r in doc["rows"]])
         self.assertEqual([r["source"] for r in rows], [r["source"] for r in doc["rows"]])
@@ -708,6 +900,354 @@ class TestConsistency(Base):
         self.build_fails(fx, "is not an integer count", research)
 
 
+class TestFolds(Base):
+    """Run a fold di soggetti: righe, annesso, tabella compatta e ogni controllo di coerenza su una sorgente guasta."""
+
+    def all_of(self, k, s):
+        return self.fx.fagg["per_fold_seed"][k][s]["all"]
+
+    def test_fold_rows_cell_by_cell(self):
+        doc = S.build(self.research())
+        rows = [r for r in self.rows_of(doc, S.FOLDS_BLOCK) if not r["row"].startswith("FOLDS-pooled")]
+        self.assertEqual([r["row"] for r in rows], ["FOLDS-f%s-seed%s" % (k, s) for k in "1234" for s in SEEDS])
+        for r in rows:
+            k, s = r["row"][len("FOLDS-f"):].split("-seed")
+            m, tr = self.all_of(k, s), self.fx.fagg["training"]["fold%s_seed%s" % (k, s)]
+            self.assertEqual((r["n_bona_fide"], r["n_attack"], r["rejected_bona_fide"], r["accepted_attacks"],
+                              r["rejected_bona_fide_dev"], r["accepted_attacks_dev"]),
+                             (m["n_bona_fide"], m["n_attack"], m["rejected_bona_fide_05"], m["accepted_attacks_05"],
+                              m["rejected_bona_fide_dev"], m["accepted_attacks_dev"]))
+            self.assertEqual((r["apcer"], r["bpcer"], r["acer"], r["auroc"], r["apcer_dev"], r["bpcer_dev"], r["acer_dev"]),
+                             tuple(f4(m[x]) for x in ("apcer_05", "bpcer_05", "acer_05", "auroc", "apcer_dev", "bpcer_dev", "acer_dev")))
+            self.assertEqual((r["threshold"], r["threshold_dev"], r["bootstrap"]), ("0.5", f6(tr["dev_threshold"]), ""))
+            self.assertEqual((r["run_id"], r["transfer"], r["extractor"], r["preprocessing"]),
+                             (self.fx.folds_run, S.TRANSFER_FOLDS, S.EXTRACTOR_FOLDS, S.PREP_REF))
+            pf = self.fx.fsch["per_fold"][k]
+            self.assertEqual(r["model"], "LivenessNet, new CPU training, held-out fold %s, seed %s (fitting folds %s, dev fold %s; "
+                                         "restored epoch %d of 12, early stopping; min val_loss %.6f)"
+                             % (k, s, " and ".join(str(x) for x in pf["fitting_folds"]), pf["dev_fold"], tr["restored_epoch"], tr["best_val_loss"]))
+            n_bf, n_att = sum(c[0] for c in self.fx.fold_cells[k].values()), sum(c[1] for c in self.fx.fold_cells[k].values())
+            self.assertEqual(r["test_set"], "held-out fold %s: all %s frames (%s + %s) of its 4 subjects, sessions 01-03"
+                             % (k, "{:,}".format(n_bf + n_att), "{:,}".format(n_bf), "{:,}".format(n_att)))
+            self.assertEqual([p.split(" (")[0] for p in r["source"].split("; ")],
+                             [S.SOURCES["folds_aggregate"], S.SOURCES["folds_record"], S.SOURCES["folds_schema"]])
+        self.assertEqual(doc["texts"]["folds_train"], "NUAA, all three sessions (01-03): 2,100 fitting frames of the 8 subjects of the two "
+                                                      "fitting folds, 350 per class x session cell (deterministic spread rule)")
+
+    def test_pooled_rows_with_bootstrap(self):
+        doc = S.build(self.research())
+        rows = [r for r in self.rows_of(doc, S.FOLDS_BLOCK) if r["row"].startswith("FOLDS-pooled")]
+        self.assertEqual([r["row"] for r in rows], ["FOLDS-pooled-seed" + s for s in SEEDS])
+        for r, s in zip(rows, SEEDS):
+            m, b = self.fx.fagg["pooled_per_seed"][s]["all"], self.fx.fagg["bootstrap_per_seed"][s]["all"]
+            self.assertEqual((r["n_bona_fide"], r["n_attack"]), (5105, 7509))
+            self.assertEqual((r["rejected_bona_fide"], r["accepted_attacks"], r["rejected_bona_fide_dev"], r["accepted_attacks_dev"]),
+                             (m["rejected_bona_fide_05"], m["accepted_attacks_05"], m["rejected_bona_fide_dev"], m["accepted_attacks_dev"]))
+            self.assertEqual((r["acer"], r["acer_dev"], r["auroc"]), (f4(m["acer_05"]), f4(m["acer_dev"]), f4(m["auroc"])))
+            self.assertEqual(r["bootstrap"], "ACER 0.5 %s-%s; ACER dev %s-%s; AUROC %s-%s"
+                             % (f4(b["acer_05"]["low"]), f4(b["acer_05"]["high"]), f4(b["acer_dev"]["low"]), f4(b["acer_dev"]["high"]),
+                                f4(b["auroc"]["low"]), f4(b["auroc"]["high"])))
+            self.assertEqual(r["threshold_dev"], S.THR_DEV_POOLED)
+            self.assertEqual(r["test_set"], doc["texts"]["folds_test_all"])
+        self.assertEqual(doc["texts"]["folds_test_all"], "the 4 held-out folds pooled: all 12,614 official NUAA frames (5,105 + 7,509), "
+                                                         "16 subjects, sessions 01-03, each frame scored by the model of its fold")
+        self.assertEqual(doc["folds_run"]["test_frames_per_fold"], self.fx.fold_totals)
+        self.assertEqual((doc["folds_run"]["train_seconds_min"], doc["folds_run"]["train_seconds_max"]), (710.0, 742.0))
+
+    def test_annex_every_stratum_and_summary(self):
+        text = S.outputs(S.build(self.research()))["folds_run_table.md"]
+        lines = [l for l in text.splitlines() if l.startswith("| ") and not l.startswith("| fold |")
+                 and not l.startswith("| seed |") and not l.startswith("| stratum |") and not l.startswith("| model |")]
+        self.assertEqual(len(lines), 48 + 16 + 12 + 4 + 12)
+        m = self.fx.fagg["per_fold_seed"]["4"]["43"]["02"]
+        self.assertIn("| 4 | 43 | 02 | %d | %d | %d | %d / %d | %s | %s | %s | %d / %d | %s | %s | %s | %s |"
+                      % (m["n_bona_fide"], m["n_attack"], m["n_subjects"], m["rejected_bona_fide_05"], m["accepted_attacks_05"],
+                         f4(m["bpcer_05"]), f4(m["apcer_05"]), f4(m["acer_05"]), m["rejected_bona_fide_dev"], m["accepted_attacks_dev"],
+                         f4(m["bpcer_dev"]), f4(m["apcer_dev"]), f4(m["acer_dev"]), f4(m["auroc"])), text)
+        e = self.fx.fagg["per_fold_summary_over_seeds"]["2"]["03"]
+        self.assertIn("| 2 | 03 | %s |" % " | ".join("%s (%s-%s)" % (f4(e[k]["median"]), f4(e[k]["min"]), f4(e[k]["max"]))
+                                                      for k in ("acer_05", "acer_dev", "auroc")), text)
+        e = self.fx.fagg["pooled_summary_over_seeds"]["all"]
+        self.assertIn("| all | %s (%s-%s) |" % (f4(e["acer_05"]["median"]), f4(e["acer_05"]["min"]), f4(e["acer_05"]["max"])), text)
+        self.assertIn("| fold3_seed44 | 2100 | 600 | 12 |", text)
+
+    def test_compact_rows_and_legend(self):
+        text = S.outputs(S.build(self.research()))["summary_table_compact.md"]
+        m, tr = self.all_of("1", "43"), self.fx.fagg["training"]["fold1_seed43"]
+        self.assertIn("| FOLDS | LivenessNet, fold 1, seed 43 | T-FOLD | S-FOLD-1 | E-CACHE | P-REF | 0.5 (fixed) | %d / %d | %s | %s | %s | %s | "
+                      "%s (EER, fold dev) | %d / %d | %s | %s | %s | — | %s | subject-held-out (sessions represented) |"
+                      % (m["rejected_bona_fide_05"], m["accepted_attacks_05"], f4(m["apcer_05"]), f4(m["bpcer_05"]), f4(m["acer_05"]),
+                         f4(m["auroc"]), f6(tr["dev_threshold"]), m["rejected_bona_fide_dev"], m["accepted_attacks_dev"],
+                         f4(m["apcer_dev"]), f4(m["bpcer_dev"]), f4(m["acer_dev"]), self.fx.folds_run), text)
+        b = self.fx.fagg["bootstrap_per_seed"]["44"]["all"]
+        self.assertIn("| FOLDS | LivenessNet, 4 fold models, seed 44 (pooled) | T-FOLD | S-FOLD-ALL |", text)
+        self.assertIn("| 4 fold values (EER, fold dev) |", text)
+        self.assertIn("| %s-%s; %s-%s; %s-%s | %s |" % (f4(b["acer_05"]["low"]), f4(b["acer_05"]["high"]), f4(b["acer_dev"]["low"]),
+                                                       f4(b["acer_dev"]["high"]), f4(b["auroc"]["low"]), f4(b["auroc"]["high"]),
+                                                       self.fx.folds_run), text)
+        for code in ("T-FOLD", "S-FOLD-1", "S-FOLD-2", "S-FOLD-3", "S-FOLD-4", "S-FOLD-ALL", "(EER, fold dev)", "(dev EER)", "0.5 (fixed)",
+                     "subject-held-out (sessions represented)"):
+            self.assertIn("- `%s` (" % code, text)
+        self.assertIn("- `T-FOLD` (training): fitting 2,100 + dev 600 frames of 8 + 4 subjects outside the held-out fold", text)
+        self.assertIn("- `subject-held-out, N1 test frames` (transfer):", text)
+
+    def test_denominators_must_equal_the_fold_schema(self):
+        c = self.fx.fsch["per_fold"]["2"]["roles"]["test"]["counts"]
+        c["03/attack"]["frames"] += 1
+        c["total"]["frames"] += 1
+        self.build_fails(self.fx, "folds fold 2 seed 42 stratum 03: denominators 1020/1360 differ from the fold schema 1020/1361")
+
+    def test_schema_total_and_official_lists(self):
+        self.fx.fsch["per_fold"]["1"]["roles"]["test"]["counts"]["total"]["frames"] += 5
+        self.build_fails(self.fx, "fold 1 test total")
+        fx = Fixture()
+        fx.mc["official_test"] = (9124, 3363, 5761, 16)
+        self.build_fails(fx, "do not add up to the official lists of M2")
+        fx = Fixture()
+        fx.mc["official_test"] = (9123, 3362, 5761, 17)
+        self.build_fails(fx, "16 held-out subjects, the official test lists have 17")
+
+    def test_stratum_all_must_be_the_sum_of_the_sessions(self):
+        m = self.all_of("3", "44")
+        m["rejected_bona_fide_dev"] += 1
+        refresh(m)
+        self.build_fails(self.fx, "folds fold 3 seed 44: stratum all at dev is not the sum of the session strata")
+
+    def test_pooled_must_be_the_sum_of_the_folds(self):
+        m = self.fx.fagg["pooled_per_seed"]["43"]["03"]
+        m["accepted_attacks_05"] += 1
+        refresh(m)
+        self.build_fails(self.fx, "folds pooled seed 43 stratum 03 at 05: counts are not the sum of the 4 folds")
+
+    def test_rates_must_match_counts(self):
+        self.fx.fagg["per_fold_seed"]["1"]["42"]["01"]["accepted_attacks_dev"] += 1  # tassi invariati
+        self.build_fails(self.fx, "folds fold 1 seed 42 stratum 01 at dev: apcer")
+        fx = Fixture()
+        fx.fagg["pooled_per_seed"]["44"]["all"]["auroc"] = None
+        self.build_fails(fx, "auroc must be NA exactly when a class is absent")
+
+    def test_summaries_must_equal_the_per_seed_values(self):
+        self.fx.fagg["per_fold_summary_over_seeds"]["2"]["03"]["auroc"]["values"][1] += 0.001
+        self.build_fails(self.fx, "folds summary fold 2 stratum 03 auroc: values")
+        fx = Fixture()
+        fx.fagg["pooled_summary_over_seeds"]["all"]["acer_dev"]["median"] += 0.001
+        self.build_fails(fx, "folds pooled summary stratum all acer_dev: median or range")
+        fx = Fixture()
+        del fx.fagg["pooled_summary_over_seeds"]["01"]["bpcer_05"]
+        self.build_fails(fx, "folds pooled summary stratum 01: bpcer_05 missing")
+
+    def test_bootstrap_parameters_and_intervals(self):
+        self.fx.fagg["bootstrap_per_seed"]["42"]["all"]["resamples"] = 999
+        self.build_fails(self.fx, "folds bootstrap seed 42 stratum all: subjects or parameters")
+        fx = Fixture()
+        b = fx.fagg["bootstrap_per_seed"]["43"]["03"]["auroc"]
+        b["low"], b["high"] = b["high"], b["low"] - 0.1
+        self.build_fails(fx, "folds bootstrap seed 43 stratum 03: auroc interval missing or reversed")
+        fx = Fixture()
+        del fx.fagg["bootstrap_per_seed"]["44"]["02"]
+        self.build_fails(fx, "folds bootstrap seed 44 stratum 02 missing")
+
+    def test_record_must_describe_the_same_run(self):
+        for edit, needle in ((lambda r: r.__setitem__("config_sha256", "8" * 64), "config_sha256"),
+                             (lambda r: r["schema_run"].__setitem__("run_id", "20261103-FOLDS-0000000"), "schema run"),
+                             (lambda r: r["checks"]["schema_config"].__setitem__("sha256", "e" * 64), "checked schema configuration"),
+                             (lambda r: r["checks"]["schema"]["test_per_fold"].reverse(), "test rows per fold"),
+                             (lambda r: r["extraction"].__setitem__("n", 6613), "6613 extracted + 6000 cache frames"),
+                             (lambda r: r["cache_check"]["test"].__setitem__("different", 1), "not reproduced bit for bit"),
+                             (lambda r: r["checks"]["originals"].__setitem__("located_and_hashed", 12000), "12000 originals verified"),
+                             (lambda r: r.__setitem__("wall_seconds", 21600.5), "above the cap"),
+                             (lambda r: r.__setitem__("models", 11), "folds and 11 models"),
+                             (lambda r: r.__setitem__("train_seeds", [42, 43, 45]), "seeds"),
+                             (lambda r: r["timings"].pop("train fold2_seed43"), "no timing for train fold2_seed43")):
+            fx = Fixture()
+            edit(fx.frec)
+            self.build_fails(fx, needle)
+
+    def test_clean_tree_and_delivered_configuration(self):
+        for target, key, value, needle in (("fagg", "dirty", True, "folds aggregate: dirty is not false"),
+                                           ("frec", "dirty", None, "folds run record: dirty is not false"),
+                                           ("fsch", "dirty", True, "fold schema: dirty is not false"),
+                                           ("fagg", "delivered_configuration", False, "not a run of the delivered configuration"),
+                                           ("frec", "command", "check-inputs", "not a run of the delivered configuration"),
+                                           ("fagg", "commit", "0000000", "folds aggregate: run id")):
+            fx = Fixture()
+            getattr(fx, target)[key] = value
+            self.build_fails(fx, needle)
+
+    def test_training_cards(self):
+        self.fx.fagg["training"]["fold4_seed42"]["n_fitting"] = 2000
+        self.build_fails(self.fx, "folds fold4_seed42: 2000 fitting / 600 dev frames, the fold schema has 2100 / 600")
+        fx = Fixture()
+        fx.fagg["training"]["fold1_seed44"]["restored_epoch"] = 13
+        self.build_fails(fx, "restored epoch 13 outside 1..12")
+        fx = Fixture()
+        del fx.fagg["training"]["fold3_seed43"]["dev_threshold"]
+        self.build_fails(fx, "training field dev_threshold of fold3_seed43 missing")
+        fx = Fixture()
+        del fx.fagg["training"]["fold2_seed44"]
+        self.build_fails(fx, "training of fold2_seed44 missing")
+
+    def test_structure_and_fold_sizes(self):
+        self.fx.fagg["strata"] = ["01", "02", "all"]
+        self.build_fails(self.fx, "folds aggregate: strata")
+        fx = Fixture()
+        del fx.fagg["per_fold_seed"]["4"]["44"]
+        self.build_fails(fx, "fold 4 seed 44 missing")
+        fx = Fixture()
+        fx.fsch["per_fold"]["3"]["roles"]["dev"]["n_subjects"] = 5
+        self.build_fails(fx, "fold schema: dev subjects differ between folds")
+        fx = Fixture()
+        fx.fsch["train_seeds"] = [42, 43]
+        self.build_fails(fx, "seeds")
+        fx = Fixture()
+        fx.fagg["per_fold_seed"]["2"]["43"]["all"]["n_subjects"] = 3
+        self.build_fails(fx, "folds fold 2 seed 43: 3 subjects, the fold schema has 4")
+        research = self.edit_json("folds_record", lambda d: d.pop("cache_check"))
+        self.build_fails(self.fx, "field 'cache_check' missing", research)
+
+
+class TestCompare(Base):
+    """Confronto con N1 sugli stessi 3.000 frame: righe, annesso, run ufficiale richiesto, ogni controllo su una sorgente guasta."""
+
+    def guasto(self, edit, needle):
+        fx = Fixture()
+        fx.compare = fx.compare_json()
+        edit(fx.compare)
+        self.build_fails(fx, needle)
+
+    def test_rows_cell_by_cell_and_no_duplicated_n1(self):
+        research = self.research()
+        doc = S.build(research)
+        cmp = self.fx.compare_json()
+        rows = self.rows_of(doc, S.COMPARE_BLOCK)
+        self.assertEqual([r["row"] for r in rows], ["FOLDSN1-seed" + s for s in SEEDS])
+        for r, s in zip(rows, SEEDS):
+            m, b = cmp["per_seed"][s]["folds"], cmp["bootstrap_per_seed"][s]
+            self.assertEqual((r["n_bona_fide"], r["n_attack"], r["rejected_bona_fide"], r["accepted_attacks"],
+                              r["rejected_bona_fide_dev"], r["accepted_attacks_dev"]),
+                             (1500, 1500, m["rejected_bona_fide_05"], m["accepted_attacks_05"], m["rejected_bona_fide_dev"], m["accepted_attacks_dev"]))
+            self.assertEqual((r["apcer"], r["bpcer"], r["acer"], r["auroc"], r["apcer_dev"], r["bpcer_dev"], r["acer_dev"]),
+                             tuple(f4(m[x]) for x in ("apcer_05", "bpcer_05", "acer_05", "auroc", "apcer_dev", "bpcer_dev", "acer_dev")))
+            self.assertEqual(r["bootstrap"], "ACER 0.5 %s-%s; ACER dev %s-%s; AUROC %s-%s"
+                             % tuple(f4(b[k][e]) for k in ("folds_acer_05", "folds_acer_dev", "folds_auroc") for e in ("low", "high")))
+            self.assertEqual((r["test_set"], r["transfer"], r["run_id"], r["threshold_dev"]),
+                             (doc["texts"]["test_3000"], S.TRANSFER_FOLDS_N1, "20261104-FOLDSCOMPARE-abc1234", S.THR_DEV_POOLED))
+            self.assertEqual(r["source"].split(" (")[0], S.SOURCES["folds_n1_compare"])
+        self.assertEqual(len(self.rows_of(doc, "N1")), 3)  # le righe N1 non sono duplicate
+        self.assertEqual(doc["sources"]["folds_n1_compare"]["sha256"], S.sha256_file(research / S.SOURCES["folds_n1_compare"]))
+        text = S.outputs(doc)["summary_table_compact.md"]
+        self.assertIn("| FOLDS-N1 | LivenessNet, 4 fold models, seed 43 (N1 test frames) | T-FOLD | S-3000 | E-CACHE |", text)
+
+    def test_annex_copied_from_the_aggregate(self):
+        doc = S.build(self.research())
+        text = S.outputs(doc)["n1_same_ids_table.md"]
+        cmp = self.fx.compare_json()
+        p, b = cmp["per_seed"]["44"], cmp["bootstrap_per_seed"]["44"]
+        n = p["n1"]
+        self.assertIn("| 44 | N1, 0.5 | %d / %d | %s | %s | %s [%s, %s] | %s [%s, %s] |"
+                      % (n["rejected_bona_fide_05"], n["accepted_attacks_05"], f4(n["bpcer_05"]), f4(n["apcer_05"]), f4(n["acer_05"]),
+                         f4(b["n1_acer_05"]["low"]), f4(b["n1_acer_05"]["high"]), f4(n["auroc"]), f4(b["n1_auroc"]["low"]),
+                         f4(b["n1_auroc"]["high"])), text)
+        self.assertIn("| 44 | folds, dev |", text)
+        d = p["difference_folds_minus_n1"]
+        self.assertIn("| 44 | %s [%s, %s] |" % (f4(d["diff_acer_05"]), f4(b["diff_acer_05"]["low"]), f4(b["diff_acer_05"]["high"])), text)
+        c = p["paired_decisions"]["dev"]
+        self.assertIn("| 44 | dev | %s | %s | %d |" % tuple([" / ".join(str(c[cls][k]) for k in ("both_correct", "n1_only_correct",
+                                                                                     "folds_only_correct", "both_wrong"))
+                                                            for cls in ("bona_fide", "attack")] + [c["decisions_changed"]]), text)
+        self.assertIn("| 43 | 0.5 | error rate | 12 | 0 | 4 | 0 |", text)
+        v = cmp["per_seed"]["42"]["folds"]["acer_dev"]
+        self.assertIn("| acer_dev | 42 | %.2f %% | %.5f |" % (round(100 * v, 2), v), text)
+        a = cmp["per_seed"]["43"]["folds"]["auroc"]
+        self.assertIn("| auroc | 43 | %.5f | %.5f |" % (round(a, 5), a), text)
+        self.assertIn("Comparison: agreement at the digits given by the coordinator.", text)
+        self.assertIn("recipe: generator restarted for every seed; same resamples for both experiments.", text)
+        self.assertIn("N1 AUROC is below 0.5 on these frames (0.4000-0.4200, as published by N1); the AUROC difference includes that.", text)
+        lines = [l for l in text.splitlines() if l.startswith("| ") and not l.startswith(("| seed |", "| measure |"))]
+        self.assertEqual(len(lines), 9 + 3 + 8 + 6 + 12 + 9)
+
+    def test_trial_run_is_refused(self):
+        self.guasto(lambda d: d.__setitem__("dirty", True), "folds vs N1: dirty is True")
+        self.guasto(lambda d: d.__setitem__("run_id", "20261104-FOLDSCOMPARE-abc1234-dev"), "ends with -dev (trial run)")
+        self.fx.compare = self.fx.compare_json()
+        self.fx.compare.update(dirty=True, run_id="20261104-FOLDSCOMPARE-abc1234-dev")
+        research = self.research()
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            code = S.main(["build", "--research", str(research), "--out", str(self.root / "t")])
+        self.assertEqual(code, 1)
+        self.assertIn("the official run must replace it", out.getvalue())
+        self.assertFalse((self.root / "t").exists())
+
+    def test_n1_auroc_sentence_only_when_below_half(self):
+        fx = Fixture()
+        for i, s in enumerate(SEEDS):
+            m = fx.n1[s]["test_3000"]
+            m["auroc"] = 0.45 + i / 10
+            fx.n2[s]["session_03_3000"]["auroc"] = m["auroc"]
+        text = S.outputs(S.build(fx.write(self.root)))["n1_same_ids_table.md"]
+        self.assertNotIn("N1 AUROC is below 0.5", text)
+
+    def test_inputs_and_run_are_cross_checked(self):
+        for edit, needle in ((lambda d: d["inputs"]["manifest"].__setitem__("sha256", "1" * 64), "manifest inputs"),
+                             (lambda d: d["inputs"]["manifest"].__setitem__("schema_config_sha256", "e" * 64), "manifest inputs"),
+                             (lambda d: d["inputs"]["folds_run"].__setitem__("run_id", "20261103-FOLDSRUN-0000000"), "folds run"),
+                             (lambda d: d["inputs"]["n1_run"].__setitem__("run_id", "20261024-N1-LivenessNet-0000000"), "N1 run"),
+                             (lambda d: d["inputs"]["folds_run"]["rows_per_seed"].__setitem__("43", 12613), "seed 43: score rows"),
+                             (lambda d: d["inputs"]["folds_run"]["test_subjects_per_fold"].__setitem__("2", 5), "test subjects per fold"),
+                             (lambda d: d["declarations"].__setitem__("post_hoc", False), "declaration post_hoc"),
+                             (lambda d: d.__setitem__("delivered_configuration", False), "not a run of the delivered configuration"),
+                             (lambda d: d.__setitem__("commit", "fff0000"), "folds vs N1: run id"),
+                             (lambda d: d.pop("control_values"), "field 'control_values' missing")):
+            self.guasto(edit, needle)
+
+    def test_n1_values_must_equal_the_n1_rows(self):
+        self.guasto(lambda d: d["per_seed"]["42"]["n1"].__setitem__("auroc", 0.123), "seed 42: the N1 metrics differ from the N1 row")
+
+        def counts(d):
+            n = d["per_seed"]["43"]["n1"]
+            n["rejected_bona_fide_05"] += 1
+            n["bpcer_05"] = n["rejected_bona_fide_05"] / 1500
+            n["acer_05"] = (n["bpcer_05"] + n["apcer_05"]) / 2
+        self.guasto(counts, "seed 43: the N1 metrics differ from the N1 row")
+
+    def test_folds_counts_inside_the_pooled_session_03(self):
+        def big(d):
+            f = d["per_seed"]["44"]["folds"]
+            f["rejected_bona_fide_05"] = 500
+            refresh(f)
+        self.guasto(big, "folds vs N1 seed 44 at 05: counts exceed the pooled session 03 of the folds run")
+        self.guasto(lambda d: d["per_seed"]["44"].__setitem__("folds", fstratum(1500, 1400, 1, 1, 1, 1, 0.9, 16)),
+                    "folds vs N1 seed 44 folds: denominators")
+
+    def test_differences_paired_decisions_and_subjects(self):
+        self.guasto(lambda d: d["per_seed"]["42"]["difference_folds_minus_n1"].__setitem__("diff_auroc", 0.5), "diff_auroc 0.5 is not folds minus N1")
+        self.guasto(lambda d: d["per_seed"]["43"]["paired_decisions"]["05"]["bona_fide"].__setitem__("both_wrong", 0),
+                    "seed 43 at 05: paired decisions of bona_fide do not match the counts")
+        self.guasto(lambda d: d["per_seed"]["44"]["paired_decisions"]["dev"].__setitem__("decisions_changed", 1), "seed 44 at dev: decisions changed 1")
+        self.guasto(lambda d: d["per_seed"]["42"]["per_subject_counts"]["comparison"]["dev"]["acer"].__setitem__("not_defined", 7),
+                    "seed 42 at dev: subject counts of acer do not add up")
+        self.guasto(lambda d: d["per_seed"]["42"]["per_subject_counts"].__setitem__("n_subjects", 15), "15 subjects")
+
+    def test_summary_bootstrap_and_control_values(self):
+        self.guasto(lambda d: d["summary_over_seeds"]["n1_auroc"]["values"].reverse(), "summary n1_auroc: missing or values differ")
+        self.guasto(lambda d: d["summary_over_seeds"]["diff_acer_dev"].__setitem__("median", 0.0), "summary diff_acer_dev: median or range")
+        self.guasto(lambda d: d["bootstrap_per_seed"]["43"].__setitem__("seed", 1), "bootstrap seed 43: missing, or subjects or parameters")
+        self.guasto(lambda d: d["bootstrap_per_seed"]["44"]["diff_auroc"].__setitem__("low", 2.0), "seed 44: diff_auroc interval missing or reversed")
+        self.guasto(lambda d: d["control_values"]["control"]["auroc"].__setitem__(1, 0.5), "control values of auroc not reproduced at the digits")
+        self.guasto(lambda d: d["control_values"]["control"]["acer_dev_percent"].__setitem__(0, round(d["control_values"]["control"]["acer_dev_percent"][0] + 0.01, 2)),
+                    "control values of acer_dev not reproduced at the digits given by the coordinator")
+        self.guasto(lambda d: d["control_values"].pop("comparison"), "comparison rule missing")
+        self.guasto(lambda d: d["bootstrap"].pop("recipe"), "or the recipe is not declared")
+        self.guasto(lambda d: d["control_values"]["computed"]["acer_05"].__setitem__(0, 0.3), "computed control values of acer_05 differ")
+        self.guasto(lambda d: d["control_values"].__setitem__("reproduced", False), "not declared reproduced")
+
+    def test_source_is_required(self):
+        research = self.research()
+        (research / S.SOURCES["folds_n1_compare"]).unlink()
+        self.build_fails(self.fx, "source folds_n1_compare missing", research)
+
+
 class TestCommands(Base):
     def run_main(self, *argv):
         out = io.StringIO()
@@ -760,7 +1300,7 @@ class TestCommands(Base):
         doc.write_text("\n".join(lines), encoding="utf-8")
         code, text = self.run_main("check", "--research", str(research), "--out", str(out), "--synthesis", str(doc))
         self.assertEqual(code, 1)
-        self.assertIn("1 of 23 lines", text)
+        self.assertIn("1 of 41 lines", text)
 
     def test_build_reports_consistency_error_and_writes_nothing(self):
         self.fx.passed["crop"] = False
