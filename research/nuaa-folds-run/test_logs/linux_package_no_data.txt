@@ -1,0 +1,171 @@
+# Linux container python:3.12 (aarch64), Python 3.12.15, NumPy 2.5.4, no OpenCV, no TensorFlow, 2026-11-04T02:04Z; numpy installed in the container; package layout (livenesslab/scripts and livenesslab/delivery/foldsrun/nuaa_folds_run.json) without data, run from livenesslab/, temporary folders only
+$ python -I scripts/check_nuaa_folds_run.py
+..................................s..................   X_train: 24 equal, 0 different, worst max abs diff 0, detectors {'Haar': 12, 'RetinaFace': 12}
+   X_test: 24 equal, 0 different, worst max abs diff 0, detectors {'Haar': 15, 'RetinaFace': 9}
+.   X_train: 24 equal, 0 different, worst max abs diff 0, detectors {'Haar': 12, 'RetinaFace': 12}
+   X_train: 24 equal, 0 different, worst max abs diff 0, detectors {'Haar': 12, 'RetinaFace': 12}
+.   DIFF X_train[0]: max abs difference 1
+   DIFF X_train[1]: max abs difference 1
+   DIFF X_train[2]: max abs difference 1
+   DIFF X_train[3]: max abs difference 1
+   DIFF X_train[4]: max abs difference 1
+   DIFF X_train[5]: max abs difference 1
+   DIFF X_train[6]: max abs difference 1
+   DIFF X_train[7]: max abs difference 1
+   DIFF X_train[8]: max abs difference 1
+   DIFF X_train[9]: max abs difference 1
+   DIFF X_train[10]: max abs difference 1
+   DIFF X_train[11]: max abs difference 1
+   DIFF X_train[12]: max abs difference 1
+   DIFF X_train[13]: max abs difference 1
+   DIFF X_train[14]: max abs difference 1
+   DIFF X_train[15]: max abs difference 1
+   DIFF X_train[16]: max abs difference 1
+   DIFF X_train[17]: max abs difference 1
+   DIFF X_train[18]: max abs difference 1
+   DIFF X_train[19]: max abs difference 1
+   DIFF X_train[20]: max abs difference 1
+   DIFF X_train[21]: max abs difference 1
+   DIFF X_train[22]: max abs difference 1
+   DIFF X_train[23]: max abs difference 1
+   X_train: 0 equal, 24 different, worst max abs diff 1, detectors {'Haar': 12, 'RetinaFace': 12}
+.   X_train: 24 equal, 0 different, worst max abs diff 0, detectors {'Haar': 12, 'RetinaFace': 12}
+   X_test: 24 equal, 0 different, worst max abs diff 0, detectors {'Haar': 15, 'RetinaFace': 9}
+.   X_train: 24 equal, 0 different, worst max abs diff 0, detectors {'Haar': 12, 'RetinaFace': 12}
+   X_test: 24 equal, 0 different, worst max abs diff 0, detectors {'Haar': 15, 'RetinaFace': 9}
+   X_train: 24 equal, 0 different, worst max abs diff 0, detectors {'Haar': 12, 'RetinaFace': 12}
+   X_test: 24 equal, 0 different, worst max abs diff 0, detectors {'Haar': 16, 'RetinaFace': 8}
+........== LivenessNet seed 43: 12 epochs in 0s, restored epoch 12 (val_loss 0.390000)
+...== LivenessNet seed 43: 6 epochs in 0s, restored epoch 2 (val_loss 0.500000)
+...
+----------------------------------------------------------------------
+Ran 71 tests in 24.268s
+
+OK (skipped=1)
+tests run: 71, failures: 0, errors: 0, skipped: 1
+skipped __main__.TestRealInputs.test_real_check_inputs: missing input: the M2 manifests, the fold schema run, the training cache, the NUAA images or the frozen code are not present
+RESULT: PASS
+
+$ python -I scripts/check_nuaa_folds_run_mutations.py
+unmutated copy: scripts/check_nuaa_folds_run.py exit 0 (tests run: 71, failures: 0, errors: 0, skipped: 1)
+unmutated copy: skipped __main__.TestRealInputs.test_real_check_inputs: missing input: the M2 manifests, the fold schema run, the training cache, the NUAA images or the frozen code are not present
+unmutated copy: 1 tests skipped, all for a declared missing input; mutations are counted killed only by failures or errors of the tests that run
+CONTROL   SURVIVED  control: comment only (tests run: 71, failures: 0, errors: 0, skipped: 1)
+CONTROL   SURVIVED  declared redundant (must survive): test folds partition the images (tests run: 71, failures: 0, errors: 0, skipped: 1)
+CONTROL   SURVIVED  declared redundant (must survive): frames to extract not counted (tests run: 71, failures: 0, errors: 0, skipped: 1)
+CONTROL   SURVIVED  declared redundant (must survive): first of the three cap checks before the final writes removed (tests run: 71, failures: 0, errors: 0, skipped: 1)
+KILLED    training recipe not compared (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    bootstrap recipe not compared (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    threshold criterion not compared (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    budget trainings not compared (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    duplicated seeds accepted (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    expected counts not checked (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    declaration flags not required (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    architecture file not tied to the reference code (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    M2 manifest SHA-256 not checked (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    M2 manifest counts not checked (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    cache manifest rows not compared with the official lists (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    fold SHA256SUMS anchor not checked (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    fold file SHA-256 not compared with SHA256SUMS (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    fold file not required in SHA256SUMS (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    fold row count not checked (tests run: 71, failures: 2, errors: 0, skipped: 1)
+KILLED    fold and role of a row not checked (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    fold row not compared with the official list (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    in_cache flag not checked (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    roles sharing a subject accepted (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    dev not compared with the next test fold (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    symbolic-link input accepted (tests run: 71, failures: 2, errors: 0, skipped: 1)
+KILLED    cache SHA-256 not checked (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    cache member schema not checked (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    cache labels not linked to the manifests (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    frozen face SHA-256 not checked (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    detector resource SHA-256 not checked (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    OpenCV version not compared (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    TensorFlow import at check not detected (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    cache frame shape not checked (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    cache frame difference ignored (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    original SHA-256 not checked (tests run: 71, failures: 2, errors: 0, skipped: 1)
+KILLED    original symbolic link accepted (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    extracted frame shape not checked (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    existing frames file overwritten by extract (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    identical frames across subjects accepted (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    extracted keys unsorted (tests run: 71, failures: 3, errors: 0, skipped: 1)
+KILLED    GPU left visible (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    seed not given to TensorFlow (tests run: 71, failures: 0, errors: 1, skipped: 1)
+KILLED    early stopping without restore_best_weights (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    shuffle without the training seed (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    cap callback not called (tests run: 71, failures: 2, errors: 0, skipped: 1)
+KILLED    best weights not restored when the epochs end first (tests run: 71, failures: 0, errors: 1, skipped: 1)
+KILLED    restored epoch not the minimum of val_loss (tests run: 71, failures: 2, errors: 0, skipped: 1)
+KILLED    card not checked against the recipe (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    card restored epoch not checked (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    val_loss of the checkpoint not recomputed (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    threshold selected on the test instead of the dev (tests run: 71, failures: 11, errors: 0, skipped: 1)
+KILLED    EER objective replaced by the sum (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    EER ties to the lowest value (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    candidate below the minimum dropped (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    tie at the threshold counted as attack (tests run: 71, failures: 2, errors: 0, skipped: 1)
+KILLED    threshold.json not read back (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    threshold SHA-256 not written in the score rows (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    scorer output not validated (tests run: 71, failures: 2, errors: 0, skipped: 1)
+KILLED    dev frames scored with the test frames (tests run: 71, failures: 13, errors: 0, skipped: 1)
+KILLED    AUROC ties not averaged (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    AUROC with the classes swapped (tests run: 71, failures: 2, errors: 0, skipped: 1)
+KILLED    rejected and accepted swapped (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    ACER with an absent class (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    stratum rows not filtered by session (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    median replaced by the mean (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    bootstrap seed 1 (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    bootstrap with 100 resamples (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    bootstrap resampled subjects deduplicated (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    bootstrap interval with few subjects (tests run: 71, failures: 0, errors: 1, skipped: 1)
+KILLED    pooled rows from one fold only (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    per-subject rows from every subject (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    public scan skipped (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    subject identifiers not scanned (tests run: 71, failures: 2, errors: 0, skipped: 1)
+KILLED    foreign entries accepted (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    run folder not validated (tests run: 71, failures: 2, errors: 0, skipped: 1)
+KILLED    authorisation flag not required (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    failure recorded as PASS (tests run: 71, failures: 5, errors: 0, skipped: 1)
+KILLED    outputs not removed after a failure (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    dirty tree not declared (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    wall-time cap never exceeded (tests run: 71, failures: 2, errors: 0, skipped: 1)
+KILLED    previous outputs not invalidated before the run (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    restricted SHA256SUMS without the weights (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    public anchor not written in the restricted folder (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    error not written in the run log (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    class weights swapped (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    bootstrap percentiles [5, 95] (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    tie at 0.5 counted as attack (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    RandomRotation(0.3) (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    GaussianNoise removed (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    augmentation order changed (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    one-hot labels inverted (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    training input not divided by 255 (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    scoring input not divided by 255 (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    scoring in training mode (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    augmentation also on the dev (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    loss changed (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    budget not checked before aggregate (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    val_loss tolerance loosened (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    duplicated cache frames accepted (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    scoring batch 64 (tests run: 71, failures: 0, errors: 1, skipped: 1)
+KILLED    clear_session removed (tests run: 71, failures: 0, errors: 1, skipped: 1)
+KILLED    checkpoint not saved through a temporary name (tests run: 71, failures: 2, errors: 0, skipped: 1)
+KILLED    detectors not compared with the N2 cache check (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    frames shared between X_train and X_test accepted (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    schema configuration SHA-256 not checked (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    schema training fields not compared (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    frames file not refused at check-inputs (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    existing status.json not refused (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    environment variables not refused (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    originals not located at check-inputs (tests run: 71, failures: 2, errors: 0, skipped: 1)
+KILLED    TensorFlow version not compared (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    run log SHA-256 not recorded (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    failed extraction not parked (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    SIGHUP handler installed even when ignored (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED    SIGTERM handler not installed (tests run: 71, failures: 2, errors: 0, skipped: 1)
+KILLED    checkpoint temporary left behind when the save fails (tests run: 71, failures: 1, errors: 0, skipped: 1)
+mutations killed: 112/112
+control mutations survived: 4/4 (1 control, 3 declared redundant)
+RESULT: PASS

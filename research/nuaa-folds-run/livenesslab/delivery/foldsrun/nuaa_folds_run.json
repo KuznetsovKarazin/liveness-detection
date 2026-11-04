@@ -1,0 +1,279 @@
+{
+ "schema": "nuaa-folds-run-config/1",
+ "task": "LivenessNet training run on NUAA with four subject folds and three training seeds (subject-held-out, session-matched check), authorised by the coordinator on 3 November 2026 on the C2 card after the approval of the fold schema (PR #16, run 20261103-FOLDS-67b7f3d): 4 folds per subject, seeds 42/43/44, overall compute cap 6 hours, the delivered configuration unchanged; input and cache checks first; preprocessing, split and recipe fixed; threshold on the dev only, frozen before the test; every outcome kept and delivered (code, configuration, scores, tables, logs, SHA-256).",
+ "authorisation": "coordinator, C2 card, comment of 3 November 2026 (evening): 'Il protocollo va bene. Può procedere con l'implementazione e l'esecuzione dell'esperimento LivenessNet su CPU: 4 fold per soggetto, seed 42/43/44 e limite di calcolo complessivo di 6 ore, secondo la configurazione consegnata. Esegua prima i controlli previsti sugli input e sulla cache. Se passano, proceda senza attendere un altro via libera.'",
+ "schema_run": {
+  "run_id": "20261103-FOLDS-67b7f3d",
+  "folder": "results/folds/20261103-FOLDS-67b7f3d/restricted",
+  "config_path": "delivery/folds/nuaa_subject_folds.json",
+  "config_sha256": "d1d43c148f762965c5ae367a0de1c59770324f7840034fd5a6c7fad0a14e73e8",
+  "restricted_sha256sums_sha256": "f3b30ae75a7167646544ef524225749bbded99e55d2249b9415eef2481e0d0f1"
+ },
+ "manifests": {
+  "folder": "results/m2/manifests",
+  "origin": "M2 package 20261006-M2-seed42-36c677a (accepted); the manifests are restricted; their SHA-256 and counts are those recorded in the accepted N1 and N2 configurations",
+  "files": {
+   "official_train": {
+    "file": "nuaa_official_train.csv",
+    "sha256": "2a7e8906f98b8e3cf0c42cd0a2cf10e15868750b1ac82e85b62a9e0b59aad648",
+    "rows": 3491,
+    "n_bona_fide": 1743,
+    "n_attack": 1748,
+    "n_subjects": 9,
+    "sessions": [
+     "01",
+     "02"
+    ]
+   },
+   "official_test": {
+    "file": "nuaa_official_test.csv",
+    "sha256": "2fad23ff295cb2c1d3d0be238deef02faad252aa717933c30588bd5a9c4106c7",
+    "rows": 9123,
+    "n_bona_fide": 3362,
+    "n_attack": 5761,
+    "n_subjects": 16,
+    "sessions": [
+     "03"
+    ]
+   },
+   "cnn_train": {
+    "file": "nuaa_cnn_train.csv",
+    "sha256": "6d46ec7da7bfc32b1cce9ed3e331f8ed4377e5fc2df31e1b77ac7f6a0c2bc33c",
+    "rows": 2507,
+    "n_bona_fide": 1345,
+    "n_attack": 1162,
+    "n_subjects": 7,
+    "sessions": [
+     "01",
+     "02"
+    ]
+   },
+   "cnn_es": {
+    "file": "nuaa_cnn_early_stopping.csv",
+    "sha256": "17282be8ef300e5e178ae87cd137ffd875786f1b353924e7cfb6eb14db1584c1",
+    "rows": 493,
+    "n_bona_fide": 155,
+    "n_attack": 338,
+    "n_subjects": 2,
+    "sessions": [
+     "01",
+     "02"
+    ]
+   },
+   "cnn_test": {
+    "file": "nuaa_cnn_test.csv",
+    "sha256": "ce9669dccae37041e778ff7bcba5f4cef08fa79f50d65be84806b084c5d95748",
+    "rows": 3000,
+    "n_bona_fide": 1500,
+    "n_attack": 1500,
+    "n_subjects": 16,
+    "sessions": [
+     "03"
+    ]
+   }
+  }
+ },
+ "images": {
+  "folder": "data/NUAA/images",
+  "layout": "images"
+ },
+ "expected": {
+  "k": 4,
+  "n_subjects": 16,
+  "n_images": 12614,
+  "n_cache_frames": 6000,
+  "n_to_extract": 6614,
+  "fitting_per_fold": 2100,
+  "dev_per_fold": 600,
+  "test_per_fold": [
+   3242,
+   3114,
+   3439,
+   2819
+  ]
+ },
+ "cache": {
+  "path": "data/processed/nuaa_1500.npz",
+  "sha256": "dc286dc371e61d638da1842c062a38c5368a9ec4da07ccbc36b7fff6f3177920",
+  "per_class": 1500,
+  "members": {
+   "X_train": {
+    "dtype": "|u1",
+    "shape": [
+     3000,
+     256,
+     256,
+     3
+    ]
+   },
+   "y_train": {
+    "dtype": "<i8",
+    "shape": [
+     3000
+    ]
+   },
+   "s_train": {
+    "dtype": "<U4",
+    "shape": [
+     3000
+    ]
+   },
+   "X_test": {
+    "dtype": "|u1",
+    "shape": [
+     3000,
+     256,
+     256,
+     3
+    ]
+   },
+   "y_test": {
+    "dtype": "<i8",
+    "shape": [
+     3000
+    ]
+   },
+   "s_test": {
+    "dtype": "<U4",
+    "shape": [
+     3000
+    ]
+   }
+  },
+  "order": "X_train = spread per class of the official training list (bona fide first) = cnn_train + cnn_es; X_test = spread of the official test list = cnn_test (M2 rule, verified by the N2 cache check and again here)",
+  "built": "2026-09-12 with the extractor face.py 0ac7143, reproduced bit for bit from the originals in N2 and again by the cache-check step of this run; the detectors counted per frame must equal those of the N2 cache check (results/n2/20261029-N2-sessions-2ac3e29/cache_check.json)",
+  "detectors_n2": {
+   "train": {
+    "Haar": 51,
+    "RetinaFace": 2949
+   },
+   "test": {
+    "Haar": 3,
+    "RetinaFace": 2996,
+    "none": 1
+   }
+  }
+ },
+ "extraction": {
+  "frames_file": "data/processed/nuaa_folds_frames.npz",
+  "frozen_face": {
+   "path": "delivery/n2/face_0ac7143.py",
+   "sha256": "c72f7fa8a9f3b099babce2255530466e5a34731fb5d021f97fd412a98cb58261"
+  },
+  "detector_resources": {
+   "deploy.prototxt": {
+    "path": "src/third_party/Silent-Face-Anti-Spoofing/resources/detection_model/deploy.prototxt",
+    "sha256": "9fe2f141b4baee039ed9442da2833e216af40a6ff3e639e7b39258812bcda808"
+   },
+   "Widerface-RetinaFace.caffemodel": {
+    "path": "src/third_party/Silent-Face-Anti-Spoofing/resources/detection_model/Widerface-RetinaFace.caffemodel",
+    "sha256": "d08338a2c207df16a9c566f767fea67fb43ba6fff76ce11e938fe3fabefb9402"
+   },
+   "haarcascade_frontalface_default.xml": {
+    "path": "cv2.data.haarcascades/haarcascade_frontalface_default.xml",
+    "sha256": "0f7d4527844eb514d4a4948e822da90fbb16a34a0bbbbc6adc6498747a5aafb0"
+   }
+  },
+  "reference_code": {
+   "create_datasets": {
+    "path": "src/livedetection/scripts/create_datasets.py",
+    "sha256": "306ea1c84143f1df4796cc6c93893498a0c4b3efc3a60a773efeaf95a152d46d"
+   },
+   "architectures": {
+    "path": "src/livedetection/src/architectures.py",
+    "sha256": "a83c02b0788bd6f98262abf00f5fe970abed501f231edba348820482aea64d30"
+   }
+  },
+  "chain": "train_cnn.preprocess (unchanged): cv2.imread, frozen detector (RetinaFace, Haar fallback), Face.crop(margin=0.15, square=True) or the whole image when no face, cv2.resize 256x256 INTER_AREA, BGR to RGB, advanced_image_enhancement of the reference create_datasets.py, uint8; the detector used is recorded for every frame (restricted)"
+ },
+ "environment": {
+  "opencv": "4.11.0",
+  "tensorflow": "2.15.0"
+ },
+ "architecture": {
+  "name": "LivenessNet",
+  "path": "src/livedetection/src/architectures.py",
+  "sha256": "a83c02b0788bd6f98262abf00f5fe970abed501f231edba348820482aea64d30",
+  "chosen": "by the coordinator on 3 November 2026, to stay comparable with N1 (create_model('LivenessNet').get_model() of the reference code, unchanged)"
+ },
+ "train_seeds": [
+  42,
+  43,
+  44
+ ],
+ "training": {
+  "recipe": "N1 part 2 (n1_nuaa_stability.json, study 20261024-N1-LivenessNet-fb93496), unchanged",
+  "max_epochs": 12,
+  "batch": 16,
+  "initial_learning_rate": 0.001,
+  "early_stopping_patience": 4,
+  "checkpoint": "weights of the epoch with minimum val_loss on the dev frames (EarlyStopping restore_best_weights; set_weights when the epochs end first)",
+  "optimizer": "tf.keras.optimizers.legacy.Adam(learning_rate=initial_learning_rate, clipnorm=1.0)",
+  "loss": "CategoricalCrossentropy, one-hot labels (index 0 bona fide, 1 attack)",
+  "class_weight": "balanced on the fitting set: n / (2 * n_class)",
+  "augmentation": "RandomFlip(horizontal), RandomRotation(0.03), RandomZoom(0.12, 0.12), RandomTranslation(0.06, 0.06), RandomBrightness(0.15, value_range=(0, 1)), RandomContrast(0.2), GaussianNoise(0.02); fitting set only",
+  "scheduler": "ReduceLROnPlateau(monitor=val_loss, factor=0.5, patience=2, min_lr=1e-6)",
+  "shuffle": "tf.data shuffle(4096, seed=train_seed)",
+  "seeds": "train_seed for random, numpy and TensorFlow (weight initialisation, augmentation, batch order); no split seed: the folds and the samples are deterministic",
+  "device": "CPU"
+ },
+ "threshold": {
+  "set": "dev fold only",
+  "criterion": "eer, the M1 protocol: candidates = distinct dev scores plus nextafter(min, -inf) if >= 0; attack if score > value (tie = bona fide); minimum of |fp * n_attack - fn * n_bona_fide| on integers, ties to the highest value",
+  "frozen_before_test": "written to fold<k>_seed<s>_threshold.json from the dev scores, read back, SHA-256 recorded in every test score row; the test frames are scored only afterwards (card: test_scored_after_threshold)",
+  "also_reported": "the fixed threshold 0.5 of C1, N1 and N2, labelled 05",
+  "dev_reuse_declared": "the dev frames drive early stopping, learning-rate reduction, the restored epoch and the threshold (as in N1 and in the C2 protocol); the dev does not identify a unique threshold when its classes separate completely and gives no guarantee of transfer"
+ },
+ "scoring": {
+  "device": "CPU",
+  "batch": 16,
+  "batchnorm": "inference (training=False)",
+  "input": "frames / 255",
+  "score": "softmax output, column 1 (attack probability)"
+ },
+ "metrics": {
+  "strata": [
+   "01",
+   "02",
+   "03",
+   "all"
+  ],
+  "decision": "attack if score_attack > threshold (tie = bona fide)",
+  "per_unit": "per fold, seed and session stratum of the held-out subjects (01, 02, 03 and all), NA where a class is absent: n_bona_fide, n_attack, accepted attacks, rejected bona fide, APCER, BPCER, ACER at 0.5 and at the dev threshold, AUROC (threshold-free)",
+  "per_subject": "the same per held-out subject and stratum (restricted per_subject.csv)",
+  "auroc": "Mann-Whitney U with ties counted 0.5 (equal to roc_auc_score), score_attack as the separator, attack positive",
+  "aggregation": "values of every fold and seed; median and range over seeds per fold; pooled counts over the four folds per session and seed (every subject held out exactly once); median and range over seeds of the pooled values; no fold or seed selection",
+  "uncertainty": "bootstrap over subjects: 1,000 resamples with replacement of the held-out subjects of the stratum (pooled over the four folds, per seed), percentiles 2.5-97.5 of the pooled ACER (at the dev threshold and at 0.5) and AUROC; random seed 0; no interval for a stratum with fewer than 5 subjects; no statistical test. Declared: the pooled estimate is a cross-validation aggregate scored by four models with four dev thresholds; the session strata hold at most 9 subjects (sessions 01-02: 9; session 03 bona fide: 9), so the interval is coarse",
+  "pre_commitment": "reported whatever the outcome; no change of recipe, threshold criterion, folds or counts after any score is read"
+ },
+ "bootstrap": {
+  "resamples": 1000,
+  "seed": 0,
+  "percentiles": [
+   2.5,
+   97.5
+  ],
+  "min_subjects": 5
+ },
+ "budget": {
+  "trainings": 12,
+  "estimate": "about 8-11 min per training on the CPU for 2,507 fitting frames in N1 (wall 496-671 s); 2,100 fitting frames here, so at most about 2.5 h of training; the cache check of 6,000 frames and the extraction of 6,614 with the frozen extractor before the trainings; 12 scoring passes; the estimate holds on an idle machine (under load the reviewer measured 1.5 s per step against 0.4 in N1): the run is launched with the machine otherwise idle",
+  "wall_time_cap_minutes": 360,
+  "on_cap_exceeded": "stop, no results; report as a failed run (checked at every step boundary, before the final writes and at the end of every epoch; elapsed time = the larger of the monotonic and the wall clock)"
+ },
+ "declarations": {
+  "pre_commitment": true,
+  "dev_reuse": true,
+  "cpu_only": true,
+  "all_outcomes_kept": true,
+  "cpu_nondeterminism": "the seeds fix the initialisation, the augmentation and the batch order; on the CPU parallel reductions may still give minimal differences between two runs with the same seed (N1, n1_trainer.py); enable_op_determinism is not used",
+  "diagnostic": "diagnostic protocol, not a benchmark and not a complete causal isolation: adding session 03 to training also adds variety, so a low error on the held-out subjects would be consistent with an N1/C1 failure due to 'session not represented, or training data too narrow' rather than to the session alone; a high error would be consistent with a failure of the recipe; both readings are diagnostic, not causal",
+  "exploratory": "the NUAA session-03 results are already known (C1, M1, N1, N2): the schema is a rule fixed before any training, not a confirmatory test",
+  "limits": "frames of one subject and session stay correlated; per-subject counts are unbalanced (session 03 bona fide for 9 of 16 subjects, 3 of them training subjects); sessions 01-02 exist for 9 subjects only, so the session 01-02 test and dev strata rest on 2-3 subjects per fold and a single session x class cell there can rest on one subject (two training subjects lack bona fide frames in one of the two sessions); the fixed fitting counts under-sample session 03 (about 18-25% of its bona fide and 11-13% of its attacks are used) and use most of sessions 01-02; the dev of a held-out fold is the test fold of the next one, so the four fold results are not independent (different models, no leakage); three seeds give a range, not a confidence interval; one dataset, one attack type (print)",
+  "question": "When the capture session is represented in training, does the N1 recipe generalise to subjects it has never seen? N2 already measured the opposite cell (the 9 training subjects in session 03: BPCER 0.6873 for every seed, AUROC 0.3171-0.4569); this schema measures new subjects with every session represented in training."
+ },
+ "outputs": {
+  "public": "aggregate.json, aggregate.md, run_record.json, SHA256SUMS: rules, counts, metrics per fold, seed and stratum, summaries, bootstrap intervals, training cards (epochs, restored epoch, val_loss, seconds, dev thresholds), timings, environment, SHA-256 of the inputs; no subject identifier, no image key",
+  "restricted": "per model: card.json, threshold.json, dev_scores.csv, test_scores.csv, LivenessNet.keras; per_subject.csv, extracted_frames.csv (detector and frame SHA-256 per extracted frame), public_SHA256SUMS.sha256 (anchor of the public folder), SHA256SUMS"
+ }
+}

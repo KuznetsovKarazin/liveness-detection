@@ -1,0 +1,121 @@
+# macOS, Python 3.11.16, NumPy 1.26.4, OpenCV 4.11.0, 2026-11-04 03:04 CET; run from the development repository root with the real inputs present (the extracted frames file of the completed run renamed aside)
+$ .venv/bin/python -I scripts/check_nuaa_folds_run.py -v
+test_budget_and_seeds (__main__.TestConfig.test_budget_and_seeds) ... ok
+test_delivered_configuration (__main__.TestConfig.test_delivered_configuration) ... ok
+test_expected_counts_consistent (__main__.TestConfig.test_expected_counts_consistent) ... ok
+test_scoring_metrics_declarations_architecture (__main__.TestConfig.test_scoring_metrics_declarations_architecture) ... ok
+test_synthetic_configuration_accepted (__main__.TestConfig.test_synthetic_configuration_accepted) ... ok
+test_threshold_and_bootstrap_fixed (__main__.TestConfig.test_threshold_and_bootstrap_fixed) ... ok
+test_training_recipe_must_be_the_n1_recipe (__main__.TestConfig.test_training_recipe_must_be_the_n1_recipe) ... ok
+test_unknown_or_missing_top_key (__main__.TestConfig.test_unknown_or_missing_top_key) ... ok
+test_cache_frame_shape_must_match (__main__.TestInputs.test_cache_frame_shape_must_match) ... ok
+test_cache_manifest_row_differs_from_official (__main__.TestInputs.test_cache_manifest_row_differs_from_official) ... ok
+test_cache_sha_members_and_linkage (__main__.TestInputs.test_cache_sha_members_and_linkage) ... ok
+test_check_inputs_command_writes_nothing (__main__.TestInputs.test_check_inputs_command_writes_nothing) ... ok
+test_dev_must_be_the_next_test_fold (__main__.TestInputs.test_dev_must_be_the_next_test_fold) ... ok
+test_environment_variables_and_tensorflow_version (__main__.TestInputs.test_environment_variables_and_tensorflow_version) ... ok
+test_fold_count_per_fold_and_subject_partition (__main__.TestInputs.test_fold_count_per_fold_and_subject_partition) ... ok
+test_fold_file_missing_from_sums_or_symlinked (__main__.TestInputs.test_fold_file_missing_from_sums_or_symlinked) ... ok
+test_fold_row_count_role_and_in_cache (__main__.TestInputs.test_fold_row_count_role_and_in_cache) ... ok
+test_fold_sums_anchor_and_file_sha (__main__.TestInputs.test_fold_sums_anchor_and_file_sha) ... ok
+test_frozen_code_resources_and_opencv (__main__.TestInputs.test_frozen_code_resources_and_opencv) ... ok
+test_images_folder_required (__main__.TestInputs.test_images_folder_required) ... ok
+test_m2_manifest_sha_and_counts (__main__.TestInputs.test_m2_manifest_sha_and_counts) ... ok
+test_m2_manifest_symlink_refused (__main__.TestInputs.test_m2_manifest_symlink_refused) ... ok
+test_originals_verified_and_frames_file_refused_at_check (__main__.TestInputs.test_originals_verified_and_frames_file_refused_at_check) ... ok
+test_roles_sharing_a_subject_or_key (__main__.TestInputs.test_roles_sharing_a_subject_or_key) ... ok
+test_schema_configuration_is_verified (__main__.TestInputs.test_schema_configuration_is_verified) ... ok
+test_synthetic_inputs_pass (__main__.TestInputs.test_synthetic_inputs_pass) ... ok
+test_tensorflow_must_not_be_imported_at_check (__main__.TestInputs.test_tensorflow_must_not_be_imported_at_check) ... ok
+test_auroc_and_metrics_known_answers (__main__.TestMetrics.test_auroc_and_metrics_known_answers) ... ok
+test_bootstrap_recipe (__main__.TestMetrics.test_bootstrap_recipe) ... ok
+test_eer_threshold_equals_select_threshold_when_available (__main__.TestMetrics.test_eer_threshold_equals_select_threshold_when_available) ... ok
+test_eer_threshold_known_answers (__main__.TestMetrics.test_eer_threshold_known_answers) ... ok
+test_public_problems (__main__.TestMetrics.test_public_problems) ... ok
+test_score_rows_decisions_at_a_tie (__main__.TestMetrics.test_score_rows_decisions_at_a_tie) ... ok
+test_stratum_metrics_and_summary (__main__.TestMetrics.test_stratum_metrics_and_summary) ... ok
+test_real_check_inputs (__main__.TestRealInputs.test_real_check_inputs) ... ok
+test_aggregate_consistent_with_the_scores (__main__.TestRun.test_aggregate_consistent_with_the_scores) ... ok
+test_authorisation_dirty_tree_and_previous_outputs (__main__.TestRun.test_authorisation_dirty_tree_and_previous_outputs) ... ok
+test_bad_scorer_output_fails_the_run (__main__.TestRun.test_bad_scorer_output_fails_the_run) ... ok
+test_checkpoint_temporary_removed_when_the_save_fails (__main__.TestRun.test_checkpoint_temporary_removed_when_the_save_fails) ... ok
+test_failure_leaves_fail_status_and_no_outputs (__main__.TestRun.test_failure_leaves_fail_status_and_no_outputs) ... ok
+test_foreign_entry_in_the_run_folder_refused (__main__.TestRun.test_foreign_entry_in_the_run_folder_refused) ... ok
+test_frames_file_already_present_fails (__main__.TestRun.test_frames_file_already_present_fails) ... ok
+test_output_root_symlink_refused (__main__.TestRun.test_output_root_symlink_refused) ... ok
+test_public_files_have_no_identifiers (__main__.TestRun.test_public_files_have_no_identifiers) ... ok
+test_public_scan_blocks_identifiers (__main__.TestRun.test_public_scan_blocks_identifiers) ... ok
+test_run_outputs_status_and_sums (__main__.TestRun.test_run_outputs_status_and_sums) ... ok
+test_sighup_handler_not_installed_when_ignored (__main__.TestRun.test_sighup_handler_not_installed_when_ignored) ... ok
+test_sigterm_stops_the_run_with_fail (__main__.TestRun.test_sigterm_stops_the_run_with_fail) ... ok
+test_threshold_frozen_before_test_and_scores_consistent (__main__.TestRun.test_threshold_frozen_before_test_and_scores_consistent) ... ok
+test_threshold_read_back_is_compared (__main__.TestRun.test_threshold_read_back_is_compared) ... ok
+test_val_loss_mismatch_and_bad_card_refused (__main__.TestRun.test_val_loss_mismatch_and_bad_card_refused) ... ok
+test_wall_time_cap_checked_before_aggregate_and_writes (__main__.TestRun.test_wall_time_cap_checked_before_aggregate_and_writes) ... ok
+test_wall_time_cap_fails_the_run (__main__.TestRun.test_wall_time_cap_fails_the_run) ... ok
+test_cache_check_detectors_must_equal_n2 (__main__.TestSteps.test_cache_check_detectors_must_equal_n2) ...    X_train: 24 equal, 0 different, worst max abs diff 0, detectors {'Haar': 12, 'RetinaFace': 12}
+   X_test: 24 equal, 0 different, worst max abs diff 0, detectors {'Haar': 15, 'RetinaFace': 9}
+ok
+test_cache_check_detects_a_changed_original (__main__.TestSteps.test_cache_check_detects_a_changed_original) ...    X_train: 24 equal, 0 different, worst max abs diff 0, detectors {'Haar': 12, 'RetinaFace': 12}
+   X_train: 24 equal, 0 different, worst max abs diff 0, detectors {'Haar': 12, 'RetinaFace': 12}
+ok
+test_cache_check_detects_a_different_preprocessing (__main__.TestSteps.test_cache_check_detects_a_different_preprocessing) ...    DIFF X_train[0]: max abs difference 1
+   DIFF X_train[1]: max abs difference 1
+   DIFF X_train[2]: max abs difference 1
+   DIFF X_train[3]: max abs difference 1
+   DIFF X_train[4]: max abs difference 1
+   DIFF X_train[5]: max abs difference 1
+   DIFF X_train[6]: max abs difference 1
+   DIFF X_train[7]: max abs difference 1
+   DIFF X_train[8]: max abs difference 1
+   DIFF X_train[9]: max abs difference 1
+   DIFF X_train[10]: max abs difference 1
+   DIFF X_train[11]: max abs difference 1
+   DIFF X_train[12]: max abs difference 1
+   DIFF X_train[13]: max abs difference 1
+   DIFF X_train[14]: max abs difference 1
+   DIFF X_train[15]: max abs difference 1
+   DIFF X_train[16]: max abs difference 1
+   DIFF X_train[17]: max abs difference 1
+   DIFF X_train[18]: max abs difference 1
+   DIFF X_train[19]: max abs difference 1
+   DIFF X_train[20]: max abs difference 1
+   DIFF X_train[21]: max abs difference 1
+   DIFF X_train[22]: max abs difference 1
+   DIFF X_train[23]: max abs difference 1
+   X_train: 0 equal, 24 different, worst max abs diff 1, detectors {'Haar': 12, 'RetinaFace': 12}
+ok
+test_cache_check_reproduces_every_frame (__main__.TestSteps.test_cache_check_reproduces_every_frame) ...    X_train: 24 equal, 0 different, worst max abs diff 0, detectors {'Haar': 12, 'RetinaFace': 12}
+   X_test: 24 equal, 0 different, worst max abs diff 0, detectors {'Haar': 15, 'RetinaFace': 9}
+ok
+test_cache_check_shared_and_duplicated_frames (__main__.TestSteps.test_cache_check_shared_and_duplicated_frames) ...    X_train: 24 equal, 0 different, worst max abs diff 0, detectors {'Haar': 12, 'RetinaFace': 12}
+   X_test: 24 equal, 0 different, worst max abs diff 0, detectors {'Haar': 15, 'RetinaFace': 9}
+   X_train: 24 equal, 0 different, worst max abs diff 0, detectors {'Haar': 12, 'RetinaFace': 12}
+   X_test: 24 equal, 0 different, worst max abs diff 0, detectors {'Haar': 16, 'RetinaFace': 8}
+ok
+test_extract_frames (__main__.TestSteps.test_extract_frames) ... ok
+test_extract_identical_frames_across_subjects_fail_same_subject_recorded (__main__.TestSteps.test_extract_identical_frames_across_subjects_fail_same_subject_recorded) ... ok
+test_frame_store_and_assemble_by_key (__main__.TestSteps.test_frame_store_and_assemble_by_key) ... ok
+test_original_symlink_and_wrong_frame_shape_refused (__main__.TestSteps.test_original_symlink_and_wrong_frame_shape_refused) ... ok
+test_probabilities_and_val_loss (__main__.TestSteps.test_probabilities_and_val_loss) ... ok
+test_cap_callback_stops_the_training (__main__.TestTrainer.test_cap_callback_stops_the_training) ... ok
+test_card_problems (__main__.TestTrainer.test_card_problems) ... ok
+test_epochs_end_first_set_weights (__main__.TestTrainer.test_epochs_end_first_set_weights) ... == LivenessNet seed 43: 12 epochs in 0s, restored epoch 12 (val_loss 0.390000)
+ok
+test_existing_weights_and_wrong_data_refused (__main__.TestTrainer.test_existing_weights_and_wrong_data_refused) ... ok
+test_gpu_that_stays_visible_is_refused (__main__.TestTrainer.test_gpu_that_stays_visible_is_refused) ... ok
+test_recipe_seed_device_and_restored_epoch (__main__.TestTrainer.test_recipe_seed_device_and_restored_epoch) ... == LivenessNet seed 43: 6 epochs in 0s, restored epoch 2 (val_loss 0.500000)
+ok
+test_tf_scorer_with_fake_tensorflow (__main__.TestTrainer.test_tf_scorer_with_fake_tensorflow) ... ok
+test_declared_skips_only (__main__.ZZRepositoryUntouched.test_declared_skips_only) ... ok
+
+----------------------------------------------------------------------
+Ran 71 tests in 32.307s
+
+OK
+tests run: 71, failures: 0, errors: 0, skipped: 0
+RESULT: PASS
+
+$ .venv/bin/python -I scripts/nuaa_folds_run.py check-inputs
+CHECK-INPUTS: configuration 7aaf0be21356, 5 M2 manifests, 12 fold manifests of 20261103-FOLDS-67b7f3d, cache 6000 frames linked, 6614 frames to extract, frozen code and resources verified, OpenCV 4.11.0, TensorFlow not imported; nothing written
+RESULT: PASS (check-inputs)
