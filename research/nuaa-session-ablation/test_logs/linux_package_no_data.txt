@@ -1,0 +1,15 @@
+# Linux container python:3.12 (aarch64), Python 3.12.15, 2026-11-04T22:00Z; package layout (livenesslab/scripts, livenesslab/delivery/sessionablation and livenesslab/delivery/folds, mounted read-only) without data, run from livenesslab/, standard library only, no network, temporary folders only; expected: check-inputs FAIL, no data in the container
+$ python -I scripts/check_nuaa_session_ablation.py
+.....................................s................
+----------------------------------------------------------------------
+Ran 54 tests in 5.019s
+
+OK (skipped=1)
+tests run: 54, failures: 0, errors: 0, skipped: 1
+SKIPPED __main__.TestRealInputs.test_real_inputs_check: missing input: the restricted M2 manifests or the fold schema run are not present
+RESULT: PASS
+
+$ python -I scripts/nuaa_session_ablation.py check-inputs
+ERROR: manifest official_train nuaa_official_train.csv not found
+RESULT: FAIL (check-inputs)
+exit code 1

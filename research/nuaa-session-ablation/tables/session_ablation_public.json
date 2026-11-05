@@ -1,0 +1,1582 @@
+{
+ "schema": "nuaa-session-ablation/1",
+ "run_id": "20261104-SESSABL-5d89888",
+ "status": "counts for a proposed protocol, to be agreed with the coordinator before any training; nothing trained, nothing scored, no image read",
+ "task": "Training with and without session 03 on NUAA (coordinator, C2 card, 4 November 2026): a short protocol proposal that compares the two trainings keeping subjects, sample size, test, preprocessing and recipe fixed as far as possible, with the dev and the threshold chosen without the test; this package gives the available counts, the limits and the compute budget. Same four subject folds as the approved fold schema.",
+ "config_sha256": "2b86ef8e8cab3e9fac4ae9ca34471977c773bba34cc4990347f03b0ab38db015",
+ "commit": "5d89888",
+ "dirty": false,
+ "code_sha256": {
+  "scripts/nuaa_session_ablation.py": "69637b965047b81e52af9057d15d4d6b3282936b07536eefdb130f69ceedcb53",
+  "scripts/nuaa_subject_folds.py": "aacc608885f045ee966826f2fa0b0d3ce27389a18d1c13fbabf8b3f040b55f3a",
+  "scripts/m2_writers.py": "22760abc368dede3aa0a690a241f6622afe1ba586940422497db8a33994ee34a",
+  "scripts/path_guard.py": "e5fa9c835c23745ff932e157a44d3104eb9713d86bbdecc9cdbbd3caa7a7ee34",
+  "scripts/package_rules.py": "96ec7ffab4b089bac71fd18918fcd32af72d15980cdfa1361cc84bb43e0e4c11"
+ },
+ "inputs": {
+  "folds_config_sha256": "d1d43c148f762965c5ae367a0de1c59770324f7840034fd5a6c7fad0a14e73e8",
+  "fold_schema": {
+   "run_id": "20261103-FOLDS-67b7f3d",
+   "public_sha256sums": "ed2386f57ebc3224293290b09e3c494de64135fd84633be2f320fffd65caa73b",
+   "restricted_sha256sums": "f3b30ae75a7167646544ef524225749bbded99e55d2249b9415eef2481e0d0f1",
+   "note": "the anchors recorded in the status.json of the fold schema run (PASS)"
+  }
+ },
+ "design": {
+  "s12": "subjects of the two fitting folds with frames in sessions 01-02",
+  "dev_subjects": "subjects of the dev fold (k mod K) + 1: sessions 01-02 for the common dev, all sessions for the alternative with the session mix of arm A*",
+  "rounding_step": 50,
+  "rounding_rule": "largest multiple of rounding_step not above the smallest availability over the cells and the held-out folds",
+  "allocation_rule": "total split evenly over the cells, the remainder one frame each to the cells in remainder_order; a cell short in some held-out fold takes the smallest availability over the folds and the rest is split again over the other cells (unbalanced variant)",
+  "remainder_order": [
+   "01/bona_fide",
+   "02/attack",
+   "03/bona_fide",
+   "01/attack",
+   "02/bona_fide",
+   "03/attack"
+  ],
+  "sampling": "spread(sorted file names of the cell, n): one every len/n, from the first",
+  "nesting": "arm B: spread over the available frames of each session 01-02 cell; arm A* and arm B' session 01-02 cells: spread over the frames chosen for arm B in that cell (nested in B); arm A* session 03 cells: spread over the available frames of the S12 subjects",
+  "arm_b_per_cell": 350,
+  "arm_b_total": 1400,
+  "arm_b_prime_allocation_optional": {
+   "01/bona_fide": 234,
+   "01/attack": 233,
+   "02/bona_fide": 233,
+   "02/attack": 234
+  },
+  "arm_b_prime_total_optional": 934,
+  "arm_a_star_allocation": {
+   "01/bona_fide": 234,
+   "01/attack": 233,
+   "02/bona_fide": 233,
+   "02/attack": 234,
+   "03/bona_fide": 233,
+   "03/attack": 233
+  },
+  "arm_a_star_variant": "balanced",
+  "arm_a_star_total": 1400,
+  "dev_per_cell": 100,
+  "dev_total": 400,
+  "dev_mix_allocation": {
+   "01/bona_fide": 67,
+   "01/attack": 67,
+   "02/bona_fide": 66,
+   "02/attack": 67,
+   "03/bona_fide": 67,
+   "03/attack": 66
+  },
+  "dev_mix_variant": "balanced",
+  "test": "unchanged from the fold schema: every frame of the held-out subjects",
+  "test_frames": [
+   3242,
+   3114,
+   3439,
+   2819
+  ]
+ },
+ "arms": {
+  "arm_b": "without session 03: fitting frames of sessions 01 and 02 of the S12 subjects only",
+  "arm_a_star": "with session 03: fitting frames of sessions 01, 02 and 03 of the same S12 subjects, same total as arm B",
+  "arm_b_prime": "optional: sessions 01-02 of the S12 subjects with the per-cell counts of arm A* (234/233/233/234, 934 frames), nested in arm B; A* against B' isolates the added session at equal per-cell size, B' against B the per-cell size",
+  "arm_a": "reference already run (20261103-FOLDSRUN-e174812): 350 frames per cell over six cells of all eight fitting subjects, including those with session 03 only; not rerun",
+  "comparison": "A* against B: same subjects, same total, same dev, same test, same recipe; they differ in the session-03 frames and, as a consequence of the equal total, in the number of frames per session 01-02 cell (233-234 against 350); the session 01-02 frames of A* are a subset of those of B (nested samples)"
+ },
+ "per_fold": {
+  "1": {
+   "held_out_fold": 1,
+   "dev_fold": 2,
+   "fitting_folds": [
+    3,
+    4
+   ],
+   "subjects": {
+    "test": 4,
+    "dev": 4,
+    "dev_with_sessions_01_02": 2,
+    "fitting": 8,
+    "s12": 4,
+    "s12_with_bona_fide_03": 1,
+    "s12_with_attack_03": 4,
+    "fitting_without_sessions_01_02": 4
+   },
+   "availability": {
+    "s12": {
+     "01/bona_fide": {
+      "subjects": 3,
+      "status": "published",
+      "frames": 401
+     },
+     "01/attack": {
+      "subjects": 4,
+      "status": "published",
+      "frames": 381
+     },
+     "02/bona_fide": {
+      "subjects": 4,
+      "status": "published",
+      "frames": 493
+     },
+     "02/attack": {
+      "subjects": 4,
+      "status": "published",
+      "frames": 400
+     },
+     "03/bona_fide": {
+      "subjects": 1,
+      "status": "restricted: one subject",
+      "frames": null,
+      "at_least": 233
+     },
+     "03/attack": {
+      "subjects": 4,
+      "status": "published",
+      "frames": 1632
+     },
+     "sessions_01_02": {
+      "subjects": 4,
+      "status": "published",
+      "frames": 1675
+     },
+     "all": {
+      "subjects": 4,
+      "status": "restricted: derivable by differencing",
+      "frames": null
+     }
+    },
+    "dev": {
+     "01/bona_fide": {
+      "subjects": 2,
+      "status": "published",
+      "frames": 234
+     },
+     "01/attack": {
+      "subjects": 2,
+      "status": "published",
+      "frames": 187
+     },
+     "02/bona_fide": {
+      "subjects": 1,
+      "status": "restricted: one subject, already public in the fold schema",
+      "frames": null,
+      "at_least": 100
+     },
+     "02/attack": {
+      "subjects": 2,
+      "status": "published",
+      "frames": 193
+     },
+     "03/bona_fide": {
+      "subjects": 3,
+      "status": "published",
+      "frames": 1019
+     },
+     "03/attack": {
+      "subjects": 4,
+      "status": "published",
+      "frames": 1364
+     },
+     "sessions_01_02": {
+      "subjects": 2,
+      "status": "published",
+      "frames": 731
+     },
+     "all": {
+      "subjects": 4,
+      "status": "published",
+      "frames": 3114
+     }
+    },
+    "fitting_all": {
+     "01/bona_fide": {
+      "subjects": 3,
+      "status": "published",
+      "frames": 401
+     },
+     "01/attack": {
+      "subjects": 4,
+      "status": "published",
+      "frames": 381
+     },
+     "02/bona_fide": {
+      "subjects": 4,
+      "status": "published",
+      "frames": 493
+     },
+     "02/attack": {
+      "subjects": 4,
+      "status": "published",
+      "frames": 400
+     },
+     "03/bona_fide": {
+      "subjects": 4,
+      "status": "published",
+      "frames": 1418
+     },
+     "03/attack": {
+      "subjects": 8,
+      "status": "published",
+      "frames": 3165
+     },
+     "all": {
+      "subjects": 8,
+      "status": "published",
+      "frames": 6258
+     }
+    },
+    "test": {
+     "01/bona_fide": {
+      "subjects": 3,
+      "status": "published",
+      "frames": 254
+     },
+     "01/attack": {
+      "subjects": 3,
+      "status": "published",
+      "frames": 287
+     },
+     "02/bona_fide": {
+      "subjects": 2,
+      "status": "published",
+      "frames": 244
+     },
+     "02/attack": {
+      "subjects": 3,
+      "status": "published",
+      "frames": 300
+     },
+     "03/bona_fide": {
+      "subjects": 2,
+      "status": "published",
+      "frames": 925
+     },
+     "03/attack": {
+      "subjects": 3,
+      "status": "published",
+      "frames": 1232
+     },
+     "all": {
+      "subjects": 4,
+      "status": "published",
+      "frames": 3242
+     }
+    }
+   },
+   "feasible": {
+    "arm_b": true,
+    "arm_a_star": true,
+    "dev_common": true,
+    "dev_mix_alternative": true
+   },
+   "proposed": {
+    "arm_b_fitting": {
+     "manifest": "armB_fitting_fold1.csv",
+     "manifest_sha256": "cd5bb7dc6381937c9cff00c1061fd2d8c963ae42fa0f63da24ebd764fd154ad6",
+     "frames": {
+      "01/bona_fide": 350,
+      "01/attack": 350,
+      "02/bona_fide": 350,
+      "02/attack": 350,
+      "03/bona_fide": 0,
+      "03/attack": 0
+     },
+     "subjects_per_cell": {
+      "01/bona_fide": 3,
+      "01/attack": 4,
+      "02/bona_fide": 4,
+      "02/attack": 4,
+      "03/bona_fide": 0,
+      "03/attack": 0
+     },
+     "total": 1400,
+     "subjects": 4
+    },
+    "arm_a_star_fitting": {
+     "manifest": "armAstar_fitting_fold1.csv",
+     "manifest_sha256": "3d304da160c293efd2d448dbdef1b992203ffa5ce960e8f2935e055fbb1ae993",
+     "frames": {
+      "01/bona_fide": 234,
+      "01/attack": 233,
+      "02/bona_fide": 233,
+      "02/attack": 234,
+      "03/bona_fide": 233,
+      "03/attack": 233
+     },
+     "subjects_per_cell": {
+      "01/bona_fide": 3,
+      "01/attack": 4,
+      "02/bona_fide": 4,
+      "02/attack": 4,
+      "03/bona_fide": 1,
+      "03/attack": 4
+     },
+     "total": 1400,
+     "subjects": 4
+    },
+    "arm_b_prime_fitting_optional": {
+     "manifest": "armBprime_fitting_fold1.csv",
+     "manifest_sha256": "1e340f409b8f132e2378475b76ef2e881f2928b73ded1f489be78d7baf75a462",
+     "frames": {
+      "01/bona_fide": 234,
+      "01/attack": 233,
+      "02/bona_fide": 233,
+      "02/attack": 234,
+      "03/bona_fide": 0,
+      "03/attack": 0
+     },
+     "subjects_per_cell": {
+      "01/bona_fide": 3,
+      "01/attack": 4,
+      "02/bona_fide": 4,
+      "02/attack": 4,
+      "03/bona_fide": 0,
+      "03/attack": 0
+     },
+     "total": 934,
+     "subjects": 4
+    },
+    "dev_common": {
+     "manifest": "dev_fold1.csv",
+     "manifest_sha256": "7d2d436b97c9ded24feffe507e2d61165f08fd671433768e059f810f9ec4a750",
+     "frames": {
+      "01/bona_fide": 100,
+      "01/attack": 100,
+      "02/bona_fide": 100,
+      "02/attack": 100,
+      "03/bona_fide": 0,
+      "03/attack": 0
+     },
+     "subjects_per_cell": {
+      "01/bona_fide": 2,
+      "01/attack": 2,
+      "02/bona_fide": 1,
+      "02/attack": 2,
+      "03/bona_fide": 0,
+      "03/attack": 0
+     },
+     "total": 400,
+     "subjects": 2
+    },
+    "dev_mix_alternative": {
+     "manifest": "devmix_fold1.csv",
+     "manifest_sha256": "f1d0fa4d14c2950ff43baf937181c131acedd3b17d88e2741af3309094e9bfff",
+     "frames": {
+      "01/bona_fide": 67,
+      "01/attack": 67,
+      "02/bona_fide": 66,
+      "02/attack": 67,
+      "03/bona_fide": 67,
+      "03/attack": 66
+     },
+     "subjects_per_cell": {
+      "01/bona_fide": 2,
+      "01/attack": 2,
+      "02/bona_fide": 1,
+      "02/attack": 2,
+      "03/bona_fide": 3,
+      "03/attack": 4
+     },
+     "total": 400,
+     "subjects": 4
+    },
+    "test_unchanged": {
+     "manifest": "fold1_test.csv of the fold schema",
+     "manifest_sha256": "d0b4c9493be73acbfa58d9a176c6c7bd2f416c4a73a46ae51e0c0a50ee9cc674",
+     "total": 3242
+    }
+   },
+   "arm_a_reference": {
+    "fitting": {
+     "frames": {
+      "01/bona_fide": 350,
+      "01/attack": 350,
+      "02/bona_fide": 350,
+      "02/attack": 350,
+      "03/bona_fide": 350,
+      "03/attack": 350
+     },
+     "subjects_per_cell": {
+      "01/bona_fide": 3,
+      "01/attack": 4,
+      "02/bona_fide": 4,
+      "02/attack": 4,
+      "03/bona_fide": 4,
+      "03/attack": 8
+     },
+     "total": 2100,
+     "subjects": 8,
+     "manifest_sha256": "51bfca10eb69094a094c4eca2b8f376621479860571704748812d74e2219e793"
+    },
+    "dev": {
+     "frames": {
+      "01/bona_fide": 100,
+      "01/attack": 100,
+      "02/bona_fide": 100,
+      "02/attack": 100,
+      "03/bona_fide": 100,
+      "03/attack": 100
+     },
+     "subjects_per_cell": {
+      "01/bona_fide": 2,
+      "01/attack": 2,
+      "02/bona_fide": 1,
+      "02/attack": 2,
+      "03/bona_fide": 3,
+      "03/attack": 4
+     },
+     "total": 600,
+     "subjects": 4,
+     "manifest_sha256": "d0015cc3ee913197af4134e92047b3c875a092cd8350ff30c9993a405d53b727"
+    }
+   }
+  },
+  "2": {
+   "held_out_fold": 2,
+   "dev_fold": 3,
+   "fitting_folds": [
+    1,
+    4
+   ],
+   "subjects": {
+    "test": 4,
+    "dev": 4,
+    "dev_with_sessions_01_02": 2,
+    "fitting": 8,
+    "s12": 5,
+    "s12_with_bona_fide_03": 1,
+    "s12_with_attack_03": 5,
+    "fitting_without_sessions_01_02": 3
+   },
+   "availability": {
+    "s12": {
+     "01/bona_fide": {
+      "subjects": 4,
+      "status": "published",
+      "frames": 379
+     },
+     "01/attack": {
+      "subjects": 5,
+      "status": "published",
+      "frames": 481
+     },
+     "02/bona_fide": {
+      "subjects": 4,
+      "status": "published",
+      "frames": 491
+     },
+     "02/attack": {
+      "subjects": 5,
+      "status": "published",
+      "frames": 500
+     },
+     "03/bona_fide": {
+      "subjects": 1,
+      "status": "restricted: one subject",
+      "frames": null,
+      "at_least": 233
+     },
+     "03/attack": {
+      "subjects": 5,
+      "status": "published",
+      "frames": 2051
+     },
+     "sessions_01_02": {
+      "subjects": 5,
+      "status": "published",
+      "frames": 1851
+     },
+     "all": {
+      "subjects": 5,
+      "status": "restricted: derivable by differencing",
+      "frames": null
+     }
+    },
+    "dev": {
+     "01/bona_fide": {
+      "subjects": 2,
+      "status": "published",
+      "frames": 276
+     },
+     "01/attack": {
+      "subjects": 2,
+      "status": "published",
+      "frames": 187
+     },
+     "02/bona_fide": {
+      "subjects": 2,
+      "status": "published",
+      "frames": 246
+     },
+     "02/attack": {
+      "subjects": 2,
+      "status": "published",
+      "frames": 200
+     },
+     "03/bona_fide": {
+      "subjects": 2,
+      "status": "published",
+      "frames": 865
+     },
+     "03/attack": {
+      "subjects": 4,
+      "status": "published",
+      "frames": 1665
+     },
+     "sessions_01_02": {
+      "subjects": 2,
+      "status": "published",
+      "frames": 909
+     },
+     "all": {
+      "subjects": 4,
+      "status": "published",
+      "frames": 3439
+     }
+    },
+    "fitting_all": {
+     "01/bona_fide": {
+      "subjects": 4,
+      "status": "published",
+      "frames": 379
+     },
+     "01/attack": {
+      "subjects": 5,
+      "status": "published",
+      "frames": 481
+     },
+     "02/bona_fide": {
+      "subjects": 4,
+      "status": "published",
+      "frames": 491
+     },
+     "02/attack": {
+      "subjects": 5,
+      "status": "published",
+      "frames": 500
+     },
+     "03/bona_fide": {
+      "subjects": 4,
+      "status": "published",
+      "frames": 1478
+     },
+     "03/attack": {
+      "subjects": 7,
+      "status": "published",
+      "frames": 2732
+     },
+     "all": {
+      "subjects": 8,
+      "status": "published",
+      "frames": 6061
+     }
+    },
+    "test": {
+     "01/bona_fide": {
+      "subjects": 2,
+      "status": "published",
+      "frames": 234
+     },
+     "01/attack": {
+      "subjects": 2,
+      "status": "published",
+      "frames": 187
+     },
+     "02/bona_fide": {
+      "subjects": 1,
+      "status": "restricted: one subject, already public in the fold schema",
+      "frames": null
+     },
+     "02/attack": {
+      "subjects": 2,
+      "status": "published",
+      "frames": 193
+     },
+     "03/bona_fide": {
+      "subjects": 3,
+      "status": "published",
+      "frames": 1019
+     },
+     "03/attack": {
+      "subjects": 4,
+      "status": "published",
+      "frames": 1364
+     },
+     "all": {
+      "subjects": 4,
+      "status": "published",
+      "frames": 3114
+     }
+    }
+   },
+   "feasible": {
+    "arm_b": true,
+    "arm_a_star": true,
+    "dev_common": true,
+    "dev_mix_alternative": true
+   },
+   "proposed": {
+    "arm_b_fitting": {
+     "manifest": "armB_fitting_fold2.csv",
+     "manifest_sha256": "ed52ae46250fa042c40305264f02cede0b6023d33481ebf109c48dc19fd29d93",
+     "frames": {
+      "01/bona_fide": 350,
+      "01/attack": 350,
+      "02/bona_fide": 350,
+      "02/attack": 350,
+      "03/bona_fide": 0,
+      "03/attack": 0
+     },
+     "subjects_per_cell": {
+      "01/bona_fide": 4,
+      "01/attack": 5,
+      "02/bona_fide": 4,
+      "02/attack": 5,
+      "03/bona_fide": 0,
+      "03/attack": 0
+     },
+     "total": 1400,
+     "subjects": 5
+    },
+    "arm_a_star_fitting": {
+     "manifest": "armAstar_fitting_fold2.csv",
+     "manifest_sha256": "310b95ea64db50d61d2d99aef517bd68c2d64b8d088a7fb8dd0491a6136a4013",
+     "frames": {
+      "01/bona_fide": 234,
+      "01/attack": 233,
+      "02/bona_fide": 233,
+      "02/attack": 234,
+      "03/bona_fide": 233,
+      "03/attack": 233
+     },
+     "subjects_per_cell": {
+      "01/bona_fide": 4,
+      "01/attack": 5,
+      "02/bona_fide": 4,
+      "02/attack": 5,
+      "03/bona_fide": 1,
+      "03/attack": 5
+     },
+     "total": 1400,
+     "subjects": 5
+    },
+    "arm_b_prime_fitting_optional": {
+     "manifest": "armBprime_fitting_fold2.csv",
+     "manifest_sha256": "84b54f594862756eccc4bde5ef424b662601010219b0cde5ad42cf79b01a4e80",
+     "frames": {
+      "01/bona_fide": 234,
+      "01/attack": 233,
+      "02/bona_fide": 233,
+      "02/attack": 234,
+      "03/bona_fide": 0,
+      "03/attack": 0
+     },
+     "subjects_per_cell": {
+      "01/bona_fide": 4,
+      "01/attack": 5,
+      "02/bona_fide": 4,
+      "02/attack": 5,
+      "03/bona_fide": 0,
+      "03/attack": 0
+     },
+     "total": 934,
+     "subjects": 5
+    },
+    "dev_common": {
+     "manifest": "dev_fold2.csv",
+     "manifest_sha256": "a37ad7868b6303e37cd6bd2842917eaf4f8df2368a40509cf817e3bd12406919",
+     "frames": {
+      "01/bona_fide": 100,
+      "01/attack": 100,
+      "02/bona_fide": 100,
+      "02/attack": 100,
+      "03/bona_fide": 0,
+      "03/attack": 0
+     },
+     "subjects_per_cell": {
+      "01/bona_fide": 2,
+      "01/attack": 2,
+      "02/bona_fide": 2,
+      "02/attack": 2,
+      "03/bona_fide": 0,
+      "03/attack": 0
+     },
+     "total": 400,
+     "subjects": 2
+    },
+    "dev_mix_alternative": {
+     "manifest": "devmix_fold2.csv",
+     "manifest_sha256": "8558227392124d9766daecbb626ada5b66f592da125104280a1ad18c3abc7f63",
+     "frames": {
+      "01/bona_fide": 67,
+      "01/attack": 67,
+      "02/bona_fide": 66,
+      "02/attack": 67,
+      "03/bona_fide": 67,
+      "03/attack": 66
+     },
+     "subjects_per_cell": {
+      "01/bona_fide": 2,
+      "01/attack": 2,
+      "02/bona_fide": 2,
+      "02/attack": 2,
+      "03/bona_fide": 2,
+      "03/attack": 4
+     },
+     "total": 400,
+     "subjects": 4
+    },
+    "test_unchanged": {
+     "manifest": "fold2_test.csv of the fold schema",
+     "manifest_sha256": "64eb918a23e05016b16d37b4e4f06cf09a842bf28923c7e638b981f4477df5d1",
+     "total": 3114
+    }
+   },
+   "arm_a_reference": {
+    "fitting": {
+     "frames": {
+      "01/bona_fide": 350,
+      "01/attack": 350,
+      "02/bona_fide": 350,
+      "02/attack": 350,
+      "03/bona_fide": 350,
+      "03/attack": 350
+     },
+     "subjects_per_cell": {
+      "01/bona_fide": 4,
+      "01/attack": 5,
+      "02/bona_fide": 4,
+      "02/attack": 5,
+      "03/bona_fide": 4,
+      "03/attack": 7
+     },
+     "total": 2100,
+     "subjects": 8,
+     "manifest_sha256": "f0c9300047d28fbad3432cab71e3dfc3fde6ba8b33cb115a18ecb647af864764"
+    },
+    "dev": {
+     "frames": {
+      "01/bona_fide": 100,
+      "01/attack": 100,
+      "02/bona_fide": 100,
+      "02/attack": 100,
+      "03/bona_fide": 100,
+      "03/attack": 100
+     },
+     "subjects_per_cell": {
+      "01/bona_fide": 2,
+      "01/attack": 2,
+      "02/bona_fide": 2,
+      "02/attack": 2,
+      "03/bona_fide": 2,
+      "03/attack": 4
+     },
+     "total": 600,
+     "subjects": 4,
+     "manifest_sha256": "b285a4444b7b826e6de68831c7c0b9cc759b01924476c82367cb6bed136acefe"
+    }
+   }
+  },
+  "3": {
+   "held_out_fold": 3,
+   "dev_fold": 4,
+   "fitting_folds": [
+    1,
+    2
+   ],
+   "subjects": {
+    "test": 4,
+    "dev": 4,
+    "dev_with_sessions_01_02": 2,
+    "fitting": 8,
+    "s12": 5,
+    "s12_with_bona_fide_03": 2,
+    "s12_with_attack_03": 5,
+    "fitting_without_sessions_01_02": 3
+   },
+   "availability": {
+    "s12": {
+     "01/bona_fide": {
+      "subjects": 5,
+      "status": "published",
+      "frames": 488
+     },
+     "01/attack": {
+      "subjects": 5,
+      "status": "published",
+      "frames": 474
+     },
+     "02/bona_fide": {
+      "subjects": 3,
+      "status": "published",
+      "frames": 361
+     },
+     "02/attack": {
+      "subjects": 5,
+      "status": "published",
+      "frames": 493
+     },
+     "03/bona_fide": {
+      "subjects": 2,
+      "status": "published",
+      "frames": 945
+     },
+     "03/attack": {
+      "subjects": 5,
+      "status": "published",
+      "frames": 1913
+     },
+     "sessions_01_02": {
+      "subjects": 5,
+      "status": "published",
+      "frames": 1816
+     },
+     "all": {
+      "subjects": 5,
+      "status": "published",
+      "frames": 4674
+     }
+    },
+    "dev": {
+     "01/bona_fide": {
+      "subjects": 1,
+      "status": "restricted: one subject, already public in the fold schema",
+      "frames": null,
+      "at_least": 100
+     },
+     "01/attack": {
+      "subjects": 2,
+      "status": "published",
+      "frames": 194
+     },
+     "02/bona_fide": {
+      "subjects": 2,
+      "status": "published",
+      "frames": 247
+     },
+     "02/attack": {
+      "subjects": 2,
+      "status": "published",
+      "frames": 200
+     },
+     "03/bona_fide": {
+      "subjects": 2,
+      "status": "published",
+      "frames": 553
+     },
+     "03/attack": {
+      "subjects": 4,
+      "status": "published",
+      "frames": 1500
+     },
+     "sessions_01_02": {
+      "subjects": 2,
+      "status": "published",
+      "frames": 766
+     },
+     "all": {
+      "subjects": 4,
+      "status": "published",
+      "frames": 2819
+     }
+    },
+    "fitting_all": {
+     "01/bona_fide": {
+      "subjects": 5,
+      "status": "published",
+      "frames": 488
+     },
+     "01/attack": {
+      "subjects": 5,
+      "status": "published",
+      "frames": 474
+     },
+     "02/bona_fide": {
+      "subjects": 3,
+      "status": "published",
+      "frames": 361
+     },
+     "02/attack": {
+      "subjects": 5,
+      "status": "published",
+      "frames": 493
+     },
+     "03/bona_fide": {
+      "subjects": 5,
+      "status": "published",
+      "frames": 1944
+     },
+     "03/attack": {
+      "subjects": 7,
+      "status": "published",
+      "frames": 2596
+     },
+     "all": {
+      "subjects": 8,
+      "status": "published",
+      "frames": 6356
+     }
+    },
+    "test": {
+     "01/bona_fide": {
+      "subjects": 2,
+      "status": "published",
+      "frames": 276
+     },
+     "01/attack": {
+      "subjects": 2,
+      "status": "published",
+      "frames": 187
+     },
+     "02/bona_fide": {
+      "subjects": 2,
+      "status": "published",
+      "frames": 246
+     },
+     "02/attack": {
+      "subjects": 2,
+      "status": "published",
+      "frames": 200
+     },
+     "03/bona_fide": {
+      "subjects": 2,
+      "status": "published",
+      "frames": 865
+     },
+     "03/attack": {
+      "subjects": 4,
+      "status": "published",
+      "frames": 1665
+     },
+     "all": {
+      "subjects": 4,
+      "status": "published",
+      "frames": 3439
+     }
+    }
+   },
+   "feasible": {
+    "arm_b": true,
+    "arm_a_star": true,
+    "dev_common": true,
+    "dev_mix_alternative": true
+   },
+   "proposed": {
+    "arm_b_fitting": {
+     "manifest": "armB_fitting_fold3.csv",
+     "manifest_sha256": "5c73a0ea0cfc821caaff036b499e7a33346a2aaf0bf2c6ea94bc55516ab1d680",
+     "frames": {
+      "01/bona_fide": 350,
+      "01/attack": 350,
+      "02/bona_fide": 350,
+      "02/attack": 350,
+      "03/bona_fide": 0,
+      "03/attack": 0
+     },
+     "subjects_per_cell": {
+      "01/bona_fide": 5,
+      "01/attack": 5,
+      "02/bona_fide": 3,
+      "02/attack": 5,
+      "03/bona_fide": 0,
+      "03/attack": 0
+     },
+     "total": 1400,
+     "subjects": 5
+    },
+    "arm_a_star_fitting": {
+     "manifest": "armAstar_fitting_fold3.csv",
+     "manifest_sha256": "57d035d9c7f5ac1547f57849ebcb4e7aae7c9ab45bcd8a852c31a52efea2db12",
+     "frames": {
+      "01/bona_fide": 234,
+      "01/attack": 233,
+      "02/bona_fide": 233,
+      "02/attack": 234,
+      "03/bona_fide": 233,
+      "03/attack": 233
+     },
+     "subjects_per_cell": {
+      "01/bona_fide": 5,
+      "01/attack": 5,
+      "02/bona_fide": 3,
+      "02/attack": 5,
+      "03/bona_fide": 2,
+      "03/attack": 5
+     },
+     "total": 1400,
+     "subjects": 5
+    },
+    "arm_b_prime_fitting_optional": {
+     "manifest": "armBprime_fitting_fold3.csv",
+     "manifest_sha256": "72725068e24868ccac18517d05e3139b6e83e4c671fd91d9d543ec9645ee1da5",
+     "frames": {
+      "01/bona_fide": 234,
+      "01/attack": 233,
+      "02/bona_fide": 233,
+      "02/attack": 234,
+      "03/bona_fide": 0,
+      "03/attack": 0
+     },
+     "subjects_per_cell": {
+      "01/bona_fide": 5,
+      "01/attack": 5,
+      "02/bona_fide": 3,
+      "02/attack": 5,
+      "03/bona_fide": 0,
+      "03/attack": 0
+     },
+     "total": 934,
+     "subjects": 5
+    },
+    "dev_common": {
+     "manifest": "dev_fold3.csv",
+     "manifest_sha256": "19358de48a2c1e791c7643b15cd912af4304528ebaa5a7b2a2f2d0738d601f97",
+     "frames": {
+      "01/bona_fide": 100,
+      "01/attack": 100,
+      "02/bona_fide": 100,
+      "02/attack": 100,
+      "03/bona_fide": 0,
+      "03/attack": 0
+     },
+     "subjects_per_cell": {
+      "01/bona_fide": 1,
+      "01/attack": 2,
+      "02/bona_fide": 2,
+      "02/attack": 2,
+      "03/bona_fide": 0,
+      "03/attack": 0
+     },
+     "total": 400,
+     "subjects": 2
+    },
+    "dev_mix_alternative": {
+     "manifest": "devmix_fold3.csv",
+     "manifest_sha256": "f958591bd8652449132d67e4802a31c41a4e1cd107fc460278344c2c5e7046d7",
+     "frames": {
+      "01/bona_fide": 67,
+      "01/attack": 67,
+      "02/bona_fide": 66,
+      "02/attack": 67,
+      "03/bona_fide": 67,
+      "03/attack": 66
+     },
+     "subjects_per_cell": {
+      "01/bona_fide": 1,
+      "01/attack": 2,
+      "02/bona_fide": 2,
+      "02/attack": 2,
+      "03/bona_fide": 2,
+      "03/attack": 4
+     },
+     "total": 400,
+     "subjects": 4
+    },
+    "test_unchanged": {
+     "manifest": "fold3_test.csv of the fold schema",
+     "manifest_sha256": "cdedf5bdb662d16212ef0a42542fef452e90b55ff95789d7d30397408f4ab4cc",
+     "total": 3439
+    }
+   },
+   "arm_a_reference": {
+    "fitting": {
+     "frames": {
+      "01/bona_fide": 350,
+      "01/attack": 350,
+      "02/bona_fide": 350,
+      "02/attack": 350,
+      "03/bona_fide": 350,
+      "03/attack": 350
+     },
+     "subjects_per_cell": {
+      "01/bona_fide": 5,
+      "01/attack": 5,
+      "02/bona_fide": 3,
+      "02/attack": 5,
+      "03/bona_fide": 5,
+      "03/attack": 7
+     },
+     "total": 2100,
+     "subjects": 8,
+     "manifest_sha256": "8cfdffdb08c63d9bfe47cb43da847fd2422df73261ef1e188c12a469ba85fa04"
+    },
+    "dev": {
+     "frames": {
+      "01/bona_fide": 100,
+      "01/attack": 100,
+      "02/bona_fide": 100,
+      "02/attack": 100,
+      "03/bona_fide": 100,
+      "03/attack": 100
+     },
+     "subjects_per_cell": {
+      "01/bona_fide": 1,
+      "01/attack": 2,
+      "02/bona_fide": 2,
+      "02/attack": 2,
+      "03/bona_fide": 2,
+      "03/attack": 4
+     },
+     "total": 600,
+     "subjects": 4,
+     "manifest_sha256": "e14562dc5289ca4b4cb576a6adffb440881582085691fa3448fca36b00594d4f"
+    }
+   }
+  },
+  "4": {
+   "held_out_fold": 4,
+   "dev_fold": 1,
+   "fitting_folds": [
+    2,
+    3
+   ],
+   "subjects": {
+    "test": 4,
+    "dev": 4,
+    "dev_with_sessions_01_02": 3,
+    "fitting": 8,
+    "s12": 4,
+    "s12_with_bona_fide_03": 2,
+    "s12_with_attack_03": 4,
+    "fitting_without_sessions_01_02": 4
+   },
+   "availability": {
+    "s12": {
+     "01/bona_fide": {
+      "subjects": 4,
+      "status": "published",
+      "frames": 510
+     },
+     "01/attack": {
+      "subjects": 4,
+      "status": "published",
+      "frames": 374
+     },
+     "02/bona_fide": {
+      "subjects": 3,
+      "status": "published",
+      "frames": 363
+     },
+     "02/attack": {
+      "subjects": 4,
+      "status": "published",
+      "frames": 393
+     },
+     "03/bona_fide": {
+      "subjects": 2,
+      "status": "published",
+      "frames": 922
+     },
+     "03/attack": {
+      "subjects": 4,
+      "status": "published",
+      "frames": 1494
+     },
+     "sessions_01_02": {
+      "subjects": 4,
+      "status": "published",
+      "frames": 1640
+     },
+     "all": {
+      "subjects": 4,
+      "status": "published",
+      "frames": 4056
+     }
+    },
+    "dev": {
+     "01/bona_fide": {
+      "subjects": 3,
+      "status": "published",
+      "frames": 254
+     },
+     "01/attack": {
+      "subjects": 3,
+      "status": "published",
+      "frames": 287
+     },
+     "02/bona_fide": {
+      "subjects": 2,
+      "status": "published",
+      "frames": 244
+     },
+     "02/attack": {
+      "subjects": 3,
+      "status": "published",
+      "frames": 300
+     },
+     "03/bona_fide": {
+      "subjects": 2,
+      "status": "published",
+      "frames": 925
+     },
+     "03/attack": {
+      "subjects": 3,
+      "status": "published",
+      "frames": 1232
+     },
+     "sessions_01_02": {
+      "subjects": 3,
+      "status": "published",
+      "frames": 1085
+     },
+     "all": {
+      "subjects": 4,
+      "status": "published",
+      "frames": 3242
+     }
+    },
+    "fitting_all": {
+     "01/bona_fide": {
+      "subjects": 4,
+      "status": "published",
+      "frames": 510
+     },
+     "01/attack": {
+      "subjects": 4,
+      "status": "published",
+      "frames": 374
+     },
+     "02/bona_fide": {
+      "subjects": 3,
+      "status": "published",
+      "frames": 363
+     },
+     "02/attack": {
+      "subjects": 4,
+      "status": "published",
+      "frames": 393
+     },
+     "03/bona_fide": {
+      "subjects": 5,
+      "status": "published",
+      "frames": 1884
+     },
+     "03/attack": {
+      "subjects": 8,
+      "status": "published",
+      "frames": 3029
+     },
+     "all": {
+      "subjects": 8,
+      "status": "published",
+      "frames": 6553
+     }
+    },
+    "test": {
+     "01/bona_fide": {
+      "subjects": 1,
+      "status": "restricted: one subject, already public in the fold schema",
+      "frames": null
+     },
+     "01/attack": {
+      "subjects": 2,
+      "status": "published",
+      "frames": 194
+     },
+     "02/bona_fide": {
+      "subjects": 2,
+      "status": "published",
+      "frames": 247
+     },
+     "02/attack": {
+      "subjects": 2,
+      "status": "published",
+      "frames": 200
+     },
+     "03/bona_fide": {
+      "subjects": 2,
+      "status": "published",
+      "frames": 553
+     },
+     "03/attack": {
+      "subjects": 4,
+      "status": "published",
+      "frames": 1500
+     },
+     "all": {
+      "subjects": 4,
+      "status": "published",
+      "frames": 2819
+     }
+    }
+   },
+   "feasible": {
+    "arm_b": true,
+    "arm_a_star": true,
+    "dev_common": true,
+    "dev_mix_alternative": true
+   },
+   "proposed": {
+    "arm_b_fitting": {
+     "manifest": "armB_fitting_fold4.csv",
+     "manifest_sha256": "f64570929bd3968bd20b14d77dd3d65ac72a2699caa760b3e3fb4cc52cd54026",
+     "frames": {
+      "01/bona_fide": 350,
+      "01/attack": 350,
+      "02/bona_fide": 350,
+      "02/attack": 350,
+      "03/bona_fide": 0,
+      "03/attack": 0
+     },
+     "subjects_per_cell": {
+      "01/bona_fide": 4,
+      "01/attack": 4,
+      "02/bona_fide": 3,
+      "02/attack": 4,
+      "03/bona_fide": 0,
+      "03/attack": 0
+     },
+     "total": 1400,
+     "subjects": 4
+    },
+    "arm_a_star_fitting": {
+     "manifest": "armAstar_fitting_fold4.csv",
+     "manifest_sha256": "9b117ec6552b0685e5f14bfa4bde27de2ab71d7b4536033d0fbfe0725bdfb1fe",
+     "frames": {
+      "01/bona_fide": 234,
+      "01/attack": 233,
+      "02/bona_fide": 233,
+      "02/attack": 234,
+      "03/bona_fide": 233,
+      "03/attack": 233
+     },
+     "subjects_per_cell": {
+      "01/bona_fide": 4,
+      "01/attack": 4,
+      "02/bona_fide": 3,
+      "02/attack": 4,
+      "03/bona_fide": 2,
+      "03/attack": 4
+     },
+     "total": 1400,
+     "subjects": 4
+    },
+    "arm_b_prime_fitting_optional": {
+     "manifest": "armBprime_fitting_fold4.csv",
+     "manifest_sha256": "70276ef31d0f07728e5cc639265a3cd5fecb9410076d14e8cdba9cf952ebf04a",
+     "frames": {
+      "01/bona_fide": 234,
+      "01/attack": 233,
+      "02/bona_fide": 233,
+      "02/attack": 234,
+      "03/bona_fide": 0,
+      "03/attack": 0
+     },
+     "subjects_per_cell": {
+      "01/bona_fide": 4,
+      "01/attack": 4,
+      "02/bona_fide": 3,
+      "02/attack": 4,
+      "03/bona_fide": 0,
+      "03/attack": 0
+     },
+     "total": 934,
+     "subjects": 4
+    },
+    "dev_common": {
+     "manifest": "dev_fold4.csv",
+     "manifest_sha256": "00a7fec6d7931dbc58f0527e30137cae4830dad382eaae08d00f0584c5285e43",
+     "frames": {
+      "01/bona_fide": 100,
+      "01/attack": 100,
+      "02/bona_fide": 100,
+      "02/attack": 100,
+      "03/bona_fide": 0,
+      "03/attack": 0
+     },
+     "subjects_per_cell": {
+      "01/bona_fide": 3,
+      "01/attack": 3,
+      "02/bona_fide": 2,
+      "02/attack": 3,
+      "03/bona_fide": 0,
+      "03/attack": 0
+     },
+     "total": 400,
+     "subjects": 3
+    },
+    "dev_mix_alternative": {
+     "manifest": "devmix_fold4.csv",
+     "manifest_sha256": "9e9fadaf246be07a5ad8cdf802f19a5ab11e8d7248b9c66c2bd8c6ab8c2ce09a",
+     "frames": {
+      "01/bona_fide": 67,
+      "01/attack": 67,
+      "02/bona_fide": 66,
+      "02/attack": 67,
+      "03/bona_fide": 67,
+      "03/attack": 66
+     },
+     "subjects_per_cell": {
+      "01/bona_fide": 3,
+      "01/attack": 3,
+      "02/bona_fide": 2,
+      "02/attack": 3,
+      "03/bona_fide": 2,
+      "03/attack": 3
+     },
+     "total": 400,
+     "subjects": 4
+    },
+    "test_unchanged": {
+     "manifest": "fold4_test.csv of the fold schema",
+     "manifest_sha256": "5f1f7368b47c886f09694c2af09d27c8c247e125116514a25f46ef19d353e0db",
+     "total": 2819
+    }
+   },
+   "arm_a_reference": {
+    "fitting": {
+     "frames": {
+      "01/bona_fide": 350,
+      "01/attack": 350,
+      "02/bona_fide": 350,
+      "02/attack": 350,
+      "03/bona_fide": 350,
+      "03/attack": 350
+     },
+     "subjects_per_cell": {
+      "01/bona_fide": 4,
+      "01/attack": 4,
+      "02/bona_fide": 3,
+      "02/attack": 4,
+      "03/bona_fide": 5,
+      "03/attack": 8
+     },
+     "total": 2100,
+     "subjects": 8,
+     "manifest_sha256": "5f5334ce4ae1743051f2293102caace40ec15085330f4bab0e13255a1d5d86f4"
+    },
+    "dev": {
+     "frames": {
+      "01/bona_fide": 100,
+      "01/attack": 100,
+      "02/bona_fide": 100,
+      "02/attack": 100,
+      "03/bona_fide": 100,
+      "03/attack": 100
+     },
+     "subjects_per_cell": {
+      "01/bona_fide": 3,
+      "01/attack": 3,
+      "02/bona_fide": 2,
+      "02/attack": 3,
+      "03/bona_fide": 2,
+      "03/attack": 3
+     },
+     "total": 600,
+     "subjects": 4,
+     "manifest_sha256": "2bb9203ea4134fb3348d6d1d04200b704827309331647c0ab03a6aa04e0babca"
+    }
+   }
+  }
+ },
+ "train_seeds": [
+  42,
+  43,
+  44
+ ],
+ "training": {
+  "recipe": "unchanged from the folds run (delivery/foldsrun/nuaa_folds_run.json, run 20261103-FOLDSRUN-e174812): LivenessNet, N1 part 2 recipe, CPU",
+  "preprocessing": "unchanged: the frames already extracted for the folds run with the frozen extractor (every one of the 12,614 frames is in the cache or in the frames file of that run); no new extraction",
+  "class_weight": "balanced on the fitting set (arm B and A* are balanced by construction)"
+ },
+ "threshold": {
+  "set": "common dev only (sessions 01-02 of the dev subjects, 400 frames), the same for both arms",
+  "criterion": "eer, the M1 protocol, as in the folds run",
+  "frozen_before_test": "written from the dev scores before any test scoring, SHA-256 recorded",
+  "also_reported": "the fixed threshold 0.5",
+  "dev_role": "early stopping, learning-rate schedule, restored epoch and threshold, as in the folds run"
+ },
+ "metrics": {
+  "per_unit": "per arm, fold, seed and session stratum of the held-out subjects (01, 02, 03, all): APCER, BPCER, ACER at 0.5 and at the dev threshold, AUROC",
+  "contrast": "A* minus B per fold and seed, paired on the same test frames; pooled over the four folds per seed; median and range over seeds",
+  "pre_commitment": "reported whatever the outcome; no change of design, counts, recipe or threshold criterion after any score is read"
+ },
+ "budget": {
+  "trainings": 24,
+  "arms": {
+   "arm_b": {
+    "fitting_frames": 1400,
+    "dev_frames": 400,
+    "ratio_to_reference": 0.6667,
+    "seconds_per_training": [
+     470.5,
+     561.8
+    ],
+    "training_minutes": [
+     101.7,
+     112.4
+    ],
+    "trainings": 12
+   },
+   "arm_a_star": {
+    "fitting_frames": 1400,
+    "dev_frames": 400,
+    "ratio_to_reference": 0.6667,
+    "seconds_per_training": [
+     470.5,
+     561.8
+    ],
+    "training_minutes": [
+     101.7,
+     112.4
+    ],
+    "trainings": 12
+   }
+  },
+  "test_frames_scored": 75684,
+  "dev_frames_scored": 9600,
+  "scoring_minutes": [
+   10.3,
+   12.7
+  ],
+  "total_minutes": [
+   213.8,
+   237.4
+  ],
+  "optional": {
+   "arm_b_prime": {
+    "fitting_frames": 934,
+    "dev_frames": 400,
+    "ratio_to_reference": 0.4941,
+    "trainings": 12,
+    "seconds_per_training": [
+     348.7,
+     416.4
+    ],
+    "training_minutes": [
+     75.4,
+     83.3
+    ],
+    "scoring_minutes": [
+     5.2,
+     6.3
+    ],
+    "total_minutes": [
+     80.6,
+     89.6
+    ],
+    "note": "optional arm, estimated separately and not added to the base budget"
+   }
+  },
+  "wall_time_cap_minutes": 360,
+  "reference_run": "20261103-FOLDSRUN-e174812",
+  "reference_run_record_sha256": "0d8a6bdb2a02f31c338c3c561cd5242a28067a419b471f0acf1373eaa2b65ac8"
+ },
+ "disclosure": {
+  "rule": "a frame count is public only if its cell holds at least two subjects and, with the numbers already public in the fold schema and those admitted here, it makes no new single-subject quantity derivable by differencing (exact rank check on subject x session x class atoms); a cell of one subject that the fold schema already prints is not printed here and stays derivable from the schema (R1s)",
+  "restricted_numbers": 8,
+  "schema_subjects_with_derivable_counts": 2,
+  "note": "R1 = cell of one subject; R1s = cell of one subject already printed in the fold schema; Rd = derivable by differencing; >=n = at least the count the design needs"
+ },
+ "declarations": {
+  "no_training_here": "this package derives counts only: no training, no inference, no image read",
+  "s12_03_bona_fide": "the session-03 bona fide frames of arm A* come from few subjects (one or two per held-out fold): the session-03 contrast rests on them",
+  "equal_total": "arm A* keeps the total of arm B, so it uses fewer frames per session 01-02 cell; a difference between the arms mixes the added session with the smaller per-session sample; the optional arm B' (same per-cell counts as A*, without session 03) separates the two",
+  "dev_without_session_03": "the common dev has no session-03 frame, so early stopping and the threshold of arm A* are tuned without its added session; the alternative dev with the session mix is reported, not proposed",
+  "arm_a_not_comparable": "arm A (the run already made) uses more fitting subjects and 2,100 frames: it is a reference, not a third arm",
+  "limits": "frames of one subject and session are correlated; three seeds give a range, not a confidence interval; the four fold results share subjects across roles (different models, no leakage); one dataset, one attack type (print)",
+  "public_restricted": "public: rules, counts per fold, arm, session and class with the disclosure rule, SHA-256 of the restricted manifests, budget; restricted: subject lists, per-subject counts, proposed manifests with keys",
+  "nested_samples": "the session 01-02 frames of arms A* and B' are taken with spread from the frames chosen for arm B, so A* and B' differ from B only by removal (and A* from B' only by the added session-03 frames)"
+ },
+ "created": "2026-11-04T23:01:07+0100"
+}

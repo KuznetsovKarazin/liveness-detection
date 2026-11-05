@@ -1,0 +1,13 @@
+# macOS, Python 3.11.16, 2026-11-04 22:59 CET; from the development repository root, standard library only, restricted M2 manifests and fold schema run present
+$ .venv/bin/python scripts/check_nuaa_session_ablation.py
+......................................................
+----------------------------------------------------------------------
+Ran 54 tests in 6.249s
+
+OK
+tests run: 54, failures: 0, errors: 0, skipped: 0
+RESULT: PASS
+
+$ .venv/bin/python scripts/nuaa_session_ablation.py check-inputs
+CHECK-INPUTS: configuration 2b86ef8e8cab, fold schema 20261103-FOLDS-67b7f3d verified, 4 folds; S12 subjects / with bona fide 03 per fold: 4/1, 5/1, 5/2, 4/2; arm B 350 per cell; arm A* balanced 234,233,233,234,233,233; dev 100 per cell; 8 numbers restricted; budget 213.8-237.4 min; nothing written
+RESULT: PASS (check-inputs)
