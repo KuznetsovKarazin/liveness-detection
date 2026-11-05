@@ -1,0 +1,214 @@
+{
+ "schema": "nuaa-session-ablation-config/1",
+ "status": "counts for a proposed protocol, to be agreed with the coordinator before any training; nothing trained, nothing scored, no image read",
+ "task": "Training with and without session 03 on NUAA (coordinator, C2 card, 4 November 2026): a short protocol proposal that compares the two trainings keeping subjects, sample size, test, preprocessing and recipe fixed as far as possible, with the dev and the threshold chosen without the test; this package gives the available counts, the limits and the compute budget. Same four subject folds as the approved fold schema.",
+ "question": "With the same fitting subjects and the same number of fitting frames, does adding session-03 frames to the training change the error on held-out subjects?",
+ "inputs": {
+  "folds_config": {
+   "path": "delivery/folds/nuaa_subject_folds.json",
+   "sha256": "d1d43c148f762965c5ae367a0de1c59770324f7840034fd5a6c7fad0a14e73e8",
+   "note": "approved fold schema configuration; it fixes the SHA-256 and counts of the official M2 manifests"
+  },
+  "fold_schema": {
+   "run_id": "20261103-FOLDS-67b7f3d",
+   "public_sha256sums": "ed2386f57ebc3224293290b09e3c494de64135fd84633be2f320fffd65caa73b",
+   "restricted_sha256sums": "f3b30ae75a7167646544ef524225749bbded99e55d2249b9415eef2481e0d0f1",
+   "note": "the anchors recorded in the status.json of the fold schema run (PASS)"
+  }
+ },
+ "expected": {
+  "k": 4,
+  "n_subjects": 16,
+  "n_images": 12614,
+  "test_frames": [
+   3242,
+   3114,
+   3439,
+   2819
+  ]
+ },
+ "design": {
+  "s12": "subjects of the two fitting folds with frames in sessions 01-02",
+  "dev_subjects": "subjects of the dev fold (k mod K) + 1: sessions 01-02 for the common dev, all sessions for the alternative with the session mix of arm A*",
+  "rounding_step": 50,
+  "rounding_rule": "largest multiple of rounding_step not above the smallest availability over the cells and the held-out folds",
+  "allocation_rule": "total split evenly over the cells, the remainder one frame each to the cells in remainder_order; a cell short in some held-out fold takes the smallest availability over the folds and the rest is split again over the other cells (unbalanced variant)",
+  "remainder_order": [
+   "01/bona_fide",
+   "02/attack",
+   "03/bona_fide",
+   "01/attack",
+   "02/bona_fide",
+   "03/attack"
+  ],
+  "remainder_order_note": "alternating classes over the sessions, so an even remainder keeps bona fide and attack totals equal",
+  "sampling": "spread(sorted file names of the cell, n): one every len/n, from the first",
+  "nesting": "arm B: spread over the available frames of each session 01-02 cell; arm A* and arm B' session 01-02 cells: spread over the frames chosen for arm B in that cell (nested in B); arm A* session 03 cells: spread over the available frames of the S12 subjects",
+  "arm_b": {
+   "cells": [
+    "01/bona_fide",
+    "01/attack",
+    "02/bona_fide",
+    "02/attack"
+   ],
+   "per_cell": 350
+  },
+  "arm_a_star": {
+   "cells": [
+    "01/bona_fide",
+    "01/attack",
+    "02/bona_fide",
+    "02/attack",
+    "03/bona_fide",
+    "03/attack"
+   ],
+   "total": 1400,
+   "variant": "balanced",
+   "allocation": {
+    "01/bona_fide": 234,
+    "01/attack": 233,
+    "02/bona_fide": 233,
+    "02/attack": 234,
+    "03/bona_fide": 233,
+    "03/attack": 233
+   }
+  },
+  "arm_b_prime": {
+   "cells": [
+    "01/bona_fide",
+    "01/attack",
+    "02/bona_fide",
+    "02/attack"
+   ],
+   "allocation": {
+    "01/bona_fide": 234,
+    "01/attack": 233,
+    "02/bona_fide": 233,
+    "02/attack": 234
+   },
+   "role": "optional control of the per-cell size: same per-cell counts as the session 01-02 cells of arm A*, nested in arm B"
+  },
+  "dev": {
+   "cells": [
+    "01/bona_fide",
+    "01/attack",
+    "02/bona_fide",
+    "02/attack"
+   ],
+   "per_cell": 100
+  },
+  "dev_mix": {
+   "cells": [
+    "01/bona_fide",
+    "01/attack",
+    "02/bona_fide",
+    "02/attack",
+    "03/bona_fide",
+    "03/attack"
+   ],
+   "total": 400,
+   "variant": "balanced",
+   "allocation": {
+    "01/bona_fide": 67,
+    "01/attack": 67,
+    "02/bona_fide": 66,
+    "02/attack": 67,
+    "03/bona_fide": 67,
+    "03/attack": 66
+   }
+  },
+  "test": "unchanged from the fold schema: every frame of the held-out subjects, reported per session stratum"
+ },
+ "arms": {
+  "arm_b": "without session 03: fitting frames of sessions 01 and 02 of the S12 subjects only",
+  "arm_a_star": "with session 03: fitting frames of sessions 01, 02 and 03 of the same S12 subjects, same total as arm B",
+  "arm_b_prime": "optional: sessions 01-02 of the S12 subjects with the per-cell counts of arm A* (234/233/233/234, 934 frames), nested in arm B; A* against B' isolates the added session at equal per-cell size, B' against B the per-cell size",
+  "arm_a": "reference already run (20261103-FOLDSRUN-e174812): 350 frames per cell over six cells of all eight fitting subjects, including those with session 03 only; not rerun",
+  "comparison": "A* against B: same subjects, same total, same dev, same test, same recipe; they differ in the session-03 frames and, as a consequence of the equal total, in the number of frames per session 01-02 cell (233-234 against 350); the session 01-02 frames of A* are a subset of those of B (nested samples)"
+ },
+ "train_seeds": [
+  42,
+  43,
+  44
+ ],
+ "training": {
+  "recipe": "unchanged from the folds run (delivery/foldsrun/nuaa_folds_run.json, run 20261103-FOLDSRUN-e174812): LivenessNet, N1 part 2 recipe, CPU",
+  "preprocessing": "unchanged: the frames already extracted for the folds run with the frozen extractor (every one of the 12,614 frames is in the cache or in the frames file of that run); no new extraction",
+  "class_weight": "balanced on the fitting set (arm B and A* are balanced by construction)"
+ },
+ "threshold": {
+  "set": "common dev only (sessions 01-02 of the dev subjects, 400 frames), the same for both arms",
+  "criterion": "eer, the M1 protocol, as in the folds run",
+  "frozen_before_test": "written from the dev scores before any test scoring, SHA-256 recorded",
+  "also_reported": "the fixed threshold 0.5",
+  "dev_role": "early stopping, learning-rate schedule, restored epoch and threshold, as in the folds run"
+ },
+ "metrics": {
+  "per_unit": "per arm, fold, seed and session stratum of the held-out subjects (01, 02, 03, all): APCER, BPCER, ACER at 0.5 and at the dev threshold, AUROC",
+  "contrast": "A* minus B per fold and seed, paired on the same test frames; pooled over the four folds per seed; median and range over seeds",
+  "pre_commitment": "reported whatever the outcome; no change of design, counts, recipe or threshold criterion after any score is read"
+ },
+ "budget": {
+  "reference_run": "20261103-FOLDSRUN-e174812",
+  "reference_run_record_sha256": "0d8a6bdb2a02f31c338c3c561cd5242a28067a419b471f0acf1373eaa2b65ac8",
+  "reference_fitting_frames": 2100,
+  "reference_dev_frames": 600,
+  "reference_scored_frames_per_seed": 12614,
+  "reference_train_seconds": [
+   705.8,
+   748.2,
+   842.7,
+   737.7,
+   745.5,
+   755.7,
+   763.8,
+   788.3,
+   757.4,
+   748.5,
+   748.4,
+   812.2
+  ],
+  "reference_score_seconds": [
+   21.6,
+   23.8,
+   24.3,
+   22.6,
+   22.1,
+   20.9,
+   27.9,
+   24.3,
+   23.7,
+   22.6,
+   19.8,
+   22.9
+  ],
+  "reference_threshold_seconds": [
+   3.6,
+   4.1,
+   4.1,
+   4.3,
+   3.8,
+   4.2,
+   5.0,
+   4.1,
+   3.9,
+   4.3,
+   3.8,
+   5.6
+  ],
+  "scaling": "seconds per training scaled by (fitting + dev frames) / 2,700; same epoch cap and early stopping, so the number of epochs may differ",
+  "wall_time_cap_minutes": 360,
+  "on_cap_exceeded": "stop, no results; report as a failed run",
+  "optional_arm": "arm B' is estimated separately (12 trainings) and not added to the base budget of 24 trainings"
+ },
+ "declarations": {
+  "no_training_here": "this package derives counts only: no training, no inference, no image read",
+  "s12_03_bona_fide": "the session-03 bona fide frames of arm A* come from few subjects (one or two per held-out fold): the session-03 contrast rests on them",
+  "equal_total": "arm A* keeps the total of arm B, so it uses fewer frames per session 01-02 cell; a difference between the arms mixes the added session with the smaller per-session sample; the optional arm B' (same per-cell counts as A*, without session 03) separates the two",
+  "dev_without_session_03": "the common dev has no session-03 frame, so early stopping and the threshold of arm A* are tuned without its added session; the alternative dev with the session mix is reported, not proposed",
+  "arm_a_not_comparable": "arm A (the run already made) uses more fitting subjects and 2,100 frames: it is a reference, not a third arm",
+  "limits": "frames of one subject and session are correlated; three seeds give a range, not a confidence interval; the four fold results share subjects across roles (different models, no leakage); one dataset, one attack type (print)",
+  "public_restricted": "public: rules, counts per fold, arm, session and class with the disclosure rule, SHA-256 of the restricted manifests, budget; restricted: subject lists, per-subject counts, proposed manifests with keys",
+  "nested_samples": "the session 01-02 frames of arms A* and B' are taken with spread from the frames chosen for arm B, so A* and B' differ from B only by removal (and A* from B' only by the added session-03 frames)"
+ }
+}
