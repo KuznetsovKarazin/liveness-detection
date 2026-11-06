@@ -1,0 +1,731 @@
+===== 2026-11-06T08:41:20+0100 run =====
+== NUAA session ablation run 20261106-SESSABLRUN-d999458: configuration 4c2d29d13ded (delivered: True), cap 360 min, 36 trainings, pid 33178
+   check-inputs PASS: 16 cell manifests, 6000 cache frames, 6614 extracted frames, peak RSS 1377 MB
+Epoch 1/12
+88/88 - 25s - loss: 0.0584 - accuracy: 0.9807 - val_loss: 7.0611 - val_accuracy: 0.5000 - lr: 0.0010 - 25s/epoch - 289ms/step
+Epoch 2/12
+88/88 - 26s - loss: 0.0299 - accuracy: 0.9886 - val_loss: 11.0871 - val_accuracy: 0.5000 - lr: 0.0010 - 26s/epoch - 301ms/step
+Epoch 3/12
+88/88 - 26s - loss: 0.0155 - accuracy: 0.9943 - val_loss: 25.2601 - val_accuracy: 0.5000 - lr: 0.0010 - 26s/epoch - 292ms/step
+Epoch 4/12
+88/88 - 26s - loss: 0.0144 - accuracy: 0.9957 - val_loss: 70.4209 - val_accuracy: 0.5000 - lr: 5.0000e-04 - 26s/epoch - 299ms/step
+Epoch 5/12
+88/88 - 27s - loss: 0.0187 - accuracy: 0.9929 - val_loss: 57.9626 - val_accuracy: 0.5000 - lr: 5.0000e-04 - 27s/epoch - 301ms/step
+== LivenessNet seed 42: 5 epochs in 131s, restored epoch 1 (val_loss 7.061067)
+== arm_b_fold1_seed42: test 1423/1819, ACER 05 0.5000, ACER dev 0.2650 (threshold 1.000000), AUROC 0.7389, peak RSS 4492 MB
+Epoch 1/12
+88/88 - 28s - loss: 0.0758 - accuracy: 0.9757 - val_loss: 18.5894 - val_accuracy: 0.5000 - lr: 0.0010 - 28s/epoch - 314ms/step
+Epoch 2/12
+88/88 - 29s - loss: 0.0353 - accuracy: 0.9879 - val_loss: 6.2336 - val_accuracy: 0.5000 - lr: 0.0010 - 29s/epoch - 326ms/step
+Epoch 3/12
+88/88 - 30s - loss: 0.0329 - accuracy: 0.9871 - val_loss: 5.6404 - val_accuracy: 0.5000 - lr: 0.0010 - 30s/epoch - 338ms/step
+Epoch 4/12
+88/88 - 30s - loss: 0.0286 - accuracy: 0.9921 - val_loss: 0.5814 - val_accuracy: 0.6950 - lr: 0.0010 - 30s/epoch - 343ms/step
+Epoch 5/12
+88/88 - 31s - loss: 0.0283 - accuracy: 0.9929 - val_loss: 9.5469 - val_accuracy: 0.5000 - lr: 0.0010 - 31s/epoch - 347ms/step
+Epoch 6/12
+88/88 - 31s - loss: 0.0212 - accuracy: 0.9929 - val_loss: 0.3038 - val_accuracy: 0.8700 - lr: 0.0010 - 31s/epoch - 347ms/step
+Epoch 7/12
+88/88 - 31s - loss: 0.0254 - accuracy: 0.9929 - val_loss: 0.9563 - val_accuracy: 0.7575 - lr: 0.0010 - 31s/epoch - 348ms/step
+Epoch 8/12
+88/88 - 30s - loss: 0.0121 - accuracy: 0.9957 - val_loss: 0.2465 - val_accuracy: 0.9425 - lr: 0.0010 - 30s/epoch - 346ms/step
+Epoch 9/12
+88/88 - 31s - loss: 0.0232 - accuracy: 0.9907 - val_loss: 0.0207 - val_accuracy: 0.9950 - lr: 0.0010 - 31s/epoch - 350ms/step
+Epoch 10/12
+88/88 - 31s - loss: 0.0214 - accuracy: 0.9936 - val_loss: 0.0104 - val_accuracy: 0.9950 - lr: 0.0010 - 31s/epoch - 348ms/step
+Epoch 11/12
+88/88 - 31s - loss: 0.0240 - accuracy: 0.9936 - val_loss: 2.1862 - val_accuracy: 0.5350 - lr: 0.0010 - 31s/epoch - 351ms/step
+Epoch 12/12
+88/88 - 31s - loss: 0.0241 - accuracy: 0.9907 - val_loss: 0.3013 - val_accuracy: 0.8975 - lr: 0.0010 - 31s/epoch - 353ms/step
+== LivenessNet seed 42: 12 epochs in 363s, restored epoch 10 (val_loss 0.010433)
+== arm_a_star_fold1_seed42: test 1423/1819, ACER 05 0.0839, ACER dev 0.0918 (threshold 0.895917), AUROC 0.9828, peak RSS 5323 MB
+Epoch 1/12
+88/88 - 32s - loss: 0.0923 - accuracy: 0.9714 - val_loss: 89.0806 - val_accuracy: 0.5000 - lr: 0.0010 - 32s/epoch - 360ms/step
+Epoch 2/12
+88/88 - 33s - loss: 0.0242 - accuracy: 0.9943 - val_loss: 83.9950 - val_accuracy: 0.5000 - lr: 0.0010 - 33s/epoch - 372ms/step
+Epoch 3/12
+88/88 - 32s - loss: 0.0368 - accuracy: 0.9886 - val_loss: 23.2996 - val_accuracy: 0.5000 - lr: 0.0010 - 32s/epoch - 362ms/step
+Epoch 4/12
+88/88 - 31s - loss: 0.0208 - accuracy: 0.9907 - val_loss: 6.7249 - val_accuracy: 0.6575 - lr: 0.0010 - 31s/epoch - 355ms/step
+Epoch 5/12
+88/88 - 31s - loss: 0.0315 - accuracy: 0.9914 - val_loss: 0.5578 - val_accuracy: 0.9500 - lr: 0.0010 - 31s/epoch - 354ms/step
+Epoch 6/12
+88/88 - 31s - loss: 0.0142 - accuracy: 0.9957 - val_loss: 0.5332 - val_accuracy: 0.7200 - lr: 0.0010 - 31s/epoch - 348ms/step
+Epoch 7/12
+88/88 - 30s - loss: 0.0205 - accuracy: 0.9943 - val_loss: 2.1234 - val_accuracy: 0.5275 - lr: 0.0010 - 30s/epoch - 346ms/step
+Epoch 8/12
+88/88 - 30s - loss: 0.0151 - accuracy: 0.9964 - val_loss: 1.1737 - val_accuracy: 0.8225 - lr: 0.0010 - 30s/epoch - 345ms/step
+Epoch 9/12
+88/88 - 30s - loss: 0.0047 - accuracy: 1.0000 - val_loss: 0.0116 - val_accuracy: 0.9950 - lr: 5.0000e-04 - 30s/epoch - 345ms/step
+Epoch 10/12
+88/88 - 30s - loss: 0.0055 - accuracy: 0.9993 - val_loss: 0.0173 - val_accuracy: 0.9950 - lr: 5.0000e-04 - 30s/epoch - 344ms/step
+Epoch 11/12
+88/88 - 31s - loss: 0.0112 - accuracy: 0.9964 - val_loss: 0.0056 - val_accuracy: 0.9975 - lr: 5.0000e-04 - 31s/epoch - 348ms/step
+Epoch 12/12
+88/88 - 30s - loss: 0.0058 - accuracy: 0.9993 - val_loss: 0.0538 - val_accuracy: 0.9950 - lr: 5.0000e-04 - 30s/epoch - 343ms/step
+== LivenessNet seed 43: 12 epochs in 373s, restored epoch 11 (val_loss 0.005580)
+== arm_b_fold1_seed43: test 1423/1819, ACER 05 0.3234, ACER dev 0.3187 (threshold 0.542399), AUROC 0.8948, peak RSS 5657 MB
+Epoch 1/12
+88/88 - 31s - loss: 0.1773 - accuracy: 0.9436 - val_loss: 99.7544 - val_accuracy: 0.5000 - lr: 0.0010 - 31s/epoch - 347ms/step
+Epoch 2/12
+88/88 - 30s - loss: 0.0475 - accuracy: 0.9829 - val_loss: 105.2555 - val_accuracy: 0.5000 - lr: 0.0010 - 30s/epoch - 344ms/step
+Epoch 3/12
+88/88 - 32s - loss: 0.0359 - accuracy: 0.9907 - val_loss: 24.9982 - val_accuracy: 0.5000 - lr: 0.0010 - 32s/epoch - 369ms/step
+Epoch 4/12
+88/88 - 31s - loss: 0.0323 - accuracy: 0.9879 - val_loss: 1.2927 - val_accuracy: 0.5050 - lr: 0.0010 - 31s/epoch - 349ms/step
+Epoch 5/12
+88/88 - 30s - loss: 0.0275 - accuracy: 0.9921 - val_loss: 1.4858 - val_accuracy: 0.5875 - lr: 0.0010 - 30s/epoch - 345ms/step
+Epoch 6/12
+88/88 - 30s - loss: 0.0179 - accuracy: 0.9929 - val_loss: 1.1509 - val_accuracy: 0.8925 - lr: 0.0010 - 30s/epoch - 345ms/step
+Epoch 7/12
+88/88 - 30s - loss: 0.0358 - accuracy: 0.9871 - val_loss: 0.1186 - val_accuracy: 0.9925 - lr: 0.0010 - 30s/epoch - 346ms/step
+Epoch 8/12
+88/88 - 30s - loss: 0.0215 - accuracy: 0.9936 - val_loss: 0.4765 - val_accuracy: 0.8075 - lr: 0.0010 - 30s/epoch - 346ms/step
+Epoch 9/12
+88/88 - 30s - loss: 0.0145 - accuracy: 0.9957 - val_loss: 0.0165 - val_accuracy: 0.9975 - lr: 0.0010 - 30s/epoch - 346ms/step
+Epoch 10/12
+88/88 - 31s - loss: 0.0149 - accuracy: 0.9929 - val_loss: 0.0430 - val_accuracy: 0.9975 - lr: 0.0010 - 31s/epoch - 347ms/step
+Epoch 11/12
+88/88 - 31s - loss: 0.0384 - accuracy: 0.9900 - val_loss: 0.0463 - val_accuracy: 0.9925 - lr: 0.0010 - 31s/epoch - 351ms/step
+Epoch 12/12
+88/88 - 32s - loss: 0.0210 - accuracy: 0.9943 - val_loss: 0.0291 - val_accuracy: 0.9975 - lr: 5.0000e-04 - 32s/epoch - 364ms/step
+== LivenessNet seed 43: 12 epochs in 371s, restored epoch 9 (val_loss 0.016456)
+== arm_a_star_fold1_seed43: test 1423/1819, ACER 05 0.0513, ACER dev 0.0435 (threshold 0.749943), AUROC 0.9921, peak RSS 5657 MB
+Epoch 1/12
+88/88 - 31s - loss: 0.1267 - accuracy: 0.9571 - val_loss: 20.0994 - val_accuracy: 0.5000 - lr: 0.0010 - 31s/epoch - 352ms/step
+Epoch 2/12
+88/88 - 31s - loss: 0.0255 - accuracy: 0.9936 - val_loss: 17.2676 - val_accuracy: 0.5000 - lr: 0.0010 - 31s/epoch - 356ms/step
+Epoch 3/12
+88/88 - 31s - loss: 0.0381 - accuracy: 0.9871 - val_loss: 89.6299 - val_accuracy: 0.5000 - lr: 0.0010 - 31s/epoch - 355ms/step
+Epoch 4/12
+88/88 - 31s - loss: 0.0142 - accuracy: 0.9964 - val_loss: 1.5134 - val_accuracy: 0.8600 - lr: 0.0010 - 31s/epoch - 351ms/step
+Epoch 5/12
+88/88 - 31s - loss: 0.0034 - accuracy: 1.0000 - val_loss: 71.5010 - val_accuracy: 0.5275 - lr: 0.0010 - 31s/epoch - 349ms/step
+Epoch 6/12
+88/88 - 31s - loss: 0.0151 - accuracy: 0.9957 - val_loss: 0.0298 - val_accuracy: 0.9950 - lr: 0.0010 - 31s/epoch - 350ms/step
+Epoch 7/12
+88/88 - 31s - loss: 0.0241 - accuracy: 0.9950 - val_loss: 1.0021 - val_accuracy: 0.6850 - lr: 0.0010 - 31s/epoch - 353ms/step
+Epoch 8/12
+88/88 - 31s - loss: 0.0167 - accuracy: 0.9936 - val_loss: 8.8095 - val_accuracy: 0.5100 - lr: 0.0010 - 31s/epoch - 353ms/step
+Epoch 9/12
+88/88 - 31s - loss: 0.0045 - accuracy: 1.0000 - val_loss: 0.7157 - val_accuracy: 0.9975 - lr: 5.0000e-04 - 31s/epoch - 355ms/step
+Epoch 10/12
+88/88 - 31s - loss: 0.0117 - accuracy: 0.9964 - val_loss: 0.0879 - val_accuracy: 0.9925 - lr: 5.0000e-04 - 31s/epoch - 356ms/step
+== LivenessNet seed 44: 10 epochs in 312s, restored epoch 6 (val_loss 0.029843)
+== arm_b_fold1_seed44: test 1423/1819, ACER 05 0.3565, ACER dev 0.3643 (threshold 0.230382), AUROC 0.6400, peak RSS 5657 MB
+Epoch 1/12
+88/88 - 33s - loss: 0.1542 - accuracy: 0.9486 - val_loss: 13.0604 - val_accuracy: 0.5000 - lr: 0.0010 - 33s/epoch - 369ms/step
+Epoch 2/12
+88/88 - 32s - loss: 0.0452 - accuracy: 0.9886 - val_loss: 18.8518 - val_accuracy: 0.5000 - lr: 0.0010 - 32s/epoch - 365ms/step
+Epoch 3/12
+88/88 - 32s - loss: 0.0629 - accuracy: 0.9807 - val_loss: 15.3273 - val_accuracy: 0.2775 - lr: 0.0010 - 32s/epoch - 364ms/step
+Epoch 4/12
+88/88 - 32s - loss: 0.0297 - accuracy: 0.9921 - val_loss: 15.4314 - val_accuracy: 0.5075 - lr: 5.0000e-04 - 32s/epoch - 363ms/step
+Epoch 5/12
+88/88 - 32s - loss: 0.0137 - accuracy: 0.9964 - val_loss: 1.8363 - val_accuracy: 0.7675 - lr: 5.0000e-04 - 32s/epoch - 362ms/step
+Epoch 6/12
+88/88 - 32s - loss: 0.0106 - accuracy: 0.9979 - val_loss: 38.5651 - val_accuracy: 0.6425 - lr: 5.0000e-04 - 32s/epoch - 362ms/step
+Epoch 7/12
+88/88 - 32s - loss: 0.0081 - accuracy: 0.9979 - val_loss: 0.2746 - val_accuracy: 0.9500 - lr: 5.0000e-04 - 32s/epoch - 361ms/step
+Epoch 8/12
+88/88 - 32s - loss: 0.0157 - accuracy: 0.9957 - val_loss: 0.1515 - val_accuracy: 0.9775 - lr: 5.0000e-04 - 32s/epoch - 363ms/step
+Epoch 9/12
+88/88 - 32s - loss: 0.0269 - accuracy: 0.9900 - val_loss: 0.0597 - val_accuracy: 0.9775 - lr: 5.0000e-04 - 32s/epoch - 365ms/step
+Epoch 10/12
+88/88 - 32s - loss: 0.0173 - accuracy: 0.9929 - val_loss: 0.0360 - val_accuracy: 0.9925 - lr: 5.0000e-04 - 32s/epoch - 366ms/step
+Epoch 11/12
+88/88 - 32s - loss: 0.0151 - accuracy: 0.9971 - val_loss: 0.0345 - val_accuracy: 0.9875 - lr: 5.0000e-04 - 32s/epoch - 364ms/step
+Epoch 12/12
+88/88 - 32s - loss: 0.0149 - accuracy: 0.9964 - val_loss: 0.6480 - val_accuracy: 0.9650 - lr: 5.0000e-04 - 32s/epoch - 365ms/step
+== LivenessNet seed 44: 12 epochs in 386s, restored epoch 11 (val_loss 0.034514)
+== arm_a_star_fold1_seed44: test 1423/1819, ACER 05 0.1428, ACER dev 0.1609 (threshold 0.264618), AUROC 0.8963, peak RSS 5657 MB
+Epoch 1/12
+88/88 - 33s - loss: 0.0747 - accuracy: 0.9779 - val_loss: 26.2285 - val_accuracy: 0.5000 - lr: 0.0010 - 33s/epoch - 380ms/step
+Epoch 2/12
+88/88 - 33s - loss: 0.0464 - accuracy: 0.9864 - val_loss: 2.2389 - val_accuracy: 0.5000 - lr: 0.0010 - 33s/epoch - 373ms/step
+Epoch 3/12
+88/88 - 33s - loss: 0.0099 - accuracy: 0.9986 - val_loss: 5.7689 - val_accuracy: 0.5000 - lr: 0.0010 - 33s/epoch - 371ms/step
+Epoch 4/12
+88/88 - 33s - loss: 0.0272 - accuracy: 0.9907 - val_loss: 7.2262 - val_accuracy: 0.4525 - lr: 0.0010 - 33s/epoch - 376ms/step
+Epoch 5/12
+88/88 - 33s - loss: 0.0188 - accuracy: 0.9936 - val_loss: 0.2429 - val_accuracy: 0.9250 - lr: 5.0000e-04 - 33s/epoch - 369ms/step
+Epoch 6/12
+88/88 - 32s - loss: 0.0109 - accuracy: 0.9971 - val_loss: 1.6688 - val_accuracy: 0.8050 - lr: 5.0000e-04 - 32s/epoch - 369ms/step
+Epoch 7/12
+88/88 - 33s - loss: 0.0129 - accuracy: 0.9964 - val_loss: 0.9026 - val_accuracy: 0.8800 - lr: 5.0000e-04 - 33s/epoch - 371ms/step
+Epoch 8/12
+88/88 - 33s - loss: 0.0048 - accuracy: 0.9993 - val_loss: 0.3244 - val_accuracy: 0.9250 - lr: 2.5000e-04 - 33s/epoch - 370ms/step
+Epoch 9/12
+88/88 - 33s - loss: 0.0057 - accuracy: 0.9986 - val_loss: 0.2308 - val_accuracy: 0.9475 - lr: 2.5000e-04 - 33s/epoch - 370ms/step
+Epoch 10/12
+88/88 - 33s - loss: 0.0064 - accuracy: 0.9993 - val_loss: 0.8642 - val_accuracy: 0.9575 - lr: 2.5000e-04 - 33s/epoch - 371ms/step
+Epoch 11/12
+88/88 - 32s - loss: 0.0054 - accuracy: 0.9993 - val_loss: 15.4193 - val_accuracy: 0.7525 - lr: 2.5000e-04 - 32s/epoch - 369ms/step
+Epoch 12/12
+88/88 - 32s - loss: 0.0074 - accuracy: 0.9971 - val_loss: 6.3635 - val_accuracy: 0.8675 - lr: 1.2500e-04 - 32s/epoch - 369ms/step
+== LivenessNet seed 42: 12 epochs in 394s, restored epoch 9 (val_loss 0.230775)
+== arm_b_fold2_seed42: test 1370/1744, ACER 05 0.2757, ACER dev 0.2861 (threshold 0.920426), AUROC 0.8368, peak RSS 5657 MB
+Epoch 1/12
+88/88 - 33s - loss: 0.1945 - accuracy: 0.9321 - val_loss: 42.2161 - val_accuracy: 0.5000 - lr: 0.0010 - 33s/epoch - 379ms/step
+Epoch 2/12
+88/88 - 33s - loss: 0.0648 - accuracy: 0.9836 - val_loss: 41.6488 - val_accuracy: 0.5000 - lr: 0.0010 - 33s/epoch - 376ms/step
+Epoch 3/12
+88/88 - 34s - loss: 0.0435 - accuracy: 0.9871 - val_loss: 22.6917 - val_accuracy: 0.5000 - lr: 0.0010 - 34s/epoch - 388ms/step
+Epoch 4/12
+88/88 - 34s - loss: 0.0489 - accuracy: 0.9779 - val_loss: 1.6300 - val_accuracy: 0.8075 - lr: 0.0010 - 34s/epoch - 384ms/step
+Epoch 5/12
+88/88 - 33s - loss: 0.0427 - accuracy: 0.9829 - val_loss: 0.0791 - val_accuracy: 0.9600 - lr: 0.0010 - 33s/epoch - 379ms/step
+Epoch 6/12
+88/88 - 34s - loss: 0.0348 - accuracy: 0.9886 - val_loss: 0.0011 - val_accuracy: 1.0000 - lr: 0.0010 - 34s/epoch - 383ms/step
+Epoch 7/12
+88/88 - 33s - loss: 0.0299 - accuracy: 0.9907 - val_loss: 1.1418e-04 - val_accuracy: 1.0000 - lr: 0.0010 - 33s/epoch - 379ms/step
+Epoch 8/12
+88/88 - 36s - loss: 0.0226 - accuracy: 0.9943 - val_loss: 3.1454e-04 - val_accuracy: 1.0000 - lr: 0.0010 - 36s/epoch - 410ms/step
+Epoch 9/12
+88/88 - 34s - loss: 0.0231 - accuracy: 0.9921 - val_loss: 0.0085 - val_accuracy: 0.9975 - lr: 0.0010 - 34s/epoch - 385ms/step
+Epoch 10/12
+88/88 - 33s - loss: 0.0232 - accuracy: 0.9914 - val_loss: 0.0028 - val_accuracy: 1.0000 - lr: 5.0000e-04 - 33s/epoch - 375ms/step
+Epoch 11/12
+88/88 - 33s - loss: 0.0363 - accuracy: 0.9879 - val_loss: 1.0711e-04 - val_accuracy: 1.0000 - lr: 5.0000e-04 - 33s/epoch - 373ms/step
+Epoch 12/12
+88/88 - 33s - loss: 0.0270 - accuracy: 0.9929 - val_loss: 0.0015 - val_accuracy: 1.0000 - lr: 2.5000e-04 - 33s/epoch - 370ms/step
+== LivenessNet seed 42: 12 epochs in 405s, restored epoch 11 (val_loss 0.000107)
+== arm_a_star_fold2_seed42: test 1370/1744, ACER 05 0.0937, ACER dev 0.1203 (threshold 0.000383), AUROC 0.9701, peak RSS 5770 MB
+Epoch 1/12
+88/88 - 33s - loss: 0.1074 - accuracy: 0.9607 - val_loss: 19.6904 - val_accuracy: 0.5000 - lr: 0.0010 - 33s/epoch - 378ms/step
+Epoch 2/12
+88/88 - 33s - loss: 0.0355 - accuracy: 0.9871 - val_loss: 31.4281 - val_accuracy: 0.5000 - lr: 0.0010 - 33s/epoch - 372ms/step
+Epoch 3/12
+88/88 - 33s - loss: 0.0352 - accuracy: 0.9893 - val_loss: 28.5338 - val_accuracy: 0.5000 - lr: 0.0010 - 33s/epoch - 378ms/step
+Epoch 4/12
+88/88 - 34s - loss: 0.0180 - accuracy: 0.9921 - val_loss: 20.8221 - val_accuracy: 0.5000 - lr: 5.0000e-04 - 34s/epoch - 389ms/step
+Epoch 5/12
+88/88 - 32s - loss: 0.0116 - accuracy: 0.9957 - val_loss: 9.9837 - val_accuracy: 0.6225 - lr: 5.0000e-04 - 32s/epoch - 367ms/step
+Epoch 6/12
+88/88 - 33s - loss: 0.0077 - accuracy: 0.9979 - val_loss: 7.0844 - val_accuracy: 0.7500 - lr: 5.0000e-04 - 33s/epoch - 372ms/step
+Epoch 7/12
+88/88 - 31s - loss: 0.0175 - accuracy: 0.9943 - val_loss: 0.0011 - val_accuracy: 1.0000 - lr: 5.0000e-04 - 31s/epoch - 353ms/step
+Epoch 8/12
+88/88 - 33s - loss: 0.0154 - accuracy: 0.9964 - val_loss: 0.0163 - val_accuracy: 1.0000 - lr: 5.0000e-04 - 33s/epoch - 372ms/step
+Epoch 9/12
+88/88 - 33s - loss: 0.0101 - accuracy: 0.9979 - val_loss: 0.0058 - val_accuracy: 0.9975 - lr: 5.0000e-04 - 33s/epoch - 371ms/step
+Epoch 10/12
+88/88 - 32s - loss: 0.0043 - accuracy: 0.9986 - val_loss: 0.0044 - val_accuracy: 1.0000 - lr: 2.5000e-04 - 32s/epoch - 359ms/step
+Epoch 11/12
+88/88 - 33s - loss: 0.0200 - accuracy: 0.9936 - val_loss: 0.0108 - val_accuracy: 0.9975 - lr: 2.5000e-04 - 33s/epoch - 371ms/step
+== LivenessNet seed 43: 11 epochs in 360s, restored epoch 7 (val_loss 0.001136)
+== arm_b_fold2_seed43: test 1370/1744, ACER 05 0.3479, ACER dev 0.3357 (threshold 0.046983), AUROC 0.6701, peak RSS 5770 MB
+Epoch 1/12
+88/88 - 30s - loss: 0.2393 - accuracy: 0.9143 - val_loss: 60.9868 - val_accuracy: 0.5000 - lr: 0.0010 - 30s/epoch - 343ms/step
+Epoch 2/12
+88/88 - 39s - loss: 0.1015 - accuracy: 0.9671 - val_loss: 107.3440 - val_accuracy: 0.5000 - lr: 0.0010 - 39s/epoch - 448ms/step
+Epoch 3/12
+88/88 - 33s - loss: 0.0818 - accuracy: 0.9707 - val_loss: 129.8726 - val_accuracy: 0.5000 - lr: 0.0010 - 33s/epoch - 373ms/step
+Epoch 4/12
+88/88 - 33s - loss: 0.0460 - accuracy: 0.9857 - val_loss: 141.0613 - val_accuracy: 0.5000 - lr: 5.0000e-04 - 33s/epoch - 372ms/step
+Epoch 5/12
+88/88 - 32s - loss: 0.0351 - accuracy: 0.9879 - val_loss: 82.6402 - val_accuracy: 0.5050 - lr: 5.0000e-04 - 32s/epoch - 365ms/step
+== LivenessNet seed 43: 5 epochs in 168s, restored epoch 1 (val_loss 60.986767)
+== arm_a_star_fold2_seed43: test 1370/1744, ACER 05 0.5000, ACER dev 0.5000 (threshold 1.000000), AUROC 0.5000, peak RSS 5770 MB
+Epoch 1/12
+88/88 - 35s - loss: 0.1225 - accuracy: 0.9607 - val_loss: 22.1605 - val_accuracy: 0.5000 - lr: 0.0010 - 35s/epoch - 402ms/step
+Epoch 2/12
+88/88 - 36s - loss: 0.0381 - accuracy: 0.9879 - val_loss: 23.5339 - val_accuracy: 0.5000 - lr: 0.0010 - 36s/epoch - 410ms/step
+Epoch 3/12
+88/88 - 34s - loss: 0.0472 - accuracy: 0.9821 - val_loss: 34.8795 - val_accuracy: 0.5000 - lr: 0.0010 - 34s/epoch - 382ms/step
+Epoch 4/12
+88/88 - 33s - loss: 0.0207 - accuracy: 0.9943 - val_loss: 49.7476 - val_accuracy: 0.5000 - lr: 5.0000e-04 - 33s/epoch - 377ms/step
+Epoch 5/12
+88/88 - 35s - loss: 0.0081 - accuracy: 0.9986 - val_loss: 1.1821 - val_accuracy: 0.9450 - lr: 5.0000e-04 - 35s/epoch - 398ms/step
+Epoch 6/12
+88/88 - 33s - loss: 0.0052 - accuracy: 0.9993 - val_loss: 0.5052 - val_accuracy: 0.9400 - lr: 5.0000e-04 - 33s/epoch - 379ms/step
+Epoch 7/12
+88/88 - 34s - loss: 0.0083 - accuracy: 0.9986 - val_loss: 0.1885 - val_accuracy: 0.9750 - lr: 5.0000e-04 - 34s/epoch - 381ms/step
+Epoch 8/12
+88/88 - 32s - loss: 0.0104 - accuracy: 0.9957 - val_loss: 0.1911 - val_accuracy: 0.8900 - lr: 5.0000e-04 - 32s/epoch - 367ms/step
+Epoch 9/12
+88/88 - 32s - loss: 0.0172 - accuracy: 0.9950 - val_loss: 2.9133 - val_accuracy: 0.5125 - lr: 5.0000e-04 - 32s/epoch - 363ms/step
+Epoch 10/12
+88/88 - 32s - loss: 0.0223 - accuracy: 0.9921 - val_loss: 0.0030 - val_accuracy: 0.9975 - lr: 2.5000e-04 - 32s/epoch - 363ms/step
+Epoch 11/12
+88/88 - 33s - loss: 0.0133 - accuracy: 0.9964 - val_loss: 0.0152 - val_accuracy: 0.9975 - lr: 2.5000e-04 - 33s/epoch - 371ms/step
+Epoch 12/12
+88/88 - 33s - loss: 0.0139 - accuracy: 0.9971 - val_loss: 0.0044 - val_accuracy: 0.9975 - lr: 2.5000e-04 - 33s/epoch - 373ms/step
+== LivenessNet seed 44: 12 epochs in 403s, restored epoch 10 (val_loss 0.002952)
+== arm_b_fold2_seed44: test 1370/1744, ACER 05 0.1659, ACER dev 0.1508 (threshold 0.578237), AUROC 0.9865, peak RSS 5770 MB
+Epoch 1/12
+88/88 - 33s - loss: 0.2237 - accuracy: 0.9200 - val_loss: 18.0934 - val_accuracy: 0.5000 - lr: 0.0010 - 33s/epoch - 370ms/step
+Epoch 2/12
+88/88 - 32s - loss: 0.0555 - accuracy: 0.9807 - val_loss: 54.2510 - val_accuracy: 0.5000 - lr: 0.0010 - 32s/epoch - 367ms/step
+Epoch 3/12
+88/88 - 32s - loss: 0.0498 - accuracy: 0.9829 - val_loss: 53.3845 - val_accuracy: 0.5000 - lr: 0.0010 - 32s/epoch - 365ms/step
+Epoch 4/12
+88/88 - 32s - loss: 0.0375 - accuracy: 0.9900 - val_loss: 31.7061 - val_accuracy: 0.5975 - lr: 5.0000e-04 - 32s/epoch - 367ms/step
+Epoch 5/12
+88/88 - 37s - loss: 0.0280 - accuracy: 0.9921 - val_loss: 67.1098 - val_accuracy: 0.2800 - lr: 5.0000e-04 - 37s/epoch - 419ms/step
+== LivenessNet seed 44: 5 epochs in 167s, restored epoch 1 (val_loss 18.093369)
+== arm_a_star_fold2_seed44: test 1370/1744, ACER 05 0.5000, ACER dev 0.5546 (threshold 0.000000), AUROC 0.2782, peak RSS 5770 MB
+Epoch 1/12
+88/88 - 39s - loss: 0.0489 - accuracy: 0.9864 - val_loss: 9.0178 - val_accuracy: 0.5000 - lr: 0.0010 - 39s/epoch - 443ms/step
+Epoch 2/12
+88/88 - 35s - loss: 0.0338 - accuracy: 0.9893 - val_loss: 7.3608 - val_accuracy: 0.5000 - lr: 0.0010 - 35s/epoch - 397ms/step
+Epoch 3/12
+88/88 - 37s - loss: 0.0167 - accuracy: 0.9950 - val_loss: 4.6428 - val_accuracy: 0.5000 - lr: 0.0010 - 37s/epoch - 419ms/step
+Epoch 4/12
+88/88 - 38s - loss: 0.0139 - accuracy: 0.9971 - val_loss: 9.8747 - val_accuracy: 0.5000 - lr: 0.0010 - 38s/epoch - 426ms/step
+Epoch 5/12
+88/88 - 36s - loss: 0.0213 - accuracy: 0.9943 - val_loss: 7.5153 - val_accuracy: 0.5050 - lr: 0.0010 - 36s/epoch - 405ms/step
+Epoch 6/12
+88/88 - 35s - loss: 0.0113 - accuracy: 0.9964 - val_loss: 0.1412 - val_accuracy: 0.9350 - lr: 5.0000e-04 - 35s/epoch - 402ms/step
+Epoch 7/12
+88/88 - 39s - loss: 0.0076 - accuracy: 0.9986 - val_loss: 0.1126 - val_accuracy: 0.9450 - lr: 5.0000e-04 - 39s/epoch - 444ms/step
+Epoch 8/12
+88/88 - 38s - loss: 0.0040 - accuracy: 0.9993 - val_loss: 0.1991 - val_accuracy: 0.8775 - lr: 5.0000e-04 - 38s/epoch - 434ms/step
+Epoch 9/12
+88/88 - 36s - loss: 0.0129 - accuracy: 0.9950 - val_loss: 0.1024 - val_accuracy: 0.9775 - lr: 5.0000e-04 - 36s/epoch - 404ms/step
+Epoch 10/12
+88/88 - 36s - loss: 0.0202 - accuracy: 0.9936 - val_loss: 1.7409 - val_accuracy: 0.5150 - lr: 5.0000e-04 - 36s/epoch - 409ms/step
+Epoch 11/12
+88/88 - 38s - loss: 0.0221 - accuracy: 0.9943 - val_loss: 0.3420 - val_accuracy: 0.8525 - lr: 5.0000e-04 - 38s/epoch - 432ms/step
+Epoch 12/12
+88/88 - 35s - loss: 0.0331 - accuracy: 0.9929 - val_loss: 0.0168 - val_accuracy: 1.0000 - lr: 2.5000e-04 - 35s/epoch - 400ms/step
+== LivenessNet seed 42: 12 epochs in 442s, restored epoch 12 (val_loss 0.016773)
+== arm_b_fold3_seed42: test 1387/2052, ACER 05 0.2091, ACER dev 0.2010 (threshold 0.381979), AUROC 0.8298, peak RSS 5770 MB
+Epoch 1/12
+88/88 - 35s - loss: 0.2005 - accuracy: 0.9350 - val_loss: 3.1296 - val_accuracy: 0.5000 - lr: 0.0010 - 35s/epoch - 401ms/step
+Epoch 2/12
+88/88 - 37s - loss: 0.0954 - accuracy: 0.9650 - val_loss: 4.0716 - val_accuracy: 0.4975 - lr: 0.0010 - 37s/epoch - 420ms/step
+Epoch 3/12
+88/88 - 37s - loss: 0.0793 - accuracy: 0.9750 - val_loss: 48.6234 - val_accuracy: 0.5000 - lr: 0.0010 - 37s/epoch - 418ms/step
+Epoch 4/12
+88/88 - 37s - loss: 0.0456 - accuracy: 0.9879 - val_loss: 13.4781 - val_accuracy: 0.5000 - lr: 5.0000e-04 - 37s/epoch - 416ms/step
+Epoch 5/12
+88/88 - 36s - loss: 0.0481 - accuracy: 0.9829 - val_loss: 70.9343 - val_accuracy: 0.2625 - lr: 5.0000e-04 - 36s/epoch - 407ms/step
+== LivenessNet seed 42: 5 epochs in 182s, restored epoch 1 (val_loss 3.129622)
+== arm_a_star_fold3_seed42: test 1387/2052, ACER 05 0.5000, ACER dev 0.4723 (threshold 0.001888), AUROC 0.5255, peak RSS 5770 MB
+Epoch 1/12
+88/88 - 38s - loss: 0.0785 - accuracy: 0.9714 - val_loss: 52.1752 - val_accuracy: 0.5000 - lr: 0.0010 - 38s/epoch - 428ms/step
+Epoch 2/12
+88/88 - 42s - loss: 0.0272 - accuracy: 0.9900 - val_loss: 30.7031 - val_accuracy: 0.5000 - lr: 0.0010 - 42s/epoch - 483ms/step
+Epoch 3/12
+88/88 - 47s - loss: 0.0324 - accuracy: 0.9936 - val_loss: 5.3512 - val_accuracy: 0.5000 - lr: 0.0010 - 47s/epoch - 534ms/step
+Epoch 4/12
+88/88 - 35s - loss: 0.0273 - accuracy: 0.9886 - val_loss: 2.4610 - val_accuracy: 0.5000 - lr: 0.0010 - 35s/epoch - 395ms/step
+Epoch 5/12
+88/88 - 34s - loss: 0.0410 - accuracy: 0.9879 - val_loss: 1.2473 - val_accuracy: 0.5100 - lr: 0.0010 - 34s/epoch - 382ms/step
+Epoch 6/12
+88/88 - 36s - loss: 0.0225 - accuracy: 0.9943 - val_loss: 0.1719 - val_accuracy: 0.9050 - lr: 0.0010 - 36s/epoch - 415ms/step
+Epoch 7/12
+88/88 - 35s - loss: 0.0288 - accuracy: 0.9907 - val_loss: 1.0644 - val_accuracy: 0.9500 - lr: 0.0010 - 35s/epoch - 394ms/step
+Epoch 8/12
+88/88 - 33s - loss: 0.0201 - accuracy: 0.9929 - val_loss: 0.9056 - val_accuracy: 0.7975 - lr: 0.0010 - 33s/epoch - 374ms/step
+Epoch 9/12
+88/88 - 32s - loss: 0.0032 - accuracy: 1.0000 - val_loss: 0.1345 - val_accuracy: 0.9000 - lr: 5.0000e-04 - 32s/epoch - 364ms/step
+Epoch 10/12
+88/88 - 30s - loss: 0.0066 - accuracy: 0.9986 - val_loss: 0.0531 - val_accuracy: 0.9925 - lr: 5.0000e-04 - 30s/epoch - 342ms/step
+Epoch 11/12
+88/88 - 31s - loss: 0.0082 - accuracy: 0.9964 - val_loss: 0.4781 - val_accuracy: 0.8125 - lr: 5.0000e-04 - 31s/epoch - 347ms/step
+Epoch 12/12
+88/88 - 30s - loss: 0.0040 - accuracy: 0.9993 - val_loss: 0.6777 - val_accuracy: 0.8800 - lr: 5.0000e-04 - 30s/epoch - 340ms/step
+== LivenessNet seed 43: 12 epochs in 423s, restored epoch 10 (val_loss 0.053055)
+== arm_b_fold3_seed43: test 1387/2052, ACER 05 0.2555, ACER dev 0.1857 (threshold 0.031980), AUROC 0.7776, peak RSS 5770 MB
+Epoch 1/12
+88/88 - 31s - loss: 0.2460 - accuracy: 0.9021 - val_loss: 30.6526 - val_accuracy: 0.5000 - lr: 0.0010 - 31s/epoch - 357ms/step
+Epoch 2/12
+88/88 - 31s - loss: 0.1072 - accuracy: 0.9643 - val_loss: 25.2554 - val_accuracy: 0.5000 - lr: 0.0010 - 31s/epoch - 351ms/step
+Epoch 3/12
+88/88 - 31s - loss: 0.0864 - accuracy: 0.9714 - val_loss: 69.9984 - val_accuracy: 0.5000 - lr: 0.0010 - 31s/epoch - 349ms/step
+Epoch 4/12
+88/88 - 30s - loss: 0.0594 - accuracy: 0.9807 - val_loss: 16.9885 - val_accuracy: 0.5000 - lr: 0.0010 - 30s/epoch - 346ms/step
+Epoch 5/12
+88/88 - 31s - loss: 0.0473 - accuracy: 0.9807 - val_loss: 3.9550 - val_accuracy: 0.5000 - lr: 0.0010 - 31s/epoch - 349ms/step
+Epoch 6/12
+88/88 - 30s - loss: 0.0358 - accuracy: 0.9871 - val_loss: 0.3535 - val_accuracy: 0.8275 - lr: 0.0010 - 30s/epoch - 346ms/step
+Epoch 7/12
+88/88 - 30s - loss: 0.0394 - accuracy: 0.9864 - val_loss: 0.6650 - val_accuracy: 0.7475 - lr: 0.0010 - 30s/epoch - 340ms/step
+Epoch 8/12
+88/88 - 30s - loss: 0.0350 - accuracy: 0.9879 - val_loss: 0.4746 - val_accuracy: 0.7975 - lr: 0.0010 - 30s/epoch - 346ms/step
+Epoch 9/12
+88/88 - 32s - loss: 0.0328 - accuracy: 0.9900 - val_loss: 0.2388 - val_accuracy: 0.8600 - lr: 5.0000e-04 - 32s/epoch - 361ms/step
+Epoch 10/12
+88/88 - 31s - loss: 0.0255 - accuracy: 0.9921 - val_loss: 0.9390 - val_accuracy: 0.7525 - lr: 5.0000e-04 - 31s/epoch - 356ms/step
+Epoch 11/12
+88/88 - 34s - loss: 0.0204 - accuracy: 0.9936 - val_loss: 0.0144 - val_accuracy: 1.0000 - lr: 5.0000e-04 - 34s/epoch - 384ms/step
+Epoch 12/12
+88/88 - 35s - loss: 0.0132 - accuracy: 0.9979 - val_loss: 0.0088 - val_accuracy: 0.9975 - lr: 5.0000e-04 - 35s/epoch - 400ms/step
+== LivenessNet seed 43: 12 epochs in 378s, restored epoch 12 (val_loss 0.008836)
+== arm_a_star_fold3_seed43: test 1387/2052, ACER 05 0.1836, ACER dev 0.1850 (threshold 0.517414), AUROC 0.9534, peak RSS 6205 MB
+Epoch 1/12
+88/88 - 35s - loss: 0.0823 - accuracy: 0.9771 - val_loss: 4.3951 - val_accuracy: 0.5000 - lr: 0.0010 - 35s/epoch - 393ms/step
+Epoch 2/12
+88/88 - 34s - loss: 0.0275 - accuracy: 0.9900 - val_loss: 5.5560 - val_accuracy: 0.5000 - lr: 0.0010 - 34s/epoch - 390ms/step
+Epoch 3/12
+88/88 - 35s - loss: 0.0357 - accuracy: 0.9900 - val_loss: 3.2731 - val_accuracy: 0.2375 - lr: 0.0010 - 35s/epoch - 399ms/step
+Epoch 4/12
+88/88 - 46s - loss: 0.0127 - accuracy: 0.9971 - val_loss: 7.6232 - val_accuracy: 0.5000 - lr: 0.0010 - 46s/epoch - 521ms/step
+Epoch 5/12
+88/88 - 36s - loss: 0.0077 - accuracy: 0.9993 - val_loss: 28.5591 - val_accuracy: 0.5850 - lr: 0.0010 - 36s/epoch - 412ms/step
+Epoch 6/12
+88/88 - 34s - loss: 0.0033 - accuracy: 1.0000 - val_loss: 45.5708 - val_accuracy: 0.5500 - lr: 5.0000e-04 - 34s/epoch - 390ms/step
+Epoch 7/12
+88/88 - 34s - loss: 0.0044 - accuracy: 0.9986 - val_loss: 5.6269 - val_accuracy: 0.5975 - lr: 5.0000e-04 - 34s/epoch - 389ms/step
+== LivenessNet seed 44: 7 epochs in 256s, restored epoch 3 (val_loss 3.273058)
+== arm_b_fold3_seed44: test 1387/2052, ACER 05 0.7265, ACER dev 0.6312 (threshold 0.120550), AUROC 0.2781, peak RSS 6205 MB
+Epoch 1/12
+88/88 - 33s - loss: 0.2068 - accuracy: 0.9229 - val_loss: 33.4090 - val_accuracy: 0.5000 - lr: 0.0010 - 33s/epoch - 373ms/step
+Epoch 2/12
+88/88 - 32s - loss: 0.0872 - accuracy: 0.9750 - val_loss: 44.9257 - val_accuracy: 0.5000 - lr: 0.0010 - 32s/epoch - 367ms/step
+Epoch 3/12
+88/88 - 33s - loss: 0.0800 - accuracy: 0.9750 - val_loss: 197.8555 - val_accuracy: 0.5000 - lr: 0.0010 - 33s/epoch - 371ms/step
+Epoch 4/12
+88/88 - 33s - loss: 0.0377 - accuracy: 0.9879 - val_loss: 133.1231 - val_accuracy: 0.5000 - lr: 5.0000e-04 - 33s/epoch - 379ms/step
+Epoch 5/12
+88/88 - 31s - loss: 0.0295 - accuracy: 0.9893 - val_loss: 66.0214 - val_accuracy: 0.4925 - lr: 5.0000e-04 - 31s/epoch - 350ms/step
+== LivenessNet seed 44: 5 epochs in 162s, restored epoch 1 (val_loss 33.408985)
+== arm_a_star_fold3_seed44: test 1387/2052, ACER 05 0.5000, ACER dev 0.5000 (threshold 1.000000), AUROC 0.5000, peak RSS 6464 MB
+Epoch 1/12
+88/88 - 30s - loss: 0.0312 - accuracy: 0.9886 - val_loss: 4.4734 - val_accuracy: 0.5000 - lr: 0.0010 - 30s/epoch - 344ms/step
+Epoch 2/12
+88/88 - 30s - loss: 0.0287 - accuracy: 0.9943 - val_loss: 6.5823 - val_accuracy: 0.5000 - lr: 0.0010 - 30s/epoch - 343ms/step
+Epoch 3/12
+88/88 - 30s - loss: 0.0168 - accuracy: 0.9943 - val_loss: 1.1820 - val_accuracy: 0.7025 - lr: 0.0010 - 30s/epoch - 341ms/step
+Epoch 4/12
+88/88 - 30s - loss: 0.0078 - accuracy: 0.9986 - val_loss: 16.0329 - val_accuracy: 0.5000 - lr: 0.0010 - 30s/epoch - 341ms/step
+Epoch 5/12
+88/88 - 30s - loss: 0.0148 - accuracy: 0.9964 - val_loss: 3.0807 - val_accuracy: 0.5050 - lr: 0.0010 - 30s/epoch - 343ms/step
+Epoch 6/12
+88/88 - 30s - loss: 0.0165 - accuracy: 0.9964 - val_loss: 0.0056 - val_accuracy: 1.0000 - lr: 5.0000e-04 - 30s/epoch - 337ms/step
+Epoch 7/12
+88/88 - 30s - loss: 0.0085 - accuracy: 0.9971 - val_loss: 0.4964 - val_accuracy: 0.9450 - lr: 5.0000e-04 - 30s/epoch - 339ms/step
+Epoch 8/12
+88/88 - 30s - loss: 0.0024 - accuracy: 1.0000 - val_loss: 0.2008 - val_accuracy: 0.9050 - lr: 5.0000e-04 - 30s/epoch - 339ms/step
+Epoch 9/12
+88/88 - 30s - loss: 0.0045 - accuracy: 0.9979 - val_loss: 8.8519e-04 - val_accuracy: 1.0000 - lr: 2.5000e-04 - 30s/epoch - 338ms/step
+Epoch 10/12
+88/88 - 30s - loss: 0.0048 - accuracy: 0.9979 - val_loss: 0.0060 - val_accuracy: 1.0000 - lr: 2.5000e-04 - 30s/epoch - 336ms/step
+Epoch 11/12
+88/88 - 30s - loss: 0.0088 - accuracy: 0.9979 - val_loss: 5.4232e-04 - val_accuracy: 1.0000 - lr: 2.5000e-04 - 30s/epoch - 337ms/step
+Epoch 12/12
+88/88 - 30s - loss: 0.0129 - accuracy: 0.9964 - val_loss: 7.4660e-04 - val_accuracy: 1.0000 - lr: 2.5000e-04 - 30s/epoch - 336ms/step
+== LivenessNet seed 42: 12 epochs in 359s, restored epoch 11 (val_loss 0.000542)
+== arm_b_fold4_seed42: test 925/1894, ACER 05 0.3936, ACER dev 0.3274 (threshold 0.016334), AUROC 0.7502, peak RSS 6758 MB
+Epoch 1/12
+88/88 - 30s - loss: 0.0972 - accuracy: 0.9636 - val_loss: 37.0629 - val_accuracy: 0.5000 - lr: 0.0010 - 30s/epoch - 339ms/step
+Epoch 2/12
+88/88 - 30s - loss: 0.0545 - accuracy: 0.9857 - val_loss: 29.0692 - val_accuracy: 0.5000 - lr: 0.0010 - 30s/epoch - 338ms/step
+Epoch 3/12
+88/88 - 29s - loss: 0.0444 - accuracy: 0.9850 - val_loss: 29.3711 - val_accuracy: 0.5000 - lr: 0.0010 - 29s/epoch - 334ms/step
+Epoch 4/12
+88/88 - 30s - loss: 0.0415 - accuracy: 0.9850 - val_loss: 42.6476 - val_accuracy: 0.4950 - lr: 0.0010 - 30s/epoch - 336ms/step
+Epoch 5/12
+88/88 - 29s - loss: 0.0215 - accuracy: 0.9936 - val_loss: 20.6425 - val_accuracy: 0.5025 - lr: 5.0000e-04 - 29s/epoch - 334ms/step
+Epoch 6/12
+88/88 - 29s - loss: 0.0207 - accuracy: 0.9929 - val_loss: 3.5691 - val_accuracy: 0.5750 - lr: 5.0000e-04 - 29s/epoch - 332ms/step
+Epoch 7/12
+88/88 - 29s - loss: 0.0164 - accuracy: 0.9957 - val_loss: 3.3842 - val_accuracy: 0.6300 - lr: 5.0000e-04 - 29s/epoch - 333ms/step
+Epoch 8/12
+88/88 - 29s - loss: 0.0126 - accuracy: 0.9957 - val_loss: 2.1692 - val_accuracy: 0.7025 - lr: 5.0000e-04 - 29s/epoch - 333ms/step
+Epoch 9/12
+88/88 - 29s - loss: 0.0157 - accuracy: 0.9943 - val_loss: 1.1898 - val_accuracy: 0.7425 - lr: 5.0000e-04 - 29s/epoch - 334ms/step
+Epoch 10/12
+88/88 - 29s - loss: 0.0150 - accuracy: 0.9950 - val_loss: 0.8106 - val_accuracy: 0.7975 - lr: 5.0000e-04 - 29s/epoch - 335ms/step
+Epoch 11/12
+88/88 - 30s - loss: 0.0178 - accuracy: 0.9936 - val_loss: 1.6759 - val_accuracy: 0.7350 - lr: 5.0000e-04 - 30s/epoch - 343ms/step
+Epoch 12/12
+88/88 - 33s - loss: 0.0203 - accuracy: 0.9943 - val_loss: 1.1580 - val_accuracy: 0.7850 - lr: 5.0000e-04 - 33s/epoch - 373ms/step
+== LivenessNet seed 42: 12 epochs in 359s, restored epoch 10 (val_loss 0.810625)
+== arm_a_star_fold4_seed42: test 925/1894, ACER 05 0.1763, ACER dev 0.1911 (threshold 0.999374), AUROC 0.9271, peak RSS 6758 MB
+Epoch 1/12
+88/88 - 30s - loss: 0.0814 - accuracy: 0.9714 - val_loss: 23.6278 - val_accuracy: 0.5000 - lr: 0.0010 - 30s/epoch - 337ms/step
+Epoch 2/12
+88/88 - 29s - loss: 0.0348 - accuracy: 0.9921 - val_loss: 96.5911 - val_accuracy: 0.5000 - lr: 0.0010 - 29s/epoch - 333ms/step
+Epoch 3/12
+88/88 - 29s - loss: 0.0361 - accuracy: 0.9921 - val_loss: 4.1716 - val_accuracy: 0.5000 - lr: 0.0010 - 29s/epoch - 332ms/step
+Epoch 4/12
+88/88 - 29s - loss: 0.0236 - accuracy: 0.9929 - val_loss: 4.5196 - val_accuracy: 0.7375 - lr: 0.0010 - 29s/epoch - 334ms/step
+Epoch 5/12
+88/88 - 29s - loss: 0.0229 - accuracy: 0.9929 - val_loss: 2.2557 - val_accuracy: 0.6300 - lr: 0.0010 - 29s/epoch - 333ms/step
+Epoch 6/12
+88/88 - 29s - loss: 0.0054 - accuracy: 0.9993 - val_loss: 0.0013 - val_accuracy: 1.0000 - lr: 0.0010 - 29s/epoch - 334ms/step
+Epoch 7/12
+88/88 - 29s - loss: 0.0210 - accuracy: 0.9943 - val_loss: 0.1575 - val_accuracy: 0.9375 - lr: 0.0010 - 29s/epoch - 333ms/step
+Epoch 8/12
+88/88 - 29s - loss: 0.0198 - accuracy: 0.9921 - val_loss: 0.0351 - val_accuracy: 0.9850 - lr: 0.0010 - 29s/epoch - 334ms/step
+Epoch 9/12
+88/88 - 29s - loss: 0.0066 - accuracy: 0.9986 - val_loss: 0.0216 - val_accuracy: 0.9975 - lr: 5.0000e-04 - 29s/epoch - 334ms/step
+Epoch 10/12
+88/88 - 32s - loss: 0.0014 - accuracy: 1.0000 - val_loss: 0.0133 - val_accuracy: 1.0000 - lr: 5.0000e-04 - 32s/epoch - 364ms/step
+== LivenessNet seed 43: 10 epochs in 297s, restored epoch 6 (val_loss 0.001289)
+== arm_b_fold4_seed43: test 925/1894, ACER 05 0.4276, ACER dev 0.2874 (threshold 0.002956), AUROC 0.5968, peak RSS 6758 MB
+Epoch 1/12
+88/88 - 35s - loss: 0.1612 - accuracy: 0.9479 - val_loss: 39.4322 - val_accuracy: 0.5000 - lr: 0.0010 - 35s/epoch - 395ms/step
+Epoch 2/12
+88/88 - 34s - loss: 0.0575 - accuracy: 0.9829 - val_loss: 62.5776 - val_accuracy: 0.5000 - lr: 0.0010 - 34s/epoch - 381ms/step
+Epoch 3/12
+88/88 - 31s - loss: 0.0574 - accuracy: 0.9800 - val_loss: 19.8885 - val_accuracy: 0.5000 - lr: 0.0010 - 31s/epoch - 354ms/step
+Epoch 4/12
+88/88 - 32s - loss: 0.0515 - accuracy: 0.9871 - val_loss: 6.5983 - val_accuracy: 0.2800 - lr: 0.0010 - 32s/epoch - 364ms/step
+Epoch 5/12
+88/88 - 36s - loss: 0.0419 - accuracy: 0.9857 - val_loss: 2.8718 - val_accuracy: 0.5675 - lr: 0.0010 - 36s/epoch - 409ms/step
+Epoch 6/12
+88/88 - 33s - loss: 0.0212 - accuracy: 0.9914 - val_loss: 4.3795 - val_accuracy: 0.5000 - lr: 0.0010 - 33s/epoch - 379ms/step
+Epoch 7/12
+88/88 - 32s - loss: 0.0479 - accuracy: 0.9821 - val_loss: 0.9011 - val_accuracy: 0.7950 - lr: 0.0010 - 32s/epoch - 362ms/step
+Epoch 8/12
+88/88 - 31s - loss: 0.0298 - accuracy: 0.9886 - val_loss: 0.6314 - val_accuracy: 0.8775 - lr: 0.0010 - 31s/epoch - 348ms/step
+Epoch 9/12
+88/88 - 29s - loss: 0.0250 - accuracy: 0.9900 - val_loss: 0.0272 - val_accuracy: 0.9950 - lr: 0.0010 - 29s/epoch - 332ms/step
+Epoch 10/12
+88/88 - 29s - loss: 0.0195 - accuracy: 0.9950 - val_loss: 1.0725 - val_accuracy: 0.7750 - lr: 0.0010 - 29s/epoch - 329ms/step
+Epoch 11/12
+88/88 - 29s - loss: 0.0317 - accuracy: 0.9929 - val_loss: 0.7973 - val_accuracy: 0.8275 - lr: 0.0010 - 29s/epoch - 330ms/step
+Epoch 12/12
+88/88 - 29s - loss: 0.0225 - accuracy: 0.9921 - val_loss: 1.7477 - val_accuracy: 0.7925 - lr: 5.0000e-04 - 29s/epoch - 330ms/step
+== LivenessNet seed 43: 12 epochs in 381s, restored epoch 9 (val_loss 0.027191)
+== arm_a_star_fold4_seed43: test 925/1894, ACER 05 0.1777, ACER dev 0.1767 (threshold 0.477774), AUROC 0.9227, peak RSS 6758 MB
+Epoch 1/12
+88/88 - 29s - loss: 0.0827 - accuracy: 0.9729 - val_loss: 16.5100 - val_accuracy: 0.5000 - lr: 0.0010 - 29s/epoch - 334ms/step
+Epoch 2/12
+88/88 - 29s - loss: 0.0204 - accuracy: 0.9943 - val_loss: 2.3605 - val_accuracy: 0.5000 - lr: 0.0010 - 29s/epoch - 332ms/step
+Epoch 3/12
+88/88 - 29s - loss: 0.0222 - accuracy: 0.9943 - val_loss: 3.4588 - val_accuracy: 0.4800 - lr: 0.0010 - 29s/epoch - 331ms/step
+Epoch 4/12
+88/88 - 29s - loss: 0.0205 - accuracy: 0.9921 - val_loss: 14.4836 - val_accuracy: 0.5200 - lr: 0.0010 - 29s/epoch - 332ms/step
+Epoch 5/12
+88/88 - 29s - loss: 0.0105 - accuracy: 0.9971 - val_loss: 4.2046 - val_accuracy: 0.5150 - lr: 5.0000e-04 - 29s/epoch - 332ms/step
+Epoch 6/12
+88/88 - 29s - loss: 0.0051 - accuracy: 0.9979 - val_loss: 4.6114 - val_accuracy: 0.8150 - lr: 5.0000e-04 - 29s/epoch - 333ms/step
+== LivenessNet seed 44: 6 epochs in 176s, restored epoch 2 (val_loss 2.360512)
+== arm_b_fold4_seed44: test 925/1894, ACER 05 0.5000, ACER dev 0.5078 (threshold 0.997861), AUROC 0.4672, peak RSS 6758 MB
+Epoch 1/12
+88/88 - 30s - loss: 0.1549 - accuracy: 0.9450 - val_loss: 22.8274 - val_accuracy: 0.5000 - lr: 0.0010 - 30s/epoch - 339ms/step
+Epoch 2/12
+88/88 - 30s - loss: 0.0310 - accuracy: 0.9929 - val_loss: 61.2745 - val_accuracy: 0.5000 - lr: 0.0010 - 30s/epoch - 340ms/step
+Epoch 3/12
+88/88 - 30s - loss: 0.0570 - accuracy: 0.9857 - val_loss: 40.8843 - val_accuracy: 0.5000 - lr: 0.0010 - 30s/epoch - 339ms/step
+Epoch 4/12
+88/88 - 30s - loss: 0.0231 - accuracy: 0.9929 - val_loss: 61.0972 - val_accuracy: 0.5000 - lr: 5.0000e-04 - 30s/epoch - 337ms/step
+Epoch 5/12
+88/88 - 30s - loss: 0.0184 - accuracy: 0.9957 - val_loss: 37.0878 - val_accuracy: 0.5000 - lr: 5.0000e-04 - 30s/epoch - 336ms/step
+== LivenessNet seed 44: 5 epochs in 150s, restored epoch 1 (val_loss 22.827354)
+== arm_a_star_fold4_seed44: test 925/1894, ACER 05 0.5000, ACER dev 0.5000 (threshold 1.000000), AUROC 0.5000, peak RSS 6758 MB
+Epoch 1/12
+59/59 - 20s - loss: 0.0701 - accuracy: 0.9732 - val_loss: 12.7907 - val_accuracy: 0.5000 - lr: 0.0010 - 20s/epoch - 346ms/step
+Epoch 2/12
+59/59 - 20s - loss: 0.0302 - accuracy: 0.9946 - val_loss: 0.6101 - val_accuracy: 0.7725 - lr: 0.0010 - 20s/epoch - 341ms/step
+Epoch 3/12
+59/59 - 20s - loss: 0.0163 - accuracy: 0.9957 - val_loss: 21.6469 - val_accuracy: 0.5000 - lr: 0.0010 - 20s/epoch - 340ms/step
+Epoch 4/12
+59/59 - 20s - loss: 0.0184 - accuracy: 0.9936 - val_loss: 48.6557 - val_accuracy: 0.5000 - lr: 0.0010 - 20s/epoch - 339ms/step
+Epoch 5/12
+59/59 - 20s - loss: 0.0448 - accuracy: 0.9839 - val_loss: 43.0107 - val_accuracy: 0.5000 - lr: 5.0000e-04 - 20s/epoch - 337ms/step
+Epoch 6/12
+59/59 - 20s - loss: 0.0113 - accuracy: 0.9968 - val_loss: 22.0869 - val_accuracy: 0.5000 - lr: 5.0000e-04 - 20s/epoch - 338ms/step
+== LivenessNet seed 42: 6 epochs in 121s, restored epoch 2 (val_loss 0.610096)
+== arm_b_prime_fold1_seed42: test 1423/1819, ACER 05 0.4933, ACER dev 0.4445 (threshold 0.000583), AUROC 0.5029, peak RSS 6758 MB
+Epoch 1/12
+59/59 - 20s - loss: 0.1143 - accuracy: 0.9572 - val_loss: 17.9936 - val_accuracy: 0.5000 - lr: 0.0010 - 20s/epoch - 345ms/step
+Epoch 2/12
+59/59 - 20s - loss: 0.0326 - accuracy: 0.9914 - val_loss: 3.3553 - val_accuracy: 0.5300 - lr: 0.0010 - 20s/epoch - 344ms/step
+Epoch 3/12
+59/59 - 20s - loss: 0.0469 - accuracy: 0.9829 - val_loss: 6.4502 - val_accuracy: 0.7475 - lr: 0.0010 - 20s/epoch - 343ms/step
+Epoch 4/12
+59/59 - 20s - loss: 0.0132 - accuracy: 0.9957 - val_loss: 0.8647 - val_accuracy: 0.9400 - lr: 0.0010 - 20s/epoch - 338ms/step
+Epoch 5/12
+59/59 - 20s - loss: 0.0138 - accuracy: 0.9957 - val_loss: 3.2320 - val_accuracy: 0.8525 - lr: 0.0010 - 20s/epoch - 339ms/step
+Epoch 6/12
+59/59 - 20s - loss: 0.0417 - accuracy: 0.9872 - val_loss: 30.7585 - val_accuracy: 0.4800 - lr: 0.0010 - 20s/epoch - 338ms/step
+Epoch 7/12
+59/59 - 20s - loss: 0.0188 - accuracy: 0.9968 - val_loss: 18.3938 - val_accuracy: 0.6400 - lr: 5.0000e-04 - 20s/epoch - 337ms/step
+Epoch 8/12
+59/59 - 20s - loss: 0.0064 - accuracy: 0.9979 - val_loss: 26.6786 - val_accuracy: 0.5625 - lr: 5.0000e-04 - 20s/epoch - 338ms/step
+== LivenessNet seed 43: 8 epochs in 161s, restored epoch 4 (val_loss 0.864686)
+== arm_b_prime_fold1_seed43: test 1423/1819, ACER 05 0.4131, ACER dev 0.4173 (threshold 1.000000), AUROC 0.5857, peak RSS 6758 MB
+Epoch 1/12
+59/59 - 20s - loss: 0.0911 - accuracy: 0.9647 - val_loss: 12.1449 - val_accuracy: 0.5000 - lr: 0.0010 - 20s/epoch - 347ms/step
+Epoch 2/12
+59/59 - 20s - loss: 0.0329 - accuracy: 0.9893 - val_loss: 22.6654 - val_accuracy: 0.5000 - lr: 0.0010 - 20s/epoch - 340ms/step
+Epoch 3/12
+59/59 - 20s - loss: 0.0340 - accuracy: 0.9893 - val_loss: 19.3067 - val_accuracy: 0.5000 - lr: 0.0010 - 20s/epoch - 338ms/step
+Epoch 4/12
+59/59 - 20s - loss: 0.0391 - accuracy: 0.9904 - val_loss: 22.2993 - val_accuracy: 0.5000 - lr: 5.0000e-04 - 20s/epoch - 338ms/step
+Epoch 5/12
+59/59 - 20s - loss: 0.0112 - accuracy: 0.9979 - val_loss: 25.9399 - val_accuracy: 0.5000 - lr: 5.0000e-04 - 20s/epoch - 338ms/step
+== LivenessNet seed 44: 5 epochs in 101s, restored epoch 1 (val_loss 12.144893)
+== arm_b_prime_fold1_seed44: test 1423/1819, ACER 05 0.5000, ACER dev 0.5000 (threshold 0.999998), AUROC 0.5000, peak RSS 6758 MB
+Epoch 1/12
+59/59 - 20s - loss: 0.0904 - accuracy: 0.9668 - val_loss: 18.6173 - val_accuracy: 0.5000 - lr: 0.0010 - 20s/epoch - 347ms/step
+Epoch 2/12
+59/59 - 21s - loss: 0.0220 - accuracy: 0.9925 - val_loss: 12.7482 - val_accuracy: 0.5000 - lr: 0.0010 - 21s/epoch - 349ms/step
+Epoch 3/12
+59/59 - 20s - loss: 0.0212 - accuracy: 0.9946 - val_loss: 7.5138 - val_accuracy: 0.5000 - lr: 0.0010 - 20s/epoch - 342ms/step
+Epoch 4/12
+59/59 - 21s - loss: 0.0180 - accuracy: 0.9925 - val_loss: 4.6655 - val_accuracy: 0.5000 - lr: 0.0010 - 21s/epoch - 350ms/step
+Epoch 5/12
+59/59 - 20s - loss: 0.0472 - accuracy: 0.9893 - val_loss: 13.4784 - val_accuracy: 0.5000 - lr: 0.0010 - 20s/epoch - 347ms/step
+Epoch 6/12
+59/59 - 20s - loss: 0.0178 - accuracy: 0.9936 - val_loss: 2.6343 - val_accuracy: 0.6225 - lr: 0.0010 - 20s/epoch - 341ms/step
+Epoch 7/12
+59/59 - 20s - loss: 0.0193 - accuracy: 0.9936 - val_loss: 55.7867 - val_accuracy: 0.5000 - lr: 0.0010 - 20s/epoch - 344ms/step
+Epoch 8/12
+59/59 - 20s - loss: 0.0185 - accuracy: 0.9946 - val_loss: 3.1030 - val_accuracy: 0.5000 - lr: 0.0010 - 20s/epoch - 339ms/step
+Epoch 9/12
+59/59 - 21s - loss: 0.0122 - accuracy: 0.9979 - val_loss: 1.6253 - val_accuracy: 0.6500 - lr: 5.0000e-04 - 21s/epoch - 358ms/step
+Epoch 10/12
+59/59 - 24s - loss: 0.0102 - accuracy: 0.9968 - val_loss: 4.4314 - val_accuracy: 0.7700 - lr: 5.0000e-04 - 24s/epoch - 406ms/step
+Epoch 11/12
+59/59 - 25s - loss: 0.0133 - accuracy: 0.9946 - val_loss: 0.8750 - val_accuracy: 0.8775 - lr: 5.0000e-04 - 25s/epoch - 417ms/step
+Epoch 12/12
+59/59 - 25s - loss: 0.0165 - accuracy: 0.9936 - val_loss: 12.3782 - val_accuracy: 0.4625 - lr: 5.0000e-04 - 25s/epoch - 427ms/step
+== LivenessNet seed 42: 12 epochs in 259s, restored epoch 11 (val_loss 0.874983)
+== arm_b_prime_fold2_seed42: test 1370/1744, ACER 05 0.1241, ACER dev 0.3122 (threshold 0.999752), AUROC 0.9281, peak RSS 6758 MB
+Epoch 1/12
+59/59 - 24s - loss: 0.0849 - accuracy: 0.9722 - val_loss: 6.5976 - val_accuracy: 0.5000 - lr: 0.0010 - 24s/epoch - 410ms/step
+Epoch 2/12
+59/59 - 26s - loss: 0.0362 - accuracy: 0.9872 - val_loss: 3.4860 - val_accuracy: 0.5000 - lr: 0.0010 - 26s/epoch - 443ms/step
+Epoch 3/12
+59/59 - 25s - loss: 0.0598 - accuracy: 0.9904 - val_loss: 0.6935 - val_accuracy: 0.8425 - lr: 0.0010 - 25s/epoch - 420ms/step
+Epoch 4/12
+59/59 - 25s - loss: 0.0337 - accuracy: 0.9893 - val_loss: 4.7542 - val_accuracy: 0.5000 - lr: 0.0010 - 25s/epoch - 431ms/step
+Epoch 5/12
+59/59 - 23s - loss: 0.0638 - accuracy: 0.9775 - val_loss: 0.2034 - val_accuracy: 0.9425 - lr: 0.0010 - 23s/epoch - 383ms/step
+Epoch 6/12
+59/59 - 20s - loss: 0.0628 - accuracy: 0.9818 - val_loss: 0.0745 - val_accuracy: 0.9950 - lr: 0.0010 - 20s/epoch - 346ms/step
+Epoch 7/12
+59/59 - 20s - loss: 0.0177 - accuracy: 0.9946 - val_loss: 0.0973 - val_accuracy: 0.9950 - lr: 0.0010 - 20s/epoch - 344ms/step
+Epoch 8/12
+59/59 - 21s - loss: 0.0211 - accuracy: 0.9936 - val_loss: 0.1282 - val_accuracy: 0.9500 - lr: 0.0010 - 21s/epoch - 363ms/step
+Epoch 9/12
+59/59 - 23s - loss: 0.0147 - accuracy: 0.9968 - val_loss: 0.1472 - val_accuracy: 0.9750 - lr: 5.0000e-04 - 23s/epoch - 384ms/step
+Epoch 10/12
+59/59 - 21s - loss: 0.0098 - accuracy: 0.9979 - val_loss: 0.0042 - val_accuracy: 1.0000 - lr: 5.0000e-04 - 21s/epoch - 361ms/step
+Epoch 11/12
+59/59 - 21s - loss: 0.0120 - accuracy: 0.9957 - val_loss: 0.0077 - val_accuracy: 0.9975 - lr: 5.0000e-04 - 21s/epoch - 361ms/step
+Epoch 12/12
+59/59 - 24s - loss: 0.0091 - accuracy: 0.9968 - val_loss: 0.0527 - val_accuracy: 0.9825 - lr: 5.0000e-04 - 24s/epoch - 411ms/step
+== LivenessNet seed 43: 12 epochs in 276s, restored epoch 10 (val_loss 0.004233)
+== arm_b_prime_fold2_seed43: test 1370/1744, ACER 05 0.3759, ACER dev 0.3394 (threshold 0.143735), AUROC 0.6391, peak RSS 6758 MB
+Epoch 1/12
+59/59 - 25s - loss: 0.1174 - accuracy: 0.9540 - val_loss: 25.5297 - val_accuracy: 0.5000 - lr: 0.0010 - 25s/epoch - 424ms/step
+Epoch 2/12
+59/59 - 23s - loss: 0.0272 - accuracy: 0.9893 - val_loss: 11.4259 - val_accuracy: 0.5000 - lr: 0.0010 - 23s/epoch - 395ms/step
+Epoch 3/12
+59/59 - 23s - loss: 0.0250 - accuracy: 0.9925 - val_loss: 15.1986 - val_accuracy: 0.5000 - lr: 0.0010 - 23s/epoch - 392ms/step
+Epoch 4/12
+59/59 - 23s - loss: 0.0424 - accuracy: 0.9850 - val_loss: 18.4719 - val_accuracy: 0.5000 - lr: 0.0010 - 23s/epoch - 389ms/step
+Epoch 5/12
+59/59 - 22s - loss: 0.0105 - accuracy: 0.9968 - val_loss: 13.8321 - val_accuracy: 0.5000 - lr: 5.0000e-04 - 22s/epoch - 365ms/step
+Epoch 6/12
+59/59 - 21s - loss: 0.0083 - accuracy: 0.9957 - val_loss: 24.8019 - val_accuracy: 0.5000 - lr: 5.0000e-04 - 21s/epoch - 350ms/step
+== LivenessNet seed 44: 6 epochs in 137s, restored epoch 2 (val_loss 11.425879)
+== arm_b_prime_fold2_seed44: test 1370/1744, ACER 05 0.5000, ACER dev 0.5000 (threshold 1.000000), AUROC 0.5000, peak RSS 6758 MB
+Epoch 1/12
+59/59 - 21s - loss: 0.0597 - accuracy: 0.9786 - val_loss: 0.3211 - val_accuracy: 0.8325 - lr: 0.0010 - 21s/epoch - 352ms/step
+Epoch 2/12
+59/59 - 20s - loss: 0.0103 - accuracy: 0.9989 - val_loss: 3.7369 - val_accuracy: 0.5000 - lr: 0.0010 - 20s/epoch - 347ms/step
+Epoch 3/12
+59/59 - 20s - loss: 0.0175 - accuracy: 0.9936 - val_loss: 5.7772 - val_accuracy: 0.5000 - lr: 0.0010 - 20s/epoch - 344ms/step
+Epoch 4/12
+59/59 - 20s - loss: 0.0336 - accuracy: 0.9861 - val_loss: 0.8075 - val_accuracy: 0.5300 - lr: 5.0000e-04 - 20s/epoch - 344ms/step
+Epoch 5/12
+59/59 - 20s - loss: 0.0341 - accuracy: 0.9872 - val_loss: 3.0359 - val_accuracy: 0.5000 - lr: 5.0000e-04 - 20s/epoch - 345ms/step
+== LivenessNet seed 42: 5 epochs in 103s, restored epoch 1 (val_loss 0.321121)
+== arm_b_prime_fold3_seed42: test 1387/2052, ACER 05 0.3314, ACER dev 0.3253 (threshold 0.745805), AUROC 0.7411, peak RSS 6758 MB
+Epoch 1/12
+59/59 - 21s - loss: 0.1162 - accuracy: 0.9657 - val_loss: 35.1528 - val_accuracy: 0.5000 - lr: 0.0010 - 21s/epoch - 351ms/step
+Epoch 2/12
+59/59 - 20s - loss: 0.0405 - accuracy: 0.9818 - val_loss: 48.4345 - val_accuracy: 0.5000 - lr: 0.0010 - 20s/epoch - 345ms/step
+Epoch 3/12
+59/59 - 20s - loss: 0.0474 - accuracy: 0.9882 - val_loss: 29.4736 - val_accuracy: 0.5000 - lr: 0.0010 - 20s/epoch - 346ms/step
+Epoch 4/12
+59/59 - 20s - loss: 0.0235 - accuracy: 0.9914 - val_loss: 13.7587 - val_accuracy: 0.5000 - lr: 0.0010 - 20s/epoch - 345ms/step
+Epoch 5/12
+59/59 - 21s - loss: 0.0214 - accuracy: 0.9925 - val_loss: 5.4174 - val_accuracy: 0.2400 - lr: 0.0010 - 21s/epoch - 349ms/step
+Epoch 6/12
+59/59 - 21s - loss: 0.0446 - accuracy: 0.9818 - val_loss: 9.7895 - val_accuracy: 0.5000 - lr: 0.0010 - 21s/epoch - 354ms/step
+Epoch 7/12
+59/59 - 21s - loss: 0.0127 - accuracy: 0.9968 - val_loss: 0.0040 - val_accuracy: 1.0000 - lr: 0.0010 - 21s/epoch - 350ms/step
+Epoch 8/12
+59/59 - 20s - loss: 0.0111 - accuracy: 0.9957 - val_loss: 0.0050 - val_accuracy: 1.0000 - lr: 0.0010 - 20s/epoch - 347ms/step
+Epoch 9/12
+59/59 - 21s - loss: 0.0175 - accuracy: 0.9925 - val_loss: 0.0011 - val_accuracy: 1.0000 - lr: 0.0010 - 21s/epoch - 349ms/step
+Epoch 10/12
+59/59 - 20s - loss: 0.0168 - accuracy: 0.9957 - val_loss: 0.0020 - val_accuracy: 1.0000 - lr: 0.0010 - 20s/epoch - 346ms/step
+Epoch 11/12
+59/59 - 20s - loss: 0.0050 - accuracy: 0.9989 - val_loss: 0.3622 - val_accuracy: 0.8775 - lr: 0.0010 - 20s/epoch - 346ms/step
+Epoch 12/12
+59/59 - 21s - loss: 0.0127 - accuracy: 0.9957 - val_loss: 0.0105 - val_accuracy: 0.9975 - lr: 5.0000e-04 - 21s/epoch - 350ms/step
+== LivenessNet seed 43: 12 epochs in 248s, restored epoch 9 (val_loss 0.001138)
+== arm_b_prime_fold3_seed43: test 1387/2052, ACER 05 0.2715, ACER dev 0.2704 (threshold 0.013271), AUROC 0.6528, peak RSS 6758 MB
+Epoch 1/12
+59/59 - 22s - loss: 0.0905 - accuracy: 0.9657 - val_loss: 10.7950 - val_accuracy: 0.5000 - lr: 0.0010 - 22s/epoch - 365ms/step
+Epoch 2/12
+59/59 - 21s - loss: 0.0324 - accuracy: 0.9893 - val_loss: 8.6096 - val_accuracy: 0.5000 - lr: 0.0010 - 21s/epoch - 350ms/step
+Epoch 3/12
+59/59 - 21s - loss: 0.0461 - accuracy: 0.9850 - val_loss: 6.4951 - val_accuracy: 0.5000 - lr: 0.0010 - 21s/epoch - 348ms/step
+Epoch 4/12
+59/59 - 20s - loss: 0.0236 - accuracy: 0.9914 - val_loss: 14.7015 - val_accuracy: 0.5000 - lr: 0.0010 - 20s/epoch - 347ms/step
+Epoch 5/12
+59/59 - 21s - loss: 0.0143 - accuracy: 0.9968 - val_loss: 8.0140 - val_accuracy: 0.5000 - lr: 0.0010 - 21s/epoch - 348ms/step
+Epoch 6/12
+59/59 - 20s - loss: 0.0231 - accuracy: 0.9946 - val_loss: 2.2969 - val_accuracy: 0.5000 - lr: 5.0000e-04 - 20s/epoch - 346ms/step
+Epoch 7/12
+59/59 - 20s - loss: 0.0145 - accuracy: 0.9979 - val_loss: 0.2205 - val_accuracy: 0.8450 - lr: 5.0000e-04 - 20s/epoch - 346ms/step
+Epoch 8/12
+59/59 - 21s - loss: 0.0076 - accuracy: 0.9979 - val_loss: 0.4529 - val_accuracy: 0.8050 - lr: 5.0000e-04 - 21s/epoch - 355ms/step
+Epoch 9/12
+59/59 - 21s - loss: 0.0078 - accuracy: 0.9968 - val_loss: 0.0341 - val_accuracy: 0.9975 - lr: 5.0000e-04 - 21s/epoch - 348ms/step
+Epoch 10/12
+59/59 - 21s - loss: 0.0090 - accuracy: 0.9979 - val_loss: 0.3686 - val_accuracy: 0.8875 - lr: 5.0000e-04 - 21s/epoch - 350ms/step
+Epoch 11/12
+59/59 - 21s - loss: 0.0135 - accuracy: 0.9968 - val_loss: 0.1899 - val_accuracy: 0.8875 - lr: 5.0000e-04 - 21s/epoch - 350ms/step
+Epoch 12/12
+59/59 - 21s - loss: 0.0052 - accuracy: 0.9989 - val_loss: 0.0375 - val_accuracy: 0.9975 - lr: 2.5000e-04 - 21s/epoch - 348ms/step
+== LivenessNet seed 44: 12 epochs in 249s, restored epoch 9 (val_loss 0.034096)
+== arm_b_prime_fold3_seed44: test 1387/2052, ACER 05 0.2031, ACER dev 0.2006 (threshold 0.561295), AUROC 0.7675, peak RSS 6758 MB
+Epoch 1/12
+59/59 - 21s - loss: 0.0591 - accuracy: 0.9807 - val_loss: 0.1984 - val_accuracy: 0.9325 - lr: 0.0010 - 21s/epoch - 354ms/step
+Epoch 2/12
+59/59 - 21s - loss: 0.0193 - accuracy: 0.9946 - val_loss: 0.1375 - val_accuracy: 0.9175 - lr: 0.0010 - 21s/epoch - 353ms/step
+Epoch 3/12
+59/59 - 21s - loss: 0.0181 - accuracy: 0.9936 - val_loss: 0.3722 - val_accuracy: 0.8975 - lr: 0.0010 - 21s/epoch - 353ms/step
+Epoch 4/12
+59/59 - 21s - loss: 0.0330 - accuracy: 0.9946 - val_loss: 0.6248 - val_accuracy: 0.8350 - lr: 0.0010 - 21s/epoch - 350ms/step
+Epoch 5/12
+59/59 - 21s - loss: 0.0251 - accuracy: 0.9946 - val_loss: 5.2303 - val_accuracy: 0.5000 - lr: 5.0000e-04 - 21s/epoch - 348ms/step
+Epoch 6/12
+59/59 - 21s - loss: 0.0116 - accuracy: 0.9946 - val_loss: 21.0331 - val_accuracy: 0.5000 - lr: 5.0000e-04 - 21s/epoch - 350ms/step
+== LivenessNet seed 42: 6 epochs in 125s, restored epoch 2 (val_loss 0.137541)
+== arm_b_prime_fold4_seed42: test 925/1894, ACER 05 0.1606, ACER dev 0.1698 (threshold 0.763160), AUROC 0.8717, peak RSS 6758 MB
+Epoch 1/12
+59/59 - 21s - loss: 0.0489 - accuracy: 0.9839 - val_loss: 9.8118 - val_accuracy: 0.5000 - lr: 0.0010 - 21s/epoch - 357ms/step
+Epoch 2/12
+59/59 - 21s - loss: 0.0130 - accuracy: 0.9979 - val_loss: 1.9305 - val_accuracy: 0.5450 - lr: 0.0010 - 21s/epoch - 357ms/step
+Epoch 3/12
+59/59 - 21s - loss: 0.0520 - accuracy: 0.9850 - val_loss: 0.0142 - val_accuracy: 1.0000 - lr: 0.0010 - 21s/epoch - 354ms/step
+Epoch 4/12
+59/59 - 21s - loss: 0.0370 - accuracy: 0.9914 - val_loss: 0.4138 - val_accuracy: 0.7575 - lr: 0.0010 - 21s/epoch - 349ms/step
+Epoch 5/12
+59/59 - 21s - loss: 0.0295 - accuracy: 0.9904 - val_loss: 10.1240 - val_accuracy: 0.5000 - lr: 0.0010 - 21s/epoch - 353ms/step
+Epoch 6/12
+59/59 - 21s - loss: 0.0209 - accuracy: 0.9914 - val_loss: 11.1945 - val_accuracy: 0.4775 - lr: 5.0000e-04 - 21s/epoch - 351ms/step
+Epoch 7/12
+59/59 - 21s - loss: 0.0045 - accuracy: 0.9989 - val_loss: 24.5465 - val_accuracy: 0.5000 - lr: 5.0000e-04 - 21s/epoch - 353ms/step
+== LivenessNet seed 43: 7 epochs in 147s, restored epoch 3 (val_loss 0.014226)
+== arm_b_prime_fold4_seed43: test 925/1894, ACER 05 0.3959, ACER dev 0.3761 (threshold 0.322349), AUROC 0.4826, peak RSS 6758 MB
+Epoch 1/12
+59/59 - 21s - loss: 0.0732 - accuracy: 0.9732 - val_loss: 17.2907 - val_accuracy: 0.5000 - lr: 0.0010 - 21s/epoch - 360ms/step
+Epoch 2/12
+59/59 - 21s - loss: 0.0359 - accuracy: 0.9893 - val_loss: 24.5886 - val_accuracy: 0.5000 - lr: 0.0010 - 21s/epoch - 359ms/step
+Epoch 3/12
+59/59 - 21s - loss: 0.0219 - accuracy: 0.9946 - val_loss: 19.3544 - val_accuracy: 0.5000 - lr: 0.0010 - 21s/epoch - 356ms/step
+Epoch 4/12
+59/59 - 25s - loss: 0.0081 - accuracy: 0.9989 - val_loss: 25.1748 - val_accuracy: 0.5000 - lr: 5.0000e-04 - 25s/epoch - 426ms/step
+Epoch 5/12
+59/59 - 24s - loss: 0.0068 - accuracy: 0.9989 - val_loss: 30.0526 - val_accuracy: 0.5025 - lr: 5.0000e-04 - 24s/epoch - 405ms/step
+== LivenessNet seed 44: 5 epochs in 113s, restored epoch 1 (val_loss 17.290747)
+== arm_b_prime_fold4_seed44: test 925/1894, ACER 05 0.5000, ACER dev 0.5000 (threshold 1.000000), AUROC 0.5000, peak RSS 6758 MB
+primary AUROC (A* - B, stratum 03): inconclusive (the sign differs across the seeds)
+primary ACER (dev threshold) (A* - B, stratum 03): inconclusive (the bootstrap interval of a seed does not exclude 0 on the side of the difference)
+run folder: 20261106-SESSABLRUN-d999458 (public/ and restricted/), 36/36 trainings, wall 10209 s, aggregate 2.0 s, peak RSS 6758 MB
+RESULT: PASS (run)

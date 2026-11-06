@@ -1,0 +1,104 @@
+# macOS, Python 3.11.16, NumPy 1.26.4, OpenCV 4.11.0, 2026-11-06 08:40 CET; run from the development repository root with the real inputs present (read only)
+# SHA-256 7bd92df60cf456295a3c123e06adcfad0952b610edb4511969c81f83a3ddee9b  scripts/nuaa_session_ablation_run.py
+# SHA-256 16d1988f4071a73ada3aa269f0491576b522abbb0c11c203de3e3a54cd7cd0aa  scripts/check_nuaa_session_ablation_run.py
+# SHA-256 4c0aa9cda763f62c22555326e338653f469cd3d0b31b9d72a3350bd9d1d672eb  scripts/check_nuaa_session_ablation_run_mutations.py
+# SHA-256 435e2d1b9a2c17166723de1dc9848910d629de157703cb831f0f0dfbe985df99  scripts/nuaa_folds_run.py
+# SHA-256 5d2d7e25900ae86a627a11365d63dfc424585cbcdf12430679765f85f637fd18  scripts/check_nuaa_folds_run.py
+# SHA-256 22760abc368dede3aa0a690a241f6622afe1ba586940422497db8a33994ee34a  scripts/m2_writers.py
+# SHA-256 e5fa9c835c23745ff932e157a44d3104eb9713d86bbdecc9cdbbd3caa7a7ee34  scripts/path_guard.py
+# SHA-256 96ec7ffab4b089bac71fd18918fcd32af72d15980cdfa1361cc84bb43e0e4c11  scripts/package_rules.py
+# SHA-256 4c2d29d13dede8a48c3a8e74e1ca48379c5c7e7721eb0a1f55fececbc684e23b  delivery/sessionablationrun/nuaa_session_ablation_run.json
+$ .venv/bin/python -I scripts/check_nuaa_session_ablation_run.py -v
+test_arm_totals_and_nesting_counts (__main__.TestConfig.test_arm_totals_and_nesting_counts) ... ok
+test_arms_fixed (__main__.TestConfig.test_arms_fixed) ... ok
+test_comparisons_reading_rule_and_bootstrap_fixed (__main__.TestConfig.test_comparisons_reading_rule_and_bootstrap_fixed) ... ok
+test_counts_tied_to_the_schema (__main__.TestConfig.test_counts_tied_to_the_schema) ... ok
+test_delivered_configuration (__main__.TestConfig.test_delivered_configuration) ... ok
+test_dev_is_the_common_dev (__main__.TestConfig.test_dev_is_the_common_dev) ... ok
+test_recipe_threshold_metrics_declarations (__main__.TestConfig.test_recipe_threshold_metrics_declarations) ... ok
+test_synthetic_configuration_accepted (__main__.TestConfig.test_synthetic_configuration_accepted) ... ok
+test_training_order_seeds_and_budget (__main__.TestConfig.test_training_order_seeds_and_budget) ... ok
+test_unknown_or_missing_top_key_and_schema (__main__.TestConfig.test_unknown_or_missing_top_key_and_schema) ... ok
+test_a_star_outside_b_refused (__main__.TestInputs.test_a_star_outside_b_refused) ... ok
+test_a_star_session_03_from_outside_s12_refused (__main__.TestInputs.test_a_star_session_03_from_outside_s12_refused) ... ok
+test_architecture_environment_and_originals (__main__.TestInputs.test_architecture_environment_and_originals) ... ok
+test_b_must_be_the_schema_fitting (__main__.TestInputs.test_b_must_be_the_schema_fitting) ... ok
+test_b_prime_differs_from_a_star_refused (__main__.TestInputs.test_b_prime_differs_from_a_star_refused) ... ok
+test_cache_sha_checked (__main__.TestInputs.test_cache_sha_checked) ... ok
+test_cell_counts_role_and_fold (__main__.TestInputs.test_cell_counts_role_and_fold) ... ok
+test_cell_manifest_missing_or_altered (__main__.TestInputs.test_cell_manifest_missing_or_altered) ... ok
+test_cell_row_differs_from_official_or_in_cache (__main__.TestInputs.test_cell_row_differs_from_official_or_in_cache) ... ok
+test_cells_configuration_pinned_and_compared (__main__.TestInputs.test_cells_configuration_pinned_and_compared) ... ok
+test_cells_restricted_sums_anchor (__main__.TestInputs.test_cells_restricted_sums_anchor) ... ok
+test_cells_run_anchors (__main__.TestInputs.test_cells_run_anchors) ... ok
+test_check_inputs_command_writes_nothing (__main__.TestInputs.test_check_inputs_command_writes_nothing) ... ok
+test_check_sources_exactly_once (__main__.TestInputs.test_check_sources_exactly_once) ... ok
+test_dev_with_session_03_or_other_frames_refused (__main__.TestInputs.test_dev_with_session_03_or_other_frames_refused) ... ok
+test_dev_with_session_03_refused_directly (__main__.TestInputs.test_dev_with_session_03_refused_directly) ... ok
+test_devmix_is_never_read (__main__.TestInputs.test_devmix_is_never_read) ... ok
+test_extracted_frames_csv_rows_checked (__main__.TestInputs.test_extracted_frames_csv_rows_checked) ... ok
+test_folds_run_anchors (__main__.TestInputs.test_folds_run_anchors) ... ok
+test_frames_file_sha_members_keys_and_hashes (__main__.TestInputs.test_frames_file_sha_members_keys_and_hashes) ... ok
+test_schema_configuration_pinned (__main__.TestInputs.test_schema_configuration_pinned) ... ok
+test_shared_code_equal_to_the_folds_run (__main__.TestInputs.test_shared_code_equal_to_the_folds_run) ... ok
+test_synthetic_inputs_pass (__main__.TestInputs.test_synthetic_inputs_pass) ... ok
+test_test_differs_from_schema_refused (__main__.TestInputs.test_test_differs_from_schema_refused) ... ok
+test_arm_bootstrap_equals_the_folds_run_bootstrap (__main__.TestOrderMetricsRule.test_arm_bootstrap_equals_the_folds_run_bootstrap) ... ok
+test_bootstrap_five_subjects_boundary (__main__.TestOrderMetricsRule.test_bootstrap_five_subjects_boundary) ... ok
+test_budget_elapsed_uses_the_wall_clock_when_the_monotonic_stops (__main__.TestOrderMetricsRule.test_budget_elapsed_uses_the_wall_clock_when_the_monotonic_stops) ... ok
+test_budget_raises_cap_exceeded (__main__.TestOrderMetricsRule.test_budget_raises_cap_exceeded) ... ok
+test_budget_stop_requested (__main__.TestOrderMetricsRule.test_budget_stop_requested) ... ok
+test_paired_bootstrap_known_answers (__main__.TestOrderMetricsRule.test_paired_bootstrap_known_answers) ... ok
+test_paired_bootstrap_refusals_few_subjects_and_missing_class (__main__.TestOrderMetricsRule.test_paired_bootstrap_refusals_few_subjects_and_missing_class) ... ok
+test_paired_bootstrap_uses_the_same_indices (__main__.TestOrderMetricsRule.test_paired_bootstrap_uses_the_same_indices) ... ok
+test_pairing_checked_per_fold_and_seed (__main__.TestOrderMetricsRule.test_pairing_checked_per_fold_and_seed) ... ok
+test_reading_rule_every_branch (__main__.TestOrderMetricsRule.test_reading_rule_every_branch) ... ok
+test_reading_rule_on_the_three_seeds_in_the_aggregate (__main__.TestOrderMetricsRule.test_reading_rule_on_the_three_seeds_in_the_aggregate) ... ok
+test_real_trainer_stops_at_the_cap_without_weights (__main__.TestOrderMetricsRule.test_real_trainer_stops_at_the_cap_without_weights) ... ok
+test_same_frames_and_difference (__main__.TestOrderMetricsRule.test_same_frames_and_difference) ... ok
+test_score_rows_carry_the_arm_and_tie_rule (__main__.TestOrderMetricsRule.test_score_rows_carry_the_arm_and_tie_rule) ... ok
+test_training_order (__main__.TestOrderMetricsRule.test_training_order) ... ok
+test_weighted_metrics_equal_frame_metrics (__main__.TestOrderMetricsRule.test_weighted_metrics_equal_frame_metrics) ... ok
+test_real_check_inputs (__main__.TestRealInputs.test_real_check_inputs) ... ok
+test_aggregate_and_comparisons_consistent_with_the_scores (__main__.TestRun.test_aggregate_and_comparisons_consistent_with_the_scores) ... ok
+test_architecture_changed_before_loading (__main__.TestRun.test_architecture_changed_before_loading) ... ok
+test_cap_after_the_primary_pairs_keeps_the_primary_comparison (__main__.TestRun.test_cap_after_the_primary_pairs_keeps_the_primary_comparison) ... ok
+test_cap_at_the_end_of_an_epoch_interrupts_the_training (__main__.TestRun.test_cap_at_the_end_of_an_epoch_interrupts_the_training) ... ok
+test_cap_before_the_first_training (__main__.TestRun.test_cap_before_the_first_training) ... ok
+test_cap_before_the_test_scoring (__main__.TestRun.test_cap_before_the_test_scoring) ... ok
+test_cap_mid_fold_4_pools_only_the_complete_seeds (__main__.TestRun.test_cap_mid_fold_4_pools_only_the_complete_seeds) ... ok
+test_cap_mid_run_gives_incomplete_with_complete_models_kept (__main__.TestRun.test_cap_mid_run_gives_incomplete_with_complete_models_kept) ... ok
+test_cap_removes_a_temporary_checkpoint_left_by_the_trainer (__main__.TestRun.test_cap_removes_a_temporary_checkpoint_left_by_the_trainer) ... ok
+test_existing_status_dirty_tree_authorisation_and_foreign_entries (__main__.TestRun.test_existing_status_dirty_tree_authorisation_and_foreign_entries) ... ok
+test_failure_after_the_public_writes_keeps_only_the_models (__main__.TestRun.test_failure_after_the_public_writes_keeps_only_the_models) ... ok
+test_failure_at_the_first_model_removes_everything (__main__.TestRun.test_failure_at_the_first_model_removes_everything) ... ok
+test_failures_give_fail_and_keep_complete_models (__main__.TestRun.test_failures_give_fail_and_keep_complete_models) ... ok
+test_final_writes_after_cap_measured_before_the_aggregate (__main__.TestRun.test_final_writes_after_cap_measured_before_the_aggregate) ... ok
+test_output_root_symlink_refused (__main__.TestRun.test_output_root_symlink_refused) ... ok
+test_primary_verdict_and_reference (__main__.TestRun.test_primary_verdict_and_reference) ... ok
+test_public_files_have_no_identifiers (__main__.TestRun.test_public_files_have_no_identifiers) ... ok
+test_public_scan_blocks_identifiers (__main__.TestRun.test_public_scan_blocks_identifiers) ... ok
+test_run_id_format (__main__.TestRun.test_run_id_format) ... ok
+test_run_outputs_status_and_sums (__main__.TestRun.test_run_outputs_status_and_sums) ... ok
+test_sighup_handler_not_installed_when_ignored (__main__.TestRun.test_sighup_handler_not_installed_when_ignored) ... ok
+test_sigterm_stops_the_run_with_fail (__main__.TestRun.test_sigterm_stops_the_run_with_fail) ... ok
+test_sigusr1_stops_like_the_cap (__main__.TestRun.test_sigusr1_stops_like_the_cap) ... ok
+test_threshold_frozen_before_test_and_scores_consistent (__main__.TestRun.test_threshold_frozen_before_test_and_scores_consistent) ... ok
+test_threshold_read_back_is_compared (__main__.TestRun.test_threshold_read_back_is_compared) ... ok
+test_training_order_arms_and_common_dev (__main__.TestRun.test_training_order_arms_and_common_dev) ... ok
+test_val_loss_card_counts_and_bad_scorer_refused (__main__.TestRun.test_val_loss_card_counts_and_bad_scorer_refused) ... ok
+test_val_loss_check_on_logits (__main__.TestRun.test_val_loss_check_on_logits)
+Un frame del dev con logit saturi (perdita 40): il controllo con le probabilità limitate avrebbe fallito, ... ok
+test_val_loss_logits_formula (__main__.TestRun.test_val_loss_logits_formula) ... ok
+test_declared_skips_only (__main__.ZZRepositoryUntouched.test_declared_skips_only) ... ok
+
+----------------------------------------------------------------------
+Ran 81 tests in 23.468s
+
+OK
+tests run: 81, failures: 0, errors: 0, skipped: 0
+RESULT: PASS
+
+$ .venv/bin/python -I scripts/nuaa_session_ablation_run.py check-inputs
+CHECK-INPUTS: configuration 4c2d29d13ded, 5 M2 manifests, 12 fold manifests of 20261103-FOLDS-67b7f3d, 16 cell manifests of 20261104-SESSABL-5d89888 (counts, nesting, disjoint subjects; devmix not read), cache 6000 frames linked, extracted frames 6614 with every frame SHA-256 equal to 20261103-FOLDSRUN-e174812, manifest rows from the cache 19206 and from the extracted file 9944 (each exactly once), 12614 originals, architecture verified, OpenCV 4.11.0, TensorFlow 2.15.0 installed and not imported; nothing written
+RESULT: PASS (check-inputs)
