@@ -1,0 +1,3209 @@
+{
+ "run_id": "20261107-DEGEN-a3b4dc0",
+ "commit": "a3b4dc0",
+ "dirty": false,
+ "config_sha256": "8edda999f3f47f84e90ef32d4c1166db51d3fc9650747f58028cfdda7d6195e4",
+ "delivered_configuration": true,
+ "request": {
+  "date": "2026-11-06",
+  "card": "C2",
+  "text": "coordinator, C2 card, comment of 6 November 2026: 'Pu\u00f2 iniziare subito il prossimo passo: approfondire i 10 training degeneri usando le curve train/dev gi\u00e0 disponibili. Li confronti con alcuni training riusciti e mostri pochi esempi rappresentativi, distinguendo ci\u00f2 che osserviamo dalle possibili spiegazioni.' The same comment asks for a short note with a single motivated change of the training recipe, chosen on train/dev only, and no new training before agreement: this configuration covers the curves only."
+ },
+ "task": "Descriptive study of the 10 degenerate LivenessNet trainings of the session ablation run 20261106-SESSABLRUN-d999458 from the train/dev curves already recorded in the training cards: the degenerate criterion re-applied, the dev saturation, the first recovery on the dev, the mechanics of early stopping (exact replay of the Keras 2.15 rule on the recorded histories, with alternative rules), the learning rate, the training side, the concentration by seed, fold and arm, the constant output of the checkpoint on the dev, determinism against the failed attempt 20261106-SESSABLRUN-3b4021f, time per epoch and time scenarios; compared with the 26 trainings of the same run that are not degenerate by the criterion (not all of them recover) and the 12 trainings of the folds run 20261103-FOLDSRUN-e174812; six representative examples in figures. Observations only: the possible explanations are written elsewhere and are not tested here. No training, no inference, no test score or test metric read.",
+ "declarations": {
+  "no_training": true,
+  "no_inference": true,
+  "no_test_scores_read": true,
+  "descriptive": true,
+  "criteria_defined_after_the_run": true,
+  "dev_columns_read": "dev_scores.csv: label and score_attack for the measures; subject_id only to count the distinct subjects of each dev and to scan the public files, never written; arm, fold, train_seed, role, checkpoint_sha256, sample_id, file_sha256, prediction_05, prediction_dev, threshold_dev and threshold_sha256 only for row-by-row consistency checks (with the card, the frozen threshold and the other models of the fold). threshold.json (both runs): frozen_at for the times; arm, fold, train_seed, checkpoint_sha256, value and dev_scores_sha256 for consistency only. Training cards: the history and the recipe fields, train_seconds, saved and test_scored_after_threshold for the times, weights_file, weights_sha256 and dev_keys_sha256 for consistency only. run.log of the ablation run: the wall time line only.",
+  "observations_not_explanations": "the outputs report what the curves show; the possible explanations are hypotheses discussed elsewhere and are not tested by this study",
+  "limits": "the degenerate criterion was defined after the run and misses at least one failure of the same family; the recovery criterion is ours (sensitivity reported); the alternative early stopping rules are exact only where the recorded history covers the rule; determinism is compared on six models only; train and dev accuracy are measured in different modes (training mode with augmentation and dropout, inference mode on the dev); the folds run is a reference with other data, dev and steps per epoch, not a paired control"
+ },
+ "recipe": {
+  "max_epochs": 12,
+  "early_stopping_patience": 4,
+  "monitor": "val_loss",
+  "min_delta": 0,
+  "restore_best_weights": true,
+  "batch": 16,
+  "lr": 0.001,
+  "bn_momentum": 0.99,
+  "source": "training cards (max_epochs, early_stopping_patience, batch, lr) and the Keras 2.15 defaults of EarlyStopping (min_delta 0, strict improvement) and BatchNormalization (momentum 0.99) used by the trainer"
+ },
+ "criteria": {
+  "degenerate": {
+   "restored_epochs": [
+    1,
+    2
+   ],
+   "val_acc_at_best": 0.5,
+   "tolerance": 1e-06,
+   "text": "restored_epoch in {1, 2} and val_acc_at_best = 0.5 (within 1e-6): the rule written in the delivery of the session ablation run, re-applied here"
+  },
+  "saturation": {
+   "val_accuracy": 0.5,
+   "tolerance": 1e-06,
+   "text": "an epoch is saturated when val_accuracy = 0.5 within 1e-6 (balanced dev: every frame assigned to the same class, or exactly half wrong)"
+  },
+  "recovery": {
+   "val_accuracy_min": 0.75,
+   "val_loss_max": 1.0,
+   "text": "first epoch with val_accuracy >= 0.75 and val_loss < 1.0 (dev only)",
+   "sensitivity": {
+    "val_accuracy_min": [
+     0.7,
+     0.75,
+     0.8
+    ],
+    "val_loss_max": [
+     0.7,
+     1.0,
+     1.5
+    ]
+   }
+  },
+  "checkpoint_agreement_tolerance": 1e-06,
+  "below_chance_val_accuracy": 0.45,
+  "boundary_restored_epoch_max": 3,
+  "train_accuracy_reference": 0.9,
+  "late_recovery_after_epoch": 5,
+  "defined_after_the_run": true,
+  "pair_train_epochs": 3,
+  "train_side_epochs": 5,
+  "bn_residual_epochs": 5
+ },
+ "alternative_rules": [
+  {
+   "label": "patience 4 (run)",
+   "monitor": "val_loss",
+   "patience": 4,
+   "start_from_epoch": 0
+  },
+  {
+   "label": "patience 2",
+   "monitor": "val_loss",
+   "patience": 2,
+   "start_from_epoch": 0
+  },
+  {
+   "label": "patience 3",
+   "monitor": "val_loss",
+   "patience": 3,
+   "start_from_epoch": 0
+  },
+  {
+   "label": "patience 6",
+   "monitor": "val_loss",
+   "patience": 6,
+   "start_from_epoch": 0
+  },
+  {
+   "label": "patience 8",
+   "monitor": "val_loss",
+   "patience": 8,
+   "start_from_epoch": 0
+  },
+  {
+   "label": "start_from_epoch 3",
+   "monitor": "val_loss",
+   "patience": 4,
+   "start_from_epoch": 3
+  },
+  {
+   "label": "start_from_epoch 5",
+   "monitor": "val_loss",
+   "patience": 4,
+   "start_from_epoch": 5
+  },
+  {
+   "label": "monitor val_accuracy",
+   "monitor": "val_accuracy",
+   "patience": 4,
+   "start_from_epoch": 0
+  }
+ ],
+ "examples": [
+  {
+   "run": "sessablrun",
+   "arm": "arm_b",
+   "fold": 1,
+   "seed": 42,
+   "why": "degenerate, restored epoch 1: stops because the saturated val_loss rises"
+  },
+  {
+   "run": "sessablrun",
+   "arm": "arm_a_star",
+   "fold": 1,
+   "seed": 42,
+   "why": "not degenerate by the criterion, recovered, same fold and seed as the previous one: continues because the saturated val_loss falls"
+  },
+  {
+   "run": "sessablrun",
+   "arm": "arm_a_star",
+   "fold": 2,
+   "seed": 44,
+   "why": "degenerate, checkpoint with inverted ordering on the dev"
+  },
+  {
+   "run": "sessablrun",
+   "arm": "arm_b",
+   "fold": 2,
+   "seed": 44,
+   "why": "not degenerate by the criterion, recovered, same fold and seed as the previous one, another arm"
+  },
+  {
+   "run": "foldsrun",
+   "arm": "folds",
+   "fold": 4,
+   "seed": 44,
+   "why": "not degenerate by the criterion, recovered, in the folds run, same fold and seed as three degenerate trainings, 132 steps per epoch"
+  },
+  {
+   "run": "sessablrun",
+   "arm": "arm_b_prime",
+   "fold": 4,
+   "seed": 43,
+   "why": "not degenerate by the criterion: dev at 1.0 at epoch 3, then back to 0.5; instability is not only initial"
+  }
+ ],
+ "inputs": {
+  "ablation_run": {
+   "run_id": "20261106-SESSABLRUN-d999458",
+   "status": "PASS",
+   "status_sha256": "9018e89241899f6e0bc5d0822925bd8ea30d71f21f8823681ef9047f4fbfe754",
+   "public_sums_sha256": "89cb13854a8c8133684da3e3b4b6d9931ecddd6ec08d4ac6ec14aa08ce31e04a",
+   "restricted_sums_sha256": "4ca502e0b07e556615c5042bb072770435c062d030e6d2a36d290c1481090fc2",
+   "run_log_sha256": "e9cf7a4822644106b67910be0ed0dcaa34f61c1ac9be8172dd0272410013c66a",
+   "cards": 36,
+   "dev_scores_files": 36,
+   "threshold_files": 36,
+   "dev_rows_per_model": 400,
+   "subjects_per_fold_dev": {
+    "1": 2,
+    "2": 2,
+    "3": 2,
+    "4": 3
+   },
+   "frames_per_fold_dev": {
+    "1": 400,
+    "2": 400,
+    "3": 400,
+    "4": 400
+   },
+   "early_stopping_replay": "36/36 reproduced",
+   "folder": "results/sessionablationrun/20261106-SESSABLRUN-d999458"
+  },
+  "folds_run": {
+   "run_id": "20261103-FOLDSRUN-e174812",
+   "status": "PASS",
+   "status_sha256": "1e5447d5d69af7923bad973b9f23f3b90609442146eac24388809adb53a0a161",
+   "public_sums_sha256": "11abd9e88f997468e7d4b61f6b2ea9c2732998318742eb2bf7c04662b4269a86",
+   "restricted_sums_sha256": "1204039d7391109caaf52aea28fbfda50c635e56521b0cc3170043aacac19d63",
+   "run_log_sha256": "7b51aacbd5bdd02db8542dd57bfbe5ddc0fdd04223dcb1649293df8b6bc1b2a0",
+   "cards": 12,
+   "dev_scores_files": 12,
+   "threshold_files": 12,
+   "dev_rows_per_model": 600,
+   "subjects_per_fold_dev": {
+    "1": 4,
+    "2": 4,
+    "3": 4,
+    "4": 4
+   },
+   "frames_per_fold_dev": {
+    "1": 600,
+    "2": 600,
+    "3": 600,
+    "4": 600
+   },
+   "early_stopping_replay": "12/12 reproduced",
+   "folder": "results/foldsrun/20261103-FOLDSRUN-e174812"
+  },
+  "failed_attempt": {
+   "run_id": "20261106-SESSABLRUN-3b4021f",
+   "status": "FAIL",
+   "status_sha256": "7721f2c0214dda6f857c4b1bad246c02ffd84f72899440b0c7227b1b28f4cd96",
+   "restricted_sums_sha256": "481bba80b2505248c428a88b50a4e29b7c07178ec5382df1e8caf20b21a2b478",
+   "cards": 6,
+   "use": "determinism comparison only",
+   "early_stopping_replay": "6/6 reproduced",
+   "folder": "results/sessionablationrun/20261106-SESSABLRUN-3b4021f"
+  }
+ },
+ "counts": {
+  "models": {
+   "20261106-SESSABLRUN-d999458": 36,
+   "20261103-FOLDSRUN-e174812": 12,
+   "20261106-SESSABLRUN-3b4021f": 6
+  },
+  "curves_rows": 533,
+  "early_stopping_replay": "54/54 cards reproduced"
+ },
+ "restricted": "none: this study writes no restricted output (the per-frame dev scores are read in place and never copied)",
+ "figures": {
+  "files": [
+   "figure_examples.png",
+   "figure_val_accuracy_all.png",
+   "figure_val_loss_all.png"
+  ],
+  "note": "figure_examples.png, figure_val_accuracy_all.png, figure_val_loss_all.png written"
+ },
+ "environment": {
+  "python": "3.11.16",
+  "matplotlib": "3.11.2"
+ },
+ "code_sha256": {
+  "scripts/nuaa_degenerate_trainings.py": "6e40a87d395fcf10063c1bed4734090470022b7cdac5a9f5359bef59b03b032e",
+  "scripts/m2_writers.py": "22760abc368dede3aa0a690a241f6622afe1ba586940422497db8a33994ee34a",
+  "scripts/path_guard.py": "e5fa9c835c23745ff932e157a44d3104eb9713d86bbdecc9cdbbd3caa7a7ee34",
+  "scripts/package_rules.py": "96ec7ffab4b089bac71fd18918fcd32af72d15980cdfa1361cc84bb43e0e4c11"
+ },
+ "tables": {
+  "T1": {
+   "title": "Degenerate trainings (criterion re-applied)",
+   "criterion": "restored_epoch in {1, 2} and val_acc_at_best = 0.5 (within 1e-6): the rule written in the delivery of the session ablation run, re-applied here",
+   "rows": [
+    {
+     "run": "sessablrun",
+     "arm": "arm_a_star",
+     "fold": 2,
+     "seed": 43,
+     "epochs_run": 5,
+     "restored_epoch": 1,
+     "best_val_loss": 60.98676681518555,
+     "val_acc_at_best": 0.5
+    },
+    {
+     "run": "sessablrun",
+     "arm": "arm_a_star",
+     "fold": 2,
+     "seed": 44,
+     "epochs_run": 5,
+     "restored_epoch": 1,
+     "best_val_loss": 18.093368530273438,
+     "val_acc_at_best": 0.5
+    },
+    {
+     "run": "sessablrun",
+     "arm": "arm_a_star",
+     "fold": 3,
+     "seed": 42,
+     "epochs_run": 5,
+     "restored_epoch": 1,
+     "best_val_loss": 3.129622459411621,
+     "val_acc_at_best": 0.5
+    },
+    {
+     "run": "sessablrun",
+     "arm": "arm_a_star",
+     "fold": 3,
+     "seed": 44,
+     "epochs_run": 5,
+     "restored_epoch": 1,
+     "best_val_loss": 33.40898513793945,
+     "val_acc_at_best": 0.5
+    },
+    {
+     "run": "sessablrun",
+     "arm": "arm_a_star",
+     "fold": 4,
+     "seed": 44,
+     "epochs_run": 5,
+     "restored_epoch": 1,
+     "best_val_loss": 22.827354431152344,
+     "val_acc_at_best": 0.5
+    },
+    {
+     "run": "sessablrun",
+     "arm": "arm_b",
+     "fold": 1,
+     "seed": 42,
+     "epochs_run": 5,
+     "restored_epoch": 1,
+     "best_val_loss": 7.0610671043396,
+     "val_acc_at_best": 0.5
+    },
+    {
+     "run": "sessablrun",
+     "arm": "arm_b",
+     "fold": 4,
+     "seed": 44,
+     "epochs_run": 6,
+     "restored_epoch": 2,
+     "best_val_loss": 2.3605120182037354,
+     "val_acc_at_best": 0.5
+    },
+    {
+     "run": "sessablrun",
+     "arm": "arm_b_prime",
+     "fold": 1,
+     "seed": 44,
+     "epochs_run": 5,
+     "restored_epoch": 1,
+     "best_val_loss": 12.144892692565918,
+     "val_acc_at_best": 0.5
+    },
+    {
+     "run": "sessablrun",
+     "arm": "arm_b_prime",
+     "fold": 2,
+     "seed": 44,
+     "epochs_run": 6,
+     "restored_epoch": 2,
+     "best_val_loss": 11.425878524780273,
+     "val_acc_at_best": 0.5
+    },
+    {
+     "run": "sessablrun",
+     "arm": "arm_b_prime",
+     "fold": 4,
+     "seed": 44,
+     "epochs_run": 5,
+     "restored_epoch": 1,
+     "best_val_loss": 17.290746688842773,
+     "val_acc_at_best": 0.5
+    }
+   ],
+   "count": 10,
+   "of": 36,
+   "per_arm": {
+    "arm_b": 2,
+    "arm_a_star": 5,
+    "arm_b_prime": 3
+   },
+   "per_seed": {
+    "42": 2,
+    "43": 1,
+    "44": 7
+   },
+   "per_fold": {
+    "1": 2,
+    "2": 3,
+    "3": 2,
+    "4": 3
+   },
+   "boundary_rule": "non-degenerate with restored_epoch <= 3",
+   "boundary": [
+    {
+     "run": "sessablrun",
+     "arm": "arm_b",
+     "fold": 3,
+     "seed": 44,
+     "restored_epoch": 3,
+     "val_acc_at_best": 0.2375,
+     "best_val_loss": 3.273
+    },
+    {
+     "run": "sessablrun",
+     "arm": "arm_b_prime",
+     "fold": 1,
+     "seed": 42,
+     "restored_epoch": 2,
+     "val_acc_at_best": 0.7725,
+     "best_val_loss": 0.61
+    },
+    {
+     "run": "sessablrun",
+     "arm": "arm_b_prime",
+     "fold": 3,
+     "seed": 42,
+     "restored_epoch": 1,
+     "val_acc_at_best": 0.8325,
+     "best_val_loss": 0.321
+    },
+    {
+     "run": "sessablrun",
+     "arm": "arm_b_prime",
+     "fold": 4,
+     "seed": 42,
+     "restored_epoch": 2,
+     "val_acc_at_best": 0.9175,
+     "best_val_loss": 0.138
+    },
+    {
+     "run": "sessablrun",
+     "arm": "arm_b_prime",
+     "fold": 4,
+     "seed": 43,
+     "restored_epoch": 3,
+     "val_acc_at_best": 1.0,
+     "best_val_loss": 0.014
+    }
+   ]
+  },
+  "T2": {
+   "title": "Fold x seed per arm (D = degenerate, number = restored epoch)",
+   "rows": [
+    {
+     "arm": "arm_b",
+     "seed": 42,
+     "fold1": "D1",
+     "fold2": "9",
+     "fold3": "12",
+     "fold4": "11"
+    },
+    {
+     "arm": "arm_b",
+     "seed": 43,
+     "fold1": "11",
+     "fold2": "7",
+     "fold3": "10",
+     "fold4": "6"
+    },
+    {
+     "arm": "arm_b",
+     "seed": 44,
+     "fold1": "6",
+     "fold2": "10",
+     "fold3": "3",
+     "fold4": "D2"
+    },
+    {
+     "arm": "arm_a_star",
+     "seed": 42,
+     "fold1": "10",
+     "fold2": "11",
+     "fold3": "D1",
+     "fold4": "10"
+    },
+    {
+     "arm": "arm_a_star",
+     "seed": 43,
+     "fold1": "9",
+     "fold2": "D1",
+     "fold3": "12",
+     "fold4": "9"
+    },
+    {
+     "arm": "arm_a_star",
+     "seed": 44,
+     "fold1": "11",
+     "fold2": "D1",
+     "fold3": "D1",
+     "fold4": "D1"
+    },
+    {
+     "arm": "arm_b_prime",
+     "seed": 42,
+     "fold1": "2",
+     "fold2": "11",
+     "fold3": "1",
+     "fold4": "2"
+    },
+    {
+     "arm": "arm_b_prime",
+     "seed": 43,
+     "fold1": "4",
+     "fold2": "10",
+     "fold3": "9",
+     "fold4": "3"
+    },
+    {
+     "arm": "arm_b_prime",
+     "seed": 44,
+     "fold1": "D1",
+     "fold2": "D2",
+     "fold3": "9",
+     "fold4": "D1"
+    }
+   ]
+  },
+  "T3": {
+   "title": "Dev saturation (val_accuracy = 0.5) and the training side in the same epochs",
+   "rows": [
+    {
+     "group": "degenerate",
+     "models": 10,
+     "epoch1_saturated": 10,
+     "epoch2_saturated": 9,
+     "saturated_epochs": 41,
+     "epochs": 52,
+     "val_loss_min": 2.3605120182037354,
+     "val_loss_median": 25.174848556518555,
+     "val_loss_max": 197.8555145263672,
+     "train_accuracy_min": 0.9142857193946838,
+     "train_accuracy_median": 0.9878571629524231,
+     "train_loss_max": 0.23932792246341705
+    },
+    {
+     "group": "non-degenerate",
+     "models": 26,
+     "epoch1_saturated": 24,
+     "epoch2_saturated": 22,
+     "saturated_epochs": 93,
+     "epochs": 274,
+     "val_loss_min": 2.2389137744903564,
+     "val_loss_median": 17.993579864501953,
+     "val_loss_max": 105.25552368164062,
+     "train_accuracy_min": 0.9021428823471069,
+     "train_accuracy_median": 0.9878571629524231,
+     "train_loss_max": 0.2460450530052185
+    },
+    {
+     "group": "folds run",
+     "models": 12,
+     "epoch1_saturated": 12,
+     "epoch2_saturated": 12,
+     "saturated_epochs": 30,
+     "epochs": 144,
+     "val_loss_min": 3.0750367641448975,
+     "val_loss_median": 49.211036682128906,
+     "val_loss_max": 264.1549987792969,
+     "train_accuracy_min": 0.9242857098579407,
+     "train_accuracy_median": 0.9745238125324249,
+     "train_loss_max": 0.20644962787628174
+    }
+   ],
+   "models_with_a_saturated_epoch": 48,
+   "models": 48,
+   "train_accuracy_reference": 0.9,
+   "saturated_epochs_with_train_accuracy_above_reference": 164,
+   "saturated_epochs": 164,
+   "below_chance_threshold": 0.45,
+   "below_chance_epochs": [
+    {
+     "run": "sessablrun",
+     "arm": "arm_a_star",
+     "fold": 1,
+     "seed": 44,
+     "epoch": 3,
+     "val_accuracy": 0.2775
+    },
+    {
+     "run": "sessablrun",
+     "arm": "arm_a_star",
+     "fold": 2,
+     "seed": 44,
+     "epoch": 5,
+     "val_accuracy": 0.28
+    },
+    {
+     "run": "sessablrun",
+     "arm": "arm_a_star",
+     "fold": 3,
+     "seed": 42,
+     "epoch": 5,
+     "val_accuracy": 0.2625
+    },
+    {
+     "run": "sessablrun",
+     "arm": "arm_a_star",
+     "fold": 4,
+     "seed": 43,
+     "epoch": 4,
+     "val_accuracy": 0.28
+    },
+    {
+     "run": "sessablrun",
+     "arm": "arm_b",
+     "fold": 3,
+     "seed": 44,
+     "epoch": 3,
+     "val_accuracy": 0.2375
+    },
+    {
+     "run": "sessablrun",
+     "arm": "arm_b_prime",
+     "fold": 3,
+     "seed": 43,
+     "epoch": 5,
+     "val_accuracy": 0.24
+    }
+   ]
+  },
+  "T4": {
+   "title": "First recovery on the dev, per group",
+   "criterion": "first epoch with val_accuracy >= 0.75 and val_loss < 1.0 (dev only)",
+   "rows": [
+    {
+     "group": "arm_b",
+     "models": 12,
+     "with_recovery": 9,
+     "min": 5,
+     "median": 6,
+     "max": 7,
+     "median_steps": 528,
+     "recovery_after_epoch_5": 7
+    },
+    {
+     "group": "arm_a_star",
+     "models": 12,
+     "with_recovery": 7,
+     "min": 5,
+     "median": 7,
+     "max": 10,
+     "median_steps": 616,
+     "recovery_after_epoch_5": 6
+    },
+    {
+     "group": "arm_b_prime",
+     "models": 12,
+     "with_recovery": 9,
+     "min": 1,
+     "median": 3,
+     "max": 11,
+     "median_steps": 177,
+     "recovery_after_epoch_5": 3
+    },
+    {
+     "group": "seed 42",
+     "models": 12,
+     "with_recovery": 10,
+     "min": 1,
+     "median": 5.5,
+     "max": 11,
+     "median_steps": 484.0,
+     "recovery_after_epoch_5": 5
+    },
+    {
+     "group": "seed 43",
+     "models": 12,
+     "with_recovery": 11,
+     "min": 3,
+     "median": 6,
+     "max": 7,
+     "median_steps": 528,
+     "recovery_after_epoch_5": 7
+    },
+    {
+     "group": "seed 44",
+     "models": 12,
+     "with_recovery": 4,
+     "min": 6,
+     "median": 6.5,
+     "max": 7,
+     "median_steps": 528.0,
+     "recovery_after_epoch_5": 4
+    },
+    {
+     "group": "fold 1",
+     "models": 9,
+     "with_recovery": 7,
+     "min": 2,
+     "median": 6,
+     "max": 7,
+     "median_steps": 528,
+     "recovery_after_epoch_5": 4
+    },
+    {
+     "group": "fold 2",
+     "models": 9,
+     "with_recovery": 6,
+     "min": 3,
+     "median": 5.5,
+     "max": 11,
+     "median_steps": 484.0,
+     "recovery_after_epoch_5": 3
+    },
+    {
+     "group": "fold 3",
+     "models": 9,
+     "with_recovery": 6,
+     "min": 1,
+     "median": 6.0,
+     "max": 7,
+     "median_steps": 470.5,
+     "recovery_after_epoch_5": 5
+    },
+    {
+     "group": "fold 4",
+     "models": 9,
+     "with_recovery": 6,
+     "min": 1,
+     "median": 6.0,
+     "max": 10,
+     "median_steps": 528.0,
+     "recovery_after_epoch_5": 4
+    },
+    {
+     "group": "non-degenerate",
+     "models": 26,
+     "with_recovery": 25,
+     "min": 1,
+     "median": 6,
+     "max": 11,
+     "median_steps": 528,
+     "recovery_after_epoch_5": 16
+    },
+    {
+     "group": "degenerate",
+     "models": 10,
+     "with_recovery": 0,
+     "min": null,
+     "median": null,
+     "max": null,
+     "median_steps": null,
+     "recovery_after_epoch_5": 0
+    },
+    {
+     "group": "folds run",
+     "models": 12,
+     "with_recovery": 12,
+     "min": 3,
+     "median": 5.5,
+     "max": 7,
+     "median_steps": 726.0,
+     "recovery_after_epoch_5": 6
+    },
+    {
+     "group": "arm_b and arm_a_star non-degenerate (88 steps)",
+     "models": 17,
+     "with_recovery": 16,
+     "min": 5,
+     "median": 6.0,
+     "max": 10,
+     "median_steps": 528.0,
+     "recovery_after_epoch_5": 13
+    },
+    {
+     "group": "arm_b_prime non-degenerate (59 steps)",
+     "models": 9,
+     "with_recovery": 9,
+     "min": 1,
+     "median": 3,
+     "max": 11,
+     "median_steps": 177,
+     "recovery_after_epoch_5": 3
+    }
+   ],
+   "late_after_epoch": 5,
+   "first_recovery_per_model": [
+    {
+     "group": "folds run",
+     "epochs": [
+      3,
+      4,
+      4,
+      5,
+      5,
+      5,
+      6,
+      6,
+      6,
+      6,
+      6,
+      7
+     ]
+    },
+    {
+     "group": "arm_b and arm_a_star non-degenerate",
+     "epochs": [
+      5,
+      5,
+      5,
+      6,
+      6,
+      6,
+      6,
+      6,
+      6,
+      6,
+      6,
+      7,
+      7,
+      7,
+      7,
+      10
+     ]
+    },
+    {
+     "group": "arm_b_prime non-degenerate",
+     "epochs": [
+      1,
+      1,
+      2,
+      3,
+      3,
+      4,
+      7,
+      7,
+      11
+     ]
+    }
+   ]
+  },
+  "T5": {
+   "title": "Sensitivity of the recovery criterion",
+   "rows": [
+    {
+     "val_accuracy_min": 0.7,
+     "val_loss_max": 0.7,
+     "degenerate": {
+      "with_recovery": 0,
+      "models": 10,
+      "median": null
+     },
+     "non-degenerate": {
+      "with_recovery": 22,
+      "models": 26,
+      "median": 6.0
+     },
+     "folds run": {
+      "with_recovery": 12,
+      "models": 12,
+      "median": 6.0
+     }
+    },
+    {
+     "val_accuracy_min": 0.7,
+     "val_loss_max": 1.0,
+     "degenerate": {
+      "with_recovery": 0,
+      "models": 10,
+      "median": null
+     },
+     "non-degenerate": {
+      "with_recovery": 25,
+      "models": 26,
+      "median": 6
+     },
+     "folds run": {
+      "with_recovery": 12,
+      "models": 12,
+      "median": 5.5
+     }
+    },
+    {
+     "val_accuracy_min": 0.7,
+     "val_loss_max": 1.5,
+     "degenerate": {
+      "with_recovery": 0,
+      "models": 10,
+      "median": null
+     },
+     "non-degenerate": {
+      "with_recovery": 25,
+      "models": 26,
+      "median": 6
+     },
+     "folds run": {
+      "with_recovery": 12,
+      "models": 12,
+      "median": 5.0
+     }
+    },
+    {
+     "val_accuracy_min": 0.75,
+     "val_loss_max": 0.7,
+     "degenerate": {
+      "with_recovery": 0,
+      "models": 10,
+      "median": null
+     },
+     "non-degenerate": {
+      "with_recovery": 22,
+      "models": 26,
+      "median": 6.0
+     },
+     "folds run": {
+      "with_recovery": 12,
+      "models": 12,
+      "median": 6.0
+     }
+    },
+    {
+     "val_accuracy_min": 0.75,
+     "val_loss_max": 1.0,
+     "degenerate": {
+      "with_recovery": 0,
+      "models": 10,
+      "median": null
+     },
+     "non-degenerate": {
+      "with_recovery": 25,
+      "models": 26,
+      "median": 6
+     },
+     "folds run": {
+      "with_recovery": 12,
+      "models": 12,
+      "median": 5.5
+     }
+    },
+    {
+     "val_accuracy_min": 0.75,
+     "val_loss_max": 1.5,
+     "degenerate": {
+      "with_recovery": 0,
+      "models": 10,
+      "median": null
+     },
+     "non-degenerate": {
+      "with_recovery": 25,
+      "models": 26,
+      "median": 6
+     },
+     "folds run": {
+      "with_recovery": 12,
+      "models": 12,
+      "median": 5.0
+     }
+    },
+    {
+     "val_accuracy_min": 0.8,
+     "val_loss_max": 0.7,
+     "degenerate": {
+      "with_recovery": 0,
+      "models": 10,
+      "median": null
+     },
+     "non-degenerate": {
+      "with_recovery": 21,
+      "models": 26,
+      "median": 6
+     },
+     "folds run": {
+      "with_recovery": 12,
+      "models": 12,
+      "median": 6.0
+     }
+    },
+    {
+     "val_accuracy_min": 0.8,
+     "val_loss_max": 1.0,
+     "degenerate": {
+      "with_recovery": 0,
+      "models": 10,
+      "median": null
+     },
+     "non-degenerate": {
+      "with_recovery": 23,
+      "models": 26,
+      "median": 6
+     },
+     "folds run": {
+      "with_recovery": 12,
+      "models": 12,
+      "median": 5.5
+     }
+    },
+    {
+     "val_accuracy_min": 0.8,
+     "val_loss_max": 1.5,
+     "degenerate": {
+      "with_recovery": 0,
+      "models": 10,
+      "median": null
+     },
+     "non-degenerate": {
+      "with_recovery": 23,
+      "models": 26,
+      "median": 6
+     },
+     "folds run": {
+      "with_recovery": 12,
+      "models": 12,
+      "median": 5.0
+     }
+    }
+   ]
+  },
+  "T6": {
+   "title": "Mechanics of the stop (degenerate trainings)",
+   "rows": [
+    {
+     "run": "sessablrun",
+     "arm": "arm_a_star",
+     "fold": 2,
+     "seed": 43,
+     "restored_epoch": 1,
+     "epochs_run": 5,
+     "val_loss": [
+      60.98676681518555,
+      107.3440170288086,
+      129.87255859375,
+      141.0613250732422,
+      82.64016723632812
+     ],
+     "val_accuracy": [
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5049999952316284
+     ],
+     "last_val_loss_vs_previous": "down",
+     "last_val_accuracy_vs_previous": "up"
+    },
+    {
+     "run": "sessablrun",
+     "arm": "arm_a_star",
+     "fold": 2,
+     "seed": 44,
+     "restored_epoch": 1,
+     "epochs_run": 5,
+     "val_loss": [
+      18.093368530273438,
+      54.250980377197266,
+      53.38450622558594,
+      31.706117630004883,
+      67.10982513427734
+     ],
+     "val_accuracy": [
+      0.5,
+      0.5,
+      0.5,
+      0.5975000262260437,
+      0.2800000011920929
+     ],
+     "last_val_loss_vs_previous": "up",
+     "last_val_accuracy_vs_previous": "down"
+    },
+    {
+     "run": "sessablrun",
+     "arm": "arm_a_star",
+     "fold": 3,
+     "seed": 42,
+     "restored_epoch": 1,
+     "epochs_run": 5,
+     "val_loss": [
+      3.129622459411621,
+      4.071636199951172,
+      48.62339401245117,
+      13.478145599365234,
+      70.9343490600586
+     ],
+     "val_accuracy": [
+      0.5,
+      0.4975000023841858,
+      0.5,
+      0.5,
+      0.26249998807907104
+     ],
+     "last_val_loss_vs_previous": "up",
+     "last_val_accuracy_vs_previous": "down"
+    },
+    {
+     "run": "sessablrun",
+     "arm": "arm_a_star",
+     "fold": 3,
+     "seed": 44,
+     "restored_epoch": 1,
+     "epochs_run": 5,
+     "val_loss": [
+      33.40898513793945,
+      44.92573165893555,
+      197.8555145263672,
+      133.12307739257812,
+      66.0213623046875
+     ],
+     "val_accuracy": [
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.4925000071525574
+     ],
+     "last_val_loss_vs_previous": "down",
+     "last_val_accuracy_vs_previous": "down"
+    },
+    {
+     "run": "sessablrun",
+     "arm": "arm_a_star",
+     "fold": 4,
+     "seed": 44,
+     "restored_epoch": 1,
+     "epochs_run": 5,
+     "val_loss": [
+      22.827354431152344,
+      61.274532318115234,
+      40.884273529052734,
+      61.09721755981445,
+      37.087764739990234
+     ],
+     "val_accuracy": [
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5
+     ],
+     "last_val_loss_vs_previous": "down",
+     "last_val_accuracy_vs_previous": "="
+    },
+    {
+     "run": "sessablrun",
+     "arm": "arm_b",
+     "fold": 1,
+     "seed": 42,
+     "restored_epoch": 1,
+     "epochs_run": 5,
+     "val_loss": [
+      7.0610671043396,
+      11.087084770202637,
+      25.260087966918945,
+      70.4208984375,
+      57.96263122558594
+     ],
+     "val_accuracy": [
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5
+     ],
+     "last_val_loss_vs_previous": "down",
+     "last_val_accuracy_vs_previous": "="
+    },
+    {
+     "run": "sessablrun",
+     "arm": "arm_b",
+     "fold": 4,
+     "seed": 44,
+     "restored_epoch": 2,
+     "epochs_run": 6,
+     "val_loss": [
+      16.509981155395508,
+      2.3605120182037354,
+      3.458775520324707,
+      14.48355484008789,
+      4.204553604125977,
+      4.611393928527832
+     ],
+     "val_accuracy": [
+      0.5,
+      0.5,
+      0.47999998927116394,
+      0.5199999809265137,
+      0.5149999856948853,
+      0.8149999976158142
+     ],
+     "last_val_loss_vs_previous": "up",
+     "last_val_accuracy_vs_previous": "up"
+    },
+    {
+     "run": "sessablrun",
+     "arm": "arm_b_prime",
+     "fold": 1,
+     "seed": 44,
+     "restored_epoch": 1,
+     "epochs_run": 5,
+     "val_loss": [
+      12.144892692565918,
+      22.665380477905273,
+      19.306724548339844,
+      22.299287796020508,
+      25.93985366821289
+     ],
+     "val_accuracy": [
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5
+     ],
+     "last_val_loss_vs_previous": "up",
+     "last_val_accuracy_vs_previous": "="
+    },
+    {
+     "run": "sessablrun",
+     "arm": "arm_b_prime",
+     "fold": 2,
+     "seed": 44,
+     "restored_epoch": 2,
+     "epochs_run": 6,
+     "val_loss": [
+      25.529712677001953,
+      11.425878524780273,
+      15.198554992675781,
+      18.471939086914062,
+      13.832091331481934,
+      24.801898956298828
+     ],
+     "val_accuracy": [
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5
+     ],
+     "last_val_loss_vs_previous": "up",
+     "last_val_accuracy_vs_previous": "="
+    },
+    {
+     "run": "sessablrun",
+     "arm": "arm_b_prime",
+     "fold": 4,
+     "seed": 44,
+     "restored_epoch": 1,
+     "epochs_run": 5,
+     "val_loss": [
+      17.290746688842773,
+      24.588600158691406,
+      19.3543643951416,
+      25.174848556518555,
+      30.052602767944336
+     ],
+     "val_accuracy": [
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5024999976158142
+     ],
+     "last_val_loss_vs_previous": "up",
+     "last_val_accuracy_vs_previous": "up"
+    }
+   ],
+   "first_improvement": [
+    {
+     "group": "non-degenerate",
+     "first_val_loss_below_epoch1": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      5,
+      5,
+      5,
+      null
+     ],
+     "with_val_accuracy_0.5_in_that_epoch": 16,
+     "with_val_accuracy_0.5_at_epoch1": 24
+    },
+    {
+     "group": "folds run",
+     "first_val_loss_below_epoch1": [
+      2,
+      2,
+      2,
+      2,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      4
+     ],
+     "with_val_accuracy_0.5_in_that_epoch": 6,
+     "with_val_accuracy_0.5_at_epoch1": 12
+    },
+    {
+     "group": "degenerate",
+     "first_val_loss_below_epoch1": [
+      2,
+      2,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+     ],
+     "with_val_accuracy_0.5_in_that_epoch": 2,
+     "with_val_accuracy_0.5_at_epoch1": 10
+    }
+   ],
+   "non_degenerate_with_recovery_after_epoch": 5,
+   "non_degenerate_recovered_late": 22,
+   "non_degenerate_with_recovery": 37,
+   "non_degenerate_without_recovery": [
+    {
+     "run": "sessablrun",
+     "arm": "arm_b",
+     "fold": 3,
+     "seed": 44
+    }
+   ]
+  },
+  "T7": {
+   "title": "Alternative early stopping rules replayed on the recorded histories (exact or not determinable)",
+   "rows": [
+    {
+     "rule": "patience 4 (run)",
+     "degenerate": {
+      "determinable": 10,
+      "models": 10,
+      "degenerate": 10,
+      "restored_median": 1.0
+     },
+     "non-degenerate": {
+      "determinable": 26,
+      "models": 26,
+      "degenerate": 0,
+      "restored_median": 9.0
+     },
+     "folds run": {
+      "determinable": 12,
+      "models": 12,
+      "degenerate": 0,
+      "restored_median": 10.0
+     }
+    },
+    {
+     "rule": "patience 2",
+     "degenerate": {
+      "determinable": 10,
+      "models": 10,
+      "degenerate": 10,
+      "restored_median": 1.0
+     },
+     "non-degenerate": {
+      "determinable": 26,
+      "models": 26,
+      "degenerate": 5,
+      "restored_median": 3.5
+     },
+     "folds run": {
+      "determinable": 12,
+      "models": 12,
+      "degenerate": 1,
+      "restored_median": 6.5
+     }
+    },
+    {
+     "rule": "patience 3",
+     "degenerate": {
+      "determinable": 10,
+      "models": 10,
+      "degenerate": 10,
+      "restored_median": 1.0
+     },
+     "non-degenerate": {
+      "determinable": 26,
+      "models": 26,
+      "degenerate": 3,
+      "restored_median": 6.5
+     },
+     "folds run": {
+      "determinable": 12,
+      "models": 12,
+      "degenerate": 0,
+      "restored_median": 10.0
+     }
+    },
+    {
+     "rule": "patience 6",
+     "degenerate": {
+      "determinable": 0,
+      "models": 10,
+      "degenerate": 0,
+      "restored_median": null
+     },
+     "non-degenerate": {
+      "determinable": 17,
+      "models": 26,
+      "degenerate": 0,
+      "restored_median": 10
+     },
+     "folds run": {
+      "determinable": 12,
+      "models": 12,
+      "degenerate": 0,
+      "restored_median": 10.0
+     }
+    },
+    {
+     "rule": "patience 8",
+     "degenerate": {
+      "determinable": 0,
+      "models": 10,
+      "degenerate": 0,
+      "restored_median": null
+     },
+     "non-degenerate": {
+      "determinable": 17,
+      "models": 26,
+      "degenerate": 0,
+      "restored_median": 10
+     },
+     "folds run": {
+      "determinable": 12,
+      "models": 12,
+      "degenerate": 0,
+      "restored_median": 10.0
+     }
+    },
+    {
+     "rule": "start_from_epoch 3",
+     "degenerate": {
+      "determinable": 0,
+      "models": 10,
+      "degenerate": 0,
+      "restored_median": null
+     },
+     "non-degenerate": {
+      "determinable": 21,
+      "models": 26,
+      "degenerate": 0,
+      "restored_median": 10
+     },
+     "folds run": {
+      "determinable": 12,
+      "models": 12,
+      "degenerate": 0,
+      "restored_median": 10.0
+     }
+    },
+    {
+     "rule": "start_from_epoch 5",
+     "degenerate": {
+      "determinable": 0,
+      "models": 10,
+      "degenerate": 0,
+      "restored_median": null
+     },
+     "non-degenerate": {
+      "determinable": 20,
+      "models": 26,
+      "degenerate": 0,
+      "restored_median": 10.0
+     },
+     "folds run": {
+      "determinable": 12,
+      "models": 12,
+      "degenerate": 0,
+      "restored_median": 10.0
+     }
+    },
+    {
+     "rule": "monitor val_accuracy",
+     "degenerate": {
+      "determinable": 6,
+      "models": 10,
+      "degenerate": 6,
+      "restored_median": 1.0
+     },
+     "non-degenerate": {
+      "determinable": 24,
+      "models": 26,
+      "degenerate": 4,
+      "restored_median": 6.5
+     },
+     "folds run": {
+      "determinable": 12,
+      "models": 12,
+      "degenerate": 0,
+      "restored_median": 10.5
+     }
+    }
+   ],
+   "changes": [
+    {
+     "rule": "patience 4 (run)",
+     "non_degenerate_changes": []
+    },
+    {
+     "rule": "patience 2",
+     "non_degenerate_changes": [
+      {
+       "run": "sessablrun",
+       "arm": "arm_a_star",
+       "fold": 1,
+       "seed": 44,
+       "restored_run": 11,
+       "restored_rule": 1,
+       "val_acc_run": 0.987500011920929,
+       "val_acc_rule": 0.5
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_a_star",
+       "fold": 2,
+       "seed": 42,
+       "restored_run": 11,
+       "restored_rule": 7,
+       "val_acc_run": 1.0,
+       "val_acc_rule": 1.0
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_a_star",
+       "fold": 3,
+       "seed": 43,
+       "restored_run": 12,
+       "restored_rule": 6,
+       "val_acc_run": 0.9975000023841858,
+       "val_acc_rule": 0.8274999856948853
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_a_star",
+       "fold": 4,
+       "seed": 42,
+       "restored_run": 10,
+       "restored_rule": 2,
+       "val_acc_run": 0.7975000143051147,
+       "val_acc_rule": 0.5
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b",
+       "fold": 1,
+       "seed": 43,
+       "restored_run": 11,
+       "restored_rule": 6,
+       "val_acc_run": 0.9975000023841858,
+       "val_acc_rule": 0.7200000286102295
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b",
+       "fold": 2,
+       "seed": 42,
+       "restored_run": 9,
+       "restored_rule": 2,
+       "val_acc_run": 0.9474999904632568,
+       "val_acc_rule": 0.5
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b",
+       "fold": 2,
+       "seed": 43,
+       "restored_run": 7,
+       "restored_rule": 1,
+       "val_acc_run": 1.0,
+       "val_acc_rule": 0.5
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b",
+       "fold": 2,
+       "seed": 44,
+       "restored_run": 10,
+       "restored_rule": 1,
+       "val_acc_run": 0.9975000023841858,
+       "val_acc_rule": 0.5
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b",
+       "fold": 3,
+       "seed": 42,
+       "restored_run": 12,
+       "restored_rule": 3,
+       "val_acc_run": 1.0,
+       "val_acc_rule": 0.5
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b",
+       "fold": 3,
+       "seed": 43,
+       "restored_run": 10,
+       "restored_rule": 6,
+       "val_acc_run": 0.9925000071525574,
+       "val_acc_rule": 0.9049999713897705
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b",
+       "fold": 4,
+       "seed": 42,
+       "restored_run": 11,
+       "restored_rule": 3,
+       "val_acc_run": 1.0,
+       "val_acc_rule": 0.7024999856948853
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b_prime",
+       "fold": 2,
+       "seed": 42,
+       "restored_run": 11,
+       "restored_rule": 6,
+       "val_acc_run": 0.8774999976158142,
+       "val_acc_rule": 0.6225000023841858
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b_prime",
+       "fold": 2,
+       "seed": 43,
+       "restored_run": 10,
+       "restored_rule": 6,
+       "val_acc_run": 1.0,
+       "val_acc_rule": 0.9950000047683716
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b_prime",
+       "fold": 3,
+       "seed": 44,
+       "restored_run": 9,
+       "restored_rule": 3,
+       "val_acc_run": 0.9975000023841858,
+       "val_acc_rule": 0.5
+      }
+     ]
+    },
+    {
+     "rule": "patience 3",
+     "non_degenerate_changes": [
+      {
+       "run": "sessablrun",
+       "arm": "arm_a_star",
+       "fold": 1,
+       "seed": 44,
+       "restored_run": 11,
+       "restored_rule": 1,
+       "val_acc_run": 0.987500011920929,
+       "val_acc_rule": 0.5
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_a_star",
+       "fold": 2,
+       "seed": 42,
+       "restored_run": 11,
+       "restored_rule": 7,
+       "val_acc_run": 1.0,
+       "val_acc_rule": 1.0
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b",
+       "fold": 2,
+       "seed": 42,
+       "restored_run": 9,
+       "restored_rule": 5,
+       "val_acc_run": 0.9474999904632568,
+       "val_acc_rule": 0.925000011920929
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b",
+       "fold": 2,
+       "seed": 43,
+       "restored_run": 7,
+       "restored_rule": 1,
+       "val_acc_run": 1.0,
+       "val_acc_rule": 0.5
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b",
+       "fold": 2,
+       "seed": 44,
+       "restored_run": 10,
+       "restored_rule": 1,
+       "val_acc_run": 0.9975000023841858,
+       "val_acc_rule": 0.5
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b_prime",
+       "fold": 2,
+       "seed": 43,
+       "restored_run": 10,
+       "restored_rule": 6,
+       "val_acc_run": 1.0,
+       "val_acc_rule": 0.9950000047683716
+      }
+     ]
+    },
+    {
+     "rule": "patience 6",
+     "non_degenerate_changes": [
+      {
+       "run": "sessablrun",
+       "arm": "arm_b",
+       "fold": 1,
+       "seed": 44,
+       "restored_run": 6,
+       "restored_rule": null
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b",
+       "fold": 2,
+       "seed": 43,
+       "restored_run": 7,
+       "restored_rule": null
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b",
+       "fold": 3,
+       "seed": 44,
+       "restored_run": 3,
+       "restored_rule": null
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b",
+       "fold": 4,
+       "seed": 43,
+       "restored_run": 6,
+       "restored_rule": null
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b_prime",
+       "fold": 1,
+       "seed": 42,
+       "restored_run": 2,
+       "restored_rule": null
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b_prime",
+       "fold": 1,
+       "seed": 43,
+       "restored_run": 4,
+       "restored_rule": null
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b_prime",
+       "fold": 3,
+       "seed": 42,
+       "restored_run": 1,
+       "restored_rule": null
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b_prime",
+       "fold": 4,
+       "seed": 42,
+       "restored_run": 2,
+       "restored_rule": null
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b_prime",
+       "fold": 4,
+       "seed": 43,
+       "restored_run": 3,
+       "restored_rule": null
+      }
+     ]
+    },
+    {
+     "rule": "patience 8",
+     "non_degenerate_changes": [
+      {
+       "run": "sessablrun",
+       "arm": "arm_b",
+       "fold": 1,
+       "seed": 44,
+       "restored_run": 6,
+       "restored_rule": null
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b",
+       "fold": 2,
+       "seed": 43,
+       "restored_run": 7,
+       "restored_rule": null
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b",
+       "fold": 3,
+       "seed": 44,
+       "restored_run": 3,
+       "restored_rule": null
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b",
+       "fold": 4,
+       "seed": 43,
+       "restored_run": 6,
+       "restored_rule": null
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b_prime",
+       "fold": 1,
+       "seed": 42,
+       "restored_run": 2,
+       "restored_rule": null
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b_prime",
+       "fold": 1,
+       "seed": 43,
+       "restored_run": 4,
+       "restored_rule": null
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b_prime",
+       "fold": 3,
+       "seed": 42,
+       "restored_run": 1,
+       "restored_rule": null
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b_prime",
+       "fold": 4,
+       "seed": 42,
+       "restored_run": 2,
+       "restored_rule": null
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b_prime",
+       "fold": 4,
+       "seed": 43,
+       "restored_run": 3,
+       "restored_rule": null
+      }
+     ]
+    },
+    {
+     "rule": "start_from_epoch 3",
+     "non_degenerate_changes": [
+      {
+       "run": "sessablrun",
+       "arm": "arm_b",
+       "fold": 3,
+       "seed": 44,
+       "restored_run": 3,
+       "restored_rule": null
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b_prime",
+       "fold": 1,
+       "seed": 42,
+       "restored_run": 2,
+       "restored_rule": null
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b_prime",
+       "fold": 3,
+       "seed": 42,
+       "restored_run": 1,
+       "restored_rule": null
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b_prime",
+       "fold": 4,
+       "seed": 42,
+       "restored_run": 2,
+       "restored_rule": null
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b_prime",
+       "fold": 4,
+       "seed": 43,
+       "restored_run": 3,
+       "restored_rule": null
+      }
+     ]
+    },
+    {
+     "rule": "start_from_epoch 5",
+     "non_degenerate_changes": [
+      {
+       "run": "sessablrun",
+       "arm": "arm_b",
+       "fold": 3,
+       "seed": 44,
+       "restored_run": 3,
+       "restored_rule": null
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b_prime",
+       "fold": 1,
+       "seed": 42,
+       "restored_run": 2,
+       "restored_rule": null
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b_prime",
+       "fold": 1,
+       "seed": 43,
+       "restored_run": 4,
+       "restored_rule": null
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b_prime",
+       "fold": 3,
+       "seed": 42,
+       "restored_run": 1,
+       "restored_rule": null
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b_prime",
+       "fold": 4,
+       "seed": 42,
+       "restored_run": 2,
+       "restored_rule": null
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b_prime",
+       "fold": 4,
+       "seed": 43,
+       "restored_run": 3,
+       "restored_rule": null
+      }
+     ]
+    },
+    {
+     "rule": "monitor val_accuracy",
+     "non_degenerate_changes": [
+      {
+       "run": "sessablrun",
+       "arm": "arm_a_star",
+       "fold": 1,
+       "seed": 42,
+       "restored_run": 10,
+       "restored_rule": 9,
+       "val_acc_run": 0.9950000047683716,
+       "val_acc_rule": 0.9950000047683716
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_a_star",
+       "fold": 1,
+       "seed": 44,
+       "restored_run": 11,
+       "restored_rule": 10,
+       "val_acc_run": 0.987500011920929,
+       "val_acc_rule": 0.9925000071525574
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_a_star",
+       "fold": 2,
+       "seed": 42,
+       "restored_run": 11,
+       "restored_rule": 6,
+       "val_acc_run": 1.0,
+       "val_acc_rule": 1.0
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_a_star",
+       "fold": 3,
+       "seed": 43,
+       "restored_run": 12,
+       "restored_rule": 1,
+       "val_acc_run": 0.9975000023841858,
+       "val_acc_rule": 0.5
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b",
+       "fold": 1,
+       "seed": 44,
+       "restored_run": 6,
+       "restored_rule": null
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b",
+       "fold": 2,
+       "seed": 42,
+       "restored_run": 9,
+       "restored_rule": 10,
+       "val_acc_run": 0.9474999904632568,
+       "val_acc_rule": 0.9574999809265137
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b",
+       "fold": 3,
+       "seed": 44,
+       "restored_run": 3,
+       "restored_rule": null
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b",
+       "fold": 4,
+       "seed": 42,
+       "restored_run": 11,
+       "restored_rule": 6,
+       "val_acc_run": 1.0,
+       "val_acc_rule": 1.0
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b_prime",
+       "fold": 2,
+       "seed": 42,
+       "restored_run": 11,
+       "restored_rule": 1,
+       "val_acc_run": 0.8774999976158142,
+       "val_acc_rule": 0.5
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b_prime",
+       "fold": 3,
+       "seed": 43,
+       "restored_run": 9,
+       "restored_rule": 1,
+       "val_acc_run": 1.0,
+       "val_acc_rule": 0.5
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b_prime",
+       "fold": 3,
+       "seed": 44,
+       "restored_run": 9,
+       "restored_rule": 1,
+       "val_acc_run": 0.9975000023841858,
+       "val_acc_rule": 0.5
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b_prime",
+       "fold": 4,
+       "seed": 42,
+       "restored_run": 2,
+       "restored_rule": 1,
+       "val_acc_run": 0.9175000190734863,
+       "val_acc_rule": 0.9325000047683716
+      }
+     ]
+    }
+   ],
+   "become_degenerate": [
+    {
+     "rule": "patience 4 (run)",
+     "non_degenerate_that_become_degenerate": []
+    },
+    {
+     "rule": "patience 2",
+     "non_degenerate_that_become_degenerate": [
+      {
+       "run": "sessablrun",
+       "arm": "arm_a_star",
+       "fold": 1,
+       "seed": 44
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_a_star",
+       "fold": 4,
+       "seed": 42
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b",
+       "fold": 2,
+       "seed": 42
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b",
+       "fold": 2,
+       "seed": 43
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b",
+       "fold": 2,
+       "seed": 44
+      },
+      {
+       "run": "foldsrun",
+       "arm": "folds",
+       "fold": 4,
+       "seed": 43
+      }
+     ]
+    },
+    {
+     "rule": "patience 3",
+     "non_degenerate_that_become_degenerate": [
+      {
+       "run": "sessablrun",
+       "arm": "arm_a_star",
+       "fold": 1,
+       "seed": 44
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b",
+       "fold": 2,
+       "seed": 43
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b",
+       "fold": 2,
+       "seed": 44
+      }
+     ]
+    },
+    {
+     "rule": "patience 6",
+     "non_degenerate_that_become_degenerate": []
+    },
+    {
+     "rule": "patience 8",
+     "non_degenerate_that_become_degenerate": []
+    },
+    {
+     "rule": "start_from_epoch 3",
+     "non_degenerate_that_become_degenerate": []
+    },
+    {
+     "rule": "start_from_epoch 5",
+     "non_degenerate_that_become_degenerate": []
+    },
+    {
+     "rule": "monitor val_accuracy",
+     "non_degenerate_that_become_degenerate": [
+      {
+       "run": "sessablrun",
+       "arm": "arm_a_star",
+       "fold": 3,
+       "seed": 43
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b_prime",
+       "fold": 2,
+       "seed": 42
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b_prime",
+       "fold": 3,
+       "seed": 43
+      },
+      {
+       "run": "sessablrun",
+       "arm": "arm_b_prime",
+       "fold": 3,
+       "seed": 44
+      }
+     ]
+    }
+   ]
+  },
+  "T8": {
+   "title": "Learning rate (history lr = the lr used in the epoch)",
+   "rows": [
+    {
+     "group": "degenerate",
+     "with_reduction": 10,
+     "first_reduced_epoch": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      5,
+      5
+     ],
+     "decided_with_dev_at_0.5": 9,
+     "lr_at_last_epoch": {
+      "5.00e-04": 10
+     }
+    },
+    {
+     "group": "non-degenerate",
+     "with_reduction": 25,
+     "first_reduced_epoch": [
+      4,
+      4,
+      4,
+      4,
+      5,
+      5,
+      5,
+      5,
+      6,
+      6,
+      6,
+      6,
+      6,
+      7,
+      9,
+      9,
+      9,
+      9,
+      9,
+      9,
+      9,
+      10,
+      12,
+      12,
+      12
+     ],
+     "decided_with_dev_at_0.5": 7,
+     "lr_at_last_epoch": {
+      "5.00e-04": 18,
+      "2.50e-04": 6,
+      "1.25e-04": 1,
+      "1.00e-03": 1
+     }
+    },
+    {
+     "group": "folds run",
+     "with_reduction": 11,
+     "first_reduced_epoch": [
+      4,
+      6,
+      7,
+      9,
+      9,
+      9,
+      10,
+      11,
+      11,
+      12,
+      12
+     ],
+     "decided_with_dev_at_0.5": 1,
+     "lr_at_last_epoch": {
+      "5.00e-04": 7,
+      "2.50e-04": 4,
+      "1.00e-03": 1
+     }
+    }
+   ]
+  },
+  "T9": {
+   "title": "Training side per epoch (median [min-max])",
+   "rows": [
+    {
+     "epoch": 1,
+     "degenerate": {
+      "accuracy_median": 0.9494807124137878,
+      "accuracy_min": 0.9142857193946838,
+      "accuracy_max": 0.9807142615318298,
+      "loss_median": 0.13614990189671516,
+      "loss_min": 0.058354452252388,
+      "loss_max": 0.23932792246341705,
+      "models": 10
+     },
+     "non-degenerate": {
+      "accuracy_median": 0.9691190123558044,
+      "accuracy_min": 0.9021428823471069,
+      "accuracy_max": 0.9885714054107666,
+      "loss_median": 0.09044376015663147,
+      "loss_min": 0.031228793784976006,
+      "loss_max": 0.2460450530052185,
+      "models": 26
+     },
+     "folds run": {
+      "accuracy_median": 0.9373809397220612,
+      "accuracy_min": 0.9242857098579407,
+      "accuracy_max": 0.9561904668807983,
+      "loss_median": 0.16357114911079407,
+      "loss_min": 0.12130869179964066,
+      "loss_max": 0.20644962787628174,
+      "models": 12
+     }
+    },
+    {
+     "epoch": 2,
+     "degenerate": {
+      "accuracy_median": 0.9889323711395264,
+      "accuracy_min": 0.9649999737739563,
+      "accuracy_max": 0.9942857027053833,
+      "loss_median": 0.03438780829310417,
+      "loss_min": 0.020392723381519318,
+      "loss_max": 0.101451076567173,
+      "models": 10
+     },
+     "non-degenerate": {
+      "accuracy_median": 0.9892895221710205,
+      "accuracy_min": 0.9642857313156128,
+      "accuracy_max": 0.9989293217658997,
+      "loss_median": 0.03430485539138317,
+      "loss_min": 0.010263976640999317,
+      "loss_max": 0.10716157406568527,
+      "models": 26
+     },
+     "folds run": {
+      "accuracy_median": 0.9759523570537567,
+      "accuracy_min": 0.9661904573440552,
+      "accuracy_max": 0.9800000190734863,
+      "loss_median": 0.0716032050549984,
+      "loss_min": 0.06384246796369553,
+      "loss_max": 0.09703783690929413,
+      "models": 12
+     }
+    },
+    {
+     "epoch": 3,
+     "degenerate": {
+      "accuracy_median": 0.9875037968158722,
+      "accuracy_min": 0.970714271068573,
+      "accuracy_max": 0.9946466684341431,
+      "loss_median": 0.04192388243973255,
+      "loss_min": 0.015531154349446297,
+      "loss_max": 0.081820048391819,
+      "models": 10
+     },
+     "non-degenerate": {
+      "accuracy_median": 0.9889285564422607,
+      "accuracy_min": 0.9714285731315613,
+      "accuracy_max": 0.9985714554786682,
+      "loss_median": 0.03643834963440895,
+      "loss_min": 0.009930931963026524,
+      "loss_max": 0.08644981682300568,
+      "models": 26
+     },
+     "folds run": {
+      "accuracy_median": 0.979761928319931,
+      "accuracy_min": 0.9757142663002014,
+      "accuracy_max": 0.9838095307350159,
+      "loss_median": 0.0607563741505146,
+      "loss_min": 0.04473064839839935,
+      "loss_max": 0.07897143065929413,
+      "models": 12
+     }
+    },
+    {
+     "epoch": 4,
+     "degenerate": {
+      "accuracy_median": 0.9901820123195648,
+      "accuracy_min": 0.9850106835365295,
+      "accuracy_max": 0.9989293217658997,
+      "loss_median": 0.037570640444755554,
+      "loss_min": 0.008070061914622784,
+      "loss_max": 0.045965421944856644,
+      "models": 10
+     },
+     "non-degenerate": {
+      "accuracy_median": 0.991788774728775,
+      "accuracy_min": 0.9778571724891663,
+      "accuracy_max": 0.9985714554786682,
+      "loss_median": 0.025420072488486767,
+      "loss_min": 0.007806249428540468,
+      "loss_max": 0.0593651682138443,
+      "models": 26
+     },
+     "folds run": {
+      "accuracy_median": 0.9807142913341522,
+      "accuracy_min": 0.9728571176528931,
+      "accuracy_max": 0.9895238280296326,
+      "loss_median": 0.0573132261633873,
+      "loss_min": 0.046201758086681366,
+      "loss_max": 0.0844176858663559,
+      "models": 12
+     }
+    },
+    {
+     "epoch": 5,
+     "degenerate": {
+      "accuracy_median": 0.9942857325077057,
+      "accuracy_min": 0.9828571677207947,
+      "accuracy_max": 0.9989293217658997,
+      "loss_median": 0.01857032999396324,
+      "loss_min": 0.006840367801487446,
+      "loss_max": 0.04807436838746071,
+      "models": 10
+     },
+     "non-degenerate": {
+      "accuracy_median": 0.9928571581840515,
+      "accuracy_min": 0.9775160551071167,
+      "accuracy_max": 1.0,
+      "loss_median": 0.024022405967116356,
+      "loss_min": 0.003391452832147479,
+      "loss_max": 0.06377675384283066,
+      "models": 26
+     },
+     "folds run": {
+      "accuracy_median": 0.9845238029956818,
+      "accuracy_min": 0.9776190519332886,
+      "accuracy_max": 0.991428554058075,
+      "loss_median": 0.04657234065234661,
+      "loss_min": 0.03240754455327988,
+      "loss_max": 0.06894727796316147,
+      "models": 12
+     }
+    }
+   ],
+   "pair_epochs": 3,
+   "pairs": [
+    {
+     "arm": "arm_a_star",
+     "fold": 2,
+     "degenerate_seed": 43,
+     "other_seed": 42,
+     "degenerate_train_accuracy": [
+      0.9143,
+      0.9671,
+      0.9707
+     ],
+     "other_train_accuracy": [
+      0.9321,
+      0.9836,
+      0.9871
+     ]
+    },
+    {
+     "arm": "arm_a_star",
+     "fold": 2,
+     "degenerate_seed": 44,
+     "other_seed": 42,
+     "degenerate_train_accuracy": [
+      0.92,
+      0.9807,
+      0.9829
+     ],
+     "other_train_accuracy": [
+      0.9321,
+      0.9836,
+      0.9871
+     ]
+    },
+    {
+     "arm": "arm_a_star",
+     "fold": 3,
+     "degenerate_seed": 42,
+     "other_seed": 43,
+     "degenerate_train_accuracy": [
+      0.935,
+      0.965,
+      0.975
+     ],
+     "other_train_accuracy": [
+      0.9021,
+      0.9643,
+      0.9714
+     ]
+    },
+    {
+     "arm": "arm_a_star",
+     "fold": 3,
+     "degenerate_seed": 44,
+     "other_seed": 43,
+     "degenerate_train_accuracy": [
+      0.9229,
+      0.975,
+      0.975
+     ],
+     "other_train_accuracy": [
+      0.9021,
+      0.9643,
+      0.9714
+     ]
+    },
+    {
+     "arm": "arm_a_star",
+     "fold": 4,
+     "degenerate_seed": 44,
+     "other_seed": 42,
+     "degenerate_train_accuracy": [
+      0.945,
+      0.9929,
+      0.9857
+     ],
+     "other_train_accuracy": [
+      0.9636,
+      0.9857,
+      0.985
+     ]
+    },
+    {
+     "arm": "arm_a_star",
+     "fold": 4,
+     "degenerate_seed": 44,
+     "other_seed": 43,
+     "degenerate_train_accuracy": [
+      0.945,
+      0.9929,
+      0.9857
+     ],
+     "other_train_accuracy": [
+      0.9479,
+      0.9829,
+      0.98
+     ]
+    },
+    {
+     "arm": "arm_b",
+     "fold": 1,
+     "degenerate_seed": 42,
+     "other_seed": 43,
+     "degenerate_train_accuracy": [
+      0.9807,
+      0.9886,
+      0.9943
+     ],
+     "other_train_accuracy": [
+      0.9714,
+      0.9943,
+      0.9886
+     ]
+    },
+    {
+     "arm": "arm_b",
+     "fold": 1,
+     "degenerate_seed": 42,
+     "other_seed": 44,
+     "degenerate_train_accuracy": [
+      0.9807,
+      0.9886,
+      0.9943
+     ],
+     "other_train_accuracy": [
+      0.9571,
+      0.9936,
+      0.9871
+     ]
+    },
+    {
+     "arm": "arm_b",
+     "fold": 4,
+     "degenerate_seed": 44,
+     "other_seed": 42,
+     "degenerate_train_accuracy": [
+      0.9729,
+      0.9943,
+      0.9943
+     ],
+     "other_train_accuracy": [
+      0.9886,
+      0.9943,
+      0.9943
+     ]
+    },
+    {
+     "arm": "arm_b",
+     "fold": 4,
+     "degenerate_seed": 44,
+     "other_seed": 43,
+     "degenerate_train_accuracy": [
+      0.9729,
+      0.9943,
+      0.9943
+     ],
+     "other_train_accuracy": [
+      0.9714,
+      0.9921,
+      0.9921
+     ]
+    },
+    {
+     "arm": "arm_b_prime",
+     "fold": 1,
+     "degenerate_seed": 44,
+     "other_seed": 42,
+     "degenerate_train_accuracy": [
+      0.9647,
+      0.9893,
+      0.9893
+     ],
+     "other_train_accuracy": [
+      0.9732,
+      0.9946,
+      0.9957
+     ]
+    },
+    {
+     "arm": "arm_b_prime",
+     "fold": 1,
+     "degenerate_seed": 44,
+     "other_seed": 43,
+     "degenerate_train_accuracy": [
+      0.9647,
+      0.9893,
+      0.9893
+     ],
+     "other_train_accuracy": [
+      0.9572,
+      0.9914,
+      0.9829
+     ]
+    },
+    {
+     "arm": "arm_b_prime",
+     "fold": 2,
+     "degenerate_seed": 44,
+     "other_seed": 42,
+     "degenerate_train_accuracy": [
+      0.954,
+      0.9893,
+      0.9925
+     ],
+     "other_train_accuracy": [
+      0.9668,
+      0.9925,
+      0.9946
+     ]
+    },
+    {
+     "arm": "arm_b_prime",
+     "fold": 2,
+     "degenerate_seed": 44,
+     "other_seed": 43,
+     "degenerate_train_accuracy": [
+      0.954,
+      0.9893,
+      0.9925
+     ],
+     "other_train_accuracy": [
+      0.9722,
+      0.9872,
+      0.9904
+     ]
+    },
+    {
+     "arm": "arm_b_prime",
+     "fold": 4,
+     "degenerate_seed": 44,
+     "other_seed": 42,
+     "degenerate_train_accuracy": [
+      0.9732,
+      0.9893,
+      0.9946
+     ],
+     "other_train_accuracy": [
+      0.9807,
+      0.9946,
+      0.9936
+     ]
+    },
+    {
+     "arm": "arm_b_prime",
+     "fold": 4,
+     "degenerate_seed": 44,
+     "other_seed": 43,
+     "degenerate_train_accuracy": [
+      0.9732,
+      0.9893,
+      0.9946
+     ],
+     "other_train_accuracy": [
+      0.9839,
+      0.9979,
+      0.985
+     ]
+    }
+   ]
+  },
+  "T10": {
+   "title": "Checkpoint on the dev (dev_scores.csv: threshold 0.5 and dev AUROC)",
+   "rows": [
+    {
+     "run": "sessablrun",
+     "arm": "arm_a_star",
+     "fold": 2,
+     "seed": 43,
+     "degenerate": true,
+     "restored_epoch": 1,
+     "acc_05": 0.5,
+     "pred_attack_05": 1.0,
+     "pred_attack_05_bona_fide": 1.0,
+     "pred_attack_05_attack": 1.0,
+     "mean_bona_fide": 1.0,
+     "mean_attack": 1.0,
+     "auroc": 0.5,
+     "distinct": 1
+    },
+    {
+     "run": "sessablrun",
+     "arm": "arm_a_star",
+     "fold": 2,
+     "seed": 44,
+     "degenerate": true,
+     "restored_epoch": 1,
+     "acc_05": 0.5,
+     "pred_attack_05": 0.0,
+     "pred_attack_05_bona_fide": 0.0,
+     "pred_attack_05_attack": 0.0,
+     "mean_bona_fide": 5.510691267458324e-13,
+     "mean_attack": 8.34856781111015e-15,
+     "auroc": 0.21135,
+     "distinct": 400
+    },
+    {
+     "run": "sessablrun",
+     "arm": "arm_a_star",
+     "fold": 3,
+     "seed": 42,
+     "degenerate": true,
+     "restored_epoch": 1,
+     "acc_05": 0.5,
+     "pred_attack_05": 0.0,
+     "pred_attack_05_bona_fide": 0.0,
+     "pred_attack_05_attack": 0.0,
+     "mean_bona_fide": 0.0029574301223328804,
+     "mean_attack": 0.003624479018017155,
+     "auroc": 0.468975,
+     "distinct": 400
+    },
+    {
+     "run": "sessablrun",
+     "arm": "arm_a_star",
+     "fold": 3,
+     "seed": 44,
+     "degenerate": true,
+     "restored_epoch": 1,
+     "acc_05": 0.5,
+     "pred_attack_05": 1.0,
+     "pred_attack_05_bona_fide": 1.0,
+     "pred_attack_05_attack": 1.0,
+     "mean_bona_fide": 1.0,
+     "mean_attack": 1.0,
+     "auroc": 0.5,
+     "distinct": 1
+    },
+    {
+     "run": "sessablrun",
+     "arm": "arm_a_star",
+     "fold": 4,
+     "seed": 44,
+     "degenerate": true,
+     "restored_epoch": 1,
+     "acc_05": 0.5,
+     "pred_attack_05": 1.0,
+     "pred_attack_05_bona_fide": 1.0,
+     "pred_attack_05_attack": 1.0,
+     "mean_bona_fide": 1.0,
+     "mean_attack": 1.0,
+     "auroc": 0.5,
+     "distinct": 1
+    },
+    {
+     "run": "sessablrun",
+     "arm": "arm_b",
+     "fold": 1,
+     "seed": 42,
+     "degenerate": true,
+     "restored_epoch": 1,
+     "acc_05": 0.5,
+     "pred_attack_05": 1.0,
+     "pred_attack_05_bona_fide": 1.0,
+     "pred_attack_05_attack": 1.0,
+     "mean_bona_fide": 0.9999988132715225,
+     "mean_attack": 1.0,
+     "auroc": 0.9975,
+     "distinct": 33
+    },
+    {
+     "run": "sessablrun",
+     "arm": "arm_b",
+     "fold": 4,
+     "seed": 44,
+     "degenerate": true,
+     "restored_epoch": 2,
+     "acc_05": 0.5,
+     "pred_attack_05": 1.0,
+     "pred_attack_05_bona_fide": 1.0,
+     "pred_attack_05_attack": 1.0,
+     "mean_bona_fide": 0.9853208294510841,
+     "mean_attack": 0.9990505453944206,
+     "auroc": 0.965175,
+     "distinct": 397
+    },
+    {
+     "run": "sessablrun",
+     "arm": "arm_b_prime",
+     "fold": 1,
+     "seed": 44,
+     "degenerate": true,
+     "restored_epoch": 1,
+     "acc_05": 0.5,
+     "pred_attack_05": 1.0,
+     "pred_attack_05_bona_fide": 1.0,
+     "pred_attack_05_attack": 1.0,
+     "mean_bona_fide": 1.0,
+     "mean_attack": 0.9999999916553497,
+     "auroc": 0.4975,
+     "distinct": 2
+    },
+    {
+     "run": "sessablrun",
+     "arm": "arm_b_prime",
+     "fold": 2,
+     "seed": 44,
+     "degenerate": true,
+     "restored_epoch": 2,
+     "acc_05": 0.5,
+     "pred_attack_05": 1.0,
+     "pred_attack_05_bona_fide": 1.0,
+     "pred_attack_05_attack": 1.0,
+     "mean_bona_fide": 1.0,
+     "mean_attack": 1.0,
+     "auroc": 0.5,
+     "distinct": 1
+    },
+    {
+     "run": "sessablrun",
+     "arm": "arm_b_prime",
+     "fold": 4,
+     "seed": 44,
+     "degenerate": true,
+     "restored_epoch": 1,
+     "acc_05": 0.5,
+     "pred_attack_05": 1.0,
+     "pred_attack_05_bona_fide": 1.0,
+     "pred_attack_05_attack": 1.0,
+     "mean_bona_fide": 1.0,
+     "mean_attack": 1.0,
+     "auroc": 0.5,
+     "distinct": 1
+    },
+    {
+     "run": "sessablrun",
+     "arm": "arm_b",
+     "fold": 3,
+     "seed": 44,
+     "degenerate": false,
+     "restored_epoch": 3,
+     "acc_05": 0.2375,
+     "pred_attack_05": 0.2975,
+     "pred_attack_05_bona_fide": 0.56,
+     "pred_attack_05_attack": 0.035,
+     "mean_bona_fide": 0.6127196273952723,
+     "mean_attack": 0.0974441581289284,
+     "auroc": 0.095025,
+     "distinct": 399
+    },
+    {
+     "run": "sessablrun",
+     "arm": "arm_b_prime",
+     "fold": 1,
+     "seed": 42,
+     "degenerate": false,
+     "restored_epoch": 2,
+     "acc_05": 0.7725,
+     "pred_attack_05": 0.2725,
+     "pred_attack_05_bona_fide": 0.0,
+     "pred_attack_05_attack": 0.545,
+     "mean_bona_fide": 0.0010424903476887958,
+     "mean_attack": 0.5179043194700391,
+     "auroc": 0.993675,
+     "distinct": 400
+    },
+    {
+     "run": "sessablrun",
+     "arm": "arm_b_prime",
+     "fold": 3,
+     "seed": 42,
+     "degenerate": false,
+     "restored_epoch": 1,
+     "acc_05": 0.8325,
+     "pred_attack_05": 0.6675,
+     "pred_attack_05_bona_fide": 0.335,
+     "pred_attack_05_attack": 1.0,
+     "mean_bona_fide": 0.45436739377677443,
+     "mean_attack": 0.9833622717857361,
+     "auroc": 1.0,
+     "distinct": 400
+    },
+    {
+     "run": "sessablrun",
+     "arm": "arm_b_prime",
+     "fold": 4,
+     "seed": 42,
+     "degenerate": false,
+     "restored_epoch": 2,
+     "acc_05": 0.9175,
+     "pred_attack_05": 0.5775,
+     "pred_attack_05_bona_fide": 0.16,
+     "pred_attack_05_attack": 0.995,
+     "mean_bona_fide": 0.16969239930210164,
+     "mean_attack": 0.9885543549433351,
+     "auroc": 0.99655,
+     "distinct": 399
+    },
+    {
+     "run": "sessablrun",
+     "arm": "arm_b_prime",
+     "fold": 4,
+     "seed": 43,
+     "degenerate": false,
+     "restored_epoch": 3,
+     "acc_05": 1.0,
+     "pred_attack_05": 0.5,
+     "pred_attack_05_bona_fide": 0.0,
+     "pred_attack_05_attack": 1.0,
+     "mean_bona_fide": 0.011240319232254024,
+     "mean_attack": 0.985364620089531,
+     "auroc": 1.0,
+     "distinct": 388
+    }
+   ],
+   "auroc_non_degenerate": {
+    "median": 1.0,
+    "min": 0.095025,
+    "max": 1.0
+   },
+   "auroc_folds_run": {
+    "median": 0.9976027777777778,
+    "min": 0.9503666666666667,
+    "max": 1.0
+   },
+   "dev_subjects_per_fold": {
+    "1": 2,
+    "2": 2,
+    "3": 2,
+    "4": 3
+   },
+   "dev_frames_per_fold": {
+    "1": 400,
+    "2": 400,
+    "3": 400,
+    "4": 400
+   },
+   "dev_subjects_per_fold_folds_run": {
+    "1": 4,
+    "2": 4,
+    "3": 4,
+    "4": 4
+   },
+   "max_abs_difference_acc_05_val_acc_at_best": 2.1457672083613488e-08,
+   "max_abs_difference_acc_05_val_acc_at_best_folds_run": 2.3047129316111636e-08
+  },
+  "T11": {
+   "title": "Determinism: failed attempt against the run",
+   "rows": [
+    {
+     "model": "arm_a_star_fold1_seed42",
+     "same_epochs": true,
+     "same_restored_epoch": true,
+     "max_abs_history_difference": 0.0,
+     "identical_history": true,
+     "same_weights_sha256": false,
+     "train_seconds_failed_attempt": 324.8,
+     "train_seconds_run": 363.1
+    },
+    {
+     "model": "arm_a_star_fold1_seed43",
+     "same_epochs": true,
+     "same_restored_epoch": true,
+     "max_abs_history_difference": 0.0,
+     "identical_history": true,
+     "same_weights_sha256": false,
+     "train_seconds_failed_attempt": 369.4,
+     "train_seconds_run": 370.8
+    },
+    {
+     "model": "arm_a_star_fold1_seed44",
+     "same_epochs": true,
+     "same_restored_epoch": true,
+     "max_abs_history_difference": 0.0,
+     "identical_history": true,
+     "same_weights_sha256": false,
+     "train_seconds_failed_attempt": 361.7,
+     "train_seconds_run": 386.2
+    },
+    {
+     "model": "arm_b_fold1_seed42",
+     "same_epochs": true,
+     "same_restored_epoch": true,
+     "max_abs_history_difference": 0.0,
+     "identical_history": true,
+     "same_weights_sha256": false,
+     "train_seconds_failed_attempt": 125.3,
+     "train_seconds_run": 130.8
+    },
+    {
+     "model": "arm_b_fold1_seed43",
+     "same_epochs": true,
+     "same_restored_epoch": true,
+     "max_abs_history_difference": 0.0,
+     "identical_history": true,
+     "same_weights_sha256": false,
+     "train_seconds_failed_attempt": 342.4,
+     "train_seconds_run": 372.7
+    },
+    {
+     "model": "arm_b_fold1_seed44",
+     "same_epochs": true,
+     "same_restored_epoch": true,
+     "max_abs_history_difference": 0.0,
+     "identical_history": true,
+     "same_weights_sha256": false,
+     "train_seconds_failed_attempt": 319.7,
+     "train_seconds_run": 311.6
+    }
+   ],
+   "identical_histories": 6,
+   "models": 6
+  },
+  "T12": {
+   "title": "Times",
+   "rows": [
+    {
+     "arm": "arm_b",
+     "models": 12,
+     "steps_per_epoch": "88",
+     "epochs": 121,
+     "train_seconds": 3926.9,
+     "seconds_per_epoch_median": 31.96181818181818,
+     "seconds_per_epoch_min": 26.160000000000004,
+     "seconds_per_epoch_max": 36.86666666666667,
+     "seconds_per_epoch_weighted": 32.453719008264464
+    },
+    {
+     "arm": "arm_a_star",
+     "models": 12,
+     "steps_per_epoch": "88",
+     "epochs": 109,
+     "train_seconds": 3472.0000000000005,
+     "seconds_per_epoch_median": 31.958333333333332,
+     "seconds_per_epoch_min": 29.891666666666666,
+     "seconds_per_epoch_max": 36.480000000000004,
+     "seconds_per_epoch_weighted": 31.853211009174316
+    },
+    {
+     "arm": "arm_b_prime",
+     "models": 12,
+     "steps_per_epoch": "59",
+     "epochs": 96,
+     "train_seconds": 2038.8,
+     "seconds_per_epoch_median": 20.7875,
+     "seconds_per_epoch_min": 20.16,
+     "seconds_per_epoch_max": 22.991666666666664,
+     "seconds_per_epoch_weighted": 21.2375
+    },
+    {
+     "arm": "folds",
+     "models": 12,
+     "steps_per_epoch": "132",
+     "epochs": 144,
+     "train_seconds": 9111.900000000001,
+     "seconds_per_epoch_median": 62.40833333333333,
+     "seconds_per_epoch_min": 58.50833333333333,
+     "seconds_per_epoch_max": 69.85000000000001,
+     "seconds_per_epoch_weighted": 63.277083333333344
+    }
+   ],
+   "run_train_seconds": 9437.699999999999,
+   "run_wall_seconds": 10209.0,
+   "run_wall_seconds_status": 10209.2,
+   "run_epochs": 326,
+   "overhead_seconds": 771.3000000000011,
+   "overhead_seconds_per_model": 21.42500000000003,
+   "weighted_seconds_per_epoch": {
+    "arm_b": 32.453719008264464,
+    "arm_a_star": 31.853211009174316,
+    "arm_b_prime": 21.2375
+   },
+   "saved_to_threshold_seconds": {
+    "median": 4.0,
+    "min": 3.0,
+    "max": 8.0
+   },
+   "threshold_to_test_scores_seconds": {
+    "median": 16.0,
+    "min": 13.0,
+    "max": 21.0
+   },
+   "time_resolution_seconds": 1,
+   "scenarios": [
+    {
+     "label": "36 models x 12 epochs",
+     "selection": "all",
+     "models": 36,
+     "degenerate": 10,
+     "epochs": 12,
+     "training_seconds": 12318.397922511189,
+     "training_hours": 3.4217772006975524,
+     "with_overhead_seconds": 13089.69792251119,
+     "with_overhead_hours": 3.6360272006975527
+    },
+    {
+     "label": "arm_a_star and arm_b, 24 models x 12 epochs",
+     "selection": "arms: arm_b, arm_a_star",
+     "models": 24,
+     "degenerate": 7,
+     "epochs": 12,
+     "training_seconds": 9260.197922511185,
+     "training_hours": 2.572277200697551,
+     "with_overhead_seconds": 9774.397922511185,
+     "with_overhead_hours": 2.715110534030885
+    },
+    {
+     "label": "the 10 degenerate models x 12 epochs",
+     "selection": "degenerate",
+     "models": 10,
+     "degenerate": 10,
+     "epochs": 12,
+     "training_seconds": 3454.631916748806,
+     "training_hours": 0.9596199768746683,
+     "with_overhead_seconds": null,
+     "with_overhead_hours": null
+    },
+    {
+     "label": "models stopped before epoch 12, x 12 epochs",
+     "selection": "stopped before max_epochs",
+     "models": 19,
+     "degenerate": 10,
+     "epochs": 12,
+     "training_seconds": 6286.660429145502,
+     "training_hours": 1.7462945636515284,
+     "with_overhead_seconds": 6693.735429145503,
+     "with_overhead_hours": 1.8593709525404176
+    }
+   ]
+  },
+  "T13": {
+   "title": "Residual weight of the initial value in the moving statistics of BatchNormalization (momentum 0.99)",
+   "rows": [
+    {
+     "group": "arm_b_prime (59 steps)",
+     "steps_per_epoch": 59,
+     "residual": [
+      0.5526834771623851,
+      0.3054590259283046,
+      0.1688221565806905,
+      0.09330521652106866,
+      0.05156825150425344
+     ]
+    },
+    {
+     "group": "arm_b and arm_a_star (88 steps)",
+     "steps_per_epoch": 88,
+     "residual": [
+      0.41294967113388814,
+      0.17052743088958636,
+      0.07041924650516153,
+      0.029079604685802656,
+      0.01200841319170568
+     ]
+    },
+    {
+     "group": "folds run (132 steps)",
+     "steps_per_epoch": 132,
+     "residual": [
+      0.26536624974770534,
+      0.07041924650516153,
+      0.018686891355133923,
+      0.0049588702783547045,
+      0.0013159168087523475
+     ]
+    }
+   ],
+   "note": "0.99^steps: share of the moving average still due to the initial value (mean 0, variance 1) if the batch statistic were constant; with changing weights the moving average also chases a moving target"
+  }
+ }
+}

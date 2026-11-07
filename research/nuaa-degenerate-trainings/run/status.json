@@ -1,0 +1,18 @@
+{
+ "run_id": "20261107-DEGEN-a3b4dc0",
+ "commit": "a3b4dc0",
+ "dirty": false,
+ "config_sha256": "8edda999f3f47f84e90ef32d4c1166db51d3fc9650747f58028cfdda7d6195e4",
+ "delivered_configuration": true,
+ "command": "run",
+ "restricted": "none: this study writes no restricted output (the per-frame dev scores are read in place and never copied)",
+ "status": "PASS",
+ "passed": true,
+ "finished": "2026-11-07T11:33:22+0100",
+ "wall_seconds": 4.1,
+ "figures": "figure_examples.png, figure_val_accuracy_all.png, figure_val_loss_all.png written",
+ "public_files": 7,
+ "public_sums_sha256": "c591ef088257ec5be42c639f43829293f76e3e099d826213b093b579422e2776",
+ "run_log_sha256": "2c34c0379f8348fe93a405c5bc2d6f9e606083c7c3d09569f1bca5c10af59577",
+ "timestamps": "status.json and run.log only; the public files hold no date or run time"
+}

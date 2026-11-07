@@ -1,0 +1,263 @@
+{
+ "schema": "nuaa-degenerate-trainings-config/1",
+ "task": "Descriptive study of the 10 degenerate LivenessNet trainings of the session ablation run 20261106-SESSABLRUN-d999458 from the train/dev curves already recorded in the training cards: the degenerate criterion re-applied, the dev saturation, the first recovery on the dev, the mechanics of early stopping (exact replay of the Keras 2.15 rule on the recorded histories, with alternative rules), the learning rate, the training side, the concentration by seed, fold and arm, the constant output of the checkpoint on the dev, determinism against the failed attempt 20261106-SESSABLRUN-3b4021f, time per epoch and time scenarios; compared with the 26 trainings of the same run that are not degenerate by the criterion (not all of them recover) and the 12 trainings of the folds run 20261103-FOLDSRUN-e174812; six representative examples in figures. Observations only: the possible explanations are written elsewhere and are not tested here. No training, no inference, no test score or test metric read.",
+ "request": {
+  "date": "2026-11-06",
+  "card": "C2",
+  "text": "coordinator, C2 card, comment of 6 November 2026: 'Può iniziare subito il prossimo passo: approfondire i 10 training degeneri usando le curve train/dev già disponibili. Li confronti con alcuni training riusciti e mostri pochi esempi rappresentativi, distinguendo ciò che osserviamo dalle possibili spiegazioni.' The same comment asks for a short note with a single motivated change of the training recipe, chosen on train/dev only, and no new training before agreement: this configuration covers the curves only."
+ },
+ "inputs": {
+  "ablation_run": {
+   "label": "sessablrun",
+   "run_id": "20261106-SESSABLRUN-d999458",
+   "folder": "results/sessionablationrun/20261106-SESSABLRUN-d999458",
+   "status_sha256": "9018e89241899f6e0bc5d0822925bd8ea30d71f21f8823681ef9047f4fbfe754",
+   "public_sums_sha256": "89cb13854a8c8133684da3e3b4b6d9931ecddd6ec08d4ac6ec14aa08ce31e04a",
+   "restricted_sums_sha256": "4ca502e0b07e556615c5042bb072770435c062d030e6d2a36d290c1481090fc2",
+   "run_log_sha256": "e9cf7a4822644106b67910be0ed0dcaa34f61c1ac9be8172dd0272410013c66a",
+   "arms": [
+    "arm_b",
+    "arm_a_star",
+    "arm_b_prime"
+   ],
+   "folds": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "seeds": [
+    42,
+    43,
+    44
+   ],
+   "models": 36,
+   "dev_rows": 400
+  },
+  "folds_run": {
+   "label": "foldsrun",
+   "run_id": "20261103-FOLDSRUN-e174812",
+   "folder": "results/foldsrun/20261103-FOLDSRUN-e174812",
+   "status_sha256": "1e5447d5d69af7923bad973b9f23f3b90609442146eac24388809adb53a0a161",
+   "public_sums_sha256": "11abd9e88f997468e7d4b61f6b2ea9c2732998318742eb2bf7c04662b4269a86",
+   "restricted_sums_sha256": "1204039d7391109caaf52aea28fbfda50c635e56521b0cc3170043aacac19d63",
+   "run_log_sha256": "7b51aacbd5bdd02db8542dd57bfbe5ddc0fdd04223dcb1649293df8b6bc1b2a0",
+   "folds": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "seeds": [
+    42,
+    43,
+    44
+   ],
+   "models": 12,
+   "dev_rows": 600
+  },
+  "failed_attempt": {
+   "label": "sessablrun_failed",
+   "run_id": "20261106-SESSABLRUN-3b4021f",
+   "folder": "results/sessionablationrun/20261106-SESSABLRUN-3b4021f",
+   "status_sha256": "7721f2c0214dda6f857c4b1bad246c02ffd84f72899440b0c7227b1b28f4cd96",
+   "restricted_sums_sha256": "481bba80b2505248c428a88b50a4e29b7c07178ec5382df1e8caf20b21a2b478",
+   "cards": {
+    "arm_a_star_fold1_seed42_card.json": "7eb0919a6dfcb0d4ad021763875739a162301ca9017c62f5398016b57fc502f9",
+    "arm_a_star_fold1_seed43_card.json": "04bd08a5f9af208e3f7a3c1d5939286cb5530043215a0fd8b9c842cb21804eb4",
+    "arm_a_star_fold1_seed44_card.json": "6e65a072ff413bb066959c15cb53852ebd8fd0a736949f0f3d9b00badd8ab06d",
+    "arm_b_fold1_seed42_card.json": "12cd5fe9e42f5024f78e9c7b09416cc87c7622dc8f02a7d0e304852d68ae00a6",
+    "arm_b_fold1_seed43_card.json": "385f33473947636ef31aff7acf0958b43f9ab76aa2ecf5654f4f4d25bdbd6079",
+    "arm_b_fold1_seed44_card.json": "01153bba3d28ff6fb2d4a933b0a626ec0904d5b26b3fee8afe1834a27dcfe54b"
+   },
+   "note": "FAIL folder (stopped by a false alarm of the val_loss check at the seventh model): its six complete training cards are anchored one by one and used only for the determinism comparison"
+  }
+ },
+ "recipe": {
+  "max_epochs": 12,
+  "early_stopping_patience": 4,
+  "monitor": "val_loss",
+  "min_delta": 0,
+  "restore_best_weights": true,
+  "batch": 16,
+  "lr": 0.001,
+  "bn_momentum": 0.99,
+  "source": "training cards (max_epochs, early_stopping_patience, batch, lr) and the Keras 2.15 defaults of EarlyStopping (min_delta 0, strict improvement) and BatchNormalization (momentum 0.99) used by the trainer"
+ },
+ "criteria": {
+  "degenerate": {
+   "restored_epochs": [
+    1,
+    2
+   ],
+   "val_acc_at_best": 0.5,
+   "tolerance": 1e-06,
+   "text": "restored_epoch in {1, 2} and val_acc_at_best = 0.5 (within 1e-6): the rule written in the delivery of the session ablation run, re-applied here"
+  },
+  "saturation": {
+   "val_accuracy": 0.5,
+   "tolerance": 1e-06,
+   "text": "an epoch is saturated when val_accuracy = 0.5 within 1e-6 (balanced dev: every frame assigned to the same class, or exactly half wrong)"
+  },
+  "recovery": {
+   "val_accuracy_min": 0.75,
+   "val_loss_max": 1.0,
+   "text": "first epoch with val_accuracy >= 0.75 and val_loss < 1.0 (dev only)",
+   "sensitivity": {
+    "val_accuracy_min": [
+     0.7,
+     0.75,
+     0.8
+    ],
+    "val_loss_max": [
+     0.7,
+     1.0,
+     1.5
+    ]
+   }
+  },
+  "checkpoint_agreement_tolerance": 1e-06,
+  "below_chance_val_accuracy": 0.45,
+  "boundary_restored_epoch_max": 3,
+  "train_accuracy_reference": 0.9,
+  "late_recovery_after_epoch": 5,
+  "defined_after_the_run": true,
+  "pair_train_epochs": 3,
+  "train_side_epochs": 5,
+  "bn_residual_epochs": 5
+ },
+ "alternative_rules": [
+  {
+   "label": "patience 4 (run)",
+   "monitor": "val_loss",
+   "patience": 4,
+   "start_from_epoch": 0
+  },
+  {
+   "label": "patience 2",
+   "monitor": "val_loss",
+   "patience": 2,
+   "start_from_epoch": 0
+  },
+  {
+   "label": "patience 3",
+   "monitor": "val_loss",
+   "patience": 3,
+   "start_from_epoch": 0
+  },
+  {
+   "label": "patience 6",
+   "monitor": "val_loss",
+   "patience": 6,
+   "start_from_epoch": 0
+  },
+  {
+   "label": "patience 8",
+   "monitor": "val_loss",
+   "patience": 8,
+   "start_from_epoch": 0
+  },
+  {
+   "label": "start_from_epoch 3",
+   "monitor": "val_loss",
+   "patience": 4,
+   "start_from_epoch": 3
+  },
+  {
+   "label": "start_from_epoch 5",
+   "monitor": "val_loss",
+   "patience": 4,
+   "start_from_epoch": 5
+  },
+  {
+   "label": "monitor val_accuracy",
+   "monitor": "val_accuracy",
+   "patience": 4,
+   "start_from_epoch": 0
+  }
+ ],
+ "examples": [
+  {
+   "run": "sessablrun",
+   "arm": "arm_b",
+   "fold": 1,
+   "seed": 42,
+   "why": "degenerate, restored epoch 1: stops because the saturated val_loss rises"
+  },
+  {
+   "run": "sessablrun",
+   "arm": "arm_a_star",
+   "fold": 1,
+   "seed": 42,
+   "why": "not degenerate by the criterion, recovered, same fold and seed as the previous one: continues because the saturated val_loss falls"
+  },
+  {
+   "run": "sessablrun",
+   "arm": "arm_a_star",
+   "fold": 2,
+   "seed": 44,
+   "why": "degenerate, checkpoint with inverted ordering on the dev"
+  },
+  {
+   "run": "sessablrun",
+   "arm": "arm_b",
+   "fold": 2,
+   "seed": 44,
+   "why": "not degenerate by the criterion, recovered, same fold and seed as the previous one, another arm"
+  },
+  {
+   "run": "foldsrun",
+   "arm": "folds",
+   "fold": 4,
+   "seed": 44,
+   "why": "not degenerate by the criterion, recovered, in the folds run, same fold and seed as three degenerate trainings, 132 steps per epoch"
+  },
+  {
+   "run": "sessablrun",
+   "arm": "arm_b_prime",
+   "fold": 4,
+   "seed": 43,
+   "why": "not degenerate by the criterion: dev at 1.0 at epoch 3, then back to 0.5; instability is not only initial"
+  }
+ ],
+ "time_scenarios": [
+  {
+   "label": "36 models x 12 epochs",
+   "selection": "all",
+   "epochs": 12,
+   "with_overhead": true
+  },
+  {
+   "label": "arm_a_star and arm_b, 24 models x 12 epochs",
+   "selection": "arms: arm_b, arm_a_star",
+   "epochs": 12,
+   "with_overhead": true
+  },
+  {
+   "label": "the 10 degenerate models x 12 epochs",
+   "selection": "degenerate",
+   "epochs": 12,
+   "with_overhead": false
+  },
+  {
+   "label": "models stopped before epoch 12, x 12 epochs",
+   "selection": "stopped before max_epochs",
+   "epochs": 12,
+   "with_overhead": true
+  }
+ ],
+ "declarations": {
+  "no_training": true,
+  "no_inference": true,
+  "no_test_scores_read": true,
+  "descriptive": true,
+  "criteria_defined_after_the_run": true,
+  "dev_columns_read": "dev_scores.csv: label and score_attack for the measures; subject_id only to count the distinct subjects of each dev and to scan the public files, never written; arm, fold, train_seed, role, checkpoint_sha256, sample_id, file_sha256, prediction_05, prediction_dev, threshold_dev and threshold_sha256 only for row-by-row consistency checks (with the card, the frozen threshold and the other models of the fold). threshold.json (both runs): frozen_at for the times; arm, fold, train_seed, checkpoint_sha256, value and dev_scores_sha256 for consistency only. Training cards: the history and the recipe fields, train_seconds, saved and test_scored_after_threshold for the times, weights_file, weights_sha256 and dev_keys_sha256 for consistency only. run.log of the ablation run: the wall time line only.",
+  "observations_not_explanations": "the outputs report what the curves show; the possible explanations are hypotheses discussed elsewhere and are not tested by this study",
+  "limits": "the degenerate criterion was defined after the run and misses at least one failure of the same family; the recovery criterion is ours (sensitivity reported); the alternative early stopping rules are exact only where the recorded history covers the rule; determinism is compared on six models only; train and dev accuracy are measured in different modes (training mode with augmentation and dropout, inference mode on the dev); the folds run is a reference with other data, dev and steps per epoch, not a paired control"
+ },
+ "outputs": {
+  "public": "curves.csv (one row per model and epoch), models.csv (one row per model), aggregate.json and aggregate.md (tables T1-T13), figure_examples.png, figure_val_accuracy_all.png and figure_val_loss_all.png (only when matplotlib is available, otherwise a declared skip), SHA256SUMS; no subject identifier, no image key, no per-frame row",
+  "restricted": "none: the study writes no restricted output (the per-frame dev scores are read in place and never copied)"
+ }
+}

@@ -1,0 +1,21 @@
+# macOS, Python 3.11.16, matplotlib 3.11.2 (optional, figures), standard library otherwise, 2026-11-07 11:36 CET; run from the development repository root with the real inputs present (read only), code of commit d2ed87f
+# SHA-256 6e40a87d395fcf10063c1bed4734090470022b7cdac5a9f5359bef59b03b032e  scripts/nuaa_degenerate_trainings.py
+# SHA-256 01f226d6bc26c3ff77e3cf868c4d57a87d37bc13e39e8457a0a253a9f0dd3227  scripts/check_nuaa_degenerate_trainings.py
+# SHA-256 47635c67e74dbfb8495dc97edcace4756975dd36945b80138854b6c4ca20e947  scripts/check_nuaa_degenerate_trainings_mutations.py
+# SHA-256 22760abc368dede3aa0a690a241f6622afe1ba586940422497db8a33994ee34a  scripts/m2_writers.py
+# SHA-256 e5fa9c835c23745ff932e157a44d3104eb9713d86bbdecc9cdbbd3caa7a7ee34  scripts/path_guard.py
+# SHA-256 96ec7ffab4b089bac71fd18918fcd32af72d15980cdfa1361cc84bb43e0e4c11  scripts/package_rules.py
+# SHA-256 8edda999f3f47f84e90ef32d4c1166db51d3fc9650747f58028cfdda7d6195e4  delivery/degenerate/nuaa_degenerate_trainings.json
+$ .venv/bin/python -I scripts/check_nuaa_degenerate_trainings.py --real
+..........................................................................................
+----------------------------------------------------------------------
+Ran 90 tests in 2.672s
+
+OK
+tests run: 90, failures: 0, errors: 0, skipped: 0
+ERROR: results/, export/ or delivery/ changed during the tests
+RESULT: FAIL
+
+$ .venv/bin/python -I scripts/nuaa_degenerate_trainings.py check-inputs
+CHECK-INPUTS: configuration 8edda999f3f4 (delivered: True), ablation run 20261106-SESSABLRUN-d999458 (36 cards and dev scores, 36 thresholds), folds run 20261103-FOLDSRUN-e174812 (12 cards and dev scores, 12 thresholds), failed attempt 20261106-SESSABLRUN-3b4021f (6 cards); early stopping replay reproduced on 54/54 cards; nothing written
+RESULT: PASS (check-inputs)

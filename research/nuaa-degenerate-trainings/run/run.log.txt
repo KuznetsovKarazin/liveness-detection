@@ -1,0 +1,7 @@
+===== 2026-11-07T11:33:18+0100 run =====
+== NUAA degenerate trainings 20261107-DEGEN-a3b4dc0: configuration 8edda999f3f4 (delivered: True)
+   check-inputs PASS: ablation run 20261106-SESSABLRUN-d999458 (36 cards and dev scores, 36 thresholds), folds run 20261103-FOLDSRUN-e174812 (12 cards and dev scores, 12 thresholds), failed attempt 20261106-SESSABLRUN-3b4021f (6 cards); early stopping replay reproduced on 54/54 cards
+degenerate: 10/36 (per arm {'arm_b': 2, 'arm_a_star': 5, 'arm_b_prime': 3}, per seed {'42': 2, '43': 1, '44': 7}, per fold {'1': 2, '2': 3, '3': 2, '4': 3}); curves rows 533; identical histories 6/6
+figures: figure_examples.png, figure_val_accuracy_all.png, figure_val_loss_all.png written
+run folder: 20261107-DEGEN-a3b4dc0 (public/ only; no restricted outputs)
+RESULT: PASS (run)
