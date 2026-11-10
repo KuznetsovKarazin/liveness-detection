@@ -1,0 +1,8 @@
+===== 2026-11-09T21:11:43+0100 run =====
+== NUAA patience 12 verification 20261109-PATVER-4f2b925: configuration 24c3f75bab49 (delivered: True)
+   check-inputs PASS: parent run 20261106-SESSABLRUN-d999458 (PASS, 36 cards, dev scores and thresholds; early stopping replay 36/36 reproduced); verification run 20261109-SESSABLRUN-6a50265 (PASS, 36 complete models, 0 missing; early stopping replay 36/36 reproduced; test section: public aggregate.json)
+(a) shared histories identical: 36/36 (valid: True)
+(b) verdict: positive; ten recovered 10/10
+figures: figure_ten.png, figure_no_recovery.png, figure_val_accuracy_all.png written
+run folder: 20261109-PATVER-4f2b925 (public/ only; no restricted outputs)
+RESULT: PASS (run)

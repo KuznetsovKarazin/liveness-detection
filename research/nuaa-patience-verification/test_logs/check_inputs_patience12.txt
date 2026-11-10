@@ -1,0 +1,20 @@
+# macOS, Python 3.11.16, NumPy 1.26.4, OpenCV 4.11.0, 2026-11-09 11:17 CET; run from the development repository root with the real inputs present (read only); one command at a time
+# SHA-256 ee5dfabaf74057120fb7443e01fa700fa75f52100e9838f6ac194fee57f4ec2f  scripts/nuaa_session_ablation_run.py
+# SHA-256 435e2d1b9a2c17166723de1dc9848910d629de157703cb831f0f0dfbe985df99  scripts/nuaa_folds_run.py
+# SHA-256 22760abc368dede3aa0a690a241f6622afe1ba586940422497db8a33994ee34a  scripts/m2_writers.py
+# SHA-256 e5fa9c835c23745ff932e157a44d3104eb9713d86bbdecc9cdbbd3caa7a7ee34  scripts/path_guard.py
+# SHA-256 96ec7ffab4b089bac71fd18918fcd32af72d15980cdfa1361cc84bb43e0e4c11  scripts/package_rules.py
+# SHA-256 4c2d29d13dede8a48c3a8e74e1ca48379c5c7e7721eb0a1f55fececbc684e23b  delivery/sessionablationrun/nuaa_session_ablation_run.json
+# SHA-256 ca039df5d3114f9cb983c7256330aae671de54ae34d949ad4e9b9c80beb6aa43  delivery/patienceverify/nuaa_session_ablation_run_patience12.json
+$ .venv/bin/python -I scripts/nuaa_session_ablation_run.py check-inputs --config delivery/patienceverify/nuaa_session_ablation_run_patience12.json
+AMENDMENT: configuration patience12_verification ca039df5d311, parent 4c2d29d13ded equal in every field except training.early_stopping_patience (4 -> 12) and amendment
+CHECK-INPUTS: configuration ca039df5d311, 5 M2 manifests, 12 fold manifests of 20261103-FOLDS-67b7f3d, 16 cell manifests of 20261104-SESSABL-5d89888 (counts, nesting, disjoint subjects; devmix not read), cache 6000 frames linked, extracted frames 6614 with every frame SHA-256 equal to 20261103-FOLDSRUN-e174812, manifest rows from the cache 19206 and from the extracted file 9944 (each exactly once), 12614 originals, architecture verified, OpenCV 4.11.0, TensorFlow 2.15.0 installed and not imported; nothing written
+RESULT: PASS (check-inputs)
+(exit 0, 4.44 s wall, peak RSS 1.45 GB)
+
+$ .venv/bin/python -I scripts/nuaa_session_ablation_run.py check-inputs --config delivery/sessionablationrun/nuaa_session_ablation_run.json
+CHECK-INPUTS: configuration 4c2d29d13ded, 5 M2 manifests, 12 fold manifests of 20261103-FOLDS-67b7f3d, 16 cell manifests of 20261104-SESSABL-5d89888 (counts, nesting, disjoint subjects; devmix not read), cache 6000 frames linked, extracted frames 6614 with every frame SHA-256 equal to 20261103-FOLDSRUN-e174812, manifest rows from the cache 19206 and from the extracted file 9944 (each exactly once), 12614 originals, architecture verified, OpenCV 4.11.0, TensorFlow 2.15.0 installed and not imported; nothing written
+RESULT: PASS (check-inputs)
+(exit 0, 4.59 s wall, peak RSS 1.44 GB)
+
+# the two runs check the same inputs with the same result (identical CHECK-INPUTS line except the configuration SHA-256); the amended configuration adds the AMENDMENT line

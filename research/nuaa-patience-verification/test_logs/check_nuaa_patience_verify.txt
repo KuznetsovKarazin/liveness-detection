@@ -1,0 +1,16 @@
+# macOS, Python 3.11.16, NumPy 1.26.4, matplotlib 3.11.2, 2026-11-09 22:20 CET; run from the development repository root with the real inputs of the two runs present (read only); code of commit f14fe52 (comparison script unchanged since the run 20261109-PATVER-4f2b925)
+# SHA-256 d114bb90519030c7271d34f9ffe0a49032d09dab0b1edde47099664e821609b7  scripts/nuaa_patience_verify.py
+# SHA-256 4b8ab7a9e0aab091d31b60d0076de64608c500d506e079921492cc072e6562ea  scripts/check_nuaa_patience_verify.py
+# SHA-256 89b30957d47501a2302c43643e9e5dff6468544c3883a167c2a8a75b7e4d69c8  scripts/check_nuaa_patience_verify_mutations.py
+# SHA-256 22760abc368dede3aa0a690a241f6622afe1ba586940422497db8a33994ee34a  scripts/m2_writers.py
+# SHA-256 e5fa9c835c23745ff932e157a44d3104eb9713d86bbdecc9cdbbd3caa7a7ee34  scripts/path_guard.py
+# SHA-256 96ec7ffab4b089bac71fd18918fcd32af72d15980cdfa1361cc84bb43e0e4c11  scripts/package_rules.py
+# SHA-256 24c3f75bab49ee9506245c4b922a92f26388c2f21a7ba9d97919c6bbb0f53f48  delivery/patienceverify/nuaa_patience_verify.json
+.........................................................................s.............................................................
+----------------------------------------------------------------------
+Ran 135 tests in 13.689s
+
+OK (skipped=1)
+tests run: 135, failures: 0, errors: 0, skipped: 1
+skipped __main__.TestRealInputs.test_real_inputs_read_only: missing input: the read-only test on the real inputs runs only with --real
+RESULT: PASS
