@@ -1,0 +1,20 @@
+{
+ "run_id": "20261109-PATVER-4f2b925",
+ "commit": "4f2b925",
+ "dirty": false,
+ "config_sha256": "24c3f75bab49ee9506245c4b922a92f26388c2f21a7ba9d97919c6bbb0f53f48",
+ "delivered_configuration": true,
+ "command": "run",
+ "restricted": "none: this comparison writes no restricted output (the per-frame dev scores are read in place and never copied)",
+ "status": "PASS",
+ "passed": true,
+ "finished": "2026-11-09T21:11:46+0100",
+ "wall_seconds": 3.0,
+ "verdict": "positive",
+ "verification_status": "PASS",
+ "figures": "figure_ten.png, figure_no_recovery.png, figure_val_accuracy_all.png written",
+ "public_files": 7,
+ "public_sums_sha256": "ba62e10f42e8c63b793146f2512fa573b3d1f63acad4b27a323b93664b5a4857",
+ "run_log_sha256": "8fd6bd8f0354362d0f193196a936e9cdd7dc2b76ed8958cbcc28c9715fc67e61",
+ "timestamps": "status.json and run.log only; the public files hold no date or run time of this command"
+}

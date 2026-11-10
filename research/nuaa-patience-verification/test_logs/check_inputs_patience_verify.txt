@@ -1,0 +1,10 @@
+# macOS, Python 3.11.16, NumPy 1.26.4, matplotlib 3.11.2, 2026-11-09 21:12 CET; run from the development repository root with the real inputs of the two runs present (read only); code of commit 4f2b925
+# SHA-256 d114bb90519030c7271d34f9ffe0a49032d09dab0b1edde47099664e821609b7  scripts/nuaa_patience_verify.py
+# SHA-256 6ccfc7a51c39ef6dcc72b7cb21b5a991b6011dc811970413b0cbe78970008358  scripts/check_nuaa_patience_verify.py
+# SHA-256 89b30957d47501a2302c43643e9e5dff6468544c3883a167c2a8a75b7e4d69c8  scripts/check_nuaa_patience_verify_mutations.py
+# SHA-256 22760abc368dede3aa0a690a241f6622afe1ba586940422497db8a33994ee34a  scripts/m2_writers.py
+# SHA-256 e5fa9c835c23745ff932e157a44d3104eb9713d86bbdecc9cdbbd3caa7a7ee34  scripts/path_guard.py
+# SHA-256 96ec7ffab4b089bac71fd18918fcd32af72d15980cdfa1361cc84bb43e0e4c11  scripts/package_rules.py
+# SHA-256 24c3f75bab49ee9506245c4b922a92f26388c2f21a7ba9d97919c6bbb0f53f48  delivery/patienceverify/nuaa_patience_verify.json
+CHECK-INPUTS: configuration 24c3f75bab49 (delivered: True), parent run 20261106-SESSABLRUN-d999458 (PASS, 36 cards, dev scores and thresholds; early stopping replay 36/36 reproduced); verification run 20261109-SESSABLRUN-6a50265 (PASS, 36 complete models, 0 missing; early stopping replay 36/36 reproduced; test section: public aggregate.json); nothing written
+RESULT: PASS (check-inputs)

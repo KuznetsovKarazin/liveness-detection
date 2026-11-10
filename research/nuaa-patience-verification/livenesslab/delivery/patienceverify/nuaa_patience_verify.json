@@ -1,0 +1,135 @@
+{
+ "schema": "nuaa-patience-verify-config/1",
+ "task": "Comparison of the verification run with early_stopping_patience 12 (20261109-SESSABLRUN-6a50265) with the parent run 20261106-SESSABLRUN-d999458 (patience 4), same 36 LivenessNet models, by the reading rule agreed on 7 November 2026: (a) identical shared histories, otherwise the comparison is not valid; (b) primary outcome on train/dev: the ten original degenerate trainings recover within 12 epochs and none of the 36 is degenerate; (c) secondary outcomes per model; (d) the test, read only from the public aggregate of the two runs, in a separate section, not used to choose or judge the recipe; (e) no verdict for an incomplete or failed run. Reads training cards, dev scores and frozen thresholds (restricted) and the public aggregates; no training, no inference, no test score read.",
+ "request": {
+  "date": "2026-11-07",
+  "card": "C2",
+  "text": "coordinator, C2 card, comment of 7 November 2026: agreement on early_stopping_patience from 4 to 12, at most 12 epochs, the same 36 models and every other setting unchanged, with two precisions: keep the check of the shared histories, and report the test separately without using it to choose the recipe. The reading rule is the one of delivery/patienceverify/NOTE.md, section 'Verification protocol (agreed on 7 November 2026)', fixed before the verification run."
+ },
+ "inputs": {
+  "parent_run": {
+   "label": "parent",
+   "run_id": "20261106-SESSABLRUN-d999458",
+   "folder": "results/sessionablationrun/20261106-SESSABLRUN-d999458",
+   "config_sha256": "4c2d29d13dede8a48c3a8e74e1ca48379c5c7e7721eb0a1f55fececbc684e23b",
+   "commit": "d999458",
+   "early_stopping_patience": 4,
+   "status_sha256": "9018e89241899f6e0bc5d0822925bd8ea30d71f21f8823681ef9047f4fbfe754",
+   "public_sums_sha256": "89cb13854a8c8133684da3e3b4b6d9931ecddd6ec08d4ac6ec14aa08ce31e04a",
+   "restricted_sums_sha256": "4ca502e0b07e556615c5042bb072770435c062d030e6d2a36d290c1481090fc2"
+  },
+  "verification_run": {
+   "label": "patience12",
+   "run_id": "20261109-SESSABLRUN-6a50265",
+   "folder": "results/sessionablationrun/20261109-SESSABLRUN-6a50265",
+   "config_sha256": "ca039df5d3114f9cb983c7256330aae671de54ae34d949ad4e9b9c80beb6aa43",
+   "commit": "6a50265",
+   "configuration_name": "patience12_verification",
+   "amendment": {
+    "parent_config_sha256": "4c2d29d13dede8a48c3a8e74e1ca48379c5c7e7721eb0a1f55fececbc684e23b",
+    "changed_field": "training.early_stopping_patience",
+    "from": 4,
+    "to": 12
+   },
+   "early_stopping_patience": 12,
+   "status_sha256": "af6a1d1e1f7b3c90a9e9122ea0ce2d542adfd4cab07a2a9465b8b5af623ccf6d",
+   "public_sums_sha256": "018d5079917856b5efbf3db70656eb134b8b6de8b8bda46cceef8e28362a1ff2",
+   "restricted_sums_sha256": "6787bc2bfb280fc0fa2d48323f1cdb15a84d754843bc8703e923098d6f2d2142",
+   "anchors_note": "null = to be filled after the run, from the files of the run folder (status.json, public/SHA256SUMS, restricted/SHA256SUMS); 'none' for public_sums_sha256 only if the run is FAIL (no public folder). While they are null, run refuses and check-inputs checks the configuration and the parent run only."
+  },
+  "arms": [
+   "arm_b",
+   "arm_a_star",
+   "arm_b_prime"
+  ],
+  "folds": [
+   1,
+   2,
+   3,
+   4
+  ],
+  "seeds": [
+   42,
+   43,
+   44
+  ],
+  "models": 36,
+  "dev_rows": 400
+ },
+ "recipe": {
+  "max_epochs": 12,
+  "monitor": "val_loss",
+  "min_delta": 0,
+  "restore_best_weights": true,
+  "batch": 16,
+  "lr": 0.001,
+  "source": "training cards (max_epochs, early_stopping_patience, batch, lr) and the Keras 2.15 defaults of EarlyStopping (min_delta 0, strict improvement); the patience is 4 in the parent run and 12 in the verification run (inputs.<run>.early_stopping_patience)"
+ },
+ "criteria": {
+  "degenerate": {
+   "restored_epochs": [
+    1,
+    2
+   ],
+   "val_acc_at_best": 0.5,
+   "tolerance": 1e-06,
+   "text": "restored_epoch in {1, 2} and val_acc_at_best = 0.5 (within 1e-6): the rule written in the delivery of the session ablation run, re-applied here"
+  },
+  "saturation": {
+   "val_accuracy": 0.5,
+   "tolerance": 1e-06,
+   "text": "an epoch is saturated when val_accuracy = 0.5 within 1e-6 (balanced dev: every frame assigned to the same class, or exactly half wrong)"
+  },
+  "recovery": {
+   "val_accuracy_min": 0.75,
+   "val_loss_max": 1.0,
+   "text": "first epoch with val_accuracy >= 0.75 and val_loss < 1.0 (dev only)"
+  },
+  "checkpoint_agreement_tolerance": 1e-06,
+  "shared_history_difference": 0,
+  "source": "delivery/degenerate/nuaa_degenerate_trainings.json (criteria.degenerate, criteria.saturation, criteria.recovery and criteria.checkpoint_agreement_tolerance, same values), defined after run 20261106-SESSABLRUN-d999458 and before the verification run"
+ },
+ "original_degenerate": [
+  "arm_a_star_fold2_seed43",
+  "arm_a_star_fold2_seed44",
+  "arm_a_star_fold3_seed42",
+  "arm_a_star_fold3_seed44",
+  "arm_a_star_fold4_seed44",
+  "arm_b_fold1_seed42",
+  "arm_b_fold4_seed44",
+  "arm_b_prime_fold1_seed44",
+  "arm_b_prime_fold2_seed44",
+  "arm_b_prime_fold4_seed44"
+ ],
+ "models_without_recovery_parent": [
+  "arm_b_fold3_seed44"
+ ],
+ "reading_rule": {
+  "a": "shared histories: for every model, the first epochs_run epochs of the parent run must be identical in the verification run (loss, accuracy, val_loss, val_accuracy, lr; difference 0); otherwise the largest difference is reported (model, epoch, field) and the comparison is declared not valid: no verdict",
+  "b": "primary outcome: positive if the ten original degenerate trainings all recover within 12 epochs and none of the 36 models is degenerate; otherwise negative ('this change is not enough'). Every model without recovery is listed separately, inside or outside the ten (for example B fold 3 seed 44); if a model outside the ten does not recover, the conclusion adds that the change is not enough to make every model stable; in either case (one of the ten or a model outside the ten without recovery) this does not rule out a role of early stopping (the lr halved by ReduceLROnPlateau is the declared confounder); a positive outcome does not by itself show that every model is stable and does not separate the stop from that lr",
+  "c": "secondary outcomes per model, parent against verification run: epoch of first recovery, restored epoch, best val_loss, dev accuracy and dev AUROC at the checkpoint (from the dev scores, checked row by row), epochs at 0.5, lr per epoch",
+  "d": "the test: only from the public aggregate.json of the two runs (never from the restricted test scores), the verdicts and the median differences over the seeds of A* - B, B' - B and A* - B' side by side, in a separate section, not used to choose or judge the recipe",
+  "e": "if the verification run is INCOMPLETE (cap or voluntary stop) or FAIL, no verdict is given and what is complete is reported"
+ },
+ "time": {
+  "estimate_seconds": 13090,
+  "cap_seconds": 21600,
+  "source": "delivery/patienceverify/NOTE.md, section 'Time estimate (T12)': 36 x 12 epochs with checks, scoring and aggregate; cap of 360 minutes"
+ },
+ "declarations": {
+  "no_training": true,
+  "no_inference": true,
+  "no_test_scores_read": true,
+  "test_from_public_aggregate_only": true,
+  "test_not_used_to_judge_the_recipe": true,
+  "reading_rule_fixed_before_the_run": true,
+  "criteria_defined_in_the_previous_package": true,
+  "no_identifiers": "the public files hold no subject identifier, no image key, no per-frame row and no per-subject count; subject_id is read from the dev scores only to scan the public files",
+  "dev_columns_read": "dev_scores.csv: label and score_attack for the measures; subject_id only to scan the public files, never written; arm, fold, train_seed, role, checkpoint_sha256, sample_id, file_sha256, prediction_05, prediction_dev, threshold_dev and threshold_sha256 only for row-by-row consistency checks (with the card, the frozen threshold, the other models of the fold and the same model of the other run). threshold.json: arm, fold, train_seed, checkpoint_sha256, value, dev_scores_sha256, frozen_at for consistency only. Training cards: the history and the recipe fields, train_seconds for the times, weights_file, weights_sha256, dev_keys_sha256, saved and test_scored_after_threshold for consistency only. status.json: identity, outcome, models, anchors and wall_seconds. Public aggregate.json: run_id, status, config_sha256, strata, primary_verdicts and, for the three comparisons, verdicts and pooled_summary_over_seeds medians only",
+  "limits": "the criteria are those of the previous package, defined after the parent run; with patience 12 the checkpoint is chosen on the dev among 12 epochs (more optimistic selection on the dev, already declared); a recovery does not separate the stop from the lr halved by ReduceLROnPlateau; the test section is descriptive and never part of the verdict"
+ },
+ "outputs": {
+  "public": "comparison.csv (one row per model), curves.csv (verification run, one row per model and epoch), aggregate.json and aggregate.md (sections a-e and declarations), figure_ten.png, figure_no_recovery.png and figure_val_accuracy_all.png (only when matplotlib is available, otherwise a declared skip), SHA256SUMS; no subject identifier, no image key, no per-frame row",
+  "restricted": "none: the comparison writes no restricted output (the per-frame dev scores are read in place and never copied)"
+ }
+}
