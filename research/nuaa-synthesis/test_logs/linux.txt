@@ -1,5 +1,25 @@
-# Linux container python:3.12 (aarch64), Python 3.12.15, 2026-11-04T17:44Z; run from the repository root, standard library only
+# Linux container python:3.12 (aarch64), Python 3.12.16, 2026-11-10T18:07Z; run from the repository root, standard library only
 $ python -I research/nuaa-synthesis/livenesslab/scripts/check_nuaa_synthesis.py -v
+test_amendment_of_the_patience_run (__main__.TestAblationChecks.test_amendment_of_the_patience_run) ... ok
+test_cells_and_cards (__main__.TestAblationChecks.test_cells_and_cards) ... ok
+test_clean_tree_status_and_run_ids (__main__.TestAblationChecks.test_clean_tree_status_and_run_ids) ... ok
+test_comparisons_and_verdicts (__main__.TestAblationChecks.test_comparisons_and_verdicts) ... ok
+test_folds_anchors_schema_and_bootstrap (__main__.TestAblationChecks.test_folds_anchors_schema_and_bootstrap) ... ok
+test_identity_and_anchors (__main__.TestAblationChecks.test_identity_and_anchors) ... ok
+test_metrics_rates_denominators_and_sums (__main__.TestAblationChecks.test_metrics_rates_denominators_and_sums) ... ok
+test_models_complete_and_cap (__main__.TestAblationChecks.test_models_complete_and_cap) ... ok
+test_reading_rule_boundaries (__main__.TestAblationChecks.test_reading_rule_boundaries)
+Un intervallo che tocca 0 non lo esclude; una differenza nulla o un seed senza intervallo non danno «consistent». ... ok
+test_check_new_annexes_byte_exact (__main__.TestAblationCommands.test_check_new_annexes_byte_exact) ... ok
+test_duplicated_markdown_rows_are_refused (__main__.TestAblationCommands.test_duplicated_markdown_rows_are_refused) ... ok
+test_error_paths_without_traceback (__main__.TestAblationCommands.test_error_paths_without_traceback) ... ok
+test_ablation_annex_cell_by_cell (__main__.TestAblationRows.test_ablation_annex_cell_by_cell) ... ok
+test_compact_rows_and_legend (__main__.TestAblationRows.test_compact_rows_and_legend) ... ok
+test_patience_compact_table (__main__.TestAblationRows.test_patience_compact_table) ... ok
+test_patience_summary_lines (__main__.TestAblationRows.test_patience_summary_lines)
+Ogni riga di riepilogo, per intero, contro i valori della fixture (casi limite compresi). ... ok
+test_patience_table_cell_by_cell (__main__.TestAblationRows.test_patience_table_cell_by_cell) ... ok
+test_rows_cell_by_cell (__main__.TestAblationRows.test_rows_cell_by_cell) ... ok
 test_annexes_cell_by_cell (__main__.TestBuild.test_annexes_cell_by_cell) ... ok
 test_c1_and_m1_rows_cell_by_cell (__main__.TestBuild.test_c1_and_m1_rows_cell_by_cell) ... ok
 test_combined_and_crop_rows_cell_by_cell (__main__.TestBuild.test_combined_and_crop_rows_cell_by_cell) ... ok
@@ -88,12 +108,29 @@ test_training_cards (__main__.TestFolds.test_training_cards) ... ok
 test_f4_and_fmt (__main__.TestMarkdown.test_f4_and_fmt) ... ok
 test_keyed_rows_refuses_duplicates (__main__.TestMarkdown.test_keyed_rows_refuses_duplicates) ... ok
 test_md_tables_parsing (__main__.TestMarkdown.test_md_tables_parsing) ... ok
+test_comparison_run_identity_and_anchors (__main__.TestPatienceChecks.test_comparison_run_identity_and_anchors) ... ok
+test_csv_structure (__main__.TestPatienceChecks.test_csv_structure) ... ok
+test_inputs_anchored_to_both_runs (__main__.TestPatienceChecks.test_inputs_anchored_to_both_runs) ... ok
+test_rows_rebuilt_from_the_curves (__main__.TestPatienceChecks.test_rows_rebuilt_from_the_curves) ... ok
+test_same_checkpoint_gives_the_same_test_values (__main__.TestPatienceChecks.test_same_checkpoint_gives_the_same_test_values) ... ok
+test_the_ten_verdict_and_sections (__main__.TestPatienceChecks.test_the_ten_verdict_and_sections) ... ok
+test_comparison_summary_and_subjects (__main__.TestReviewFaults.test_comparison_summary_and_subjects) ... ok
+test_dev_run_id_refused_before_the_commit_check (__main__.TestReviewFaults.test_dev_run_id_refused_before_the_commit_check) ... ok
+test_direction_metric_word_and_sign (__main__.TestReviewFaults.test_direction_metric_word_and_sign) ... ok
+test_duplicated_sums_line_and_n_dev (__main__.TestReviewFaults.test_duplicated_sums_line_and_n_dev) ... ok
+test_group_sizes_ten_and_36 (__main__.TestReviewFaults.test_group_sizes_ten_and_36) ... ok
+test_in_ten_of_the_curves (__main__.TestReviewFaults.test_in_ten_of_the_curves) ... ok
+test_negative_verdict_consistent_everywhere_is_refused (__main__.TestReviewFaults.test_negative_verdict_consistent_everywhere_is_refused) ... ok
+test_primary_verdicts_direction_reason_and_label (__main__.TestReviewFaults.test_primary_verdicts_direction_reason_and_label) ... ok
+test_same_configuration_in_both_runs (__main__.TestReviewFaults.test_same_configuration_in_both_runs) ... ok
+test_section_e_train_seconds_tolerance (__main__.TestReviewFaults.test_section_e_train_seconds_tolerance) ... ok
+test_verification_status_of_the_comparison (__main__.TestReviewFaults.test_verification_status_of_the_comparison) ... ok
 
 ----------------------------------------------------------------------
-Ran 88 tests in 1.344s
+Ran 123 tests in 14.816s
 
 OK
 
 $ python -I research/nuaa-synthesis/livenesslab/scripts/nuaa_synthesis.py check --research research --out research/nuaa-synthesis/tables --synthesis research/nuaa-synthesis/SYNTHESIS.md
-CHECK: 9 files + synthesis, 0 problems
+CHECK: 12 files + synthesis, 0 problems
 RESULT: PASS

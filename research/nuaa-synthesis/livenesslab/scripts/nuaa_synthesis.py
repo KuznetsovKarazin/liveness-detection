@@ -1,5 +1,6 @@
 """
-Sintesi NUAA (C1, M1, N1, N2, confronto del ritaglio, run a fold di soggetti): ricostruisce la tabella unica dei risultati accettati leggendo
+Sintesi NUAA (C1, M1, N1, N2, confronto del ritaglio, run a fold di soggetti, run di ablazione delle sessioni con pazienza
+4 e 12 e loro confronto): ricostruisce la tabella unica dei risultati accettati leggendo
 soltanto gli aggregati pubblici già uniti in research/pad-2026 (nessun dato riservato, nessuna inferenza, nessun numero
 nuovo). Ogni cella della tabella viene da un file accettato, citato riga per riga con il suo SHA-256 al momento della
 costruzione; i testi descrittivi (conteggi dei manifest, soggetti) vengono dall'aggregato pubblico dei manifest M2.
@@ -25,15 +26,29 @@ Sorgenti (percorsi relativi alla cartella research/ del repository del gruppo):
                                                            controlli degli input, tempi)
   nuaa-folds-n1-compare/tables/aggregate.json              confronto descrittivo con N1 sugli stessi 3.000 frame
                                                            (run ufficiale: albero pulito, run id senza -dev)
+  nuaa-session-ablation-run/tables/aggregate.json, run_record.json, SHA256SUMS e run/status.json
+                                                           run di ablazione delle sessioni (PR #21, pazienza 4): bracci
+                                                           B, A*, B' x 4 fold x 3 seed, strati, aggregati per braccio e
+                                                           seed, bootstrap, confronti e verdetti della regola di lettura
+  nuaa-patience-verification/tables/aggregate.json, run_record.json, SHA256SUMS e run/status.json
+                                                           run di verifica con pazienza 12 (PR #23), stesso disegno, con
+                                                           il blocco amendment
+  nuaa-patience-verification/comparison/aggregate.json, comparison.csv, curves.csv, SHA256SUMS e
+  nuaa-patience-verification/comparison_run/status.json   confronto delle due run (una riga per modello, curve per
+                                                           epoca, criteri, verdetto, sezioni a-e)
 
 Sottocomandi:
   build --research <research/> --out <cartella>   scrive summary_table.{md,csv,json}, summary_table_compact.md,
                                                   cross_dataset_table.md, context_rows_table.md,
                                                   subject_sensitivity_table.md, folds_run_table.md,
-                                                  n1_same_ids_table.md (UTF-8, fine riga LF)
+                                                  n1_same_ids_table.md, patience_table.md,
+                                                  session_ablation_table.md, patience_table_compact.md
+                                                  (UTF-8, fine riga LF)
   check --research <research/> --out <cartella>   ricostruisce in memoria e confronta byte per byte con i file di --out;
                                                   esce con 1 se un file manca o differisce; con --synthesis <SYNTHESIS.md>
-                                                  esige anche che ogni riga della tabella compatta stia nel documento
+                                                  esige anche che ogni riga della tabella compatta e ogni riga
+                                                  (tabella e righe di riepilogo) della tabella compatta della
+                                                  pazienza stiano nel documento
 Entrambi eseguono i controlli di coerenza fra le sorgenti e si fermano con errore se uno non regge: ogni aggregato con
 passed vero e albero pulito (il file dei soggetti N1, che non ha passed: albero pulito e tabella M1 riprodotta); il
 suffisso di ogni run id uguale al commit registrato; nessuna riga duplicata nelle tabelle Markdown; in ogni riga,
@@ -56,9 +71,26 @@ per seed uguale alla somma dei quattro fold; mediane e intervalli sui seed ugual
 parametri dichiarati; 12 modelli con 2.100 + 600 frame, epoca ripristinata valida e tempo nel record; tempo totale entro
 il tetto. Confronto con N1: run ufficiale della configurazione consegnata; ingressi uguali a M2, al run a fold, a N1
 e allo schema; valori N1 uguali alle righe N1 della tabella; conteggi dei fold entro la sessione 03 aggregata del run a
-fold; differenze, decisioni appaiate, conteggi per soggetto, mediane, bootstrap e valori di controllo coerenti. Il
-controllo copre le celle delle tabelle; i numeri della prosa del documento restano da verificare a
-mano contro le tabelle e le fonti.
+fold; differenze, decisioni appaiate, conteggi per soggetto, mediane, bootstrap e valori di controllo coerenti. Run di
+ablazione e run con pazienza 12: aggregato, record e status.json da albero pulito, PASS e passed vero, run id che finisce
+con il commit e senza -dev, configurazione consegnata, gli stessi run id, commit, configurazione e amendment nei tre file;
+status.json -> SHA256SUMS -> aggregato e record; 36 modelli completi (3 bracci x 4 fold x 3 seed), nessuno mancante,
+nessun arresto, tempo entro il tetto; schema dei fold e run a fold di riferimento (run id e SHA-256 di aggregato e
+record), bootstrap uguali; celle di fitting e dev del record uguali nelle due run e alle dimensioni di ogni scheda;
+tassi = conteggi, denominatori dello schema, «all» = somma delle sessioni, aggregati = somma dei fold, mediane sui seed;
+differenze dei confronti = minuendo meno sottraendo (per modello e aggregate); i verdetti (84 per run) riprodotti dalla
+regola di lettura applicata alle differenze e agli intervalli per seed, verdetti primari uguali; amendment della run con
+pazienza 12 = configurazione della run madre, campo training.early_stopping_patience con le pazienze degli ingressi del
+confronto. Confronto delle due run: run ufficiale con status PASS, ancore (status.json -> SHA256SUMS -> aggregato, CSV,
+curve), dichiarazioni; ingressi uguali alle due run (run id, commit, configurazione, stato, SHA-256 di status.json e
+SHA256SUMS, modelli, pazienza); ogni riga del CSV ricostruita dalle curve con i criteri dell'aggregato (epoca
+ripristinata = argmin della val_loss, replay dell'arresto precoce, degenere, prima ripresa, epoche a 0,5, lr finale,
+accuratezza dev al checkpoint entro la tolleranza) e uguale alle righe JSON e alle schede delle due run; storie
+condivise identiche; le dieci = i degeneri con pazienza 4; verdetto positivo riprodotto; mediane per gruppo; sezione
+(d) = verdetti e mediane delle due run e numero dei verdetti cambiati; tempi entro il tetto e uguali ai record; stesso
+checkpoint -> stessi valori di test e stessa soglia dev. Nessuna tabella Markdown generata con una riga duplicata. Il
+controllo copre le celle delle tabelle; i numeri della prosa del documento restano da verificare a mano contro le
+tabelle e le fonti.
 
 Dipendenze: solo la libreria standard.
 """
@@ -87,6 +119,19 @@ SOURCES = {
     "folds_aggregate": "nuaa-folds-run/tables/aggregate.json",
     "folds_record": "nuaa-folds-run/tables/run_record.json",
     "folds_n1_compare": "nuaa-folds-n1-compare/tables/aggregate.json",
+    "sessabl_aggregate": "nuaa-session-ablation-run/tables/aggregate.json",
+    "sessabl_record": "nuaa-session-ablation-run/tables/run_record.json",
+    "sessabl_sums": "nuaa-session-ablation-run/tables/SHA256SUMS",
+    "sessabl_status": "nuaa-session-ablation-run/run/status.json",
+    "patience_aggregate": "nuaa-patience-verification/tables/aggregate.json",
+    "patience_record": "nuaa-patience-verification/tables/run_record.json",
+    "patience_sums": "nuaa-patience-verification/tables/SHA256SUMS",
+    "patience_status": "nuaa-patience-verification/run/status.json",
+    "patver_aggregate": "nuaa-patience-verification/comparison/aggregate.json",
+    "patver_comparison": "nuaa-patience-verification/comparison/comparison.csv",
+    "patver_curves": "nuaa-patience-verification/comparison/curves.csv",
+    "patver_sums": "nuaa-patience-verification/comparison/SHA256SUMS",
+    "patver_status": "nuaa-patience-verification/comparison_run/status.json",
 }
 
 NUAA_CNNS = ("livenessnet__nuaa", "attacknet_v1__nuaa", "attacknet_v2_1__nuaa", "attacknet_v2_2__nuaa")
@@ -680,7 +725,10 @@ def folds_build(agg: dict, rec: dict, sch: dict, mc: dict, problems: list) -> di
             "models": len(names), "train_seconds_min": min(secs), "train_seconds_max": max(secs),
             "wall_seconds": rec["wall_seconds"], "wall_cap_seconds": cap, "cache_frames": cache_frames,
             "extracted_frames": rec["extraction"]["n"], "test_frames_per_fold": totals, "bootstrap": bs}
-    return {"rows": rows, "texts": T, "annex": annex, "info": info, "seeds": seeds, "metric_cells": metric_cells, "pooled": pooled}
+    # expected, test_subjects e pooled_subjects servono ai controlli del run di ablazione (stessi frame di test)
+    pooled_subjects = {st: agg["pooled_per_seed"][seeds[0]][st].get("n_subjects") for st in FOLDS_STRATA}
+    return {"rows": rows, "texts": T, "annex": annex, "info": info, "seeds": seeds, "metric_cells": metric_cells, "pooled": pooled,
+            "folds": folds, "expected": expected, "test_subjects": test_subjects, "pooled_subjects": pooled_subjects}
 
 
 COMPARE_FIELDS = ["run_id", "commit", "dirty", "config_sha256", "delivered_configuration", "command", "finished", "declarations",
@@ -900,6 +948,859 @@ def compare_rows(aggregate: dict, ctx: dict, problems: list) -> dict:
             "bootstrap_recipe": aggregate["bootstrap"].get("recipe"),
             "n1_auroc": [per[s]["n1"]["auroc"] for s in seeds]}
     return {"rows": rows, "annex": annex, "info": info}
+
+
+# --- run di ablazione delle sessioni (PR #21) e verifica della pazienza 12 (PR #23) -----------------------------------
+
+ABL_ARMS = ("arm_b", "arm_a_star", "arm_b_prime")
+ARM_LABELS = {"arm_b": "B", "arm_a_star": "A*", "arm_b_prime": "B'"}
+ARM_IDS = {"arm_b": "B", "arm_a_star": "Astar", "arm_b_prime": "Bprime"}
+ARM_TEXTS = {"arm_b": "arm B, without session 03: sessions 01-02 of the fitting subjects with frames in sessions 01-02",
+             "arm_a_star": "arm A*, with session 03: sessions 01-03 of the same fitting subjects",
+             "arm_b_prime": "arm B', without session 03, at the per-cell counts of A*: sessions 01-02 of the same fitting subjects"}
+ABL_COMPARISONS = (("a_star_minus_b", "arm_a_star", "arm_b", "primary"), ("b_prime_minus_b", "arm_b_prime", "arm_b", "secondary"),
+                   ("a_star_minus_b_prime", "arm_a_star", "arm_b_prime", "secondary"))
+COMPARISON_LABELS = {"a_star_minus_b": "A* - B", "b_prime_minus_b": "B' - B", "a_star_minus_b_prime": "A* - B'"}
+PRIMARY_STRATUM, PRIMARY_METRICS = "03", ("auroc", "acer_dev")
+# Motivi della regola di lettura nell'ordine in cui la regola li applica; il verdetto si riproduce dalle differenze per seed
+RULE_REASONS = {"zero": "a seed has a zero difference", "sign": "the sign differs across the seeds",
+                "interval": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+                "consistent": "same sign for every seed and every interval excludes 0"}
+# Nomi delle metriche nella direzione di un verdetto «consistent»: METRIC_LABEL del runner dell'ablazione
+# (nuaa_session_ablation_run.py), per esempio «A* lower BPCER (0.5) than B»
+METRIC_LABEL = {"apcer_05": "APCER (0.5)", "bpcer_05": "BPCER (0.5)", "acer_05": "ACER (0.5)", "apcer_dev": "APCER (dev threshold)",
+                "bpcer_dev": "BPCER (dev threshold)", "acer_dev": "ACER (dev threshold)", "auroc": "AUROC"}
+# Soglie delle righe di riepilogo della pazienza: le stesse di CONCLUSION.md della verifica della pazienza («five of the ten
+# recover at epoch 10 or later», «two of the ten keep a dev accuracy below 0.9»); conteggi descrittivi, non metriche
+LATE_RECOVERY_EPOCH = 10
+# Larghezza massima di una riga di riepilogo (trattino compreso): le righe stanno alla lettera in SYNTHESIS.md, a 120 colonne
+SUMMARY_WIDTH = 120
+LOW_DEV_ACCURACY = 0.9
+ABL_BLOCK = "Session ablation run, patience %d"
+TRANSFER_ABL = ("subject-held-out, session ablation (held-out subjects never used for fitting or dev; sessions in training "
+                "as in the arm; dev without session 03)")
+THR_ABL_ORIGIN = ("0.5 fixed a priori (configuration); dev threshold: EER on the common dev only (M1 criterion), written and "
+                  "hashed before any test scoring, one per model")
+ABL_AGG_FIELDS = ["run_id", "commit", "dirty", "config_sha256", "delivered_configuration", "command", "status", "finished",
+                  "completed", "trainings", "missing", "bootstrap", "strata", "per_arm_fold_seed", "pooled_per_arm_seed",
+                  "bootstrap_per_arm_seed", "pooled_summary_over_seeds", "comparisons", "primary_verdicts", "reading_rule",
+                  "reference_a", "training"]
+ABL_REC_FIELDS = ["run_id", "commit", "dirty", "config_sha256", "delivered_configuration", "command", "status", "finished",
+                  "wall_seconds", "timings", "trainings", "training_order", "completed", "missing", "stopped", "cap_minutes",
+                  "final_writes_after_cap", "checks", "train_seeds", "bootstrap"]
+ABL_STATUS_FIELDS = ["run_id", "commit", "dirty", "config_sha256", "delivered_configuration", "command", "status", "passed",
+                     "finished", "wall_seconds", "completed", "missing", "stopped", "final_writes_after_cap",
+                     "public_sums_sha256", "restricted_sums_sha256"]
+ABL_TRAINING_FIELDS = ("arm", "fold", "seed", "epochs_run", "restored_epoch", "restored_by", "best_val_loss", "train_seconds",
+                       "n_fitting", "n_dev", "dev_threshold")
+PATVER_FIELDS = ["run_id", "commit", "dirty", "config_sha256", "delivered_configuration", "criteria", "recipe",
+                 "original_degenerate", "models_without_recovery_parent", "inputs", "verdict", "sections", "rows", "declarations"]
+PATVER_STATUS_FIELDS = ["run_id", "commit", "dirty", "config_sha256", "delivered_configuration", "command", "status", "passed",
+                        "verdict", "verification_status", "public_sums_sha256"]
+PATVER_DECLARATIONS = ("no_training", "no_inference", "no_test_scores_read", "test_from_public_aggregate_only",
+                       "test_not_used_to_judge_the_recipe", "reading_rule_fixed_before_the_run")
+SIDE_FIELDS = ("epochs_run", "restored_epoch", "degenerate", "recovered", "first_recovery", "best_val_loss",
+               "dev_acc_at_checkpoint", "dev_auroc_at_checkpoint", "epochs_at_half", "lr_last")
+CMP_COLUMNS = (["arm", "fold", "seed", "in_ten", "new_status"] + ["parent_" + f for f in SIDE_FIELDS] + ["new_" + f for f in SIDE_FIELDS]
+               + ["shared_epochs", "shared_identical"] + ["max_abs_diff_shared_" + f for f in ("loss", "accuracy", "val_loss",
+                                                                                                "val_accuracy", "lr")])
+CURVE_COLUMNS = ["arm", "fold", "seed", "in_ten", "epoch", "loss", "accuracy", "val_loss", "val_accuracy", "lr", "is_restored",
+                 "saturated", "shared_with_parent", "degenerate", "recovered_by_epoch"]
+HISTORY_FIELDS = ("loss", "accuracy", "val_loss", "val_accuracy", "lr")
+# campi delle righe JSON del confronto (parent/new) e colonne corrispondenti del CSV
+ROW_SIDE_FIELDS = {"epochs_run": "epochs_run", "restored_epoch": "restored_epoch", "degenerate": "degenerate",
+                   "recovered": "recovered", "first_recovery": "first_recovery", "best_val_loss": "best_val_loss",
+                   "dev_acc": "dev_acc_at_checkpoint", "dev_auroc": "dev_auroc_at_checkpoint", "epochs_at_half": "epochs_at_half",
+                   "lr_last": "lr_last"}
+SUMMARY_GROUPS = ("the ten", "the other 26", "all 36")
+SUMMARY_MEASURES = {"first_recovery": "first_recovery", "restored_epoch": "restored_epoch", "best_val_loss": "best_val_loss",
+                    "dev_acc": "dev_acc_at_checkpoint", "dev_auroc": "dev_auroc_at_checkpoint", "epochs_at_half": "epochs_at_half",
+                    "lr_last": "lr_last"}
+
+
+def model_name(arm: str, k: str, s: str) -> str:
+    return "%s_fold%s_seed%s" % (arm, k, s)
+
+
+def model_label(arm: str, k: str, s: str) -> str:
+    return "%s fold %s seed %s" % (ARM_LABELS[arm], k, s)
+
+
+def read_sums(p: Path, where: str) -> dict:
+    """Un file SHA256SUMS («<sha256>  <file>» per riga) come {file: sha256}; righe malformate o ripetute fermano tutto."""
+    out = {}
+    for i, line in enumerate(p.read_text(encoding="utf-8").splitlines(), 1):
+        mm = re.fullmatch(r"([0-9a-f]{64})  (\S+)", line)
+        if not mm:
+            fail("%s line %d: not '<sha256>  <file>'" % (where, i))
+        if mm.group(2) in out:
+            fail("%s: %s listed twice" % (where, mm.group(2)))
+        out[mm.group(2)] = mm.group(1)
+    return out
+
+
+def read_csv_rows(p: Path, columns: list, where: str) -> list:
+    with open(p, encoding="utf-8", newline="") as fh:
+        reader = csv.DictReader(fh)
+        if reader.fieldnames != columns:
+            fail("%s: columns %s, expected %s" % (where, reader.fieldnames, columns))
+        rows = list(reader)
+    for i, r in enumerate(rows, 2):
+        if None in r or any(v is None for v in r.values()):
+            fail("%s line %d: wrong number of cells" % (where, i))
+    return rows
+
+
+def csv_int(v: str, where: str, empty_ok: bool = False):
+    if v == "" and empty_ok:
+        return None
+    if not re.fullmatch(r"-?\d+", v):
+        fail("%s: %r is not an integer" % (where, v))
+    return int(v)
+
+
+def csv_flag(v: str, where: str) -> bool:
+    if v not in ("0", "1"):
+        fail("%s: %r is not 0 or 1" % (where, v))
+    return v == "1"
+
+
+def csv_float(v: str, where: str) -> float:
+    try:
+        x = float(v)
+    except ValueError:
+        fail("%s: %r is not a number" % (where, v))
+    if x != x or x in (float("inf"), float("-inf")):
+        fail("%s: %r is not a finite number" % (where, v))
+    return x
+
+
+def rule_reason(ds: list):
+    """Regola di lettura (configurazione del run): «consistent» solo con lo stesso segno non nullo per i tre seed e ogni
+    intervallo bootstrap che esclude 0 dal lato di quel segno; altrimenti il motivo dell'«inconclusive»."""
+    if any(not isinstance(d, dict) or not all(isinstance(d.get(k), (int, float)) and not isinstance(d.get(k), bool)
+                                              for k in ("difference", "low", "high")) for d in ds):
+        return "missing"
+    diffs = [d["difference"] for d in ds]
+    if any(x == 0 for x in diffs):
+        return "zero"
+    if not (all(x > 0 for x in diffs) or all(x < 0 for x in diffs)):
+        return "sign"
+    if not all(d["low"] > 0 if d["difference"] > 0 else d["high"] < 0 for d in ds):
+        return "interval"
+    return "consistent"
+
+
+def ablation_run(where: str, agg: dict, rec: dict, status: dict, sums: dict, H: dict, keys: dict, folds: dict, fsch: dict,
+                 problems: list) -> dict:
+    """Un run del disegno di ablazione delle sessioni (bracci B, A*, B' x 4 fold x 3 seed): identità e albero pulito,
+    ancore (status.json -> SHA256SUMS -> aggregato e record), 36 modelli completi entro il tetto, schema dei fold e run a
+    fold di riferimento, celle di fitting e dev, metriche per modello e aggregate (tassi = conteggi, denominatori dello
+    schema, «all» = somma delle sessioni, aggregato = somma dei fold), mediane, bootstrap, differenze dei confronti e
+    verdetti della regola di lettura riprodotti dalle differenze per seed."""
+    for d, w in ((agg, "aggregate"), (rec, "run record"), (status, "status")):
+        if d.get("dirty") is not False:
+            fail("%s %s: dirty is not false" % (where, w))
+        if str(d.get("run_id", "")).endswith("-dev"):
+            fail("%s %s: run id %r ends with -dev (trial run)" % (where, w, d.get("run_id")))
+        run_id_check(d, "%s %s" % (where, w))
+        if d.get("delivered_configuration") is not True or d.get("command") != "run":
+            fail("%s %s: not a run of the delivered configuration (delivered_configuration %r, command %r)"
+                 % (where, w, d.get("delivered_configuration"), d.get("command")))
+        if d.get("status") != "PASS":
+            fail("%s %s: status %r is not PASS" % (where, w, d.get("status")))
+    if status.get("passed") is not True:
+        fail("%s status: passed is not true" % where)
+    for k in ("run_id", "commit", "config_sha256", "finished", "configuration_name", "amendment"):
+        for d, w in ((rec, "run record"), (status, "status")):
+            if d.get(k) != agg.get(k):
+                problems.append("%s %s: %s %r differs from the aggregate %r" % (where, w, k, d.get(k), agg.get(k)))
+    for k in ("wall_seconds", "completed", "missing", "stopped", "final_writes_after_cap"):
+        if status.get(k) != rec.get(k):
+            problems.append("%s status: %s differs from the run record" % (where, k))
+    if status.get("public_sums_sha256") != H[keys["sums"]]:
+        problems.append("%s status: public_sums_sha256 is not the SHA-256 of %s" % (where, SOURCES[keys["sums"]]))
+    for name, key in (("aggregate.json", keys["aggregate"]), ("run_record.json", keys["record"])):
+        if sums.get(name) != H[key]:
+            problems.append("%s: %s in SHA256SUMS is not the SHA-256 of %s" % (where, name, SOURCES[key]))
+
+    seeds, fl = folds["seeds"], folds["folds"]
+    if [str(s) for s in rec["train_seeds"]] != seeds:
+        fail("%s run record: seeds %s differ from the folds run %s" % (where, rec["train_seeds"], seeds))
+    names = [model_name(a, k, s) for a in ABL_ARMS for k in fl for s in seeds]
+    if not isinstance(agg["training"], dict) or not isinstance(rec["completed"], list) or not isinstance(rec["training_order"], list):
+        fail("%s: training, completed or training_order has an unexpected structure" % where)
+    if sorted(agg["training"]) != sorted(names) or len(rec["completed"]) != len(names) or sorted(rec["completed"]) != sorted(names) \
+            or sorted(rec["training_order"]) != sorted(names):
+        problems.append("%s: the models of the aggregate, completed and training_order are not the %d of %d arms x %d folds x %d seeds"
+                        % (where, len(names), len(ABL_ARMS), len(fl), len(seeds)))
+    if (agg["completed"], agg["trainings"], rec["trainings"], agg["missing"], rec["missing"]) != (len(names), len(names), len(names), [], []):
+        problems.append("%s: %r of %r trainings complete, missing %r; expected %d of %d, none missing"
+                        % (where, agg["completed"], agg["trainings"], agg["missing"], len(names), len(names)))
+    if rec["stopped"] is not None or rec["final_writes_after_cap"] is not False:
+        problems.append("%s run record: stopped %r, final writes after the cap %r" % (where, rec["stopped"], rec["final_writes_after_cap"]))
+    cap = rec["cap_minutes"] * 60
+    if not rec["wall_seconds"] <= cap:
+        problems.append("%s run record: wall time %s s above the cap %s s" % (where, rec["wall_seconds"], cap))
+
+    bs = agg["bootstrap"]
+    if bs != rec["bootstrap"]:
+        problems.append("%s run record: bootstrap differs from the aggregate" % where)
+    params = ("resamples", "seed", "percentiles", "min_subjects")
+    if not isinstance(bs, dict) or {k: bs.get(k) for k in params} != {k: folds["info"]["bootstrap"].get(k) for k in params}:
+        fail("%s aggregate: bootstrap parameters differ from the folds run" % where)
+    checks = rec["checks"]
+    if (dig(checks, "schema", "run_id"), dig(checks, "schema", "test_per_fold"), dig(checks, "schema_config", "sha256")) != \
+            (fsch["run_id"], folds["info"]["test_frames_per_fold"], fsch["config_sha256"]):
+        problems.append("%s run record: fold schema (run id, test rows per fold, configuration SHA-256) differs from the fold schema" % where)
+    if (dig(checks, "folds_run", "run_id"), dig(checks, "folds_run", "aggregate_json_sha256"),
+            dig(checks, "folds_run", "run_record_json_sha256")) != (folds["info"]["run_id"], H["folds_aggregate"], H["folds_record"]):
+        problems.append("%s run record: folds run (run id, aggregate and record SHA-256) differs from the folds run read here" % where)
+    if (dig(agg, "reference_a", "run_id"), dig(agg, "reference_a", "aggregate_sha256")) != (folds["info"]["run_id"], H["folds_aggregate"]):
+        problems.append("%s aggregate: reference A (run id, aggregate SHA-256) differs from the folds run read here" % where)
+
+    # Celle di fitting per braccio e del dev comune (record), dimensioni di ogni scheda
+    cells, dev_cells = dig(checks, "cells", "counts"), dig(checks, "cells", "dev")
+    if not isinstance(cells, dict) or sorted(cells) != sorted(ABL_ARMS) or not isinstance(dev_cells, dict) or not dev_cells:
+        fail("%s run record: fitting cells per arm or dev cells missing" % where)
+    for c in [cells[a] for a in ABL_ARMS] + [dev_cells]:
+        if not isinstance(c, dict) or not c or any(not isinstance(v, int) or isinstance(v, bool) or v <= 0 for v in c.values()):
+            fail("%s run record: a cell count is not a positive integer" % where)
+    n_fit = {a: sum(cells[a].values()) for a in ABL_ARMS}
+    n_dev = sum(dev_cells.values())
+    training = agg["training"]
+    for a in ABL_ARMS:
+        for k in fl:
+            for s in seeds:
+                name = model_name(a, k, s)
+                tr = training.get(name)
+                if not isinstance(tr, dict):
+                    fail("%s aggregate: training of %s missing" % (where, name))
+                for f in ABL_TRAINING_FIELDS:
+                    if f not in tr:
+                        fail("%s aggregate: training field %s of %s missing" % (where, f, name))
+                if (tr["arm"], str(tr["fold"]), str(tr["seed"])) != (a, k, s):
+                    problems.append("%s %s: arm, fold or seed of the card differ from its name" % (where, name))
+                if (tr["n_fitting"], tr["n_dev"]) != (n_fit[a], n_dev):
+                    problems.append("%s %s: %s fitting / %s dev frames, the cells of the record give %s / %s"
+                                    % (where, name, tr["n_fitting"], tr["n_dev"], n_fit[a], n_dev))
+                if not 1 <= tr["restored_epoch"] <= tr["epochs_run"]:
+                    problems.append("%s %s: restored epoch %s outside 1..%s" % (where, name, tr["restored_epoch"], tr["epochs_run"]))
+                if "train " + name not in rec["timings"]:
+                    problems.append("%s run record: no timing for train %s" % (where, name))
+
+    # Metriche per modello e strato; aggregato per braccio e seed
+    if list(agg["strata"]) != list(FOLDS_STRATA):
+        fail("%s aggregate: strata %r, expected %r" % (where, agg["strata"], list(FOLDS_STRATA)))
+    per, raw = {}, {}
+    for a in ABL_ARMS:
+        for k in fl:
+            for s in seeds:
+                blk = dig(agg, "per_arm_fold_seed", a, k, s)
+                if not isinstance(blk, dict):
+                    fail("%s aggregate: %s missing" % (where, model_label(a, k, s)))
+                lab = "%s %s" % (where, model_label(a, k, s))
+                ms = {st: folds_metric(blk.get(st), "%s stratum %s" % (lab, st)) for st in FOLDS_STRATA}
+                for st in FOLDS_STRATA:
+                    got = (ms[st]["05"]["n_bona_fide"], ms[st]["05"]["n_attack"])
+                    if got != folds["expected"][k][st]:
+                        problems.append("%s stratum %s: denominators %s/%s differ from the fold schema %s/%s"
+                                        % (lab, st, got[0], got[1], folds["expected"][k][st][0], folds["expected"][k][st][1]))
+                for t in ("05", "dev"):
+                    if summed([ms[st][t] for st in SESSION_STRATA]) != counts_of(ms["all"][t]):
+                        problems.append("%s: stratum all at %s is not the sum of the session strata" % (lab, t))
+                if blk["all"].get("n_subjects") != folds["test_subjects"][k]:
+                    problems.append("%s: %r subjects, the fold schema has %r" % (lab, blk["all"].get("n_subjects"), folds["test_subjects"][k]))
+                per[(a, k, s)], raw[(a, k, s)] = ms, blk
+    pooled, praw = {}, {}
+    for a in ABL_ARMS:
+        for s in seeds:
+            for st in FOLDS_STRATA:
+                blk = dig(agg, "pooled_per_arm_seed", a, s, st)
+                lab = "%s %s seed %s stratum %s" % (where, ARM_LABELS[a], s, st)
+                m = folds_metric(blk, "%s pooled" % lab)
+                for t in ("05", "dev"):
+                    if counts_of(m[t]) != summed([per[(a, k, s)][st][t] for k in fl]):
+                        problems.append("%s at %s: pooled counts are not the sum of the %d folds" % (lab, t, len(fl)))
+                if blk.get("n_subjects") != folds["pooled_subjects"][st]:
+                    problems.append("%s: %r pooled subjects, the folds run has %r" % (lab, blk.get("n_subjects"), folds["pooled_subjects"][st]))
+                pooled[(a, s, st)], praw[(a, s, st)] = m, blk
+    for a in ABL_ARMS:
+        for st in FOLDS_STRATA:
+            for key in FOLDS_SUMMARY_KEYS:
+                e, vals = dig(agg, "pooled_summary_over_seeds", a, st, key), [praw[(a, s, st)][key] for s in seeds]
+                if not isinstance(e, dict) or e.get("values") != vals:
+                    problems.append("%s summary %s stratum %s %s: missing or values differ from the per-seed rows" % (where, ARM_LABELS[a], st, key))
+                elif None not in vals and (e.get("median"), e.get("min"), e.get("max")) != (statistics.median(vals), min(vals), max(vals)):
+                    problems.append("%s summary %s stratum %s %s: median or range is not that of the values" % (where, ARM_LABELS[a], st, key))
+    boot = {}
+    for a in ABL_ARMS:
+        for s in seeds:
+            for st in FOLDS_STRATA:
+                b, n_sub = dig(agg, "bootstrap_per_arm_seed", a, s, st), praw[(a, s, st)].get("n_subjects")
+                lab = "%s bootstrap %s seed %s stratum %s" % (where, ARM_LABELS[a], s, st)
+                if not isinstance(n_sub, int) or n_sub < bs["min_subjects"]:
+                    continue
+                if not isinstance(b, dict):
+                    problems.append("%s missing" % lab)
+                    continue
+                if (b.get("n_subjects"), b.get("resamples"), b.get("seed"), b.get("percentiles")) != (n_sub, bs["resamples"], bs["seed"], bs["percentiles"]):
+                    problems.append("%s: subjects or parameters differ from the declared ones" % lab)
+                ok = True
+                for key in ("acer_05", "acer_dev", "auroc"):
+                    x = b.get(key)
+                    if not isinstance(x, dict) or not isinstance(x.get("low"), (int, float)) or not isinstance(x.get("high"), (int, float)) \
+                            or x["low"] > x["high"]:
+                        problems.append("%s: %s interval missing or reversed" % (lab, key))
+                        ok = False
+                if ok:
+                    boot[(a, s, st)] = b
+
+    # Confronti: differenze per modello e aggregate, mediane, verdetti della regola riprodotti
+    comps = agg["comparisons"]
+    if not isinstance(comps, dict) or sorted(comps) != sorted(c[0] for c in ABL_COMPARISONS):
+        fail("%s aggregate: comparisons %r, expected %r" % (where, sorted(comps) if isinstance(comps, dict) else comps,
+                                                            sorted(c[0] for c in ABL_COMPARISONS)))
+    verdicts = {}
+    for cname, mi, su, role in ABL_COMPARISONS:
+        c = comps[cname]
+        lab = "%s comparison %s" % (where, COMPARISON_LABELS[cname])
+        if (c.get("minuend"), c.get("subtrahend"), c.get("role")) != (mi, su, role):
+            problems.append("%s: minuend, subtrahend or role differ from the protocol" % lab)
+        bad = [model_label(mi, k, s) + " " + st + " " + m for k in fl for s in seeds for st in FOLDS_STRATA for m in FOLDS_SUMMARY_KEYS
+               if dig(c, "per_fold_seed", k, s, st, m) != (None if raw[(mi, k, s)][st][m] is None or raw[(su, k, s)][st][m] is None
+                                                            else raw[(mi, k, s)][st][m] - raw[(su, k, s)][st][m])]
+        if bad:
+            problems.append("%s: %d per-model differences are not minuend minus subtrahend (first: %s)" % (lab, len(bad), bad[0]))
+        for s in seeds:
+            for st in FOLDS_STRATA:
+                p = dig(c, "pooled_per_seed", s, st)
+                if not isinstance(p, dict):
+                    fail("%s: pooled seed %s stratum %s missing" % (lab, s, st))
+                if p.get("n_subjects") != praw[(mi, s, st)].get("n_subjects"):
+                    problems.append("%s seed %s stratum %s: subjects differ from the pooled rows" % (lab, s, st))
+                for m in FOLDS_SUMMARY_KEYS:
+                    x = p.get(m)
+                    want = (praw[(mi, s, st)][m], praw[(su, s, st)][m])
+                    if not isinstance(x, dict) or (x.get("minuend"), x.get("subtrahend")) != want or \
+                            (None not in want and x.get("difference") != want[0] - want[1]):
+                        problems.append("%s seed %s stratum %s %s: the difference is not that of the pooled rows" % (lab, s, st, m))
+                    elif isinstance(x.get("low"), (int, float)) and isinstance(x.get("high"), (int, float)) and x["low"] > x["high"]:
+                        problems.append("%s seed %s stratum %s %s: interval reversed" % (lab, s, st, m))
+        for st in FOLDS_STRATA:
+            for m in FOLDS_SUMMARY_KEYS:
+                ds = [dig(c, "pooled_per_seed", s, st, m) for s in seeds]
+                vals = [d.get("difference") if isinstance(d, dict) else None for d in ds]
+                e = dig(c, "pooled_summary_over_seeds", st, m)
+                if not isinstance(e, dict) or e.get("values") != vals:
+                    problems.append("%s summary stratum %s %s: missing or values differ from the per-seed differences" % (lab, st, m))
+                elif None not in vals and (e.get("median"), e.get("min"), e.get("max")) != (statistics.median(vals), min(vals), max(vals)):
+                    problems.append("%s summary stratum %s %s: median or range is not that of the values" % (lab, st, m))
+                v = dig(c, "verdicts", st, m)
+                if not isinstance(v, dict):
+                    fail("%s: verdict of stratum %s %s missing" % (lab, st, m))
+                reason = rule_reason(ds)
+                label = "primary" if (cname, st) == ("a_star_minus_b", PRIMARY_STRATUM) and m in PRIMARY_METRICS else "secondary"
+                want = "consistent" if reason == "consistent" else "inconclusive"
+                ok = v.get("verdict") == want and v.get("label") == label and \
+                    (reason == "missing" or v.get("reason") == RULE_REASONS[reason])
+                if want == "consistent":
+                    sign = "higher" if vals[0] > 0 else "lower"
+                    ok = ok and v.get("direction") == "%s %s %s than %s" % (ARM_LABELS[mi], sign, METRIC_LABEL[m], ARM_LABELS[su])
+                else:
+                    ok = ok and v.get("direction") is None
+                if not ok:
+                    problems.append("%s stratum %s %s: verdict %r (%r) is not the reading rule applied to the per-seed differences (%s, %s)"
+                                    % (lab, st, m, v.get("verdict"), v.get("reason"), want, label))
+                verdicts[(cname, st, m)] = {"verdict": v.get("verdict"), "direction": v.get("direction"), "reason": v.get("reason"),
+                                            "label": v.get("label"), "median": e.get("median") if isinstance(e, dict) else None,
+                                            "per_seed": [(d.get("difference"), d.get("low"), d.get("high")) if isinstance(d, dict)
+                                                         else (None, None, None) for d in ds]}
+    pv = agg["primary_verdicts"]
+    if not isinstance(pv, dict) or sorted(pv) != sorted(PRIMARY_METRICS) or any(
+            {k: dig(pv, m, k) for k in ("verdict", "direction", "reason", "label")}
+            != {k: verdicts[("a_star_minus_b", PRIMARY_STRATUM, m)][k] for k in ("verdict", "direction", "reason", "label")} for m in PRIMARY_METRICS):
+        problems.append("%s aggregate: primary verdicts differ from the verdicts of A* - B in stratum %s" % (where, PRIMARY_STRATUM))
+    if not isinstance(agg["reading_rule"], str) or not agg["reading_rule"]:
+        problems.append("%s aggregate: reading rule missing" % where)
+    return {"names": names, "per": per, "raw": raw, "pooled": pooled, "praw": praw, "boot": boot, "verdicts": verdicts,
+            "training": training, "cells": cells, "dev_cells": dev_cells, "n_fit": n_fit, "n_dev": n_dev, "agg": agg, "rec": rec,
+            "cap": cap}
+
+
+def patience_compare(cmp: dict, cstatus: dict, csums: dict, crows: list, curves: list, runs: dict, H: dict, statuses: dict,
+                     folds: dict, problems: list) -> dict:
+    """Confronto delle due run (pazienza 4 e 12, PR #23): run ufficiale e ancore, ingressi uguali alle due run lette qui,
+    ogni riga del CSV ricostruita dalle curve per epoca con i criteri dell'aggregato (epoca ripristinata = argmin della
+    val_loss, replay dell'arresto precoce, degenere, prima ripresa, epoche a 0,5, lr finale), righe JSON e schede delle
+    due run uguali al CSV, storie condivise identiche, verdetto riprodotto, mediane per gruppo, sezione (d) uguale ai
+    verdetti delle due run, tempi entro il tetto."""
+    parent, new = runs["parent"], runs["new"]
+    where = "patience comparison"
+    for d, w in ((cmp, "aggregate"), (cstatus, "status")):
+        if d.get("dirty") is not False:
+            fail("%s %s: dirty is not false" % (where, w))
+        if str(d.get("run_id", "")).endswith("-dev"):
+            fail("%s %s: run id %r ends with -dev (trial run)" % (where, w, d.get("run_id")))
+        run_id_check(d, "%s %s" % (where, w))
+        if d.get("delivered_configuration") is not True:
+            fail("%s %s: not a run of the delivered configuration" % (where, w))
+    if cstatus.get("passed") is not True or cstatus.get("status") != "PASS" or cstatus.get("command") != "run":
+        fail("%s status: passed %r, status %r, command %r" % (where, cstatus.get("passed"), cstatus.get("status"), cstatus.get("command")))
+    for k in ("run_id", "commit", "config_sha256", "verdict"):
+        if cstatus.get(k) != cmp.get(k):
+            problems.append("%s status: %s %r differs from the aggregate %r" % (where, k, cstatus.get(k), cmp.get(k)))
+    if cstatus.get("verification_status") != new["agg"]["status"] or cstatus.get("verification_status") != "PASS":
+        problems.append("%s status: verification_status %r is not the status of the patience-verification run %r, PASS"
+                        % (where, cstatus.get("verification_status"), new["agg"]["status"]))
+    if cstatus.get("public_sums_sha256") != H["patver_sums"]:
+        problems.append("%s status: public_sums_sha256 is not the SHA-256 of %s" % (where, SOURCES["patver_sums"]))
+    for name, key in (("aggregate.json", "patver_aggregate"), ("comparison.csv", "patver_comparison"), ("curves.csv", "patver_curves")):
+        if csums.get(name) != H[key]:
+            problems.append("%s: %s in SHA256SUMS is not the SHA-256 of %s" % (where, name, SOURCES[key]))
+    for k in PATVER_DECLARATIONS:
+        if dig(cmp, "declarations", k) is not True:
+            problems.append("%s: declaration %s is not true" % (where, k))
+
+    # Ingressi: le due run lette qui (run id, commit, configurazione, stato, ancore, pazienza, modelli)
+    patience = {}
+    for side, key, run in (("parent", "parent_run", parent), ("new", "verification_run", new)):
+        inp = dig(cmp, "inputs", key)
+        if not isinstance(inp, dict):
+            fail("%s: inputs.%s missing" % (where, key))
+        a, st_ = run["agg"], statuses[side]
+        want = {"run_id": a["run_id"], "commit": a["commit"], "config_sha256": a["config_sha256"], "status": "PASS",
+                "status_sha256": H[run["keys"]["status"]], "public_sums_sha256": H[run["keys"]["sums"]],
+                "restricted_sums_sha256": st_.get("restricted_sums_sha256"), "complete_models": len(run["names"]), "missing_models": 0}
+        got = {k: inp.get(k) for k in want}
+        if got != want:
+            problems.append("%s: inputs.%s %r differ from the run read here %r"
+                            % (where, key, {k: v for k, v in got.items() if v != want[k]}, {k: v for k, v in want.items() if v != got[k]}))
+        p = inp.get("early_stopping_patience")
+        if not isinstance(p, int) or isinstance(p, bool) or p < 1:
+            fail("%s: inputs.%s.early_stopping_patience %r is not a positive integer" % (where, key, p))
+        patience[side] = p
+    am = new["agg"].get("amendment")
+    if not isinstance(am, dict) or (am.get("parent_config_sha256"), am.get("changed_field"), am.get("from"), am.get("to")) != \
+            (parent["agg"]["config_sha256"], "training.early_stopping_patience", patience["parent"], patience["new"]):
+        problems.append("%s: amendment of the patience-%s run %r is not parent %s, training.early_stopping_patience %s -> %s"
+                        % (where, patience["new"], am, parent["agg"]["config_sha256"][:12], patience["parent"], patience["new"]))
+    if parent["agg"].get("amendment") is not None:
+        problems.append("%s: the parent run carries an amendment" % where)
+    if patience["parent"] == patience["new"]:
+        problems.append("%s: the two runs have the same patience %s" % (where, patience["new"]))
+    if parent["agg"]["config_sha256"] == new["agg"]["config_sha256"]:
+        problems.append("%s: the two runs have the same configuration" % where)
+    max_epochs = dig(cmp, "recipe", "max_epochs")
+    if not isinstance(max_epochs, int) or isinstance(max_epochs, bool) or max_epochs < 1:
+        fail("%s: recipe.max_epochs %r is not a positive integer" % (where, max_epochs))
+    cr = cmp["criteria"]
+    try:
+        rest_set, acc_half, tol_deg = cr["degenerate"]["restored_epochs"], cr["degenerate"]["val_acc_at_best"], cr["degenerate"]["tolerance"]
+        sat_acc, sat_tol = cr["saturation"]["val_accuracy"], cr["saturation"]["tolerance"]
+        rec_acc, rec_loss = cr["recovery"]["val_accuracy_min"], cr["recovery"]["val_loss_max"]
+        ckpt_tol = cr["checkpoint_agreement_tolerance"]
+        crit_text = (cr["degenerate"]["text"], cr["recovery"]["text"])
+    except (KeyError, TypeError):
+        fail("%s: criteria incomplete" % where)
+
+    # Righe del CSV nell'ordine dei modelli; curve per modello, epoche 1..n
+    names = parent["names"]
+    order = [(a, k, s) for a in ABL_ARMS for k in folds["folds"] for s in folds["seeds"]]
+    if len(crows) != len(order):
+        fail("%s: comparison.csv has %d rows, expected %d" % (where, len(crows), len(order)))
+    hist = {}
+    for i, c in enumerate(curves, 2):
+        lab = "curves.csv line %d" % i
+        key = (c["arm"], c["fold"], c["seed"])
+        e = {"epoch": csv_int(c["epoch"], lab), "in_ten": csv_flag(c["in_ten"], lab)}
+        e.update({f: csv_float(c[f], lab) for f in HISTORY_FIELDS})
+        e.update({f: csv_flag(c[f], lab) for f in ("is_restored", "saturated", "shared_with_parent", "degenerate", "recovered_by_epoch")})
+        hist.setdefault(key, []).append(e)
+    if sorted(hist) != sorted(order):
+        fail("%s: the models of curves.csv are not the %d models" % (where, len(order)))
+
+    def side(h, n, p, lab):
+        """Una run di un modello dalle sue prime n epoche: criteri dell'aggregato e replay dell'arresto precoce."""
+        vl = [e["val_loss"] for e in h[:n]]
+        restored = vl.index(min(vl)) + 1
+        if n != min(max_epochs, restored + p):
+            problems.append("%s: %d epochs run, early stopping with patience %d and best epoch %d gives %d"
+                            % (lab, n, p, restored, min(max_epochs, restored + p)))
+        holds = [e["val_accuracy"] >= rec_acc and e["val_loss"] < rec_loss for e in h[:n]]
+        first = holds.index(True) + 1 if any(holds) else None
+        return {"epochs_run": n, "restored_epoch": restored, "best_val_loss": min(vl), "first_recovery": first,
+                "recovered": first is not None, "holding_last": holds[-1],
+                "degenerate": restored in rest_set and abs(h[restored - 1]["val_accuracy"] - acc_half) <= tol_deg,
+                "epochs_at_half": sum(abs(e["val_accuracy"] - sat_acc) <= sat_tol for e in h[:n]),
+                "lr_last": h[n - 1]["lr"], "val_acc_restored": h[restored - 1]["val_accuracy"], "holds": holds}
+
+    models = []
+    for i, ((a, k, s), c) in enumerate(zip(order, crows), 2):
+        lab = "comparison.csv %s" % model_label(a, k, s)
+        if (c["arm"], c["fold"], c["seed"]) != (a, k, s):
+            fail("%s: line %d is %s fold %s seed %s, expected the models in arm, fold, seed order" % (where, i, c["arm"], c["fold"], c["seed"]))
+        row = {"arm": a, "fold": k, "seed": s, "in_ten": csv_flag(c["in_ten"], lab), "new_status": c["new_status"],
+               "shared_epochs": csv_int(c["shared_epochs"], lab), "shared_identical": csv_flag(c["shared_identical"], lab),
+               "max_abs_diff": {f: csv_float(c["max_abs_diff_shared_" + f], lab) for f in HISTORY_FIELDS}}
+        for sd in ("parent", "new"):
+            row[sd] = {"epochs_run": csv_int(c[sd + "_epochs_run"], lab), "restored_epoch": csv_int(c[sd + "_restored_epoch"], lab),
+                       "degenerate": csv_flag(c[sd + "_degenerate"], lab), "recovered": csv_flag(c[sd + "_recovered"], lab),
+                       "first_recovery": csv_int(c[sd + "_first_recovery"], lab, empty_ok=True),
+                       "best_val_loss": csv_float(c[sd + "_best_val_loss"], lab),
+                       "dev_acc_at_checkpoint": csv_float(c[sd + "_dev_acc_at_checkpoint"], lab),
+                       "dev_auroc_at_checkpoint": csv_float(c[sd + "_dev_auroc_at_checkpoint"], lab),
+                       "epochs_at_half": csv_int(c[sd + "_epochs_at_half"], lab), "lr_last": csv_float(c[sd + "_lr_last"], lab)}
+        h = sorted(hist[(a, k, s)], key=lambda e: e["epoch"])
+        if [e["epoch"] for e in h] != list(range(1, len(h) + 1)) or len(h) != row["new"]["epochs_run"]:
+            problems.append("%s: curves.csv epochs are not 1..%d" % (lab, row["new"]["epochs_run"]))
+            continue
+        if row["new_status"] != "complete":
+            problems.append("%s: status %r in the patience-%s run" % (lab, row["new_status"], patience["new"]))
+        if not 1 <= row["parent"]["epochs_run"] <= len(h):
+            fail("%s: %s epochs in the patience-%s run, %d in the curves" % (lab, row["parent"]["epochs_run"], patience["parent"], len(h)))
+        der = {"parent": side(h, row["parent"]["epochs_run"], patience["parent"], "%s patience %d" % (lab, patience["parent"])),
+               "new": side(h, len(h), patience["new"], "%s patience %d" % (lab, patience["new"]))}
+        for sd, p in (("parent", patience["parent"]), ("new", patience["new"])):
+            x, d = row[sd], der[sd]
+            diff = [f for f in ("restored_epoch", "best_val_loss", "degenerate", "recovered", "first_recovery", "epochs_at_half", "lr_last")
+                    if x[f] != d[f]]
+            if diff:
+                problems.append("%s patience %d: %s differ from the curves with the criteria of the aggregate" % (lab, p, ", ".join(diff)))
+            if abs(x["dev_acc_at_checkpoint"] - d["val_acc_restored"]) > ckpt_tol:
+                problems.append("%s patience %d: dev accuracy at the checkpoint differs from val_accuracy of the restored epoch" % (lab, p))
+            tr = runs[sd]["training"][model_name(a, k, s)]
+            if (tr["epochs_run"], tr["restored_epoch"], tr["best_val_loss"]) != (x["epochs_run"], x["restored_epoch"], x["best_val_loss"]):
+                problems.append("%s patience %d: epochs, restored epoch or best val_loss differ from the training card of the run" % (lab, p))
+        if row["shared_epochs"] != row["parent"]["epochs_run"] or not row["shared_identical"] or any(v != 0 for v in row["max_abs_diff"].values()):
+            problems.append("%s: shared history not identical (%s shared epochs of %s)" % (lab, row["shared_epochs"], row["parent"]["epochs_run"]))
+        for e in h:
+            want = (e["epoch"] <= row["shared_epochs"], e["epoch"] == der["new"]["restored_epoch"],
+                    abs(e["val_accuracy"] - sat_acc) <= sat_tol, der["new"]["holds"][e["epoch"] - 1], row["new"]["degenerate"], row["in_ten"])
+            if (e["shared_with_parent"], e["is_restored"], e["saturated"], e["recovered_by_epoch"], e["degenerate"], e["in_ten"]) != want:
+                problems.append("%s epoch %d: flags of curves.csv differ from the values" % (lab, e["epoch"]))
+                break
+        row["derived"] = der
+        models.append(row)
+    if len(models) != len(order):
+        fail("consistency problems:\n  - " + "\n  - ".join(problems))
+
+    # Le dieci: degeneri della run con pazienza 4 = in_ten = original_degenerate dell'aggregato
+    labels = [model_label(r["arm"], r["fold"], r["seed"]) for r in models]
+    ten = [l for l, r in zip(labels, models) if r["in_ten"]]
+    if [l for l, r in zip(labels, models) if r["parent"]["degenerate"]] != ten:
+        problems.append("%s: the models marked in_ten are not the degenerate models of the patience-%d run" % (where, patience["parent"]))
+    if not isinstance(cmp["original_degenerate"], list) or sorted(cmp["original_degenerate"]) != sorted(ten):
+        problems.append("%s: original_degenerate differs from the models marked in_ten" % where)
+    if cmp["models_without_recovery_parent"] != [l for l, r in zip(labels, models) if not r["in_ten"] and not r["parent"]["recovered"]]:
+        problems.append("%s: models_without_recovery_parent differs from the rows" % where)
+
+    # Righe JSON = CSV
+    jrows = cmp["rows"]
+    if not isinstance(jrows, list) or len(jrows) != len(models):
+        fail("%s: aggregate rows are not %d" % (where, len(models)))
+    for l, r, j in zip(labels, models, jrows):
+        ok = isinstance(j, dict) and j.get("model") == l and j.get("in_ten") is r["in_ten"] and j.get("new_status") == r["new_status"] \
+            and j.get("shared_epochs") == r["shared_epochs"] and j.get("shared_identical") is r["shared_identical"] \
+            and j.get("max_abs_diff_shared") == r["max_abs_diff"]
+        for sd in ("parent", "new"):
+            ok = ok and all(dig(j, sd, jf) == r[sd][cf] for jf, cf in ROW_SIDE_FIELDS.items())
+        if not ok:
+            problems.append("%s: aggregate row %s differs from comparison.csv" % (where, l))
+
+    # (a) storie condivise, (b) verdetto, (c) gruppi
+    sa, sb, sc = dig(cmp, "sections", "a"), dig(cmp, "sections", "b"), dig(cmp, "sections", "c")
+    if not all(isinstance(x, dict) for x in (sa, sb, sc)) or not isinstance(dig(cmp, "sections", "d"), dict) \
+            or not isinstance(dig(cmp, "sections", "e"), dict):
+        fail("%s: sections a-e missing" % where)
+    n_ident = sum(r["shared_identical"] for r in models)
+    if (sa.get("models_compared"), sa.get("identical"), sa.get("valid"), sa.get("largest_difference")) != (len(models), n_ident, True, None) \
+            or sa.get("max_abs_difference_per_field") != {f: 0.0 for f in HISTORY_FIELDS}:
+        problems.append("%s: section a (shared histories) differs from the rows: %d of %d identical" % (where, n_ident, len(models)))
+    new_deg = [l for l, r in zip(labels, models) if r["new"]["degenerate"]]
+    ten_rec = [l for l, r in zip(labels, models) if r["in_ten"] and r["new"]["recovered"]]
+    verdict = "positive" if len(ten_rec) == len(ten) and not new_deg else "negative"
+    if (cmp["verdict"], sb.get("verdict"), cstatus.get("verdict")) != (verdict, verdict, verdict) or verdict != "positive":
+        problems.append("%s: verdict %r (section b %r, status %r); the rows give %r" % (where, cmp["verdict"], sb.get("verdict"),
+                                                                                       cstatus.get("verdict"), verdict))
+    want_b = {"ten": ten, "ten_recovered": len(ten_rec), "ten_complete": len(ten), "ten_degenerate": [l for l in ten if l in new_deg],
+              "ten_without_recovery": [l for l in ten if l not in ten_rec], "degenerate_among_complete": new_deg,
+              "without_recovery_outside_ten": [l for l, r in zip(labels, models) if not r["in_ten"] and not r["new"]["recovered"]],
+              "without_recovery_parent": [l for l, r in zip(labels, models) if not r["parent"]["recovered"]],
+              "ten_first_recovery": {l: r["new"]["first_recovery"] for l, r in zip(labels, models) if r["in_ten"]},
+              "verification_status": new["agg"]["status"], "missing_models": []}
+    got_b = {k: sb.get(k) for k in want_b}
+    got_b["ten"] = sorted(got_b["ten"]) if isinstance(got_b["ten"], list) else got_b["ten"]
+    got_b["without_recovery_parent"] = sorted(got_b["without_recovery_parent"]) if isinstance(got_b["without_recovery_parent"], list) else None
+    want_b["ten"], want_b["without_recovery_parent"] = sorted(want_b["ten"]), sorted(want_b["without_recovery_parent"])
+    if got_b != want_b:
+        problems.append("%s: section b differs from the rows in %s" % (where, sorted(k for k in want_b if got_b[k] != want_b[k])))
+    rc = sc.get("recovered") or {}
+    if (rc.get("parent"), rc.get("new"), rc.get("new_complete")) != (sum(r["parent"]["recovered"] for r in models),
+                                                                      sum(r["new"]["recovered"] for r in models), len(models)):
+        problems.append("%s: section c recovered counts differ from the rows" % where)
+    groups = {"the ten": [r for r in models if r["in_ten"]], "the other 26": [r for r in models if not r["in_ten"]], "all 36": models}
+    if len(groups["the ten"]) != 10 or len(models) != 36:
+        problems.append("%s: %d models in the ten and %d in all; the groups of section c are the ten, the other 26 and all 36"
+                        % (where, len(groups["the ten"]), len(models)))
+    summ = sc.get("summary")
+    want_s = []
+    for g in SUMMARY_GROUPS:
+        for sd in ("parent", "new"):
+            e = {"group": g, "side": sd}
+            for jm, cf in SUMMARY_MEASURES.items():
+                vals = [r[sd][cf] for r in groups[g] if r[sd][cf] is not None]
+                e[jm] = {"models": len(vals), "median": statistics.median(vals) if vals else None,
+                         "min": min(vals) if vals else None, "max": max(vals) if vals else None}
+            want_s.append(e)
+    if summ != want_s:
+        problems.append("%s: section c medians per group differ from the rows" % where)
+
+    # (d) test: verdetti delle due run uguali agli aggregati; i 7 (o quanti siano) che cambiano
+    sd_ = cmp["sections"]["d"]
+    vp, vn = parent["verdicts"], new["verdicts"]
+    keys_ = [(c[0], st, m) for c in ABL_COMPARISONS for st in FOLDS_STRATA for m in FOLDS_SUMMARY_KEYS]
+    changed = [k for k in keys_ if (vp[k]["verdict"], vp[k]["direction"]) != (vn[k]["verdict"], vn[k]["direction"])]
+    drows = sd_.get("rows")
+    want_d = [{"comparison": COMPARISON_LABELS[c], "stratum": st, "metric": m,
+               "parent": {"verdict": vp[(c, st, m)]["verdict"], "direction": vp[(c, st, m)]["direction"],
+                          "reason": vp[(c, st, m)]["reason"], "median": vp[(c, st, m)]["median"]},
+               "new": {"verdict": vn[(c, st, m)]["verdict"], "direction": vn[(c, st, m)]["direction"],
+                       "reason": vn[(c, st, m)]["reason"], "median": vn[(c, st, m)]["median"]}} for c, st, m in keys_]
+    if drows != want_d:
+        problems.append("%s: section d rows differ from the verdicts and medians of the two aggregates" % where)
+    want_p = [{"metric": m, "parent": {k: vp[("a_star_minus_b", PRIMARY_STRATUM, m)][k] for k in ("verdict", "direction", "reason")},
+               "new": {k: vn[("a_star_minus_b", PRIMARY_STRATUM, m)][k] for k in ("verdict", "direction", "reason")}} for m in PRIMARY_METRICS]
+    if sd_.get("primary") != want_p:
+        problems.append("%s: section d primary verdicts differ from the two aggregates" % where)
+    if sd_.get("verdicts_changed") != len(changed):
+        problems.append("%s: section d declares %r verdicts changed, the two aggregates give %d" % (where, sd_.get("verdicts_changed"), len(changed)))
+    if not isinstance(sd_.get("label"), str) or sd_.get("reported") is not True:
+        problems.append("%s: section d label missing or not reported" % where)
+
+    # (e) tempi: entro il tetto, uguali ai record; epoche e secondi per braccio uguali alle schede
+    se = cmp["sections"]["e"]
+    if (se.get("new_wall_seconds"), se.get("parent_wall_seconds"), se.get("cap_seconds"), se.get("within_cap"),
+            se.get("final_writes_after_cap"), se.get("stopped")) != (new["rec"]["wall_seconds"], parent["rec"]["wall_seconds"],
+                                                                      new["cap"], True, False, None):
+        problems.append("%s: section e (wall times, cap, within the cap, stop) differs from the run records" % where)
+    want_e = []
+    for sd in ("parent", "new"):
+        for a in ABL_ARMS:
+            cards = [runs[sd]["training"][model_name(a, k, s)] for k in folds["folds"] for s in folds["seeds"]]
+            want_e.append((sd, ARM_LABELS[a], len(cards), sum(t["epochs_run"] for t in cards), sum(t["train_seconds"] for t in cards)))
+    got_e = [(x.get("run"), x.get("arm"), x.get("models"), x.get("epochs"), x.get("train_seconds")) if isinstance(x, dict) else None
+             for x in se.get("per_arm") or []]
+    if len(got_e) != len(want_e) or any(g is None or g[:4] != w[:4] or not isinstance(g[4], (int, float)) or abs(g[4] - w[4]) > 1e-6
+                                        for g, w in zip(got_e, want_e)):
+        problems.append("%s: section e per arm (models, epochs, train seconds) differs from the training cards" % where)
+
+    # Modelli con lo stesso checkpoint: valori di test e soglia dev identici nelle due run
+    same_ckpt = [r for r in models if r["parent"]["restored_epoch"] == r["new"]["restored_epoch"]]
+    for r in same_ckpt:
+        a, k, s = r["arm"], r["fold"], r["seed"]
+        if parent["raw"][(a, k, s)] != new["raw"][(a, k, s)] or \
+                parent["training"][model_name(a, k, s)]["dev_threshold"] != new["training"][model_name(a, k, s)]["dev_threshold"]:
+            problems.append("%s %s: same checkpoint in both runs, but test values or dev threshold differ" % (where, model_label(a, k, s)))
+    return {"models": models, "labels": labels, "ten": ten, "patience": patience, "changed": changed, "max_epochs": max_epochs,
+            "criteria_text": crit_text, "rec_criterion": (rec_acc, rec_loss), "d_label": sd_["label"], "same_ckpt": len(same_ckpt),
+            "verdict": verdict}
+
+
+def span(vals: list) -> str:
+    """«a-b», o «a» se i limiti coincidono."""
+    return ("%d" % min(vals)) if min(vals) == max(vals) else "%d-%d" % (min(vals), max(vals))
+
+
+def fmt_lr(v: float) -> str:
+    """Learning rate in decimali fissi senza zeri finali (0.0005, 0.000125, 0.0000625)."""
+    return ("%.10f" % v).rstrip("0").rstrip(".")
+
+
+def ablation_rows(run: dict, patience: int, folds: dict, T: dict, src: str) -> list:
+    """Righe della tabella unica: per braccio e seed, i 4 modelli dei fold aggregati (strato all), soglie 0,5 e dev, bootstrap."""
+    rows = []
+    for a in ABL_ARMS:
+        for s in folds["seeds"]:
+            cards = [run["training"][model_name(a, k, s)] for k in folds["folds"]]
+            b = run["boot"].get((a, s, "all"))
+            rows.append(row(row="SESSABL-P%d-%s-seed%s" % (patience, ARM_IDS[a], s), block=ABL_BLOCK % patience,
+                            model="LivenessNet, %s, the %d fold models of seed %s pooled over the held-out folds; early-stopping "
+                                  "patience %d (epochs run %s, restored epochs %s)"
+                                  % (ARM_TEXTS[a].split(":")[0], len(cards), s, patience, span([t["epochs_run"] for t in cards]),
+                                     span([t["restored_epoch"] for t in cards])),
+                            training_data=T["abl_train_" + a], early_stopping=T["abl_dev_p%d" % patience],
+                            test_set=T["folds_test_all"], extractor=EXTRACTOR_FOLDS, threshold="0.5", threshold_origin=THR_ABL_ORIGIN,
+                            threshold_dev=THR_DEV_POOLED, run_id=run["agg"]["run_id"], transfer=TRANSFER_ABL,
+                            bootstrap=("ACER 0.5 %s; ACER dev %s; AUROC %s" % (iv(b, "acer_05"), iv(b, "acer_dev"), iv(b, "auroc"))
+                                       if b else "NA"),
+                            source=src, **folds["metric_cells"](run["pooled"][(a, s, "all")])))
+    return rows
+
+
+def abl_texts(run: dict, patience: dict, max_epochs: int) -> dict:
+    """Testi delle righe di ablazione, costruiti dalle celle del record (uguali nelle due run: controllato da build)."""
+    def cell(c):
+        return c.replace("bona_fide", "bf").replace("attack", "att")
+    T = {}
+    for a in ABL_ARMS:
+        c = run["cells"][a]
+        T["abl_train_" + a] = ("NUAA, %s: %s frames per fold, %s per class x session cell (%s; deterministic spread rule)"
+                               % (ARM_TEXTS[a], fmt(run["n_fit"][a]), "/".join(str(v) for v in c.values()),
+                                  ", ".join(cell(x) for x in c)))
+    dv = run["dev_cells"]
+    per_cell = ("%d" % next(iter(dv.values()))) if len(set(dv.values())) == 1 else "/".join(str(v) for v in dv.values())
+    for side, p in patience.items():
+        T["abl_dev_p%d" % p] = ("common dev of the fold (sessions 01-02 of the subjects of the next held-out fold, no session 03): "
+                                "%s frames, %s per class x session cell (%s); early stopping with patience %d, at most %d epochs, "
+                                "minimum dev val_loss restored; learning-rate schedule; EER threshold"
+                                % (fmt(run["n_dev"]), per_cell, ", ".join(cell(x) for x in dv), p, max_epochs))
+    T["abl_dev_legend"] = ("common dev of the fold (sessions 01-02 of the subjects of the next held-out fold, no session 03, %s "
+                           "frames) for early stopping, learning-rate schedule and EER threshold; patience %s"
+                           % (fmt(run["n_dev"]), " and ".join("%d in the SESSABL-P%d rows" % (p, p) for p in patience.values())))
+    return T
+
+
+def yn(v) -> str:
+    return "yes" if v else "no"
+
+
+def ablation_annex(runs: dict, pc: dict, folds: dict) -> dict:
+    """Annessi: tabella della pazienza (36 modelli, train/dev, poi test) e tabella dell'ablazione (aggregati e verdetti)."""
+    P4, P12 = pc["patience"]["parent"], pc["patience"]["new"]
+    seeds, fl = folds["seeds"], folds["folds"]
+    # Tabella 1 della pazienza: train/dev per modello
+    t1, t2 = [], []
+    for r in pc["models"]:
+        a, k, s = r["arm"], r["fold"], r["seed"]
+        cells = [ARM_LABELS[a], k, s, yn(r["in_ten"])]
+        for sd in ("parent", "new"):
+            x, d = r[sd], r["derived"][sd]
+            cells += [x["epochs_run"], x["restored_epoch"], yn(x["degenerate"]),
+                      "—" if x["first_recovery"] is None else x["first_recovery"], yn(d["holding_last"]), "%.4f" % x["best_val_loss"],
+                      "%.4f" % x["dev_acc_at_checkpoint"], "%.4f" % x["dev_auroc_at_checkpoint"], x["epochs_at_half"], fmt_lr(x["lr_last"])]
+        cells += [r["shared_epochs"], yn(r["shared_identical"]), yn(r["parent"]["restored_epoch"] != r["new"]["restored_epoch"])]
+        t1.append(cells)
+        tc = [ARM_LABELS[a], k, s, yn(r["in_ten"]), yn(r["parent"]["restored_epoch"] != r["new"]["restored_epoch"])]
+        for sd in ("parent", "new"):
+            for st in ("03", "all"):
+                m = runs[sd]["raw"][(a, k, s)][st]
+                tc += [f4(m["acer_05"]), f4(m["acer_dev"]), f4(m["auroc"])]
+        t2.append(tc)
+
+    # Righe di riepilogo calcolate dalle righe
+    M = pc["models"]
+    ten = [r for r in M if r["in_ten"]]
+    changed = [r for r in M if r["parent"]["restored_epoch"] != r["new"]["restored_epoch"]]
+    n = len(M)
+
+    def cnt(rs, f):
+        return sum(1 for r in rs if f(r))
+
+    def rng(vals, form="%g"):
+        return "%s (%s-%s)" % (form % statistics.median(vals), form % min(vals), form % max(vals))
+    # Una riga per fatto, al più SUMMARY_WIDTH caratteri con il trattino (le righe stanno alla lettera in SYNTHESIS.md)
+    def by_run(head, f):
+        return ["%s with patience %d: %s." % (head, p, f(sd)) for sd, p in (("parent", P4), ("new", P12))]
+    lines1 = ["Models: %d (%d arms x %d folds x %d seeds); complete: %d with patience %d, %d with patience %d."
+              % (n, len(ABL_ARMS), len(fl), len(seeds), n, P4, cnt(M, lambda r: r["new_status"] == "complete"), P12),
+              "In the ten original degenerate trainings: %d." % len(ten)]
+    lines1 += by_run("Degenerate", lambda sd: "%d of %d (%d of the ten)" % (cnt(M, lambda r: r[sd]["degenerate"]), n,
+                                                                             cnt(ten, lambda r: r[sd]["degenerate"])))
+    lines1 += ["Shared histories identical: %d of %d (shared epochs = epochs run with patience %d in %d of %d)."
+               % (cnt(M, lambda r: r["shared_identical"]), n, P4, cnt(M, lambda r: r["shared_epochs"] == r["parent"]["epochs_run"]), n)]
+    lines1 += by_run("Epochs run", lambda sd: "%s, %d of %d models at %d" % (
+        span([r[sd]["epochs_run"] for r in M]), cnt(M, lambda r: r[sd]["epochs_run"] == pc["max_epochs"]), n, pc["max_epochs"]))
+    lines1 += by_run("With a recovery (an epoch meeting the recovery criterion)", lambda sd: "%d of %d (%d of the ten)" % (
+        cnt(M, lambda r: r[sd]["recovered"]), n, cnt(ten, lambda r: r[sd]["recovered"])))
+    lines1 += by_run("Recovery holds at the last epoch", lambda sd: "%d of %d (%d of the ten)" % (
+        cnt(M, lambda r: r["derived"][sd]["holding_last"]), n, cnt(ten, lambda r: r["derived"][sd]["holding_last"])))
+    lines1 += ["First recovery of the ten with patience %d: median (min-max) %s."
+               % (P12, rng([r["new"]["first_recovery"] for r in ten if r["new"]["first_recovery"] is not None])),
+               "First recovery of the ten at epoch %d or later with patience %d: %d of the ten (cut-off of CONCLUSION.md)."
+               % (LATE_RECOVERY_EPOCH, P12, cnt(ten, lambda r: r["new"]["first_recovery"] is not None
+                                               and r["new"]["first_recovery"] >= LATE_RECOVERY_EPOCH)),
+               "Restored epoch changed: %d of %d (%d of the ten, %d of the other %d)."
+               % (len(changed), n, cnt(changed, lambda r: r["in_ten"]), cnt(changed, lambda r: not r["in_ten"]), n - len(ten)),
+               "Stopped before epoch %d with patience %d: %d models, %d outside the ten, of which %d changed restored epoch."
+               % (pc["max_epochs"], P4, cnt(M, lambda r: r["parent"]["epochs_run"] < pc["max_epochs"]),
+                  cnt(M, lambda r: r["parent"]["epochs_run"] < pc["max_epochs"] and not r["in_ten"]),
+                  cnt(changed, lambda r: r["parent"]["epochs_run"] < pc["max_epochs"] and not r["in_ten"]))]
+    for group, rows_ in (("the ten", ten), ("the other %d" % (n - len(ten)), [r for r in M if not r["in_ten"]])):
+        lines1 += by_run("Dev accuracy at the checkpoint, %s, median (min-max)" % group,
+                         lambda sd: rng([r[sd]["dev_acc_at_checkpoint"] for r in rows_], "%.4f"))
+    for group, rows_ in (("the ten", ten), ("the other %d" % (n - len(ten)), [r for r in M if not r["in_ten"]])):
+        lines1.append("Dev accuracy at the checkpoint below %g with patience %d, %s: %d (cut-off of CONCLUSION.md)."
+                      % (LOW_DEV_ACCURACY, P12, group, cnt(rows_, lambda r: r["new"]["dev_acc_at_checkpoint"] < LOW_DEV_ACCURACY)))
+    lines2 = ["Same test values and dev threshold in both runs (checked): all %d models whose restored epoch did not change."
+              % (n - len(changed)),
+              "The differences below come from the %d models whose restored epoch changed (\"changed\" below)." % len(changed)]
+    for st in ("03", "all"):
+        for key, label in (("acer_05", "ACER at 0.5"), ("acer_dev", "ACER at the dev threshold"), ("auroc", "AUROC")):
+            def cmpv(r):
+                x, y = runs["parent"]["raw"][(r["arm"], r["fold"], r["seed"])][st][key], runs["new"]["raw"][(r["arm"], r["fold"], r["seed"])][st][key]
+                return None if x is None or y is None else (y > x) - (y < x)
+            for sign, word in ((-1, "lower"), (0, "equal"), (1, "higher")):
+                lines2.append("Stratum %s, %s, patience %d vs %d: %s in %d of %d (%d of the %d changed, %d of the ten)."
+                              % (st, label, P12, P4, word, cnt(M, lambda r: cmpv(r) == sign), n, cnt(changed, lambda r: cmpv(r) == sign),
+                                 len(changed), cnt(ten, lambda r: cmpv(r) == sign)))
+            na = cnt(M, lambda r: cmpv(r) is None)
+            if na:
+                lines2.append("Stratum %s, %s, patience %d vs %d: NA in %d of %d (a class absent)." % (st, label, P12, P4, na, n))
+    for l in lines1 + lines2:
+        if len("- " + l) > SUMMARY_WIDTH:
+            fail("summary line longer than %d characters: %s" % (SUMMARY_WIDTH, l))
+    # Tabella dell'ablazione: aggregati per braccio, seed, strato e pazienza; mediane; verdetti affiancati
+    pooled_rows, summary_rows, verdict_rows = [], [], []
+    for a in ABL_ARMS:
+        for s in seeds:
+            for st in FOLDS_STRATA:
+                for sd, p in (("parent", P4), ("new", P12)):
+                    run = runs[sd]
+                    m, b, nsub = run["pooled"][(a, s, st)], run["boot"].get((a, s, st)), run["praw"][(a, s, st)].get("n_subjects")
+                    x, d = m["05"], m["dev"]
+                    pooled_rows.append([ARM_LABELS[a], s, st, p, x["n_bona_fide"], x["n_attack"], nsub,
+                                        "%s / %s" % (x["rejected_bona_fide"], x["accepted_attacks"]), f4(x["bpcer"]), f4(x["apcer"]),
+                                        "%s [%s]" % (f4(x["acer"]), iv(b, "acer_05") if b else "NA"),
+                                        "%s / %s" % (d["rejected_bona_fide"], d["accepted_attacks"]), f4(d["bpcer"]), f4(d["apcer"]),
+                                        "%s [%s]" % (f4(d["acer"]), iv(b, "acer_dev") if b else "NA"),
+                                        "%s [%s]" % (f4(x["auroc"]), iv(b, "auroc") if b else "NA")])
+    for a in ABL_ARMS:
+        for st in FOLDS_STRATA:
+            for sd, p in (("parent", P4), ("new", P12)):
+                e = runs[sd]["agg"]["pooled_summary_over_seeds"][a][st]
+                summary_rows.append([ARM_LABELS[a], st, p] + ["%s (%s-%s)" % (f4(e[k]["median"]), f4(e[k]["min"]), f4(e[k]["max"]))
+                                                                for k in ("acer_05", "acer_dev", "auroc")])
+
+    def vtext(v):
+        return "%s (%s)" % (v["verdict"], v["direction"] if v["direction"] else v["reason"])
+
+    def stext(v):
+        return "; ".join("%s [%s, %s]" % (f4(d), f4(lo), f4(hi)) for d, lo, hi in v["per_seed"])
+    counts = {sd: {} for sd in ("parent", "new")}
+    for c, st, m in [(c[0], st, m) for c in ABL_COMPARISONS for st in FOLDS_STRATA for m in FOLDS_SUMMARY_KEYS]:
+        vp, vn = runs["parent"]["verdicts"][(c, st, m)], runs["new"]["verdicts"][(c, st, m)]
+        verdict_rows.append([COMPARISON_LABELS[c], st, m, vp["label"], vtext(vp), stext(vp), f4(vp["median"]), vtext(vn), stext(vn),
+                             f4(vn["median"]), "yes" if (c, st, m) in pc["changed"] else "—"])
+        for sd, v in (("parent", vp), ("new", vn)):
+            counts[sd][v["verdict"]] = counts[sd].get(v["verdict"], 0) + 1
+    nv = len(verdict_rows)
+    lines3 = ["Verdicts: %d per run (%d comparisons x %d strata x %d metrics); patience %d: %s; patience %d: %s."
+              % (nv, len(ABL_COMPARISONS), len(FOLDS_STRATA), len(FOLDS_SUMMARY_KEYS), P4,
+                 ", ".join("%s %d" % (k, v) for k, v in sorted(counts["parent"].items())), P12,
+                 ", ".join("%s %d" % (k, v) for k, v in sorted(counts["new"].items())))]
+    for sd, p in (("parent", P4), ("new", P12)):
+        pv = [runs[sd]["verdicts"][("a_star_minus_b", PRIMARY_STRATUM, m)]["verdict"] for m in PRIMARY_METRICS]
+        lines3.append("Primary verdicts (A* - B, stratum %s: %s) with patience %d: %s."
+                      % (PRIMARY_STRATUM, ", ".join(PRIMARY_METRICS), p, ", ".join(pv)))
+    lines3.append("Verdicts that differ between the two runs: %d of %d: %s." % (
+        len(pc["changed"]), nv, "; ".join("%s stratum %s %s (%s -> %s)" % (COMPARISON_LABELS[c], st, m, runs["parent"]["verdicts"][(c, st, m)]["verdict"],
+                                                                           runs["new"]["verdicts"][(c, st, m)]["verdict"]) for c, st, m in pc["changed"])))
+    compact = [["%s fold %s seed %s" % (c[0], c[1], c[2]), "yes" if c[3] == "yes" else "—", "%s → %s" % (c[5], c[15]),
+                "%s → %s" % (c[7], c[17]), "%s → %s" % (c[8], c[18]), "%s → %s" % (c[10], c[20]), "yes" if c[26] == "yes" else "—"]
+               for c in t1]
+    return {"patience_train_dev": t1, "patience_test": t2, "patience_lines": lines1, "test_lines": lines2, "patience_compact": compact,
+            "pooled": pooled_rows, "pooled_summary": summary_rows, "verdicts": verdict_rows, "verdict_lines": lines3}
 
 
 def build(research: Path) -> dict:
@@ -1205,6 +2106,38 @@ def build(research: Path) -> dict:
     compare = compare_rows(cmp_agg, {"n1": n1, "n1_seeds": n1_seeds, "n1_rows": n1_rows, "mc": mc, "m2": m2, "folds": folds,
                                      "fsch": fsch, "T": T, "src": src("folds_n1_compare")}, problems)
     rows.extend(compare["rows"])
+
+    # Run di ablazione delle sessioni (PR #21, pazienza 4) e run di verifica con pazienza 12 (PR #23), confronto delle due
+    runs, statuses = {}, {}
+    for side, pre in (("parent", "sessabl"), ("new", "patience")):
+        keys = {"aggregate": pre + "_aggregate", "record": pre + "_record", "sums": pre + "_sums", "status": pre + "_status"}
+        agg_ = read_json(paths[keys["aggregate"]], ABL_AGG_FIELDS, clean=False)
+        rec_ = read_json(paths[keys["record"]], ABL_REC_FIELDS, clean=False)
+        st_ = read_json(paths[keys["status"]], ABL_STATUS_FIELDS, clean=False)
+        sums_ = read_sums(paths[keys["sums"]], SOURCES[keys["sums"]])
+        runs[side] = ablation_run("%s run" % ("session ablation" if side == "parent" else "patience verification"), agg_, rec_, st_,
+                                  sums_, hashes, keys, folds, fsch, problems)
+        runs[side]["keys"], statuses[side] = keys, st_
+    if runs["parent"]["agg"]["run_id"] == runs["new"]["agg"]["run_id"]:
+        fail("session ablation and patience verification: the same run %s" % runs["new"]["agg"]["run_id"])
+    if runs["parent"]["agg"]["reading_rule"] != runs["new"]["agg"]["reading_rule"]:
+        problems.append("patience verification run: reading rule differs from the session ablation run")
+    for k in ("cells", "dev_cells", "n_fit", "n_dev"):
+        if runs["parent"][k] != runs["new"][k]:
+            problems.append("patience verification run: %s differ from the session ablation run (same 36 models expected)" % k)
+    pv_agg = read_json(paths["patver_aggregate"], PATVER_FIELDS, clean=False)
+    pv_status = read_json(paths["patver_status"], PATVER_STATUS_FIELDS, clean=False)
+    pv_sums = read_sums(paths["patver_sums"], SOURCES["patver_sums"])
+    pv_rows = read_csv_rows(paths["patver_comparison"], CMP_COLUMNS, SOURCES["patver_comparison"])
+    pv_curves = read_csv_rows(paths["patver_curves"], CURVE_COLUMNS, SOURCES["patver_curves"])
+    pc = patience_compare(pv_agg, pv_status, pv_sums, pv_rows, pv_curves, runs, hashes, statuses, folds, problems)
+    T.update(abl_texts(runs["parent"], pc["patience"], pc["max_epochs"]))
+    for side, pre in (("parent", "sessabl"), ("new", "patience")):
+        rows.extend(ablation_rows(runs[side], pc["patience"][side], folds, T, "%s; %s; %s" % (src(pre + "_aggregate"), src(pre + "_record"),
+                                                                                             src("folds_schema"))))
+    if problems:  # gli annessi leggono strutture che i controlli sopra hanno trovato incoerenti: fermarsi prima
+        fail("consistency problems:\n  - " + "\n  - ".join(problems))
+    abl_annex = ablation_annex(runs, pc, folds)
     sources = {k: {"path": SOURCES[k], "sha256": hashes[k]} for k in SOURCES}
 
     if problems:
@@ -1212,11 +2145,13 @@ def build(research: Path) -> dict:
 
     doc = {
         "schema": SCHEMA,
-        "what": "unified table of the accepted NUAA results (C1, M1, N1, N2, C1 crop check, subject-held-out folds run), rebuilt from the public aggregates of research/pad-2026; no restricted data, no inference, no new number",
+        "what": "unified table of the accepted NUAA results (C1, M1, N1, N2, C1 crop check, subject-held-out folds run, session ablation run with early-stopping patience 4 and 12), rebuilt from the public aggregates of research/pad-2026; no restricted data, no inference, no new number",
         "sources": sources,
         "runs": dict({"C1": C1_RUN, "M1": M1_RUN, "N1": n1["run_id"], "N1_subjects": n1s["run_id"], "N2_sessions": n2s["run_id"],
                       "N2_combined": n2c["run_id"], "C1_crop_check": crop["run_id"], "Fold_schema": fsch["run_id"],
-                      "Folds_run": fagg["run_id"], "Folds_vs_N1": cmp_agg["run_id"]}),
+                      "Folds_run": fagg["run_id"], "Folds_vs_N1": cmp_agg["run_id"],
+                      "Session_ablation_run": runs["parent"]["agg"]["run_id"], "Patience_12_run": runs["new"]["agg"]["run_id"],
+                      "Patience_comparison": pv_agg["run_id"]}),
         "decision": "attack if score_attack > threshold (tie = bona fide); label 0 bona fide, 1 attack; score = probability of attack",
         "texts": T,
         "manifest_counts": mc,
@@ -1234,6 +2169,20 @@ def build(research: Path) -> dict:
         "n1_c1_subset": {s: metric_row(n1_seeds[s]["metrics"].get("c1_300"), "N1 c1_300") for s in seeds},
         "folds_run": dict(folds["info"], annex=folds["annex"]),
         "folds_n1_compare": dict(compare["info"], annex=compare["annex"]),
+        "session_ablation": {
+            "runs": {side: {"run_id": runs[side]["agg"]["run_id"], "commit": runs[side]["agg"]["commit"],
+                            "config_sha256": runs[side]["agg"]["config_sha256"], "finished": runs[side]["agg"]["finished"],
+                            "early_stopping_patience": pc["patience"][side], "wall_seconds": runs[side]["rec"]["wall_seconds"],
+                            "wall_cap_seconds": runs[side]["cap"], "models": len(runs[side]["names"]),
+                            "amendment": runs[side]["agg"].get("amendment")} for side in ("parent", "new")},
+            "comparison_run": {"run_id": pv_agg["run_id"], "commit": pv_agg["commit"], "config_sha256": pv_agg["config_sha256"],
+                               "verdict": pc["verdict"], "max_epochs": pc["max_epochs"], "criteria": list(pc["criteria_text"]),
+                               "test_section_label": pc["d_label"]},
+            "bootstrap": runs["parent"]["agg"]["bootstrap"],
+            "reading_rule": runs["parent"]["agg"]["reading_rule"],
+            "verdicts_changed": [list(k) for k in pc["changed"]],
+            "annex": abl_annex,
+        },
     }
     return doc
 
@@ -1262,16 +2211,18 @@ def summary_md(doc: dict) -> str:
               "accepted_attacks_dev": "accepted attacks (dev)", "apcer_dev": "APCER dev", "bpcer_dev": "BPCER dev",
               "acer_dev": "ACER dev", "bootstrap": "bootstrap over subjects, percentiles 2.5-97.5"}
     out = io.StringIO()
-    out.write("# Unified table of the accepted NUAA results (C1, M1, N1, N2, C1 crop check, subject-held-out folds run)\n\n")
+    out.write("# Unified table of the accepted NUAA results (C1, M1, N1, N2, C1 crop check, subject-held-out folds run, "
+              "session ablation run with early-stopping patience %s)\n\n" % " and ".join(
+                  str(doc["session_ablation"]["runs"][sd]["early_stopping_patience"]) for sd in ("parent", "new")))
     out.write("Built by `nuaa_synthesis.py build` from the public aggregates merged in `research/pad-2026` "
               "(sources and SHA-256 in `summary_table.json`); no restricted data, no inference, no new number. "
               "%s. APCER = accepted attacks / attacks, BPCER = rejected bona fide / bona fide, ACER = their mean, "
               "AUROC threshold-free (the column named `auc` in the C1 table and `test AUC` in the M1 table: the same Mann-Whitney statistic). "
               "Rates as printed in the C1 and M1 tables (four decimals; M1 thresholds six) or rounded to four decimals "
-              "from the exact values of the JSON aggregates (N1, N2, crop check, folds run). "
-              "The columns from `dev threshold` to `bootstrap` apply to the folds-run rows only (the dev threshold next to "
-              "0.5; the bootstrap, 1,000 resamples of the held-out subjects, for the rows pooled over the four folds); "
-              "\u2014 elsewhere. "
+              "from the exact values of the JSON aggregates (N1, N2, crop check, folds run, session ablation runs). "
+              "The columns from `dev threshold` to `bootstrap` apply to the folds-run and session-ablation rows only (the dev "
+              "threshold next to 0.5; the bootstrap, 1,000 resamples of the held-out subjects, for the rows pooled over the four "
+              "folds); \u2014 elsewhere. "
               "Runs: %s.\n\n" % (doc["decision"], ", ".join("%s `%s`" % (k, v) for k, v in doc["runs"].items())))
     out.write(md_table(cols, doc["rows"], labels, empty="\u2014"))
     out.write("\nSource of every row: `summary_table.csv` (column `source`) and `summary_table.json`.\n")
@@ -1282,7 +2233,17 @@ SHORT_BLOCK = {"C1": "C1", "M1": "M1", "N1": "N1", "N2 sessions": "N2-S", "N2 co
                FOLDS_BLOCK: "FOLDS", COMPARE_BLOCK: "FOLDS-N1"}
 TRANSFER_CODES = {TRANSFER_SAME: "same", TRANSFER_SESSION_ALL: "session", TRANSFER_SESSION_9: "session/9",
                   TRANSFER_DATASET: "dataset", TRANSFER_FOLDS: "subject-held-out (sessions represented)",
-                  TRANSFER_FOLDS_N1: "subject-held-out, N1 test frames"}
+                  TRANSFER_FOLDS_N1: "subject-held-out, N1 test frames", TRANSFER_ABL: "subject-held-out (session ablation)"}
+
+
+def short_block(block: str) -> str:
+    """Codice breve del blocco; i blocchi dell'ablazione portano la pazienza («Session ablation run, patience 4» -> SESSABL-P4)."""
+    mm = re.fullmatch(ABL_BLOCK.replace("%d", r"(\d+)"), block)
+    return "SESSABL-P" + mm.group(1) if mm else SHORT_BLOCK[block]
+
+
+def is_abl(r: dict) -> bool:
+    return re.fullmatch(ABL_BLOCK.replace("%d", r"\d+"), r["block"]) is not None
 
 
 def short_model(r: dict) -> str:
@@ -1306,6 +2267,11 @@ def short_model(r: dict) -> str:
             return "LivenessNet, 4 fold models, seed %s (pooled)" % mm.group(2)
     if r["block"] == COMPARE_BLOCK:
         return "LivenessNet, 4 fold models, seed %s (N1 test frames)" % r["row"].split("seed")[1]
+    if is_abl(r):
+        mm = re.fullmatch(r"SESSABL-P\d+-(\w+)-seed(\d+)", r["row"])
+        arm = {v: k for k, v in ARM_IDS.items()}.get(mm.group(1)) if mm else None
+        if arm:
+            return "LivenessNet, arm %s, 4 fold models, seed %s (pooled)" % (ARM_LABELS[arm], mm.group(2))
     fail("compact table: block %r" % r["block"])
 
 
@@ -1316,19 +2282,22 @@ def compact_legend(doc: dict) -> dict:
     test.update({"S-FOLD-%d" % k: T["folds_test_%d" % k] for k in folds})
     test["S-FOLD-ALL"] = T["folds_test_all"]
     return {
-        "training": {"T-NUAA": T["train"] + "; early stopping on " + T["es"],
-                     "T-COMB": TRAIN_COMB + "; historical early stopping",
-                     "T-FOLD": T["folds_legend"] + "; the dev fold is the next held-out fold and drives early stopping, the "
-                               "learning-rate schedule and the EER threshold; frames drawn with the deterministic spread rule"},
+        "training": dict({"T-NUAA": T["train"] + "; early stopping on " + T["es"],
+                          "T-COMB": TRAIN_COMB + "; historical early stopping",
+                          "T-FOLD": T["folds_legend"] + "; the dev fold is the next held-out fold and drives early stopping, the "
+                                    "learning-rate schedule and the EER threshold; frames drawn with the deterministic spread rule"},
+                         **{"T-ABL-" + ARM_LABELS[a]: T["abl_train_" + a] + "; " + T["abl_dev_legend"] for a in ABL_ARMS}),
         "test": test,
         "extractor": {"E-C1": "c1_a80f6f9: the C1 evaluation extractor (RetinaFace box 1 px narrower and shorter than the cache)",
                       "E-CACHE": "cache_0ac7143: the training-cache extractor (cache frames, or the frozen copy on new frames)",
                       "E-WHOLE": VARIANTS["whole_image"], "E-CROP": VARIANTS["face_crop"]},
         "preprocessing": {"P-REF": PREP_REF, "P-HIST": PREP_HIST},
-        "threshold": {"0.5 (fixed)": "fixed a priori (C1, N1, N2, crop check, folds run)",
+        "threshold": {"0.5 (fixed)": "fixed a priori (C1, N1, N2, crop check, folds run, session ablation runs)",
                       "(dev EER)": "M1: " + T["thr_dev"] + ", frozen before any test score was read",
                       "(EER, fold dev)": "folds run, column \"dev thr.\": " + THR_FOLDS_ORIGIN.split("; dev threshold: ")[1]
-                                         + " (\"" + THR_DEV_POOLED + "\" in the pooled rows: each frame at the threshold of its fold model)"},
+                                         + " (\"" + THR_DEV_POOLED + "\" in the pooled rows: each frame at the threshold of its fold model)",
+                      "(EER, common dev)": "session ablation runs, column \"dev thr.\": " + THR_ABL_ORIGIN.split("; dev threshold: ")[1]
+                                           + " (\"" + THR_DEV_POOLED + "\": each frame at the threshold of its fold model)"},
         # il codice del confronto con N1 compare solo quando ci sono le sue righe (sorgente facoltativa)
         "transfer": {v: k for k, v in TRANSFER_CODES.items()
                      if k != TRANSFER_FOLDS_N1 or any(r["transfer"] == k for r in doc["rows"])},
@@ -1340,8 +2309,9 @@ def compact_rows(doc: dict) -> list:
     out = []
     tests = {v: k for k, v in compact_legend(doc)["test"].items()}
     for r in doc["rows"]:
+        abl_train = {T["abl_train_" + a]: "T-ABL-" + ARM_LABELS[a] for a in ABL_ARMS}
         training = ("T-COMB" if r["training_data"] == TRAIN_COMB else "T-FOLD" if r["training_data"] == T.get("folds_train")
-                    else "T-NUAA")
+                    else abl_train[r["training_data"]] if r["training_data"] in abl_train else "T-NUAA")
         test = tests.get(r["test_set"])
         if test is None:
             fail("compact table: test set %r" % r["test_set"])
@@ -1356,11 +2326,11 @@ def compact_rows(doc: dict) -> list:
         boot = r["bootstrap"]
         if boot.startswith("ACER 0.5 "):  # «ACER 0.5 a-b; ACER dev c-d; AUROC e-f» -> «a-b; c-d; e-f»
             boot = "; ".join(part.split(" ")[-1] for part in boot.split("; "))
-        out.append({"block": SHORT_BLOCK[r["block"]], "model": short_model(r), "training": training, "test": test,
+        out.append({"block": short_block(r["block"]), "model": short_model(r), "training": training, "test": test,
                     "extractor": extractor, "preprocessing": prep, "threshold": thr,
                     "errors": "%s / %s" % (r["rejected_bona_fide"], r["accepted_attacks"]),
                     "apcer": r["apcer"], "bpcer": r["bpcer"], "acer": r["acer"], "auroc": r["auroc"],
-                    "threshold_dev": (r["threshold_dev"] + " (EER, fold dev)") if dev else "",
+                    "threshold_dev": (r["threshold_dev"] + (" (EER, common dev)" if is_abl(r) else " (EER, fold dev)")) if dev else "",
                     "errors_dev": "%s / %s" % (r["rejected_bona_fide_dev"], r["accepted_attacks_dev"]) if dev else "",
                     "apcer_dev": r["apcer_dev"], "bpcer_dev": r["bpcer_dev"], "acer_dev": r["acer_dev"], "bootstrap": boot,
                     "run_id": r["run_id"], "transfer": transfer})
@@ -1378,13 +2348,18 @@ def compact_md(doc: dict) -> str:
     out.write("# Unified table, compact form (codes in the legend below; full text, row ids and sources in `summary_table.md`)\n\n")
     out.write(md_table(cols, compact_rows(doc), labels, empty="\u2014"))
     out.write("\nLegend. Blocks: C1, M1, N1 (part 2), N2-S (N2 part 1, sessions), N2-C (N2 part 2, combined model), CROP (C1 crop check), "
-              "FOLDS (subject-held-out folds run: one row per held-out fold and seed, stratum all, and one row per seed pooled over the four folds); "
+              "FOLDS (subject-held-out folds run: one row per held-out fold and seed, stratum all, and one row per seed pooled over the four folds), "
+              "FOLDS-N1 (the fold models on the 3,000 N1 test frames), %s (session ablation run and its verification run with "
+              "another early-stopping patience: one row per arm and seed pooled over the four folds, stratum all; every model, "
+              "stratum and verdict in `session_ablation_table.md` and `patience_table.md`); "
               "ckpt = checkpoint; \"rejected bf / accepted att.\" = rejected bona fide / accepted attacks, the numerators of BPCER and APCER. "
-              "The columns from \"dev thr.\" to \"bootstrap\" apply to the FOLDS rows only (\u2014 elsewhere): the errors and rates "
+              "The columns from \"dev thr.\" to \"bootstrap\" apply to the FOLDS, FOLDS-N1 and SESSABL rows only (\u2014 elsewhere): the errors and rates "
               "at the dev threshold of each model, and for the pooled rows the 2.5-97.5 percentiles of 1,000 bootstrap resamples "
               "of the held-out subjects (seed 0) for ACER at 0.5, ACER at the dev threshold and AUROC. "
               "Unit = image (frame) in every row; %s; APCER = accepted attacks / attacks, BPCER = rejected bona fide / bona fide, "
-              "ACER = their mean, AUROC threshold-free (`auc` in the C1 table, `test AUC` in the M1 table).\n\n" % doc["decision"])
+              "ACER = their mean, AUROC threshold-free (`auc` in the C1 table, `test AUC` in the M1 table).\n\n"
+              % (" and ".join("SESSABL-P%d" % doc["session_ablation"]["runs"][sd]["early_stopping_patience"] for sd in ("parent", "new")),
+                 doc["decision"]))
     for group, items in compact_legend(doc).items():
         for code, text in items.items():
             out.write("- `%s` (%s): %s\n" % (code, group, text))
@@ -1511,6 +2486,130 @@ def compare_md(doc: dict) -> str:
             + "\nComparison: %s.\n" % c["control_comparison"].rstrip("."))
 
 
+def plain_table(head: list, rows: list) -> str:
+    return ("| " + " | ".join(head) + " |\n|" + "---|" * len(head) + "\n"
+            + "".join("| " + " | ".join(str(c) for c in r) + " |\n" for r in rows))
+
+
+def patience_md(doc: dict) -> str:
+    """Annesso della pazienza: i 36 modelli, train/dev con le due pazienze affiancate, poi il test per modello."""
+    sa, a = doc["session_ablation"], doc["session_ablation"]["annex"]
+    rp, rn, c = sa["runs"]["parent"], sa["runs"]["new"], sa["comparison_run"]
+    P4, P12 = rp["early_stopping_patience"], rn["early_stopping_patience"]
+    side = ["epochs run", "restored epoch", "degenerate", "first recovery", "recovery holds at last epoch", "best val_loss",
+            "dev acc at ckpt", "dev AUROC at ckpt", "epochs at 0.5", "last lr"]
+    test = ["ACER 0.5", "ACER dev", "AUROC"]
+    return ("# Annex: early-stopping patience %d and %d, the %d LivenessNet models of the session ablation run (runs `%s` and `%s`, "
+            "comparison `%s`)\n\n"
+            "Train and dev from the public comparison of the two runs (`%s`, one row per model, and `%s`, one row per epoch of the "
+            "patience-%d run), checked by `nuaa_synthesis.py`: every value of the comparison except the dev AUROC at the checkpoint "
+            "(copied; checked against the JSON rows and the group medians) rebuilt from the epoch curves with the "
+            "criteria of the comparison aggregate (restored epoch = first epoch of minimum dev val_loss; epochs run = the early-stopping "
+            "replay with the patience of the run, at most %d epochs; degenerate: %s; recovery: %s), equal to the JSON rows of the "
+            "comparison and to the training cards of the two public aggregates; the first epochs of the patience-%d run are those "
+            "of the patience-%d run (shared histories, identical: the largest absolute differences of the comparison are required "
+            "to be 0), so the patience-%d columns are read from the same curves. "
+            "\"Recovery holds at last epoch\" = the recovery criterion met at the last epoch run (epoch %d with patience %d). "
+            "Checkpoint = restored epoch; dev = the common dev of the fold (sessions 01-02). \"Restored epoch changed\" compares the "
+            "restored epochs of the two runs only: with the same restored epoch the weights and threshold file hashes still differ "
+            "in every model; identity is shown by identical test values and dev threshold (checked). Comparison verdict: %s.\n\n"
+            "## Train and dev, per model (patience %d, then patience %d)\n\n"
+            % (P4, P12, rp["models"], rp["run_id"], rn["run_id"], c["run_id"], SOURCES["patver_comparison"], SOURCES["patver_curves"],
+               P12, c["max_epochs"], c["criteria"][0], c["criteria"][1], P12, P4, P4, c["max_epochs"], P12, c["verdict"], P4, P12)
+            + plain_table(["arm", "fold", "seed", "in the ten"] + ["%s (p%d)" % (h, P4) for h in side] + ["%s (p%d)" % (h, P12) for h in side]
+                          + ["shared epochs", "shared identical", "restored epoch changed"], a["patience_train_dev"])
+            + "\n" + "".join("- %s\n" % l for l in a["patience_lines"])
+            + "\n## Test, per model (%s; patience %d, then patience %d)\n\n"
+              "From the public `aggregate.json` of the two runs (`%s`, `%s`): every count and rate checked against the fold schema "
+              "and summed into the pooled rows of `session_ablation_table.md`. Strata 03 and all of the held-out subjects of the "
+              "fold; 0.5 = the fixed threshold, dev = the EER threshold of the common dev of the model.\n\n"
+            % (c["test_section_label"], P4, P12, SOURCES["sessabl_aggregate"], SOURCES["patience_aggregate"])
+            + plain_table(["arm", "fold", "seed", "in the ten", "restored epoch changed"]
+                          + ["%s %s (p%d)" % (st, h, p) for p in (P4, P12) for st in ("03", "all") for h in test], a["patience_test"])
+            + "\n" + "".join("- %s\n" % l for l in a["test_lines"]))
+
+
+PATIENCE_COMPACT_HEAD = ["model", "in the ten", "restored epoch p%d → p%d", "first recovery p%d → p%d",
+                         "recovery holds at last epoch p%d → p%d", "dev acc at ckpt p%d → p%d", "restored epoch changed"]
+
+
+def patience_compact_md(doc: dict) -> str:
+    """Tabella compatta dei 36 modelli (per SYNTHESIS.md): celle prese dalle righe di patience_table.md, poi le stesse
+    righe di riepilogo della tabella train/dev."""
+    sa, a = doc["session_ablation"], doc["session_ablation"]["annex"]
+    P4, P12 = sa["runs"]["parent"]["early_stopping_patience"], sa["runs"]["new"]["early_stopping_patience"]
+    head = [h % (P4, P12) if "%d" in h else h for h in PATIENCE_COMPACT_HEAD]
+    return ("# Early-stopping patience %d and %d, the %d models in compact form (all columns, sources and checks in "
+            "`patience_table.md`)\n\n" % (P4, P12, sa["runs"]["parent"]["models"])
+            + plain_table(head, a["patience_compact"])
+            + "\nLegend. p%d = run `%s` (early-stopping patience %d), p%d = run `%s` (patience %d); in the ten = one of the ten "
+              "degenerate trainings of the p%d run (— = not among the ten); first recovery = first epoch meeting the recovery criterion (— when none); "
+              "recovery holds at last epoch = that criterion met at the last epoch run; dev acc at ckpt = dev accuracy at the "
+              "restored epoch; restored epoch changed = the two restored epochs differ (— when equal). Train and dev only; the "
+              "test per model is in `patience_table.md`.\n\n"
+            % (P4, sa["runs"]["parent"]["run_id"], P4, P12, sa["runs"]["new"]["run_id"], P12, P4)
+            + "".join("- %s\n" % l for l in a["patience_lines"]))
+
+
+def synthesis_lines(doc: dict) -> dict:
+    """Le righe che SYNTHESIS.md deve contenere alla lettera: la tabella compatta unica (righe di tabella) e la tabella
+    compatta della pazienza (righe di tabella e righe di riepilogo)."""
+    return {"compact table": [l for l in compact_md(doc).splitlines() if l.startswith("|")],
+            "patience compact table": [l for l in patience_compact_md(doc).splitlines() if l.startswith("|") or l.startswith("- ")]}
+
+
+def ablation_md(doc: dict) -> str:
+    """Annesso dell'ablazione: aggregati per braccio, seed e strato nelle due run, mediane, verdetti affiancati."""
+    sa, a = doc["session_ablation"], doc["session_ablation"]["annex"]
+    rp, rn, b = sa["runs"]["parent"], sa["runs"]["new"], sa["bootstrap"]
+    P4, P12 = rp["early_stopping_patience"], rn["early_stopping_patience"]
+    summary = ["ACER 05: median (min-max)", "ACER dev: median (min-max)", "AUROC: median (min-max)"]
+    return ("# Annex: session ablation run, arms B, A* and B' pooled over the 4 subject folds, early-stopping patience %d and %d "
+            "(runs `%s` and `%s`)\n\n"
+            "Copied from the public aggregates of the two runs (`%s`, `%s`; every count and rate checked by `nuaa_synthesis.py`: "
+            "denominators against the fold schema, stratum all against the sum of the sessions, pooled rows against the sum of "
+            "the folds, medians against the per-seed values, differences against the pooled rows, every verdict against the "
+            "reading rule applied to the per-seed differences and intervals). The two runs train the same 36 models with the same "
+            "cell counts and seeds; per the amendment, only the patience changes (%d -> %d). Test values: %s. %s; `05` = the fixed threshold 0.5, `dev` = the EER threshold of the common "
+            "dev, one per model (pooled rows: each frame at the threshold of its fold model). Bootstrap: %d resamples with "
+            "replacement of the held-out subjects of the stratum, seed %d, percentiles %s-%s, no interval with fewer than %d "
+            "subjects. Frames of one subject and session are correlated: n counts frames, not independent units.\n\n"
+            "## Pooled over the 4 folds, per arm, seed, stratum and patience\n\n"
+            % (P4, P12, rp["run_id"], rn["run_id"], SOURCES["sessabl_aggregate"], SOURCES["patience_aggregate"], P4, P12,
+               sa["comparison_run"]["test_section_label"], doc["decision"], b["resamples"], b["seed"], b["percentiles"][0],
+               b["percentiles"][1], b["min_subjects"])
+            + plain_table(["arm", "seed", "stratum", "patience", "n bona fide", "n attack", "subjects", "rejected bf / accepted att. (05)",
+                           "BPCER 05", "APCER 05", "ACER 05 [bootstrap]", "rejected bf / accepted att. (dev)", "BPCER dev", "APCER dev",
+                           "ACER dev [bootstrap]", "AUROC [bootstrap]"], a["pooled"])
+            + "\n## Pooled: median and range over the seeds\n\n"
+            + plain_table(["arm", "stratum", "patience"] + summary, a["pooled_summary"])
+            + "\n## Verdicts of the reading rule, patience %d and patience %d\n\n"
+              "Reading rule (copied from the aggregates): %s. Per seed (%s): the pooled difference (minuend - subtrahend) with its "
+              "paired bootstrap interval [2.5, 97.5]; median over the seeds; differs = verdict or direction not the same in the "
+              "two runs.\n\n"
+            % (P4, P12, sa["reading_rule"], ", ".join(doc["folds_run"]["seeds"]))
+            + plain_table(["comparison", "stratum", "metric", "label", "verdict (p%d)" % P4, "per seed (p%d)" % P4, "median (p%d)" % P4,
+                           "verdict (p%d)" % P12, "per seed (p%d)" % P12, "median (p%d)" % P12, "differs"], a["verdicts"])
+            + "\n" + "".join("- %s\n" % l for l in a["verdict_lines"]))
+
+
+def duplicate_rows(files: dict) -> list:
+    """Righe duplicate dentro una stessa tabella Markdown di un file generato (ogni riga di una tabella deve essere unica)."""
+    out = []
+    for name, text in files.items():
+        if not name.endswith(".md"):
+            continue
+        seen = set()
+        for line in text.splitlines():
+            if not line.startswith("|"):
+                seen = set()
+                continue
+            if line in seen:
+                out.append("%s: duplicated row %s" % (name, line[:80]))
+            seen.add(line)
+    return out
+
+
 def csv_text(doc: dict) -> str:
     out = io.StringIO()
     w = csv.DictWriter(out, fieldnames=COLUMNS, lineterminator="\n")
@@ -1531,27 +2630,41 @@ def outputs(doc: dict) -> dict:
         "subject_sensitivity_table.md": subjects_md(doc),
         "folds_run_table.md": folds_md(doc),
         "n1_same_ids_table.md": compare_md(doc),
+        "patience_table.md": patience_md(doc),
+        "session_ablation_table.md": ablation_md(doc),
+        "patience_table_compact.md": patience_compact_md(doc),
     }
+
+
+def checked_outputs(doc: dict) -> dict:
+    """I file generati, fermandosi se una tabella Markdown ha una riga duplicata."""
+    files = outputs(doc)
+    dup = duplicate_rows(files)
+    if dup:
+        fail("duplicated Markdown rows:\n  - " + "\n  - ".join(dup))
+    return files
 
 
 def cmd_build(a) -> int:
     doc = build(Path(a.research))
-    files = outputs(doc)
+    files = checked_outputs(doc)
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
     for name, text in files.items():
         with open(out / name, "w", encoding="utf-8", newline="\n") as fh:
             fh.write(text)
-    print("BUILD: %d rows, %d cross-dataset rows, %d context rows, %d subject rows, %d folds-run stratum rows -> %s" %
+    print("BUILD: %d rows, %d cross-dataset rows, %d context rows, %d subject rows, %d folds-run stratum rows, %d patience model rows, "
+          "%d session-ablation pooled rows, %d verdict rows -> %s" %
           (len(doc["rows"]), len(doc["cross_dataset_rows"]), len(doc["context_rows"]), len(doc["subject_sensitivity"]),
-           len(doc["folds_run"]["annex"]["per_fold_seed"]), out))
+           len(doc["folds_run"]["annex"]["per_fold_seed"]), len(doc["session_ablation"]["annex"]["patience_train_dev"]),
+           len(doc["session_ablation"]["annex"]["pooled"]), len(doc["session_ablation"]["annex"]["verdicts"]), out))
     print("RESULT: PASS")
     return 0
 
 
 def cmd_check(a) -> int:
     doc = build(Path(a.research))
-    files = outputs(doc)
+    files = checked_outputs(doc)
     out = Path(a.out)
     bad = []
     for name, text in files.items():
@@ -1561,13 +2674,12 @@ def cmd_check(a) -> int:
         elif p.read_bytes() != text.encode("utf-8"):
             bad.append("%s: differs from the rebuilt table (byte comparison)" % name)
     if a.synthesis:
-        text = Path(a.synthesis).read_text(encoding="utf-8")
-        lines = [l for l in compact_md(doc).splitlines() if l.startswith("|")]
-        present = set(text.splitlines())
-        missing = [l for l in lines if l not in present]
-        if missing:
-            bad.append("%s: %d of %d lines of the compact table are not in the document verbatim (first: %s)"
-                       % (Path(a.synthesis).name, len(missing), len(lines), missing[0][:60]))
+        present = set(Path(a.synthesis).read_text(encoding="utf-8").splitlines())
+        for what, lines in synthesis_lines(doc).items():
+            missing = [l for l in lines if l not in present]
+            if missing:
+                bad.append("%s: %d of %d lines of the %s are not in the document verbatim (first: %s)"
+                           % (Path(a.synthesis).name, len(missing), len(lines), what, missing[0][:60]))
     for b in bad:
         print("PROBLEM: " + b)
     print("CHECK: %d files%s, %d problems" % (len(files), " + synthesis" if a.synthesis else "", len(bad)))
@@ -1593,7 +2705,7 @@ def main(argv=None) -> int:
         return cmd_build(a) if a.cmd == "build" else cmd_check(a)
     except SynthesisError as e:
         print("ERROR: %s" % e)
-    except (KeyError, TypeError, ValueError, OSError) as e:
+    except (KeyError, TypeError, ValueError, AttributeError, IndexError, OSError, csv.Error) as e:
         print("ERROR: a source has an unexpected structure or cannot be read: %s: %s" % (type(e).__name__, e))
     print("RESULT: FAIL")
     return 1

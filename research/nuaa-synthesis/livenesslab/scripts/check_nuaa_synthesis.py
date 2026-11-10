@@ -10,9 +10,11 @@ Uso (dalla radice del repository del gruppo): python3 -I research/nuaa-synthesis
 import contextlib
 import copy
 import csv
+import hashlib
 import importlib.util
 import io
 import json
+import statistics
 import sys
 import tempfile
 import unittest
@@ -48,7 +50,13 @@ FOLD_STRATA = ("01", "02", "03")
 
 
 def fstratum(n_bf, n_att, r05, a05, rdev, adev, auroc, n_subj):
-    """Uno strato del run a fold (soglie 0,5 e dev) con i tassi calcolati dai conteggi."""
+    """Uno strato del run a fold (soglie 0,5 e dev) con i tassi calcolati dai conteggi; una classe assente dà NA."""
+    if n_bf == 0:
+        r05 = rdev = 0
+    if n_att == 0:
+        a05 = adev = 0
+    if n_bf == 0 or n_att == 0:
+        auroc = None
     d = {"n": n_bf + n_att, "n_bona_fide": n_bf, "n_attack": n_att, "n_subjects": n_subj, "auroc": auroc}
     for t, (r, a) in (("05", (r05, a05)), ("dev", (rdev, adev))):
         d["rejected_bona_fide_" + t], d["accepted_attacks_" + t] = r, a
@@ -75,6 +83,8 @@ def fsum(parts, n_subj, auroc):
 
 def summary(values):
     vals = list(values)
+    if None in vals:
+        return {"values": vals, "median": None, "min": None, "max": None}
     return {"values": vals, "median": sorted(vals)[1], "min": min(vals), "max": max(vals)}
 
 
@@ -82,10 +92,137 @@ def f6(v):
     return "%.6f" % v
 
 
+# --- run di ablazione delle sessioni e verifica della pazienza (fixture) ---
+
+ARMS = ("arm_b", "arm_a_star", "arm_b_prime")
+ARM_L = {"arm_b": "B", "arm_a_star": "A*", "arm_b_prime": "B'"}
+COMPS = (("a_star_minus_b", "arm_a_star", "arm_b", "primary"), ("b_prime_minus_b", "arm_b_prime", "arm_b", "secondary"),
+         ("a_star_minus_b_prime", "arm_a_star", "arm_b_prime", "secondary"))
+COMP_L = {"a_star_minus_b": "A* - B", "b_prime_minus_b": "B' - B", "a_star_minus_b_prime": "A* - B'"}
+KEYS7 = ("apcer_05", "bpcer_05", "acer_05", "apcer_dev", "bpcer_dev", "acer_dev", "auroc")
+STRATA4 = ("01", "02", "03", "all")
+REASONS = {"zero": "a seed has a zero difference", "sign": "the sign differs across the seeds",
+           "interval": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+           "consistent": "same sign for every seed and every interval excludes 0"}
+# indici (ordine braccio, fold, seed) dei modelli costruiti degeneri nella run con pazienza 4; le dieci della fixture sono
+# poi ricavate dai dati (degeneri con pazienza 4), così una variante può cambiarle
+TEN = (0, 11, 16, 17, 18, 20, 23, 26, 29, 35)
+METRIC_NAME = {"apcer_05": "APCER (0.5)", "bpcer_05": "BPCER (0.5)", "acer_05": "ACER (0.5)", "apcer_dev": "APCER (dev threshold)",
+               "bpcer_dev": "BPCER (dev threshold)", "acer_dev": "ACER (dev threshold)", "auroc": "AUROC"}
+SIDE = ("epochs_run", "restored_epoch", "degenerate", "recovered", "first_recovery", "best_val_loss", "dev_acc_at_checkpoint",
+        "dev_auroc_at_checkpoint", "epochs_at_half", "lr_last")
+ROWMAP = {"epochs_run": "epochs_run", "restored_epoch": "restored_epoch", "degenerate": "degenerate", "recovered": "recovered",
+          "first_recovery": "first_recovery", "best_val_loss": "best_val_loss", "dev_acc": "dev_acc_at_checkpoint",
+          "dev_auroc": "dev_auroc_at_checkpoint", "epochs_at_half": "epochs_at_half", "lr_last": "lr_last"}
+HIST5 = ("loss", "accuracy", "val_loss", "val_accuracy", "lr")
+TOL = 2 ** -20  # tolleranza della fixture: potenza di 2, così uno scarto uguale alla tolleranza è esatto
+CRITERIA = {"degenerate": {"restored_epochs": [1, 2], "val_acc_at_best": 0.5, "tolerance": TOL, "text": "restored_epoch in {1, 2} and val_acc_at_best = 0.5"},
+            "saturation": {"val_accuracy": 0.5, "tolerance": TOL, "text": "val_accuracy = 0.5"},
+            "recovery": {"val_accuracy_min": 0.75, "val_loss_max": 1.0, "text": "first epoch with val_accuracy >= 0.75 and val_loss < 1.0"},
+            "checkpoint_agreement_tolerance": 1e-06, "shared_history_difference": 0, "source": "previous package"}
+
+
+def es_stop(vl, patience, max_epochs=12):
+    """Epoche eseguite da un arresto precoce sulla val_loss (miglioramento stretto) con la pazienza data."""
+    best, wait = float("inf"), 0
+    for e, v in enumerate(vl[:max_epochs], 1):
+        if v < best:
+            best, wait = v, 0
+        else:
+            wait += 1
+            if wait >= patience:
+                return e
+    return max_epochs
+
+
+def history(i):
+    """Curve per epoca (12) di un modello sintetico; casi limite: pareggio della val_loss minima (i=3), val_loss 1,0 e
+    val_accuracy 0,75 esatte (i=7), lr 6,25e-05 (i=2), accuratezza dev al checkpoint 0,9 esatta e 0,85 (i=11, 16), prima
+    ripresa all'epoca 10 esatta (i=17), ripresa che non regge all'ultima epoca (i=35), ripristino all'epoca 2 senza
+    degenerazione (i % 8 == 2)."""
+    e12 = range(1, 13)
+    lr = [0.001 * 0.5 ** ((e - 1) // 4) for e in e12]
+    if i in TEN:
+        rp = 1 + i % 2
+        npp, rn = rp + 4, 12 - i % 3
+        va = [0.5] * npp + [0.95] * (12 - npp)
+        vl = [2.0 + 0.5 * abs(e - rp) for e in range(1, npp + 1)] + [0.05 + 0.01 * abs(e - rn) for e in range(npp + 1, 13)]
+        if i == TEN[-1]:
+            va[11] = 0.7  # la ripresa non regge all'ultima epoca
+        if i == 0:
+            va[0] = 0.5 + TOL  # degenere al limite esatto della tolleranza
+        if i == 11:
+            va[rn - 1] = 0.9
+        if i == 16:
+            va[rn - 1] = 0.85
+        if i == 17:
+            va[npp:9] = [0.6] * (9 - npp)  # prima ripresa all'epoca 10
+    elif i % 4 == 0:
+        rp = rn = 9 + i % 3
+        npp = 12
+        va = [0.5, 0.5] + [0.9] * 10
+        vl = [0.1 + 0.02 * abs(e - rp) for e in e12]
+    elif i % 4 == 1:
+        rp, npp, rn = 3, 7, 11
+        va = [0.6] * 7 + [0.9] * 5
+        vl = [0.5 + 0.05 * abs(e - 3) for e in range(1, 8)] + [0.2 + 0.01 * abs(e - 11) for e in range(8, 13)]
+    elif i % 4 == 2:  # metà di questi ripristina l'epoca 2 senza essere degenere (accuratezza dev 0,8), come B' fold 4 seed 42
+        rp = rn = 2 if i % 8 == 2 else 4
+        npp = rp + 4
+        va = [0.8] * npp + [0.6] * (12 - npp)
+        vl = [0.3 + 0.05 * abs(e - rp) for e in range(1, npp + 1)] + [1.5] * (12 - npp)
+        if i == 2:
+            lr[11] = 6.25e-05
+    else:
+        va = [0.6] * 5 + [0.85] * 7
+        vl = [0.4 - 0.02 * e for e in e12]
+        if i == 3:  # pareggio: la prima epoca del minimo è quella ripristinata
+            vl = [0.4 - 0.02 * e for e in range(1, 9)] + [0.4 - 0.02 * 8] + [0.3] * 3
+        if i == 7:  # epoca 2: accuratezza 0,9 ma val_loss 1,0 (non ripresa); epoca 3: accuratezza 0,75 esatta (ripresa)
+            va[1], vl[1], va[2], vl[2] = 0.9, 1.0, 0.75, 0.5
+    return {"va": va, "vl": vl, "lr": lr, "loss": [0.1 / e for e in e12], "accuracy": [0.9 + e / 1000 for e in e12]}
+
+
+def side_values(h, n, i, run, changed=None):
+    vl, va = h["vl"][:n], h["va"][:n]
+    r = vl.index(min(vl)) + 1
+    ok = [a >= 0.75 and l < 1.0 for a, l in zip(va, vl)]
+    first = ok.index(True) + 1 if True in ok else None
+    return {"epochs_run": n, "restored_epoch": r, "degenerate": r in (1, 2) and abs(va[r - 1] - 0.5) <= TOL, "recovered": first is not None,
+            "first_recovery": first, "best_val_loss": min(vl), "dev_acc_at_checkpoint": va[r - 1],
+            "dev_auroc_at_checkpoint": 0.99 - 0.001 * (i % 5) if run == 0 or not changed else 0.995,
+            "epochs_at_half": sum(abs(a - 0.5) <= TOL for a in va), "lr_last": h["lr"][n - 1], "holding_last": ok[-1]}
+
+
+def rule(ds):
+    diffs = [d["difference"] for d in ds]
+    if any(x == 0 for x in diffs):
+        return "zero"
+    if not (all(x > 0 for x in diffs) or all(x < 0 for x in diffs)):
+        return "sign"
+    if not all((d["low"] > 0) if d["difference"] > 0 else (d["high"] < 0) for d in ds):
+        return "interval"
+    return "consistent"
+
+
+def sha_text(t):
+    return hashlib.sha256(t.encode("utf-8")).hexdigest()
+
+
+def csv_dump(rows, columns):
+    out = io.StringIO()
+    w = csv.writer(out, lineterminator="\n")
+    w.writerow(columns)
+    for r in rows:
+        w.writerow(["1" if r[c] is True else "0" if r[c] is False else "" if r[c] is None else str(r[c]) for c in columns])
+    return out.getvalue()
+
+
 class Fixture:
     """Le otto sorgenti sintetiche, modificabili prima della scrittura."""
 
-    def __init__(self):
+    def __init__(self, overrides=None):
+        self.overrides = overrides or {}
         self.mc = {"official_train": (3491, 1743, 1748, 9), "official_test": (9123, 3362, 5761, 16),
                    "cnn_train": (2507, 1345, 1162, 7), "cnn_es": (493, 155, 338, 2), "cnn_test": (3000, 1500, 1500, 16),
                    "m1_dev": (574, 180, 394, 2), "c1": (300, 150, 150, 16)}
@@ -151,6 +288,7 @@ class Fixture:
         self.m2_subjects = {"fitted": 7, "early_stopping": 2}
         self.m2_exclusions = {"n": 491, "n_bona_fide": 243, "n_attack": 248, "n_subjects": 9}
         self.folds_init()
+        self.ablation_init()
         self.compare = None  # None: confronto con N1 generato dallo stato corrente della fixture (compare_json)
 
     # --- run a fold di soggetti ---
@@ -159,7 +297,7 @@ class Fixture:
         self.fold_cells = {"1": {"01": (250, 280), "02": (240, 300), "03": (930, 1230)},
                            "2": {"01": (230, 190), "02": (120, 190), "03": (1020, 1360)},
                            "3": {"01": (280, 180), "02": (250, 200), "03": (860, 1670)},
-                           "4": {"01": (125, 194), "02": (247, 200), "03": (553, 1515)}}
+                           "4": {"01": (678, 194), "02": (247, 200), "03": (0, 1515)}}
         assert sum(c[0] for f in self.fold_cells.values() for c in f.values()) == 1743 + 3362
         assert sum(c[1] for f in self.fold_cells.values() for c in f.values()) == 1748 + 5761
         folds = list(self.fold_cells)
@@ -231,6 +369,272 @@ class Fixture:
                      "cache_check": {"train": {"equal": 3000, "different": 0}, "test": {"equal": 3000, "different": 0}},
                      "extraction": {"n": 6614}, "schema_run": {"run_id": "20261103-FOLDS-67b7f3d", "config_sha256": "d" * 64},
                      "train_seeds": [42, 43, 44], "folds": 4, "models": 12, "bootstrap": copy.deepcopy(bootstrap)}
+
+    # --- run di ablazione delle sessioni (pazienza 4), run con pazienza 12 e confronto delle due ---
+    def ablation_init(self):
+        folds = list(self.fold_cells)
+        self.abl_models = [(a, k, s) for a in ARMS for k in folds for s in SEEDS]
+        self.hist, self.sides = {}, {}
+        for i, key in enumerate(self.abl_models):
+            h = history(i)
+            if i in self.overrides:
+                self.overrides[i](h)
+            h["npp"] = es_stop(h["vl"], 4)
+            assert es_stop(h["vl"], 12) == 12
+            p = side_values(h, h["npp"], i, 0)
+            h["rp"] = p["restored_epoch"]
+            h["rn"] = h["vl"].index(min(h["vl"])) + 1
+            self.hist[key] = h
+            self.sides[key] = (p, side_values(h, 12, i, 1, changed=h["rp"] != h["rn"]))
+        self.ten = [i for i, key in enumerate(self.abl_models) if self.sides[key][0]["degenerate"]]
+        self.cells = {"arm_b": {"01/bona_fide": 350, "01/attack": 350, "02/bona_fide": 350, "02/attack": 350},
+                      "arm_a_star": {"01/bona_fide": 234, "01/attack": 233, "02/bona_fide": 233, "02/attack": 234,
+                                     "03/bona_fide": 233, "03/attack": 233},
+                      "arm_b_prime": {"01/bona_fide": 234, "01/attack": 233, "02/bona_fide": 233, "02/attack": 234}}
+        self.dev_cells = {"01/bona_fide": 100, "01/attack": 100, "02/bona_fide": 100, "02/attack": 100}
+        self.abl_ids = [("20261106-SESSABLRUN-d999458", "d999458", "4" * 64, "2026-11-06T11:31:29+0100"),
+                        ("20261109-SESSABLRUN-6a50265", "6a50265", "c" * 64, "2026-11-09T19:06:18+0100")]
+        self.abl = [self.abl_run(0), self.abl_run(1)]
+        self.patver_init()
+
+    def changed(self, key):
+        return self.hist[key]["rp"] != self.hist[key]["rn"]
+
+    def abl_run(self, run):
+        folds = list(self.fold_cells)
+        rid, commit, cfg, fin = self.abl_ids[run]
+        per = {a: {k: {} for k in folds} for a in ARMS}
+        for ai, a in enumerate(ARMS):
+            for k in folds:
+                fi = int(k)
+                for si, s in enumerate(SEEDS):
+                    shift = 7 if run == 1 and self.changed((a, k, s)) else 0
+                    blk = {}
+                    for sti, st in enumerate(FOLD_STRATA):
+                        n_bf, n_att = self.fold_cells[k][st]
+                        r05, a05 = 3 * ai + 5 * fi + 2 * si + sti + 1 + shift, 2 * ai + 4 * fi + si + sti + shift
+                        blk[st] = fstratum(n_bf, n_att, r05, a05, r05 + 2, a05 + 1 + sti,
+                                           0.6 + ai / 10 + fi / 100 + si / 1000 + sti / 10000 + shift / 1e5, 3 - sti % 2)
+                    blk["all"] = fsum([blk[st] for st in FOLD_STRATA], 4, 0.7 + ai / 10 + fi / 100 + si / 1000 + shift / 1e5)
+                    per[a][k][s] = blk
+        pooled, boot = {a: {} for a in ARMS}, {a: {} for a in ARMS}
+        for ai, a in enumerate(ARMS):
+            for si, s in enumerate(SEEDS):
+                pooled[a][s], boot[a][s] = {}, {}
+                for sti, st in enumerate(STRATA4):
+                    m = fsum([per[a][k][s][st] for k in folds], (9, 9, 16, 16)[sti], 0.65 + (ai if run == 0 else 2 - ai) / 10 + si / 100 + sti / 1000 + run / 1e4)
+                    pooled[a][s][st] = m
+                    boot[a][s][st] = {"n_subjects": m["n_subjects"], "resamples": 1000, "seed": 0, "percentiles": [2.5, 97.5],
+                                      "acer_05": {"low": m["acer_05"] / 2, "high": m["acer_05"] * 1.5 + 0.01, "valid_resamples": 1000},
+                                      "acer_dev": {"low": m["acer_dev"] / 3, "high": m["acer_dev"] * 1.5 + 0.02, "valid_resamples": 1000},
+                                      "auroc": {"low": m["auroc"] - 0.05, "high": min(1.0, m["auroc"] + 0.01), "valid_resamples": 1000}}
+        comps, prim = {}, {}
+        for ci, (cname, mi, su, role) in enumerate(COMPS):
+            pfs = {k: {s: {st: {m: None if per[mi][k][s][st][m] is None or per[su][k][s][st][m] is None
+                                else per[mi][k][s][st][m] - per[su][k][s][st][m] for m in KEYS7} for st in STRATA4} for s in SEEDS}
+                   for k in folds}
+            pps = {s: {} for s in SEEDS}
+            for s in SEEDS:
+                for sti, st in enumerate(STRATA4):
+                    pps[s][st] = {"n_subjects": pooled[mi][s][st]["n_subjects"]}
+                    for mk, m in enumerate(KEYS7):
+                        x, y = pooled[mi][s][st][m], pooled[su][s][st][m]
+                        d = x - y
+                        f = 0.5 if (ci + sti + mk + run) % 3 == 0 or (run == 1 and mk == 6) else 2.0
+                        pps[s][st][m] = {"difference": d, "minuend": x, "subtrahend": y, "low": d - abs(d) * f, "high": d + abs(d) * f,
+                                         "valid_resamples": 1000}
+            summ, verd = {}, {}
+            for st in STRATA4:
+                summ[st], verd[st] = {}, {}
+                for m in KEYS7:
+                    ds = [pps[s][st][m] for s in SEEDS]
+                    summ[st][m] = summary(d["difference"] for d in ds)
+                    reason = rule(ds)
+                    ok = reason == "consistent"
+                    verd[st][m] = {"verdict": "consistent" if ok else "inconclusive",
+                                   "direction": ("%s %s %s than %s" % (ARM_L[mi], "higher" if ds[0]["difference"] > 0 else "lower", METRIC_NAME[m],
+                                                                       ARM_L[su])) if ok else None,
+                                   "reason": REASONS[reason],
+                                   "label": "primary" if cname == "a_star_minus_b" and st == "03" and m in ("auroc", "acer_dev") else "secondary"}
+            comps[cname] = {"minuend": mi, "subtrahend": su, "role": role, "per_fold_seed": pfs, "pooled_per_seed": pps,
+                            "pooled_summary_over_seeds": summ, "verdicts": verd}
+        for m in ("auroc", "acer_dev"):
+            prim[m] = dict(comps["a_star_minus_b"]["verdicts"]["03"][m])
+        n_fit = {a: sum(self.cells[a].values()) for a in ARMS}
+        names, training = [], {}
+        for i, (a, k, s) in enumerate(self.abl_models):
+            name = "%s_fold%s_seed%s" % (a, k, s)
+            names.append(name)
+            sv = self.sides[(a, k, s)][run]
+            training[name] = {"arm": a, "fold": int(k), "seed": int(s), "epochs_run": sv["epochs_run"], "restored_epoch": sv["restored_epoch"],
+                              "restored_by": "early stopping" if sv["epochs_run"] < 12 else "end of epochs (set_weights)",
+                              "best_val_loss": sv["best_val_loss"], "train_seconds": 100.0 + i + 200 * run, "n_fitting": n_fit[a],
+                              "n_dev": 400, "weights_sha256": "%064x" % (i + 100 * run),
+                              "dev_threshold": 0.3 + i / 100 + (0.001 if run == 1 and self.changed((a, k, s)) else 0),
+                              "dev_threshold_sha256": "e" * 64, "dev_apcer_at_threshold": 0.01, "dev_bpcer_at_threshold": 0.01}
+        bootstrap = {"resamples": 1000, "seed": 0, "percentiles": [2.5, 97.5], "min_subjects": 5, "recipe": "restarted per seed (fixture)"}
+        ident = {"run_id": rid, "commit": commit, "dirty": False, "config_sha256": cfg, "delivered_configuration": True, "command": "run"}
+        extra = {} if run == 0 else {"configuration_name": "patience12_verification",
+                                     "amendment": {"parent_config_sha256": self.abl_ids[0][2], "changed_field": "training.early_stopping_patience",
+                                                   "from": 4, "to": 12, "other_fields": "equal to the parent configuration"}}
+        agg = dict(ident, **copy.deepcopy(extra), status="PASS", finished=fin, completed=36, trainings=36, missing=[],
+                   bootstrap=copy.deepcopy(bootstrap), decision="attack if score_attack > threshold (tie = bona fide)",
+                   strata=list(STRATA4), per_arm_fold_seed=per, pooled_per_arm_seed=pooled, bootstrap_per_arm_seed=boot,
+                   pooled_summary_over_seeds={a: {st: {key: summary(pooled[a][s][st][key] for s in SEEDS) for key in KEYS7}
+                                                  for st in STRATA4} for a in ARMS},
+                   comparisons=comps, primary_verdicts=prim, reading_rule="consistent only with the same sign and every interval excluding 0 (fixture)",
+                   reference_a={"label": "reference", "run_id": self.folds_run, "aggregate_sha256": None}, training=training)
+        rec = dict(ident, **copy.deepcopy(extra), status="PASS", finished=fin, wall_seconds=10000.0 + 7000 * run,
+                   timings={"train " + n: {"wall_clock_seconds": 1.0} for n in names}, trainings=36, training_order=list(names),
+                   completed=list(names), missing=[], stopped=None, cap_minutes=360, final_writes_after_cap=False,
+                   checks={"schema": {"run_id": self.fsch["run_id"], "test_per_fold": list(self.fold_totals)},
+                           "schema_config": {"sha256": self.fsch["config_sha256"]},
+                           "folds_run": {"run_id": self.folds_run, "aggregate_json_sha256": None, "run_record_json_sha256": None},
+                           "cells": {"counts": copy.deepcopy(self.cells), "dev": dict(self.dev_cells)}},
+                   train_seeds=[42, 43, 44], bootstrap=copy.deepcopy(bootstrap))
+        status = dict(ident, **copy.deepcopy(extra), status="PASS", passed=True, finished=fin, wall_seconds=rec["wall_seconds"],
+                      completed=list(names), missing=[], stopped=None, final_writes_after_cap=False, public_sums_sha256=None,
+                      restricted_sums_sha256="%064x" % (777 + run))
+        return {"agg": agg, "rec": rec, "status": status}
+
+    def patver_init(self):
+        labels = ["%s fold %s seed %s" % (ARM_L[a], k, s) for a, k, s in self.abl_models]
+        rows, crows, curves = [], [], []
+        for i, (a, k, s) in enumerate(self.abl_models):
+            h, (P, N) = self.hist[(a, k, s)], self.sides[(a, k, s)]
+            in_ten = i in self.ten
+            crow = {"arm": a, "fold": k, "seed": s, "in_ten": in_ten, "new_status": "complete", "shared_epochs": h["npp"],
+                    "shared_identical": True}
+            crow.update({"parent_" + f: P[f] for f in SIDE})
+            crow.update({"new_" + f: N[f] for f in SIDE})
+            crow.update({"max_abs_diff_shared_" + f: 0.0 for f in HIST5})
+            crows.append(crow)
+            rows.append({"model": labels[i], "in_ten": in_ten, "new_status": "complete",
+                         "parent": {jf: P[cf] for jf, cf in ROWMAP.items()}, "new": {jf: N[cf] for jf, cf in ROWMAP.items()},
+                         "shared_epochs": h["npp"], "shared_identical": True, "max_abs_diff_shared": {f: 0.0 for f in HIST5}})
+            for e in range(1, 13):
+                va, vl = h["va"][e - 1], h["vl"][e - 1]
+                curves.append({"arm": a, "fold": k, "seed": s, "in_ten": in_ten, "epoch": e, "loss": h["loss"][e - 1],
+                               "accuracy": h["accuracy"][e - 1], "val_loss": vl, "val_accuracy": va, "lr": h["lr"][e - 1],
+                               "is_restored": e == N["restored_epoch"], "saturated": abs(va - 0.5) <= TOL, "shared_with_parent": e <= h["npp"],
+                               "degenerate": N["degenerate"], "recovered_by_epoch": va >= 0.75 and vl < 1.0})
+        self.pv_rows, self.pv_curves = crows, curves
+        groups = {"the ten": [i for i in range(36) if i in self.ten], "the other 26": [i for i in range(36) if i not in self.ten],
+                  "all 36": list(range(36))}
+        msr = {"first_recovery": "first_recovery", "restored_epoch": "restored_epoch", "best_val_loss": "best_val_loss",
+               "dev_acc": "dev_acc_at_checkpoint", "dev_auroc": "dev_auroc_at_checkpoint", "epochs_at_half": "epochs_at_half",
+               "lr_last": "lr_last"}
+        summ = []
+        for g, idx in groups.items():
+            for run, side in ((0, "parent"), (1, "new")):
+                e = {"group": g, "side": side}
+                for jm, cf in msr.items():
+                    vals = [self.sides[self.abl_models[i]][run][cf] for i in idx if self.sides[self.abl_models[i]][run][cf] is not None]
+                    e[jm] = {"models": len(vals), "median": statistics.median(vals) if vals else None,
+                             "min": min(vals) if vals else None, "max": max(vals) if vals else None}
+                summ.append(e)
+        vp, vn = self.abl[0]["agg"]["comparisons"], self.abl[1]["agg"]["comparisons"]
+        drows, changed = [], 0
+        for c, _, _, _ in COMPS:
+            for st in STRATA4:
+                for m in KEYS7:
+                    a, b = vp[c]["verdicts"][st][m], vn[c]["verdicts"][st][m]
+                    drows.append({"comparison": COMP_L[c], "stratum": st, "metric": m,
+                                  "parent": {"verdict": a["verdict"], "direction": a["direction"], "reason": a["reason"],
+                                             "median": vp[c]["pooled_summary_over_seeds"][st][m]["median"]},
+                                  "new": {"verdict": b["verdict"], "direction": b["direction"], "reason": b["reason"],
+                                          "median": vn[c]["pooled_summary_over_seeds"][st][m]["median"]}})
+                    changed += (a["verdict"], a["direction"]) != (b["verdict"], b["direction"])
+        self.verdicts_changed = changed
+        per_arm = []
+        for run, side in ((0, "parent"), (1, "new")):
+            for a in ARMS:
+                cards = [self.abl[run]["agg"]["training"]["%s_fold%s_seed%s" % (a, k, s)] for k in self.fold_cells for s in SEEDS]
+                ep, secs = sum(t["epochs_run"] for t in cards), sum(t["train_seconds"] for t in cards)
+                per_arm.append({"run": side, "arm": ARM_L[a], "models": 12, "epochs": ep, "train_seconds": secs, "seconds_per_epoch": secs / ep})
+        recs = [self.abl[0]["rec"], self.abl[1]["rec"]]
+        inputs = {}
+        for key, run, p in (("parent_run", 0, 4), ("verification_run", 1, 12)):
+            rid, commit, cfg, _ = self.abl_ids[run]
+            inputs[key] = {"run_id": rid, "status": "PASS", "config_sha256": cfg, "commit": commit, "status_sha256": None,
+                           "public_sums_sha256": None, "restricted_sums_sha256": None, "early_stopping_patience": p,
+                           "complete_models": 36, "missing_models": 0}
+        ten = [labels[i] for i in self.ten]
+        sides = [self.sides[m] for m in self.abl_models]
+        ten_rec = [labels[i] for i in self.ten if sides[i][1]["recovered"]]
+        new_deg = [labels[i] for i in range(36) if sides[i][1]["degenerate"]]
+        verdict = "positive" if len(ten_rec) == len(ten) and not new_deg else "negative"
+        self.pv = {"run_id": "20261109-PATVER-4f2b925", "commit": "4f2b925", "dirty": False, "config_sha256": "f" * 64,
+                   "delivered_configuration": True, "criteria": copy.deepcopy(CRITERIA),
+                   "recipe": {"max_epochs": 12, "monitor": "val_loss"}, "original_degenerate": sorted(ten),
+                   "models_without_recovery_parent": [labels[i] for i in range(36) if i not in self.ten and not sides[i][0]["recovered"]],
+                   "inputs": inputs, "verdict": verdict,
+                   "sections": {"a": {"rule": "shared histories", "models_compared": 36, "identical": 36, "valid": True, "largest_difference": None,
+                                      "new_history_shorter_than_shared": [], "max_abs_difference_per_field": {f: 0.0 for f in HIST5}},
+                                "b": {"rule": "primary outcome", "verdict": verdict, "conclusion": "From the rows.", "verification_status": "PASS",
+                                      "ten": sorted(ten), "ten_recovered": len(ten_rec), "ten_complete": len(ten),
+                                      "ten_without_recovery": [l for l in ten if l not in ten_rec], "ten_degenerate": [l for l in ten if l in new_deg],
+                                      "degenerate_among_complete": new_deg,
+                                      "without_recovery_outside_ten": [labels[i] for i in range(36) if i not in self.ten and not sides[i][1]["recovered"]],
+                                      "without_recovery_parent": [labels[i] for i in range(36) if not self.sides[self.abl_models[i]][0]["recovered"]],
+                                      "missing_models": [], "ten_first_recovery": {labels[i]: sides[i][1]["first_recovery"] for i in self.ten}},
+                                "c": {"rule": "secondary outcomes", "summary": summ,
+                                      "recovered": {"parent": sum(sd[0]["recovered"] for sd in sides), "new": sum(sd[1]["recovered"] for sd in sides),
+                                                    "new_complete": 36}},
+                                "d": {"label": "not used to choose or judge the recipe", "rule": "the test", "reported": True,
+                                      "source": "public aggregates",
+                                      "primary": [{"metric": m, "parent": {k: vp["a_star_minus_b"]["verdicts"]["03"][m][k] for k in ("verdict", "direction", "reason")},
+                                                   "new": {k: vn["a_star_minus_b"]["verdicts"]["03"][m][k] for k in ("verdict", "direction", "reason")}}
+                                                  for m in ("auroc", "acer_dev")],
+                                      "rows": drows, "verdicts_changed": changed},
+                                "e": {"rule": "times", "per_arm": per_arm, "new_train_seconds": sum(x["train_seconds"] for x in per_arm[3:]),
+                                      "new_wall_seconds": recs[1]["wall_seconds"], "parent_wall_seconds": recs[0]["wall_seconds"],
+                                      "estimate_seconds": 13090, "cap_seconds": 21600, "wall_minus_estimate_seconds": 3910.0, "within_cap": True,
+                                      "final_writes_after_cap": False, "stopped": None}},
+                   "rows": rows, "declarations": {k: True for k in ("no_training", "no_inference", "no_test_scores_read",
+                                                                     "test_from_public_aggregate_only", "test_not_used_to_judge_the_recipe",
+                                                                     "reading_rule_fixed_before_the_run")}}
+        self.pv_status = {"run_id": "20261109-PATVER-4f2b925", "commit": "4f2b925", "dirty": False, "config_sha256": "f" * 64,
+                          "delivered_configuration": True, "command": "run", "status": "PASS", "passed": True, "verdict": verdict,
+                          "verification_status": "PASS", "public_sums_sha256": None}
+
+    def ablation_files(self, out):
+        """Le tredici sorgenti nuove, con le ancore (SHA-256) calcolate sui testi scritti, salvo quelle già fissate da un test."""
+        fa, fr = out[S.SOURCES["folds_aggregate"]], out[S.SOURCES["folds_record"]]
+        anchors = {}
+        for run, pre, base in ((0, "sessabl", "nuaa-session-ablation-run"), (1, "patience", "nuaa-patience-verification")):
+            d = copy.deepcopy(self.abl[run])
+            if d["agg"]["reference_a"].get("aggregate_sha256") is None:
+                d["agg"]["reference_a"]["aggregate_sha256"] = sha_text(fa)
+            frun = d["rec"]["checks"]["folds_run"]
+            if frun.get("aggregate_json_sha256") is None:
+                frun["aggregate_json_sha256"] = sha_text(fa)
+            if frun.get("run_record_json_sha256") is None:
+                frun["run_record_json_sha256"] = sha_text(fr)
+            agg_t, rec_t = json.dumps(d["agg"], indent=1), json.dumps(d["rec"], indent=1)
+            sums_t = "%s  aggregate.json\n%s  aggregate.md\n%s  run_record.json\n" % (sha_text(agg_t), "0" * 64, sha_text(rec_t))
+            if d["status"].get("public_sums_sha256") is None:
+                d["status"]["public_sums_sha256"] = sha_text(sums_t)
+            st_t = json.dumps(d["status"], indent=1)
+            out[S.SOURCES[pre + "_aggregate"]], out[S.SOURCES[pre + "_record"]] = agg_t, rec_t
+            out[S.SOURCES[pre + "_sums"]], out[S.SOURCES[pre + "_status"]] = sums_t, st_t
+            anchors[run] = {"status_sha256": sha_text(st_t), "public_sums_sha256": sha_text(sums_t),
+                            "restricted_sums_sha256": d["status"].get("restricted_sums_sha256")}
+        pv = copy.deepcopy(self.pv)
+        for key, run in (("parent_run", 0), ("verification_run", 1)):
+            for f, v in anchors[run].items():
+                if pv["inputs"][key].get(f) is None:
+                    pv["inputs"][key][f] = v
+        pv_t = json.dumps(pv, indent=1)
+        csv_t, cur_t = csv_dump(self.pv_rows, S.CMP_COLUMNS), csv_dump(self.pv_curves, S.CURVE_COLUMNS)
+        sums_t = "%s  aggregate.json\n%s  aggregate.md\n%s  comparison.csv\n%s  curves.csv\n" % (sha_text(pv_t), "0" * 64, sha_text(csv_t), sha_text(cur_t))
+        pst = copy.deepcopy(self.pv_status)
+        if pst.get("public_sums_sha256") is None:
+            pst["public_sums_sha256"] = sha_text(sums_t)
+        out[S.SOURCES["patver_aggregate"]], out[S.SOURCES["patver_comparison"]] = pv_t, csv_t
+        out[S.SOURCES["patver_curves"]], out[S.SOURCES["patver_sums"]] = cur_t, sums_t
+        out[S.SOURCES["patver_status"]] = json.dumps(pst, indent=1)
+        return out
 
     def compare_json(self) -> dict:
         """Confronto con N1 sugli stessi 3.000 frame, nello schema dell'aggregato pubblico del pacchetto di confronto."""
@@ -407,7 +811,7 @@ class Fixture:
             S.SOURCES["folds_record"]: json.dumps(self.frec, indent=1),
         }
         out[S.SOURCES["folds_n1_compare"]] = json.dumps(self.compare if self.compare is not None else self.compare_json(), indent=1)
-        return out
+        return self.ablation_files(out)
 
     def write(self, root: Path) -> Path:
         research = root / "research"
@@ -452,16 +856,17 @@ class Base(unittest.TestCase):
 class TestBuild(Base):
     def test_rows_and_annexes(self):
         doc = S.build(self.research())
-        self.assertEqual(len(doc["rows"]), 39)
+        self.assertEqual(len(doc["rows"]), 57)
         blocks = [r["block"] for r in doc["rows"]]
         self.assertEqual(blocks, ["C1"] * 4 + ["M1"] * 4 + ["N1"] * 3 + ["N2 sessions"] * 6 + ["N2 combined"] * 2 + ["C1 crop check"] * 2
-                         + [S.FOLDS_BLOCK] * 15 + [S.COMPARE_BLOCK] * 3)
+                         + [S.FOLDS_BLOCK] * 15 + [S.COMPARE_BLOCK] * 3 + ["Session ablation run, patience 4"] * 9
+                         + ["Session ablation run, patience 12"] * 9)
         self.assertEqual(len(doc["cross_dataset_rows"]), 16)
         self.assertEqual(len(doc["context_rows"]), 10)
         self.assertEqual(len(doc["subject_sensitivity"]), 4)
-        self.assertEqual(len(set(r["row"] for r in doc["rows"])), 39)
+        self.assertEqual(len(set(r["row"] for r in doc["rows"])), 57)
         for r in doc["rows"]:
-            if r["block"] in (S.FOLDS_BLOCK, S.COMPARE_BLOCK):
+            if r["block"] in (S.FOLDS_BLOCK, S.COMPARE_BLOCK) or S.is_abl(r):
                 filled = [c for c in S.COLUMNS if c != "bootstrap" or not r["row"].startswith("FOLDS-f")]
                 self.assertTrue(all(r[c] != "" for c in filled), r)
             else:
@@ -587,9 +992,11 @@ class TestBuild(Base):
         self.assertEqual(doc["runs"], {"C1": S.C1_RUN, "M1": S.M1_RUN, "N1": self.fx.n1_run, "N1_subjects": "20261024-N1-subjects-a5fcbbc",
                                        "N2_sessions": self.fx.n2s_run, "N2_combined": self.fx.n2c_run, "C1_crop_check": self.fx.crop_run,
                                        "Fold_schema": "20261103-FOLDS-67b7f3d", "Folds_run": self.fx.folds_run,
-                                       "Folds_vs_N1": "20261104-FOLDSCOMPARE-abc1234"})
+                                       "Folds_vs_N1": "20261104-FOLDSCOMPARE-abc1234",
+                                       "Session_ablation_run": "20261106-SESSABLRUN-d999458", "Patience_12_run": "20261109-SESSABLRUN-6a50265",
+                                       "Patience_comparison": "20261109-PATVER-4f2b925"})
         self.assertEqual(set(doc["sources"]), set(S.SOURCES))
-        self.assertEqual(len(S.SOURCES), 12)
+        self.assertEqual(len(S.SOURCES), 25)
         for r in doc["rows"]:
             for part in r["source"].split("; "):
                 path, prefix = part[:-1].split(" (")
@@ -601,9 +1008,10 @@ class TestBuild(Base):
         self.assertEqual(a, b)
         self.assertEqual(set(a), {"summary_table.md", "summary_table.csv", "summary_table.json", "summary_table_compact.md",
                                   "cross_dataset_table.md", "context_rows_table.md", "subject_sensitivity_table.md",
-                                  "folds_run_table.md", "n1_same_ids_table.md"})
+                                  "folds_run_table.md", "n1_same_ids_table.md", "patience_table.md", "session_ablation_table.md",
+                                  "patience_table_compact.md"})
         compact = [l for l in a["summary_table_compact.md"].splitlines() if l.startswith("| ") and not l.startswith("| block")]
-        self.assertEqual(len(compact), 39)
+        self.assertEqual(len(compact), 57)
         text = a["summary_table_compact.md"]
         for code in ("T-NUAA", "T-COMB", "S-300", "S-3000", "S-491", "S-03/9", "E-C1", "E-CACHE", "E-WHOLE", "E-CROP", "P-REF", "P-HIST", "same", "session", "session/9", "dataset"):
             self.assertIn("- `%s` (" % code, text)
@@ -623,7 +1031,7 @@ class TestBuild(Base):
     def test_csv_round_trip(self):
         doc = S.build(self.research())
         rows = list(csv.DictReader(io.StringIO(S.outputs(doc)["summary_table.csv"])))
-        self.assertEqual(len(rows), 39)
+        self.assertEqual(len(rows), 57)
         self.assertEqual(set(rows[0].keys()), set(S.COLUMNS))
         self.assertEqual([r["row"] for r in rows], [r["row"] for r in doc["rows"]])
         self.assertEqual([r["source"] for r in rows], [r["source"] for r in doc["rows"]])
@@ -1248,6 +1656,669 @@ class TestCompare(Base):
         self.build_fails(self.fx, "source folds_n1_compare missing", research)
 
 
+LR_TEXT = {0.001: "0.001", 0.0005: "0.0005", 0.00025: "0.00025", 0.000125: "0.000125", 6.25e-05: "0.0000625"}
+
+
+def fna(v):
+    return "NA" if v is None else "%.4f" % v
+
+
+def expected_lines(fx):
+    """Le righe di riepilogo attese, ricostruite dalla fixture con le soglie di CONCLUSION.md (epoca 10, accuratezza 0,9)."""
+    sd = [fx.sides[m] for m in fx.abl_models]
+    ten = [i for i in range(36) if i in fx.ten]
+    oth = [i for i in range(36) if i not in fx.ten]
+    ch = [i for i, m in enumerate(fx.abl_models) if fx.changed(m)]
+    n_ten, n_oth = len(ten), len(oth)
+
+    def c(idx, f):
+        return sum(1 for i in idx if f(i))
+
+    def med(v, form="%g"):
+        return "%s (%s-%s)" % (form % statistics.median(v), form % min(v), form % max(v))
+    A = range(36)
+    ep = [[sd[i][r]["epochs_run"] for i in A] for r in (0, 1)]
+
+    def span(v):
+        return ("%d" % min(v)) if min(v) == max(v) else "%d-%d" % (min(v), max(v))
+    l1 = ["Models: 36 (3 arms x 4 folds x 3 seeds); complete: 36 with patience 4, 36 with patience 12.",
+          "In the ten original degenerate trainings: %d." % n_ten]
+    for r, p in ((0, 4), (1, 12)):
+        l1.append("Degenerate with patience %d: %d of 36 (%d of the ten)." % (p, c(A, lambda i: sd[i][r]["degenerate"]), c(ten, lambda i: sd[i][r]["degenerate"])))
+    l1.append("Shared histories identical: 36 of 36 (shared epochs = epochs run with patience 4 in 36 of 36).")
+    for r, p in ((0, 4), (1, 12)):
+        l1.append("Epochs run with patience %d: %s, %d of 36 models at 12." % (p, span(ep[r]), ep[r].count(12)))
+    for r, p in ((0, 4), (1, 12)):
+        l1.append("With a recovery (an epoch meeting the recovery criterion) with patience %d: %d of 36 (%d of the ten)."
+                  % (p, c(A, lambda i: sd[i][r]["recovered"]), c(ten, lambda i: sd[i][r]["recovered"])))
+    for r, p in ((0, 4), (1, 12)):
+        l1.append("Recovery holds at the last epoch with patience %d: %d of 36 (%d of the ten)."
+                  % (p, c(A, lambda i: sd[i][r]["holding_last"]), c(ten, lambda i: sd[i][r]["holding_last"])))
+    l1 += ["First recovery of the ten with patience 12: median (min-max) %s." % med([sd[i][1]["first_recovery"] for i in ten]),
+           "First recovery of the ten at epoch 10 or later with patience 12: %d of the ten (cut-off of CONCLUSION.md)."
+           % c(ten, lambda i: sd[i][1]["first_recovery"] >= 10),
+           "Restored epoch changed: %d of 36 (%d of the ten, %d of the other %d)."
+           % (len(ch), c(ch, lambda i: i in fx.ten), c(ch, lambda i: i not in fx.ten), n_oth),
+           "Stopped before epoch 12 with patience 4: %d models, %d outside the ten, of which %d changed restored epoch."
+           % (c(A, lambda i: ep[0][i] < 12), c(oth, lambda i: ep[0][i] < 12), c(ch, lambda i: i not in fx.ten and ep[0][i] < 12))]
+    for group, idx in (("the ten", ten), ("the other %d" % n_oth, oth)):
+        for r, p in ((0, 4), (1, 12)):
+            l1.append("Dev accuracy at the checkpoint, %s, median (min-max) with patience %d: %s."
+                      % (group, p, med([sd[i][r]["dev_acc_at_checkpoint"] for i in idx], "%.4f")))
+    for group, idx in (("the ten", ten), ("the other %d" % n_oth, oth)):
+        l1.append("Dev accuracy at the checkpoint below 0.9 with patience 12, %s: %d (cut-off of CONCLUSION.md)."
+                  % (group, c(idx, lambda i: sd[i][1]["dev_acc_at_checkpoint"] < 0.9)))
+    l2 = ["Same test values and dev threshold in both runs (checked): all %d models whose restored epoch did not change." % (36 - len(ch)),
+          "The differences below come from the %d models whose restored epoch changed (\"changed\" below)." % len(ch)]
+    P0, P1 = fx.abl[0]["agg"]["per_arm_fold_seed"], fx.abl[1]["agg"]["per_arm_fold_seed"]
+    for st in ("03", "all"):
+        for key, label in (("acer_05", "ACER at 0.5"), ("acer_dev", "ACER at the dev threshold"), ("auroc", "AUROC")):
+            def rel(i):
+                a, k, s = fx.abl_models[i]
+                x, y = P0[a][k][s][st][key], P1[a][k][s][st][key]
+                if x is None or y is None:
+                    return "NA"
+                return "lower" if y < x else "higher" if y > x else "equal"
+            for w in ("lower", "equal", "higher"):
+                l2.append("Stratum %s, %s, patience 12 vs 4: %s in %d of 36 (%d of the %d changed, %d of the ten)."
+                          % (st, label, w, c(A, lambda i: rel(i) == w), c(ch, lambda i: rel(i) == w), len(ch), c(ten, lambda i: rel(i) == w)))
+            na = c(A, lambda i: rel(i) == "NA")
+            if na:
+                l2.append("Stratum %s, %s, patience 12 vs 4: NA in %d of 36 (a class absent)." % (st, label, na))
+    vs = [{(cn, st, m): fx.abl[r]["agg"]["comparisons"][cn]["verdicts"][st][m] for cn, _, _, _ in COMPS for st in STRATA4 for m in KEYS7}
+          for r in (0, 1)]
+    cons = [sum(v["verdict"] == "consistent" for v in d.values()) for d in vs]
+    diff = [k for k in vs[0] if (vs[0][k]["verdict"], vs[0][k]["direction"]) != (vs[1][k]["verdict"], vs[1][k]["direction"])]
+
+    def counts(n):
+        return ", ".join("%s %d" % (w, x) for w, x in sorted({"consistent": n, "inconclusive": 84 - n}.items()) if x)
+    l3 = ["Verdicts: 84 per run (3 comparisons x 4 strata x 7 metrics); patience 4: %s; patience 12: %s." % (counts(cons[0]), counts(cons[1]))]
+    for r, p in ((0, 4), (1, 12)):
+        l3.append("Primary verdicts (A* - B, stratum 03: auroc, acer_dev) with patience %d: %s."
+                  % (p, ", ".join(vs[r][("a_star_minus_b", "03", m)]["verdict"] for m in ("auroc", "acer_dev"))))
+    l3.append("Verdicts that differ between the two runs: %d of 84: %s." % (len(diff), "; ".join(
+        "%s stratum %s %s (%s -> %s)" % (COMP_L[cn], st, m, vs[0][(cn, st, m)]["verdict"], vs[1][(cn, st, m)]["verdict"]) for cn, st, m in diff)))
+    return l1, l2, l3
+
+
+class AblBase(Base):
+    """Run di ablazione delle sessioni, run con pazienza 12 e loro confronto: utilità comuni."""
+
+    def fault(self, edit, needle):
+        fx = Fixture()
+        edit(fx)
+        self.build_fails(fx, needle)
+
+    def name(self, i):
+        a, k, s = self.fx.abl_models[i]
+        return "%s_fold%s_seed%s" % (a, k, s)
+
+    def label(self, i):
+        a, k, s = self.fx.abl_models[i]
+        return "%s fold %s seed %s" % (ARM_L[a], k, s)
+
+    def unchanged(self):
+        return [i for i, m in enumerate(self.fx.abl_models) if not self.fx.changed(m)]
+
+    def verdicts(self, fx, run):
+        return {(c, st, m): fx.abl[run]["agg"]["comparisons"][c]["verdicts"][st][m] for c, _, _, _ in COMPS for st in STRATA4 for m in KEYS7}
+
+
+class TestAblationRows(AblBase):
+    """Righe della tabella unica e annessi del run di ablazione e della verifica della pazienza, cella per cella."""
+
+    def test_rows_cell_by_cell(self):
+        doc = S.build(self.research())
+        for run, p in ((0, 4), (1, 12)):
+            rows = [r for r in doc["rows"] if r["block"] == "Session ablation run, patience %d" % p]
+            ids = {"arm_b": "B", "arm_a_star": "Astar", "arm_b_prime": "Bprime"}
+            self.assertEqual([r["row"] for r in rows], ["SESSABL-P%d-%s-seed%s" % (p, ids[a], s) for a in ARMS for s in SEEDS])
+            agg = self.fx.abl[run]["agg"]
+            for r, (a, s) in zip(rows, [(a, s) for a in ARMS for s in SEEDS]):
+                m, b = agg["pooled_per_arm_seed"][a][s]["all"], agg["bootstrap_per_arm_seed"][a][s]["all"]
+                self.assertEqual((r["n_bona_fide"], r["n_attack"], r["rejected_bona_fide"], r["accepted_attacks"], r["rejected_bona_fide_dev"],
+                                  r["accepted_attacks_dev"]),
+                                 (5105, 7509, m["rejected_bona_fide_05"], m["accepted_attacks_05"], m["rejected_bona_fide_dev"], m["accepted_attacks_dev"]))
+                self.assertEqual((r["apcer"], r["bpcer"], r["acer"], r["auroc"], r["apcer_dev"], r["bpcer_dev"], r["acer_dev"]),
+                                 tuple(f4(m[x]) for x in ("apcer_05", "bpcer_05", "acer_05", "auroc", "apcer_dev", "bpcer_dev", "acer_dev")))
+                self.assertEqual(r["bootstrap"], "ACER 0.5 %s-%s; ACER dev %s-%s; AUROC %s-%s"
+                                 % tuple(f4(b[k][e]) for k in ("acer_05", "acer_dev", "auroc") for e in ("low", "high")))
+                cards = [agg["training"]["%s_fold%s_seed%s" % (a, k, s)] for k in "1234"]
+                def sp(v):
+                    return ("%d" % min(v)) if min(v) == max(v) else "%d-%d" % (min(v), max(v))
+                self.assertEqual(r["model"], "LivenessNet, %s, the 4 fold models of seed %s pooled over the held-out folds; early-stopping "
+                                             "patience %d (epochs run %s, restored epochs %s)"
+                                 % (S.ARM_TEXTS[a].split(":")[0], s, p, sp([c["epochs_run"] for c in cards]),
+                                    sp([c["restored_epoch"] for c in cards])))
+                if run == 1:
+                    self.assertIn("(epochs run 12, restored epochs", r["model"])
+                self.assertEqual((r["test_set"], r["threshold"], r["threshold_dev"], r["run_id"], r["transfer"], r["extractor"]),
+                                 (doc["texts"]["folds_test_all"], "0.5", S.THR_DEV_POOLED, self.fx.abl_ids[run][0], S.TRANSFER_ABL, S.EXTRACTOR_FOLDS))
+                self.assertEqual(r["early_stopping"], "common dev of the fold (sessions 01-02 of the subjects of the next held-out fold, no "
+                                                      "session 03): 400 frames, 100 per class x session cell (01/bf, 01/att, 02/bf, 02/att); "
+                                                      "early stopping with patience %d, at most 12 epochs, minimum dev val_loss restored; "
+                                                      "learning-rate schedule; EER threshold" % p)
+                pre = ("sessabl", "patience")[run]
+                self.assertEqual([x.split(" (")[0] for x in r["source"].split("; ")],
+                                 [S.SOURCES[pre + "_aggregate"], S.SOURCES[pre + "_record"], S.SOURCES["folds_schema"]])
+        self.assertEqual(doc["texts"]["abl_train_arm_b"], "NUAA, arm B, without session 03: sessions 01-02 of the fitting subjects with frames in "
+                                                          "sessions 01-02: 1,400 frames per fold, 350/350/350/350 per class x session cell "
+                                                          "(01/bf, 01/att, 02/bf, 02/att; deterministic spread rule)")
+        self.assertIn(": 1,400 frames per fold, 234/233/233/234/233/233 per class x session cell (01/bf, 01/att, 02/bf, 02/att, 03/bf, 03/att;",
+                      doc["texts"]["abl_train_arm_a_star"])
+        self.assertIn(": 934 frames per fold, 234/233/233/234 per class x session cell", doc["texts"]["abl_train_arm_b_prime"])
+        self.assertEqual(doc["session_ablation"]["runs"]["new"]["amendment"]["to"], 12)
+
+    def test_compact_rows_and_legend(self):
+        text = S.outputs(S.build(self.research()))["summary_table_compact.md"]
+        m = self.fx.abl[1]["agg"]["pooled_per_arm_seed"]["arm_a_star"]["43"]["all"]
+        b = self.fx.abl[1]["agg"]["bootstrap_per_arm_seed"]["arm_a_star"]["43"]["all"]
+        self.assertIn("| SESSABL-P12 | LivenessNet, arm A*, 4 fold models, seed 43 (pooled) | T-ABL-A* | S-FOLD-ALL | E-CACHE | P-REF | 0.5 (fixed) "
+                      "| %d / %d | %s | %s | %s | %s | 4 fold values (EER, common dev) | %d / %d | %s | %s | %s | %s-%s; %s-%s; %s-%s | %s | "
+                      "subject-held-out (session ablation) |"
+                      % (m["rejected_bona_fide_05"], m["accepted_attacks_05"], f4(m["apcer_05"]), f4(m["bpcer_05"]), f4(m["acer_05"]), f4(m["auroc"]),
+                         m["rejected_bona_fide_dev"], m["accepted_attacks_dev"], f4(m["apcer_dev"]), f4(m["bpcer_dev"]), f4(m["acer_dev"]),
+                         f4(b["acer_05"]["low"]), f4(b["acer_05"]["high"]), f4(b["acer_dev"]["low"]), f4(b["acer_dev"]["high"]),
+                         f4(b["auroc"]["low"]), f4(b["auroc"]["high"]), self.fx.abl_ids[1][0]), text)
+        self.assertIn("| SESSABL-P4 | LivenessNet, arm B', 4 fold models, seed 44 (pooled) | T-ABL-B' |", text)
+        for code in ("T-ABL-B", "T-ABL-A*", "T-ABL-B'", "(EER, common dev)", "subject-held-out (session ablation)"):
+            self.assertIn("- `%s` (" % code, text)
+        self.assertIn("SESSABL-P4 and SESSABL-P12 (session ablation run", text)
+        self.assertIn("patience 4 in the SESSABL-P4 rows and 12 in the SESSABL-P12 rows", text)
+        self.assertIn("Session_ablation_run `20261106-SESSABLRUN-d999458`, Patience_12_run `20261109-SESSABLRUN-6a50265`, "
+                      "Patience_comparison `20261109-PATVER-4f2b925`.", text)
+
+    def test_ablation_annex_cell_by_cell(self):
+        text = S.outputs(S.build(self.research()))["session_ablation_table.md"]
+        agg = self.fx.abl[1]["agg"]
+        m, b = agg["pooled_per_arm_seed"]["arm_a_star"]["43"]["02"], agg["bootstrap_per_arm_seed"]["arm_a_star"]["43"]["02"]
+        self.assertIn("| A* | 43 | 02 | 12 | %d | %d | 9 | %d / %d | %s | %s | %s [%s-%s] | %d / %d | %s | %s | %s [%s-%s] | %s [%s-%s] |"
+                      % (m["n_bona_fide"], m["n_attack"], m["rejected_bona_fide_05"], m["accepted_attacks_05"], f4(m["bpcer_05"]), f4(m["apcer_05"]),
+                         f4(m["acer_05"]), f4(b["acer_05"]["low"]), f4(b["acer_05"]["high"]), m["rejected_bona_fide_dev"], m["accepted_attacks_dev"],
+                         f4(m["bpcer_dev"]), f4(m["apcer_dev"]), f4(m["acer_dev"]), f4(b["acer_dev"]["low"]), f4(b["acer_dev"]["high"]),
+                         f4(m["auroc"]), f4(b["auroc"]["low"]), f4(b["auroc"]["high"])), text)
+        e = self.fx.abl[0]["agg"]["pooled_summary_over_seeds"]["arm_b_prime"]["all"]
+        self.assertIn("| B' | all | 4 | %s |" % " | ".join("%s (%s-%s)" % (f4(e[k]["median"]), f4(e[k]["min"]), f4(e[k]["max"]))
+                                                         for k in ("acer_05", "acer_dev", "auroc")), text)
+        vp, vn = self.verdicts(self.fx, 0), self.verdicts(self.fx, 1)
+        changed = [k for k in vp if (vp[k]["verdict"], vp[k]["direction"]) != (vn[k]["verdict"], vn[k]["direction"])]
+        self.assertTrue(0 < len(changed) < 84)
+        self.assertEqual(len(changed), self.fx.verdicts_changed)
+        lines = [l for l in text.splitlines() if l.startswith("| A* - B") or l.startswith("| B' - B")]
+        self.assertEqual(len(lines), 84)
+        self.assertEqual(sum(l.endswith("| yes |") for l in lines), len(changed))
+        for (c, st, m) in changed:
+            self.assertTrue(any(l.startswith("| %s | %s | %s |" % (COMP_L[c], st, m)) and l.endswith("| yes |") for l in lines), (c, st, m))
+        c, st, m = next(k for k in vn if vn[k]["verdict"] == "consistent")
+        pps = self.fx.abl[1]["agg"]["comparisons"][c]["pooled_per_seed"]
+        cell = "; ".join("%s [%s, %s]" % (f4(pps[s][st][m]["difference"]), f4(pps[s][st][m]["low"]), f4(pps[s][st][m]["high"])) for s in SEEDS)
+        self.assertTrue(any(l.startswith("| %s | %s | %s |" % (COMP_L[c], st, m)) and "| consistent (%s) | %s |" % (vn[(c, st, m)]["direction"], cell) in l
+                            for l in lines))
+        counts = [sum(v["verdict"] == "consistent" for v in d.values()) for d in (vp, vn)]
+        self.assertIn("- Verdicts: 84 per run (3 comparisons x 4 strata x 7 metrics); patience 4: consistent %d, inconclusive %d; patience 12: "
+                      "consistent %d, inconclusive %d." % (counts[0], 84 - counts[0], counts[1], 84 - counts[1]), text)
+        self.assertIn("- Verdicts that differ between the two runs: %d of 84: " % len(changed), text)
+        self.assertEqual(len([l for l in text.splitlines() if l.startswith("| ") and l[2:4] in ("B ", "A*", "B'") and l.count("|") == 17]), 72)
+
+    def test_patience_table_cell_by_cell(self):
+        text = S.outputs(S.build(self.research()))["patience_table.md"]
+        rows = [l for l in text.splitlines() if l.startswith("| ") and l[2:4] in ("B ", "A*", "B'")]
+        self.assertEqual(len(rows), 72)
+        t1, t2 = rows[:36], rows[36:]
+        for i, (a, k, s) in enumerate(self.fx.abl_models):
+            P, N = self.fx.sides[(a, k, s)]
+            cells = [ARM_L[a], k, s, "yes" if i in self.fx.ten else "no"]
+            for x in (P, N):
+                cells += [str(x["epochs_run"]), str(x["restored_epoch"]), "yes" if x["degenerate"] else "no",
+                          "—" if x["first_recovery"] is None else str(x["first_recovery"]), "yes" if x["holding_last"] else "no",
+                          "%.4f" % x["best_val_loss"], "%.4f" % x["dev_acc_at_checkpoint"], "%.4f" % x["dev_auroc_at_checkpoint"],
+                          str(x["epochs_at_half"]), LR_TEXT.get(x["lr_last"], "?")]
+            ch = "yes" if self.fx.changed((a, k, s)) else "no"
+            cells += [str(self.fx.hist[(a, k, s)]["npp"]), "yes", ch]
+            self.assertEqual(t1[i], "| " + " | ".join(cells) + " |")
+            test = [ARM_L[a], k, s, "yes" if i in self.fx.ten else "no", ch]
+            for run in (0, 1):
+                for st in ("03", "all"):
+                    m = self.fx.abl[run]["agg"]["per_arm_fold_seed"][a][k][s][st]
+                    test += [fna(m["acer_05"]), fna(m["acer_dev"]), fna(m["auroc"])]
+            self.assertEqual(t2[i], "| " + " | ".join(test) + " |")
+        self.assertIn("| 0.0000625 |", text)  # lr 6,25e-05 in decimali fissi
+        self.assertIn("| B | 4 | 42 | no | yes | NA | NA | NA |", text)  # fold 4 senza bona fide nella sessione 03
+
+    def test_patience_compact_table(self):
+        files = S.outputs(S.build(self.research()))
+        text, full = files["patience_table_compact.md"], files["patience_table.md"]
+        self.assertTrue(text.startswith("# Early-stopping patience 4 and 12, the 36 models in compact form (all columns, sources and "
+                                        "checks in `patience_table.md`)\n\n| model | in the ten | restored epoch p4 → p12 | first recovery p4 → p12 | "
+                                        "recovery holds at last epoch p4 → p12 | dev acc at ckpt p4 → p12 | restored epoch changed |\n|---|---|---|---|---|---|---|\n"))
+        rows = [l for l in text.splitlines() if l.startswith("| ") and not l.startswith("| model")]
+        self.assertEqual(len(rows), 36)
+        for i, (a, k, s) in enumerate(self.fx.abl_models):
+            P, N = self.fx.sides[(a, k, s)]
+            fr = lambda x: "—" if x["first_recovery"] is None else str(x["first_recovery"])
+            yn = lambda b: "yes" if b else "no"
+            self.assertEqual(rows[i], "| %s | %s | %d → %d | %s → %s | %s → %s | %.4f → %.4f | %s |"
+                             % (self.label(i), "yes" if i in self.fx.ten else "—", P["restored_epoch"], N["restored_epoch"], fr(P), fr(N),
+                                yn(P["holding_last"]), yn(N["holding_last"]), P["dev_acc_at_checkpoint"], N["dev_acc_at_checkpoint"],
+                                "yes" if self.fx.changed((a, k, s)) else "—"))
+        summ = [l for l in text.splitlines() if l.startswith("- ")]
+        self.assertEqual(summ, ["- " + l for l in expected_lines(self.fx)[0]])
+        self.assertEqual(summ, [l for l in full.split("## Test")[0].splitlines() if l.startswith("- ")])
+        self.assertIn("\nLegend. p4 = run `20261106-SESSABLRUN-d999458` (early-stopping patience 4), p12 = run `20261109-SESSABLRUN-6a50265` "
+                      "(patience 12); in the ten = one of the ten degenerate trainings of the p4 run (— = not among the ten);", text)
+        self.assertEqual(S.synthesis_lines(S.build(self.research()))["patience compact table"],
+                         [l for l in text.splitlines() if l.startswith("|") or l.startswith("- ")])
+
+    def test_patience_summary_lines(self):
+        """Ogni riga di riepilogo, per intero, contro i valori della fixture (casi limite compresi)."""
+        files = S.outputs(S.build(self.research()))
+        l1, l2, l3 = expected_lines(self.fx)
+        self.assertEqual([l for l in files["patience_table.md"].split("## Test")[0].splitlines() if l.startswith("- ")], ["- " + l for l in l1])
+        self.assertEqual([l for l in files["patience_table.md"].split("## Test")[1].splitlines() if l.startswith("- ")], ["- " + l for l in l2])
+        self.assertEqual([l for l in files["session_ablation_table.md"].splitlines() if l.startswith("- ")], ["- " + l for l in l3])
+        # la fixture copre i casi limite delle righe: una ripresa all'epoca 10 esatta, un'accuratezza 0,9 esatta, celle NA,
+        # conteggi dei verdetti diversi fra le due run
+        self.assertIn("at epoch 10 or later with patience 12: 1 of the ten (cut-off of CONCLUSION.md)", l1[12])
+        self.assertEqual(l1[-2], "Dev accuracy at the checkpoint below 0.9 with patience 12, the ten: 1 (cut-off of CONCLUSION.md).")
+        self.assertEqual(l2[5], "Stratum 03, ACER at 0.5, patience 12 vs 4: NA in 9 of 36 (a class absent).")
+        self.assertTrue(all(len("- " + l) <= 120 for l in l1 + l2))
+        self.assertNotEqual(l3[0].split("patience 4: ")[1].split(";")[0], l3[0].split("patience 12: ")[1].rstrip("."))
+
+
+class TestAblationChecks(AblBase):
+    """Ogni controllo sulle due run di ablazione con una sorgente guasta."""
+
+    def test_clean_tree_status_and_run_ids(self):
+        for run in (0, 1):
+            for part in ("agg", "rec", "status"):
+                for key, value, needle in (("dirty", True, "dirty is not false"), ("status", "FAIL", "is not PASS"),
+                                           ("delivered_configuration", False, "not a run of the delivered configuration"),
+                                           ("command", "check-inputs", "not a run of the delivered configuration"),
+                                           ("commit", "0000000", "does not end with the recorded commit")):
+                    self.fault(lambda fx: fx.abl[run][part].__setitem__(key, value), needle)
+            self.fault(lambda fx: fx.abl[run]["status"].__setitem__("passed", False), "status: passed is not true")
+            self.fault(lambda fx: [fx.abl[run][p].update(run_id=fx.abl_ids[run][0] + "-dev", commit="dev") for p in ("agg", "rec", "status")],
+                       "ends with -dev (trial run)")
+
+    def test_identity_and_anchors(self):
+        self.fault(lambda fx: fx.abl[0]["rec"].__setitem__("config_sha256", "9" * 64), "session ablation run run record: config_sha256")
+        self.fault(lambda fx: fx.abl[1]["status"].__setitem__("finished", "x"), "patience verification run status: finished")
+        self.fault(lambda fx: fx.abl[1]["status"].__setitem__("wall_seconds", 1.0), "status: wall_seconds differs from the run record")
+        self.fault(lambda fx: fx.abl[0]["status"].__setitem__("public_sums_sha256", "1" * 64), "public_sums_sha256 is not the SHA-256 of nuaa-session-ablation-run")
+        for key, needle in (("sessabl_aggregate", "aggregate.json in SHA256SUMS is not the SHA-256 of nuaa-session-ablation-run/tables/aggregate.json"),
+                            ("patience_record", "run_record.json in SHA256SUMS is not the SHA-256 of nuaa-patience-verification/tables/run_record.json")):
+            research = self.research()
+            p = research / S.SOURCES[key]
+            p.write_text(p.read_text() + " ", encoding="utf-8")
+            self.build_fails(self.fx, needle, research)
+        research = self.research()
+        p = research / S.SOURCES["sessabl_sums"]
+        p.write_text(p.read_text().replace("  aggregate.md", " aggregate.md"), encoding="utf-8")
+        self.build_fails(self.fx, "nuaa-session-ablation-run/tables/SHA256SUMS line 2: not '<sha256>  <file>'", research)
+
+    def test_amendment_of_the_patience_run(self):
+        for key, value in (("parent_config_sha256", "5" * 64), ("changed_field", "training.lr"), ("from", 5), ("to", 11)):
+            def edit(fx, key=key, value=value):
+                for p in ("agg", "rec", "status"):
+                    fx.abl[1][p]["amendment"][key] = value
+            self.fault(edit, "amendment of the patience-12 run")
+        self.fault(lambda fx: [fx.abl[0][p].__setitem__("amendment", {"from": 4}) for p in ("agg", "rec", "status")], "the parent run carries an amendment")
+        self.fault(lambda fx: fx.abl[1]["agg"].pop("amendment"), "amendment of the patience-12 run")
+        self.fault(lambda fx: fx.abl[1]["rec"]["amendment"].__setitem__("to", 13), "run record: amendment")
+
+    def test_models_complete_and_cap(self):
+        self.fault(lambda fx: fx.abl[0]["agg"]["training"].pop("arm_b_fold1_seed42"), "training of arm_b_fold1_seed42 missing")
+        self.fault(lambda fx: fx.abl[1]["agg"].__setitem__("completed", 35), "35 of 36 trainings complete")
+        self.fault(lambda fx: fx.abl[1]["agg"].__setitem__("missing", ["arm_b_fold1_seed42"]), "trainings complete, missing ['arm_b_fold1_seed42']")
+        self.fault(lambda fx: fx.abl[0]["rec"]["completed"].pop(), "the models of the aggregate, completed and training_order are not the 36")
+        self.fault(lambda fx: fx.abl[1]["rec"].__setitem__("stopped", {"cause": "cap"}), "stopped {'cause': 'cap'}")
+        self.fault(lambda fx: fx.abl[1]["rec"].__setitem__("final_writes_after_cap", True), "final writes after the cap True")
+        self.fault(lambda fx: fx.abl[1]["rec"].__setitem__("wall_seconds", 21600.5), "wall time 21600.5 s above the cap 21600 s")
+        self.fault(lambda fx: fx.abl[0]["rec"]["timings"].pop("train arm_a_star_fold3_seed44"), "no timing for train arm_a_star_fold3_seed44")
+        self.fault(lambda fx: fx.abl[0]["rec"].__setitem__("train_seeds", [42, 43]), "seeds [42, 43] differ from the folds run")
+
+    def test_folds_anchors_schema_and_bootstrap(self):
+        self.fault(lambda fx: fx.abl[0]["agg"]["reference_a"].__setitem__("aggregate_sha256", "2" * 64), "reference A (run id, aggregate SHA-256) differs")
+        self.fault(lambda fx: fx.abl[1]["rec"]["checks"]["folds_run"].__setitem__("run_record_json_sha256", "2" * 64),
+                   "folds run (run id, aggregate and record SHA-256) differs")
+        self.fault(lambda fx: fx.abl[1]["rec"]["checks"]["schema"].__setitem__("run_id", "20261103-FOLDS-0000000"), "fold schema (run id")
+        self.fault(lambda fx: fx.abl[0]["rec"]["checks"]["schema"]["test_per_fold"].reverse(), "fold schema (run id, test rows per fold")
+        self.fault(lambda fx: [fx.abl[0][p]["bootstrap"].__setitem__("resamples", 999) for p in ("agg", "rec")],
+                   "bootstrap parameters differ from the folds run")
+        self.fault(lambda fx: fx.abl[1]["rec"]["bootstrap"].__setitem__("recipe", "other"), "run record: bootstrap differs from the aggregate")
+        self.fault(lambda fx: fx.abl[0]["agg"]["reference_a"].__setitem__("run_id", "20261103-FOLDSRUN-0000000"), "reference A")
+
+    def test_cells_and_cards(self):
+        self.fault(lambda fx: fx.abl[0]["agg"]["training"]["arm_b_prime_fold2_seed43"].__setitem__("n_fitting", 935),
+                   "arm_b_prime_fold2_seed43: 935 fitting / 400 dev frames, the cells of the record give 934 / 400")
+        self.fault(lambda fx: fx.abl[1]["rec"]["checks"]["cells"]["counts"]["arm_a_star"].__setitem__("03/attack", 232),
+                   "cells differ from the session ablation run")
+        self.fault(lambda fx: fx.abl[1]["rec"]["checks"]["cells"]["dev"].__setitem__("02/attack", 0), "a cell count is not a positive integer")
+        self.fault(lambda fx: fx.abl[0]["agg"]["training"]["arm_b_fold4_seed44"].__setitem__("restored_epoch", 9), "restored epoch 9 outside 1..6")
+        self.fault(lambda fx: fx.abl[0]["agg"]["training"]["arm_b_fold4_seed44"].__setitem__("fold", 3), "arm, fold or seed of the card differ")
+        self.fault(lambda fx: fx.abl[1]["agg"]["training"]["arm_b_fold4_seed44"].pop("dev_threshold"), "training field dev_threshold of arm_b_fold4_seed44 missing")
+
+    def test_metrics_rates_denominators_and_sums(self):
+        def rate(fx):
+            fx.abl[1]["agg"]["per_arm_fold_seed"]["arm_a_star"]["2"]["43"]["03"]["accepted_attacks_dev"] += 1  # tassi invariati
+        self.fault(rate, "A* fold 2 seed 43 stratum 03 at dev: apcer")
+
+        def denom(fx):
+            for run in (0, 1):
+                m = fx.abl[run]["agg"]["per_arm_fold_seed"]["arm_b"]["3"]["42"]["01"]
+                m["n_attack"] += 1
+                refresh(m)
+        self.fault(denom, "B fold 3 seed 42 stratum 01: denominators 280/181 differ from the fold schema 280/180")
+
+        def notsum(fx):
+            m = fx.abl[0]["agg"]["per_arm_fold_seed"]["arm_b_prime"]["4"]["44"]["all"]
+            m["rejected_bona_fide_dev"] += 1
+            refresh(m)
+        self.fault(notsum, "B' fold 4 seed 44: stratum all at dev is not the sum of the session strata")
+
+        def pooled(fx):
+            m = fx.abl[1]["agg"]["pooled_per_arm_seed"]["arm_b"]["44"]["02"]
+            m["accepted_attacks_05"] += 1
+            refresh(m)
+        self.fault(pooled, "B seed 44 stratum 02 at 05: pooled counts are not the sum of the 4 folds")
+        self.fault(lambda fx: fx.abl[0]["agg"]["pooled_per_arm_seed"]["arm_a_star"]["42"]["01"].__setitem__("n_subjects", 8), "8 pooled subjects, the folds run has 9")
+        self.fault(lambda fx: fx.abl[0]["agg"]["per_arm_fold_seed"]["arm_a_star"]["1"]["42"]["all"].__setitem__("n_subjects", 5), "5 subjects, the fold schema has 4")
+        self.fault(lambda fx: fx.abl[1]["agg"]["pooled_summary_over_seeds"]["arm_b"]["all"]["auroc"].__setitem__("median", 0.1),
+                   "summary B stratum all auroc: median or range")
+        self.fault(lambda fx: fx.abl[1]["agg"]["pooled_summary_over_seeds"]["arm_b"]["03"]["acer_dev"]["values"].reverse(),
+                   "summary B stratum 03 acer_dev: missing or values differ")
+
+        def rev(fx):
+            b = fx.abl[0]["agg"]["bootstrap_per_arm_seed"]["arm_b_prime"]["43"]["03"]["acer_05"]
+            b["low"], b["high"] = b["high"] + 0.1, b["low"]
+        self.fault(rev, "bootstrap B' seed 43 stratum 03: acer_05 interval missing or reversed")
+        self.fault(lambda fx: fx.abl[1]["agg"]["bootstrap_per_arm_seed"]["arm_b"]["42"]["all"].__setitem__("seed", 1),
+                   "bootstrap B seed 42 stratum all: subjects or parameters")
+        self.fault(lambda fx: fx.abl[1]["agg"]["bootstrap_per_arm_seed"]["arm_b"]["42"].pop("01"), "bootstrap B seed 42 stratum 01 missing")
+        self.fault(lambda fx: fx.abl[0]["agg"].__setitem__("strata", ["01", "02", "03"]), "strata")
+
+    def test_comparisons_and_verdicts(self):
+        self.fault(lambda fx: fx.abl[0]["agg"]["comparisons"]["b_prime_minus_b"]["per_fold_seed"]["2"]["44"]["03"].__setitem__("auroc", 0.5),
+                   "comparison B' - B: 1 per-model differences are not minuend minus subtrahend (first: B' fold 2 seed 44 03 auroc)")
+        self.fault(lambda fx: fx.abl[1]["agg"]["comparisons"]["a_star_minus_b"]["pooled_per_seed"]["43"]["all"]["acer_05"].__setitem__("difference", 0.5),
+                   "comparison A* - B seed 43 stratum all acer_05: the difference is not that of the pooled rows")
+        self.fault(lambda fx: fx.abl[1]["agg"]["comparisons"]["a_star_minus_b"].__setitem__("role", "secondary"), "minuend, subtrahend or role differ")
+        self.fault(lambda fx: fx.abl[1]["agg"]["comparisons"].pop("a_star_minus_b_prime"), "comparisons")
+        vn = self.verdicts(self.fx, 1)
+        c, st, m = next(k for k in vn if vn[k]["verdict"] == "consistent")
+        ci = next(i for i, x in enumerate(COMPS) if x[0] == c)
+        for key, value in (("verdict", "inconclusive"), ("direction", "%s higher X than %s" % (ARM_L[COMPS[ci][2]], ARM_L[COMPS[ci][1]])),
+                           ("reason", REASONS["sign"]), ("label", "primary")):
+            self.fault(lambda fx: fx.abl[1]["agg"]["comparisons"][c]["verdicts"][st][m].__setitem__(key, value),
+                       "comparison %s stratum %s %s: verdict" % (COMP_L[c], st, m))
+        vi = next(k for k in vn if vn[k]["verdict"] == "inconclusive")
+        self.fault(lambda fx: fx.abl[1]["agg"]["comparisons"][vi[0]]["verdicts"][vi[1]][vi[2]].__setitem__("verdict", "consistent"),
+                   "comparison %s stratum %s %s: verdict 'consistent'" % (COMP_L[vi[0]], vi[1], vi[2]))
+        self.fault(lambda fx: fx.abl[0]["agg"]["primary_verdicts"]["auroc"].__setitem__("verdict", "other"), "primary verdicts differ")
+
+    def test_reading_rule_boundaries(self):
+        """Un intervallo che tocca 0 non lo esclude; una differenza nulla o un seed senza intervallo non danno «consistent»."""
+        vn = self.verdicts(self.fx, 1)
+        c, st, m = next(k for k in vn if vn[k]["verdict"] == "consistent")
+        pos = self.fx.abl[1]["agg"]["comparisons"][c]["pooled_per_seed"]["42"][st][m]["difference"] > 0
+
+        def touch(fx):
+            fx.abl[1]["agg"]["comparisons"][c]["pooled_per_seed"]["43"][st][m]["low" if pos else "high"] = 0.0
+        self.fault(touch, "comparison %s stratum %s %s: verdict 'consistent'" % (COMP_L[c], st, m))
+        self.fault(lambda fx: fx.abl[1]["agg"]["comparisons"][c]["pooled_per_seed"]["44"][st][m].pop("high"),
+                   "comparison %s stratum %s %s: verdict 'consistent'" % (COMP_L[c], st, m))
+        self.assertEqual(S.rule_reason([{"difference": 0.1, "low": 0.0, "high": 0.2}] * 3), "interval")
+        self.assertEqual(S.rule_reason([{"difference": -0.1, "low": -0.2, "high": 0.0}] * 3), "interval")
+        self.assertEqual(S.rule_reason([{"difference": 0.1, "low": 0.01, "high": 0.2}] * 3), "consistent")
+        self.assertEqual(S.rule_reason([{"difference": 0.1, "low": 0.01, "high": 0.2}, {"difference": 0, "low": -1, "high": 1},
+                                        {"difference": -0.1, "low": -0.2, "high": -0.01}]), "zero")
+        self.assertEqual(S.rule_reason([{"difference": 0.1, "low": 0.01, "high": 0.2}, {"difference": -0.1, "low": -0.2, "high": -0.01},
+                                        {"difference": 0.1, "low": 0.01, "high": 0.2}]), "sign")
+        self.assertEqual(S.rule_reason([{"difference": 0.1, "low": 0.01, "high": 0.2}, None, {"difference": 0.1, "low": 0.01, "high": None}]),
+                         "missing")
+        self.fault(lambda fx: fx.abl[0]["agg"].__setitem__("reading_rule", ""), "reading rule missing")
+        self.fault(lambda fx: fx.abl[1]["agg"].__setitem__("reading_rule", "another rule"), "reading rule differs from the session ablation run")
+
+
+class TestPatienceChecks(AblBase):
+    """Il confronto delle due run: ogni controllo con una sorgente guasta."""
+
+    def test_comparison_run_identity_and_anchors(self):
+        self.fault(lambda fx: fx.pv.__setitem__("dirty", True), "patience comparison aggregate: dirty is not false")
+        self.fault(lambda fx: fx.pv_status.__setitem__("passed", False), "patience comparison status: passed False")
+        self.fault(lambda fx: fx.pv_status.__setitem__("verdict", "negative"), "status: verdict 'negative' differs from the aggregate")
+        self.fault(lambda fx: fx.pv.__setitem__("delivered_configuration", False), "not a run of the delivered configuration")
+        self.fault(lambda fx: [d.update(run_id="20261109-PATVER-4f2b925-dev", commit="dev") for d in (fx.pv, fx.pv_status)], "ends with -dev (trial run)")
+        self.fault(lambda fx: fx.pv["declarations"].__setitem__("no_test_scores_read", False), "declaration no_test_scores_read is not true")
+        self.fault(lambda fx: fx.pv_status.__setitem__("public_sums_sha256", "3" * 64), "public_sums_sha256 is not the SHA-256 of nuaa-patience-verification/comparison/SHA256SUMS")
+        for key in ("patver_aggregate", "patver_comparison", "patver_curves"):
+            research = self.research()
+            p = research / S.SOURCES[key]
+            p.write_text(p.read_text() + "\n", encoding="utf-8")
+            self.build_fails(self.fx, "%s in SHA256SUMS is not the SHA-256" % S.SOURCES[key].rsplit("/", 1)[1], research)
+
+    def test_inputs_anchored_to_both_runs(self):
+        for key, field, value in (("parent_run", "status_sha256", "4" * 64), ("verification_run", "public_sums_sha256", "4" * 64),
+                                  ("parent_run", "run_id", "20261106-SESSABLRUN-0000000"), ("verification_run", "config_sha256", "4" * 64),
+                                  ("parent_run", "complete_models", 35), ("verification_run", "status", "INCOMPLETE"),
+                                  ("verification_run", "restricted_sums_sha256", "4" * 64)):
+            self.fault(lambda fx: fx.pv["inputs"][key].__setitem__(field, value), "inputs.%s" % key)
+        self.fault(lambda fx: fx.pv["inputs"]["verification_run"].__setitem__("early_stopping_patience", 12.0), "is not a positive integer")
+        self.fault(lambda fx: fx.pv["inputs"]["verification_run"].__setitem__("early_stopping_patience", 4), "the two runs have the same patience 4")
+        self.fault(lambda fx: fx.pv["recipe"].__setitem__("max_epochs", "12"), "recipe.max_epochs '12' is not a positive integer")
+        self.fault(lambda fx: fx.pv["criteria"].pop("recovery"), "criteria incomplete")
+
+    def test_rows_rebuilt_from_the_curves(self):
+        for field, value in (("parent_restored_epoch", 3), ("new_first_recovery", 2), ("parent_degenerate", False), ("new_epochs_at_half", 9),
+                             ("parent_lr_last", 0.1), ("new_best_val_loss", 0.123)):
+            self.fault(lambda fx: fx.pv_rows[11].__setitem__(field, value), "comparison.csv B fold 4 seed 44 patience")
+        self.fault(lambda fx: fx.pv_rows[5].__setitem__("new_dev_acc_at_checkpoint", 0.5), "dev accuracy at the checkpoint differs")
+
+        def replay(fx):  # epoca minima spostata: l'arresto con pazienza 4 non torna più con le epoche registrate
+            for c in fx.pv_curves:
+                if (c["arm"], c["fold"], c["seed"], c["epoch"]) == ("arm_b", "2", "43", 2):
+                    c["val_loss"] = 0.0001
+        self.fault(replay, "early stopping with patience 4 and best epoch 2 gives 6")
+        self.fault(lambda fx: fx.pv_curves[30].__setitem__("saturated", not fx.pv_curves[30]["saturated"]), "flags of curves.csv differ")
+        self.fault(lambda fx: fx.pv_rows[7].__setitem__("shared_identical", False), "shared history not identical")
+        self.fault(lambda fx: fx.pv_rows[7].__setitem__("max_abs_diff_shared_lr", 1e-9), "shared history not identical")
+        self.fault(lambda fx: fx.abl[1]["agg"]["training"]["arm_a_star_fold2_seed42"].__setitem__("best_val_loss", 0.5),
+                   "differ from the training card of the run")
+
+    def test_csv_structure(self):
+        self.fault(lambda fx: fx.pv_rows.reverse(), "expected the models in arm, fold, seed order")
+        research = self.research()
+        p = research / S.SOURCES["patver_comparison"]
+        p.write_text(p.read_text().replace("arm,fold,seed,in_ten", "arm,fold,seed,ten", 1), encoding="utf-8")
+        self.build_fails(self.fx, "nuaa-patience-verification/comparison/comparison.csv: columns", research)
+        self.fault(lambda fx: fx.pv_rows[3].__setitem__("parent_epochs_run", "12.0"), "'12.0' is not an integer")
+        self.fault(lambda fx: fx.pv_rows[3].__setitem__("in_ten", "yes"), "'yes' is not 0 or 1")
+        self.fault(lambda fx: fx.pv_curves.__setitem__(slice(0, 12), []), "the models of curves.csv are not the 36 models")
+        self.fault(lambda fx: fx.pv_curves.pop(40), "curves.csv epochs are not 1..12")
+        self.fault(lambda fx: fx.pv_rows.pop(), "comparison.csv has 35 rows, expected 36")
+        self.fault(lambda fx: fx.pv_curves[2].__setitem__("val_loss", "nan"), "'nan' is not a finite number")
+        self.fault(lambda fx: fx.pv_rows[0].__setitem__("new_status", "missing"), "status 'missing' in the patience-12 run")
+
+    def test_the_ten_verdict_and_sections(self):
+        def flip(fx):
+            fx.pv_rows[1]["in_ten"] = True
+            for c in fx.pv_curves:
+                if (c["arm"], c["fold"], c["seed"]) == ("arm_b", "1", "43"):
+                    c["in_ten"] = True
+        self.fault(flip, "the models marked in_ten are not the degenerate models of the patience-4 run")
+        self.fault(lambda fx: fx.pv["original_degenerate"].pop(), "original_degenerate differs")
+        self.fault(lambda fx: fx.pv.__setitem__("models_without_recovery_parent", []), "models_without_recovery_parent differs")
+        self.fault(lambda fx: fx.pv["rows"][4]["new"].__setitem__("dev_auroc", 0.1), "aggregate row %s differs from comparison.csv" % self.label(4))
+        self.fault(lambda fx: fx.pv["rows"][4].__setitem__("in_ten", 1), "aggregate row %s differs" % self.label(4))
+        self.fault(lambda fx: fx.pv["sections"]["a"].__setitem__("identical", 35), "section a (shared histories) differs")
+        self.fault(lambda fx: [d.__setitem__("verdict", "negative") for d in (fx.pv, fx.pv["sections"]["b"], fx.pv_status)], "verdict 'negative'")
+        self.fault(lambda fx: fx.pv["sections"]["b"].__setitem__("ten_recovered", 9), "section b differs from the rows in ['ten_recovered']")
+        self.fault(lambda fx: fx.pv["sections"]["b"]["ten_first_recovery"].__setitem__(self.label(0), 1), "['ten_first_recovery']")
+        self.fault(lambda fx: fx.pv["sections"]["c"]["recovered"].__setitem__("parent", 36), "section c recovered counts differ")
+        self.fault(lambda fx: fx.pv["sections"]["c"]["summary"][1]["restored_epoch"].__setitem__("median", 1), "section c medians per group differ")
+        self.fault(lambda fx: fx.pv["sections"]["d"]["rows"][20]["new"].__setitem__("median", 0.0), "section d rows differ")
+        self.fault(lambda fx: fx.pv["sections"]["d"]["primary"][0]["new"].__setitem__("verdict", "other"), "section d primary verdicts differ")
+        self.fault(lambda fx: fx.pv["sections"]["d"].__setitem__("verdicts_changed", fx.verdicts_changed + 1),
+                   "section d declares %d verdicts changed, the two aggregates give %d" % (self.fx.verdicts_changed + 1, self.fx.verdicts_changed))
+        self.fault(lambda fx: fx.pv["sections"]["d"].__setitem__("reported", False), "section d label missing or not reported")
+        self.fault(lambda fx: fx.pv["sections"]["e"].__setitem__("new_wall_seconds", 1.0), "section e (wall times, cap, within the cap, stop) differs")
+        self.fault(lambda fx: fx.pv["sections"]["e"].__setitem__("within_cap", False), "section e (wall times, cap, within the cap, stop) differs")
+        self.fault(lambda fx: fx.pv["sections"]["e"]["per_arm"][4].__setitem__("epochs", 143), "section e per arm")
+        self.fault(lambda fx: fx.pv["sections"].pop("e"), "sections a-e missing")
+
+    def test_same_checkpoint_gives_the_same_test_values(self):
+        i = self.unchanged()[0]
+        self.fault(lambda fx: fx.abl[1]["agg"]["training"][self.name(i)].__setitem__("dev_threshold", 0.77),
+                   "%s: same checkpoint in both runs, but test values or dev threshold differ" % self.label(i))
+        a, k, s = self.fx.abl_models[i]
+
+        def test_values(fx):
+            fx.abl[1]["agg"]["per_arm_fold_seed"][a][k][s]["03"]["auroc"] += 0.001
+            fx.abl[1]["agg"]["per_arm_fold_seed"][a][k][s]["all"]["auroc"] += 0.001
+        self.fault(test_values, "%s: same checkpoint in both runs" % self.label(i))
+
+
+class TestReviewFaults(AblBase):
+    """Controlli che la revisione avversaria ha tolto senza che un test se ne accorgesse: una sorgente guasta per ciascuno."""
+
+    def consistent(self, run=1):
+        v = self.verdicts(self.fx, run)
+        return next(k for k in v if v[k]["verdict"] == "consistent")
+
+    def test_dev_run_id_refused_before_the_commit_check(self):
+        # il commit resta quello vero: la regola «-dev» deve scattare prima del controllo del suffisso del run id
+        self.fault(lambda fx: fx.abl[0]["agg"].__setitem__("run_id", fx.abl_ids[0][0] + "-dev"),
+                   "session ablation run aggregate: run id '20261106-SESSABLRUN-d999458-dev' ends with -dev (trial run)")
+        self.fault(lambda fx: fx.abl[1]["status"].__setitem__("run_id", fx.abl_ids[1][0] + "-dev"), "status: run id '20261109-SESSABLRUN-6a50265-dev' ends with -dev")
+        self.fault(lambda fx: fx.pv_status.__setitem__("run_id", "20261109-PATVER-4f2b925-dev"),
+                   "patience comparison status: run id '20261109-PATVER-4f2b925-dev' ends with -dev (trial run)")
+
+    def test_verification_status_of_the_comparison(self):
+        self.fault(lambda fx: fx.pv_status.__setitem__("verification_status", "FAIL"),
+                   "status: verification_status 'FAIL' is not the status of the patience-verification run 'PASS', PASS")
+        self.fault(lambda fx: fx.pv_status.pop("verification_status"), "field 'verification_status' missing")
+
+    def test_direction_metric_word_and_sign(self):
+        c, st, m = self.consistent()
+        d = self.fx.abl[1]["agg"]["comparisons"][c]["verdicts"][st][m]["direction"]
+        other = "AUROC" if m != "auroc" else "ACER (0.5)"
+        for new in (d.replace(METRIC_NAME[m], other), d.replace(" higher ", " lower ") if " higher " in d else d.replace(" lower ", " higher "),
+                    d.replace(" than ", " than  ")):
+            self.fault(lambda fx, new=new: fx.abl[1]["agg"]["comparisons"][c]["verdicts"][st][m].__setitem__("direction", new),
+                       "comparison %s stratum %s %s: verdict 'consistent'" % (COMP_L[c], st, m))
+
+    def test_primary_verdicts_direction_reason_and_label(self):
+        for key, value in (("direction", "A* higher AUROC than B"), ("reason", REASONS["zero"]), ("label", "secondary")):
+            self.fault(lambda fx, key=key, value=value: fx.abl[0]["agg"]["primary_verdicts"]["auroc"].__setitem__(key, value),
+                       "primary verdicts differ from the verdicts of A* - B in stratum 03")
+
+    def test_comparison_summary_and_subjects(self):
+        self.fault(lambda fx: fx.abl[0]["agg"]["comparisons"]["b_prime_minus_b"]["pooled_summary_over_seeds"]["02"]["acer_dev"].__setitem__("max", 9.0),
+                   "comparison B' - B summary stratum 02 acer_dev: median or range is not that of the values")
+        self.fault(lambda fx: fx.abl[1]["agg"]["comparisons"]["a_star_minus_b"]["pooled_per_seed"]["44"]["03"].__setitem__("n_subjects", 15),
+                   "comparison A* - B seed 44 stratum 03: subjects differ from the pooled rows")
+
+    def test_section_e_train_seconds_tolerance(self):
+        self.fault(lambda fx: fx.pv["sections"]["e"]["per_arm"][2].__setitem__("train_seconds", fx.pv["sections"]["e"]["per_arm"][2]["train_seconds"] + 1e-5),
+                   "section e per arm (models, epochs, train seconds) differs from the training cards")
+
+    def test_in_ten_of_the_curves(self):
+        def flip(fx):
+            for c in fx.pv_curves:
+                if (c["arm"], c["fold"], c["seed"]) == ("arm_a_star", "1", "42"):
+                    c["in_ten"] = not c["in_ten"]
+        self.fault(flip, "comparison.csv A* fold 1 seed 42 epoch 1: flags of curves.csv differ from the values")
+
+    def test_negative_verdict_consistent_everywhere_is_refused(self):
+        def no_recovery(h):
+            h["va"][5:] = [0.6] * 7
+        fx = Fixture(overrides={0: no_recovery})
+        self.assertEqual((fx.pv["verdict"], fx.pv_status["verdict"], fx.pv["sections"]["b"]["ten_recovered"]), ("negative", "negative", 9))
+        self.build_fails(fx, "verdict 'negative' (section b 'negative', status 'negative'); the rows give 'negative'")
+
+    def test_group_sizes_ten_and_36(self):
+        def not_degenerate(h):
+            h["va"][0] = 0.6
+        fx = Fixture(overrides={0: not_degenerate})
+        self.assertEqual(len(fx.ten), 9)
+        self.build_fails(fx, "9 models in the ten and 36 in all; the groups of section c are the ten, the other 26 and all 36")
+
+    def test_duplicated_sums_line_and_n_dev(self):
+        research = self.research()
+        p = research / S.SOURCES["patience_sums"]
+        p.write_text(p.read_text() + p.read_text().splitlines()[0] + "\n", encoding="utf-8")
+        self.build_fails(self.fx, "nuaa-patience-verification/tables/SHA256SUMS: aggregate.json listed twice", research)
+        self.fault(lambda fx: fx.abl[1]["agg"]["training"]["arm_b_fold1_seed43"].__setitem__("n_dev", 399),
+                   "arm_b_fold1_seed43: 1400 fitting / 399 dev frames, the cells of the record give 1400 / 400")
+
+    def test_same_configuration_in_both_runs(self):
+        def same(fx):
+            for part in ("agg", "rec", "status"):
+                fx.abl[1][part]["config_sha256"] = fx.abl_ids[0][2]
+            fx.pv["inputs"]["verification_run"]["config_sha256"] = fx.abl_ids[0][2]
+        fx = Fixture()
+        same(fx)
+        with self.assertRaises(S.SynthesisError) as cm:
+            S.build(fx.write(self.root))
+        self.assertEqual(str(cm.exception), "consistency problems:\n  - patience comparison: the two runs have the same configuration")
+
+
+class TestAblationCommands(AblBase):
+    def run_main(self, *argv):
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            code = S.main(list(argv))
+        return code, out.getvalue()
+
+    def test_duplicated_markdown_rows_are_refused(self):
+        self.assertEqual(S.duplicate_rows({"a.md": "| x |\n|---|\n| 1 |\n| 2 |\n\n| y |\n|---|\n| 1 |\n", "b.csv": "1\n1\n"}), [])
+        self.assertEqual(S.duplicate_rows({"a.md": "| x |\n|---|\n| 1 |\n| 1 |\n"}), ["a.md: duplicated row | 1 |"])
+        doc = S.build(self.research())
+        S.checked_outputs(doc)
+        doc["session_ablation"]["annex"]["pooled"].append(list(doc["session_ablation"]["annex"]["pooled"][5]))
+        with self.assertRaises(S.SynthesisError) as cm:
+            S.checked_outputs(doc)
+        self.assertIn("duplicated Markdown rows", str(cm.exception))
+        self.assertIn("session_ablation_table.md: duplicated row", str(cm.exception))
+
+    def test_check_new_annexes_byte_exact(self):
+        research = self.research()
+        out = self.root / "tables"
+        code, text = self.run_main("build", "--research", str(research), "--out", str(out))
+        self.assertEqual(code, 0, text)
+        self.assertIn("57 rows", text)
+        self.assertIn("36 patience model rows, 72 session-ablation pooled rows, 84 verdict rows", text)
+        p = out / "patience_table.md"
+        p.write_bytes(p.read_bytes().replace(b"| yes |", b"| no |", 1))
+        (out / "session_ablation_table.md").unlink()
+        code, text = self.run_main("check", "--research", str(research), "--out", str(out))
+        self.assertEqual(code, 1)
+        self.assertIn("patience_table.md: differs", text)
+        self.assertIn("session_ablation_table.md: missing", text)
+
+    def test_error_paths_without_traceback(self):
+        for edit, needle in ((lambda r: (r / S.SOURCES["patver_curves"]).unlink(), "ERROR: source patver_curves missing"),
+                             (lambda r: (r / S.SOURCES["patience_status"]).write_text("[1, 2]", encoding="utf-8"), "ERROR: patience_status"),
+                             (lambda r: (r / S.SOURCES["sessabl_aggregate"]).write_text("{not json", encoding="utf-8"),
+                              "ERROR: a source has an unexpected structure"),
+                             (lambda r: (r / S.SOURCES["patver_comparison"]).write_bytes(b"\xff\xfe"), "ERROR: a source has an unexpected structure")):
+            research = self.research()
+            edit(research)
+            code, text = self.run_main("build", "--research", str(research), "--out", str(self.root / "t"))
+            self.assertEqual(code, 1, text)
+            self.assertIn("RESULT: FAIL", text)
+            self.assertNotIn("Traceback", text)
+            self.assertFalse((self.root / "t").exists())
+            if needle != "ERROR: patience_status":
+                self.assertIn(needle, text)
+        fx = Fixture()
+        fx.abl[0]["agg"]["comparisons"]["a_star_minus_b"] = ["not", "an", "object"]
+        code, text = self.run_main("build", "--research", str(fx.write(self.root)), "--out", str(self.root / "t"))
+        self.assertEqual(code, 1)
+        self.assertIn("ERROR: a source has an unexpected structure", text)
+        self.assertFalse((self.root / "t").exists())
+
+
 class TestCommands(Base):
     def run_main(self, *argv):
         out = io.StringIO()
@@ -1290,17 +2361,28 @@ class TestCommands(Base):
         out = self.root / "tables"
         self.run_main("build", "--research", str(research), "--out", str(out))
         doc = self.root / "SYNTHESIS.md"
-        doc.write_text("# Doc\n\n" + (out / "summary_table_compact.md").read_text(), encoding="utf-8")
+        doc.write_text("# Doc\n\n" + (out / "summary_table_compact.md").read_text() + "\n" + (out / "patience_table_compact.md").read_text(),
+                       encoding="utf-8")
         code, text = self.run_main("check", "--research", str(research), "--out", str(out), "--synthesis", str(doc))
         self.assertEqual(code, 0, text)
         self.assertIn("+ synthesis", text)
+        full = doc.read_text()
+        for victim in ("| B fold 2 seed 43 |", "- Restored epoch changed:", "| model | in the ten |", "|---|---|---|---|---|---|---|\n"):
+            lines = full.splitlines(keepends=True)
+            idx = next(i for i, l in enumerate(lines) if l.startswith(victim.rstrip("\n")) and (victim != "|---|---|---|---|---|---|---|\n" or l == victim))
+            for altered in ("".join(lines[:idx] + lines[idx + 1:]), "".join(lines[:idx] + [lines[idx].rstrip("\n") + " x\n"] + lines[idx + 1:])):
+                doc.write_text(altered, encoding="utf-8")
+                code, text = self.run_main("check", "--research", str(research), "--out", str(out), "--synthesis", str(doc))
+                self.assertEqual(code, 1, victim)
+                self.assertIn("1 of 59 lines of the patience compact table are not in the document verbatim", text)
+        doc.write_text(full, encoding="utf-8")
         lines = doc.read_text().splitlines()
         idx = next(i for i, l in enumerate(lines) if l.startswith("| N1 | LivenessNet, new CPU training, seed 43"))
         lines[idx] = lines[idx].replace("seed 43", "seed 45")
         doc.write_text("\n".join(lines), encoding="utf-8")
         code, text = self.run_main("check", "--research", str(research), "--out", str(out), "--synthesis", str(doc))
         self.assertEqual(code, 1)
-        self.assertIn("1 of 41 lines", text)
+        self.assertIn("1 of 59 lines of the compact table", text)
 
     def test_build_reports_consistency_error_and_writes_nothing(self):
         self.fx.passed["crop"] = False
