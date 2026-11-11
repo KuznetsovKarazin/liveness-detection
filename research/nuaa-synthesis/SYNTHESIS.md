@@ -1,17 +1,17 @@
-# NUAA 2026 — Methods and Results synthesis (C1, M1, N1, N2, crop check, folds run, session ablation, patience 4/12)
+# NUAA 2026 — Methods/Results synthesis (C1, M1, N1, N2, crop check, folds run, session ablation, patience, constant lr)
 
-Synthesis of the NUAA results run between 28 September and 9 November 2026 and accepted in `research/pad-2026` (29
+Synthesis of the NUAA results run between 28 September and 11 November 2026 and accepted in `research/pad-2026` (29
 September – 4 November) or in the later packages of this repository (folds run, PR #18; comparison with N1, delivered
 with the update of 4 November; session ablation run, PR #21; degenerate trainings, PR #22; patience verification, PR
-#23), written on the coordinator's request of 2 November. Every number comes from the public aggregate, comparison
-table, per-epoch table or run record of the run named next to it, or from the note of PR #22
-(`research/nuaa-degenerate-trainings/NOTE.md`) where the text says so (§3.7 also quotes, with their source, values
-computed read-only from the restricted files of the folds run); the unified table (`tables/summary_table.md`; compact
-form below) and the annexes are rebuilt by `nuaa_synthesis.py` from those files and `check` fails if a cell differs. No
-inference and no training; §3.7 also reports read-only descriptive calculations on the existing restricted scores, which
-`check` does not verify. Revised on 3 November after the coordinator's review (three precisions: the subject × session
-cell already measured by N2, the dev threshold, the provenance of the external models; labels of the generated tables;
-checksums).
+#23; constant learning-rate control, PR #25), written on the coordinator's request of 2 November. Every number comes
+from the public aggregate, comparison table, per-epoch table or run record of the run named next to it, or from the note
+of PR #22 (`research/nuaa-degenerate-trainings/NOTE.md`) where the text says so (§3.7 also quotes, with their source,
+values computed read-only from the restricted files of the folds run); the unified table (`tables/summary_table.md`;
+compact form below) and the annexes are rebuilt by `nuaa_synthesis.py` from those files and `check` fails if a cell
+differs. No inference and no training; §3.7 also reports read-only descriptive calculations on the existing restricted
+scores, which `check` does not verify. Revised on 3 November after the coordinator's review (three precisions: the
+subject × session cell already measured by N2, the dev threshold, the provenance of the external models; labels of the
+generated tables; checksums).
 
 Revised on 4 November on the coordinator's request of the same day, after the merge of the subject-held-out run (PR
 #18), with no new training and no other model:
@@ -47,6 +47,22 @@ Revised on 10 November on the coordinator's request of the same day, after the m
 - §4, a fifth reading and its limits; §5 rewritten as the state on 10 November with one proposed control, to be agreed
   before any training.
 
+Revised on 11 November on the coordinator's request of the same day, after the merge of the constant learning-rate
+control (PR #25, merge `a1ca91f`), with no new training, no inference, no new seed and no other model:
+
+- the control in Methods (§2, "Constant learning-rate control");
+- its run in the unified table: 9 rows SESSABL-P12C pooled over the four folds, one per arm and seed, stratum all, at
+  0.5 and at the dev threshold, with the bootstrap over subjects (66 rows, from 57); the annexes
+  `tables/three_regimes_table.md` (the 36 models in the three regimes side by side: train and dev, then the test) and
+  `tables/session_ablation_table_constant_lr.md` (every arm, seed and session stratum of the control run, and the 84
+  verdicts of the three runs side by side), a separate annex so that `tables/session_ablation_table.md` stays as it was;
+  the compact form `tables/three_regimes_table_compact.md`, embedded in §3.10;
+- §3.10, the same 36 models in the three regimes (p4: patience 4; p12: patience 12 with the learning-rate reduction;
+  p12c: patience 12 at a constant rate), every model included, read in two blocks: training and dev first, by recovery,
+  stability and selected checkpoint, then the test, reported separately and never used to choose or judge the recipe; a
+  short conclusion;
+- §1 and §4, the question and the fifth reading extended to the three regimes; §5 rewritten as the state on 11 November.
+
 ## 1. Question
 
 Restricted to NUAA, the group's question reads: how reliably do detectors trained on NUAA (and one trained elsewhere)
@@ -56,8 +72,9 @@ the starting point, M1 the metric module and the source-dev threshold, M2 the ma
 and subject sensitivity, N2 the session check and the historical combined model, the crop check the one documented
 preprocessing difference, the subject-held-out run the cell no earlier run measured: subjects never seen, with every
 session represented in training; the session ablation run whether representing session 03 in training changes that error
-at fixed fitting subjects and total count, and the patience verification whether the recipe trains stably on those 36
-models.
+at fixed fitting subjects and total count, the patience verification whether the recipe trains stably on those 36
+models, and the constant learning-rate control whether the recovery seen with the longer patience still occurs without
+the learning-rate reduction.
 
 ## 2. Methods
 
@@ -180,6 +197,47 @@ sessions and folds, every verdict against the reading rule, every value of the c
 curves); the counts in the summary lines of `tables/patience_table.md` are counts of models derived from the public rows
 and curves, not new metrics.
 
+**Constant learning-rate control.** Proposed in §5 of the update of 10 November (PR #24, merge `1e340fc`) and agreed by
+the coordinator on 10 November, with the protocol and the reading rule written in
+`research/nuaa-constant-lr-control/NOTE.md` before the run. Question: in the patience-12 setting, do the ten recover
+because training lasts 12 epochs, or does the learning-rate reduction that came with it contribute? Configuration
+`60b38e09…` = the patience-12 configuration `ca039df5…` with `training.scheduler` changed from
+`ReduceLROnPlateau(monitor=val_loss, factor=0.5, patience=2, min_lr=1e-6)` to a constant rate and the `amendment` block
+rewritten for this control; every other field equal. The runner refuses it, before reading any data, unless both SHA-256
+are the pinned ones and every other field is equal. The trainer, in which that field had been descriptive only, now
+reads it (two accepted values, any other refused); with the constant value ReduceLROnPlateau is replaced by a callback
+that does not change the rate and writes the rate in effect into the logs of every epoch, so that `history.lr` is
+recorded in both modes; a training card with a recorded rate other than 0.001 is refused. Everything else as in the
+patience-12 run: the same 36 models in the same order, data, dev, threshold rule and test, `early_stopping_patience` 12,
+at most 12 epochs, checkpoint at the epoch of minimum dev `val_loss`, CPU, cap of 360 minutes; no seed added. Run
+`20261111-SESSABLRUN-8568ffa` (clean commit `8568ffa`; 11 November, 00:07–04:21): PASS, 36 of 36, wall time 15,217.0 s
+within the cap of 21,600 s (estimate 17,940.9 s); the rate was 0.001 at every epoch of every model. The test was
+computed and sealed by the runner as before and is reported separately. The comparison with the patience-12 run,
+`nuaa_patience_verify.py` with a second configuration schema (run `20261111-LRCTRL-ff53279`, clean commit, PASS), trains
+nothing and reads no test score: it reads the training cards, the dev scores and the frozen thresholds of the two runs
+and, for the test, only the public `aggregate.json` of each. Its reading rule (a)–(e) was fixed before the run: (a) for
+every model the epochs of the patience-12 run recorded at 0.001, up to the epoch at whose end the first reduction
+happened (3 to 12 epochs; all 12 for A\* fold 1 seed 42, never reduced), must be identical in the five fields, and the
+rate of the control must be 0.001 at every epoch, otherwise the comparison is not valid; (b) primary: if all ten recover
+within 12 epochs and none of the 36 is degenerate, the outcome is consistent with the extra epochs being sufficient; if
+at least one of the ten does not recover, it is consistent with a contribution of the reduction; a mixed outcome (for
+example all ten recover but another model becomes degenerate or loses its recovery) is reported model by model
+(`NOTE.md`), with no overall verdict (`reading_rule.b` of the configuration of the comparison, fixed before the run as
+well); (c) secondary, for every model: first recovery, recovery at epoch 12, restored epoch, dev accuracy and dev AUROC
+at the checkpoint, epochs at 0.5, with B fold 3 seed 44 and B' fold 4 seed 42 reported apart; (d) the test in a separate
+section, never used to choose or judge; (e) time against the estimate, no verdict for an incomplete run. The criteria
+(degenerate, recovery) are those of the earlier packages, defined after the patience-4 run. Accepted with PR #25 (merge
+`a1ca91f`, 11 November). For the control run and its comparison the synthesis script checks the public files as for the
+two earlier runs (anchors, schema denominators, sums over sessions and folds, every verdict against the reading rule,
+every value of the comparison rebuilt from the epoch curves except the dev AUROC at the checkpoint (copied)), and also
+the amendment block (parent = the patience-12 configuration, changed field `training.scheduler`, ReduceLROnPlateau →
+constant), the patience-12 columns of this comparison against those of the patience comparison, the shared window
+(identical histories, rate 0.001 at every epoch of the control), the outcome of the reading rule recomputed from the
+rows, and that the checkpoints with the same restored epoch inside the shared window have identical test values and dev
+threshold in both runs (the hashes of their weight and threshold files differ, as different archives); the counts in the
+summary lines of `tables/three_regimes_table.md` are counts of models derived from the public rows and curves, not new
+metrics.
+
 **Verification practice.** Configuration hashed before each run; inputs, checkpoints and code bound by SHA-256;
 per-image scores restricted, aggregates public; synthetic tests and declared mutations; a reproduction check where a
 chain had to be rebuilt (N2: 24 parity keys, difference 0; crop check: 300/300 C1 scores within 1e-5, same decisions);
@@ -198,15 +256,16 @@ part 1 / part 2; `T-FOLD` = fitting 2,100 + dev 600 frames of 8 + 4 subjects out
 sessions; `S-FOLD-k` = every frame of the 4 subjects of held-out fold k, sessions 01–03; `S-FOLD-ALL` = the four
 held-out folds pooled, 12,614 frames of the 16 subjects; `(EER, fold dev)` = the EER threshold of the dev fold of each
 model; FOLDS-N1 = the fold models of each seed on the 3,000 frames of `S-3000` (each frame scored by the model of its
-fold; the N1 rows above are the comparison); SESSABL-P4 / SESSABL-P12 = the session ablation run with early-stopping
-patience 4 and its verification run with patience 12, one row per arm and seed pooled over the four folds, stratum all;
-`T-ABL-B` / `T-ABL-A*` / `T-ABL-B'` = the fitting sets of arms B (sessions 01–02, 1,400 frames per fold), A\* (sessions
-01–03 of the same subjects, 1,400) and B' (sessions 01–02 at the per-cell counts of A\*, 934), each with the common dev
-of the fold (sessions 01–02, 400 frames); `(EER, common dev)` = the EER threshold of the common dev of each model;
-"subject-held-out (session ablation)" = held-out subjects, sessions in training as in the arm, dev without session 03;
-ckpt = checkpoint; "rejected bf / accepted att." = numerators of BPCER and APCER; the columns from "dev thr." to
-"bootstrap" apply to the FOLDS, FOLDS-N1 and SESSABL rows only, — elsewhere; full legend in
-`tables/summary_table_compact.md`, row ids and sources in `tables/summary_table.md`):
+fold; the N1 rows above are the comparison); SESSABL-P4 / SESSABL-P12 / SESSABL-P12C = the session ablation run with
+early-stopping patience 4, its verification run with patience 12 and its control run with patience 12 at a constant
+learning rate 0.001, one row per arm and seed pooled over the four folds, stratum all; `T-ABL-B` / `T-ABL-A*` /
+`T-ABL-B'` = the fitting sets of arms B (sessions 01–02, 1,400 frames per fold), A\* (sessions 01–03 of the same
+subjects, 1,400) and B' (sessions 01–02 at the per-cell counts of A\*, 934), each with the common dev of the fold
+(sessions 01–02, 400 frames); `(EER, common dev)` = the EER threshold of the common dev of each model; "subject-held-out
+(session ablation)" = held-out subjects, sessions in training as in the arm, dev without session 03; ckpt = checkpoint;
+"rejected bf / accepted att." = numerators of BPCER and APCER; the columns from "dev thr." to "bootstrap" apply to the
+FOLDS, FOLDS-N1 and SESSABL rows only, — elsewhere; full legend in `tables/summary_table_compact.md`, row ids and
+sources in `tables/summary_table.md`):
 
 | block | model | training | test set | extractor | prep. | threshold | rejected bf / accepted att. | APCER | BPCER | ACER | AUROC | dev thr. | rejected bf / accepted att. (dev) | APCER dev | BPCER dev | ACER dev | bootstrap (ACER 0.5; ACER dev; AUROC) | run | transfer |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
@@ -267,6 +326,15 @@ ckpt = checkpoint; "rejected bf / accepted att." = numerators of BPCER and APCER
 | SESSABL-P12 | LivenessNet, arm B', 4 fold models, seed 42 (pooled) | T-ABL-B' | S-FOLD-ALL | E-CACHE | P-REF | 0.5 (fixed) | 1175 / 788 | 0.1049 | 0.2302 | 0.1676 | 0.8728 | 4 fold values (EER, common dev) | 956 / 1800 | 0.2397 | 0.1873 | 0.2135 | 0.0724-0.2823; 0.1087-0.3291; 0.7530-0.9637 | 20261109-SESSABLRUN-6a50265 | subject-held-out (session ablation) |
 | SESSABL-P12 | LivenessNet, arm B', 4 fold models, seed 43 (pooled) | T-ABL-B' | S-FOLD-ALL | E-CACHE | P-REF | 0.5 (fixed) | 2892 / 1267 | 0.1687 | 0.5665 | 0.3676 | 0.5891 | 4 fold values (EER, common dev) | 3062 / 836 | 0.1113 | 0.5998 | 0.3556 | 0.2485-0.4706; 0.2349-0.4570; 0.4036-0.7904 | 20261109-SESSABLRUN-6a50265 | subject-held-out (session ablation) |
 | SESSABL-P12 | LivenessNet, arm B', 4 fold models, seed 44 (pooled) | T-ABL-B' | S-FOLD-ALL | E-CACHE | P-REF | 0.5 (fixed) | 2683 / 681 | 0.0907 | 0.5256 | 0.3081 | 0.7480 | 4 fold values (EER, common dev) | 2651 / 1461 | 0.1946 | 0.5193 | 0.3569 | 0.1918-0.4183; 0.2250-0.4738; 0.6079-0.8911 | 20261109-SESSABLRUN-6a50265 | subject-held-out (session ablation) |
+| SESSABL-P12C | LivenessNet, arm B, 4 fold models, seed 42 (pooled) | T-ABL-B | S-FOLD-ALL | E-CACHE | P-REF | 0.5 (fixed) | 1023 / 1670 | 0.2224 | 0.2004 | 0.2114 | 0.8473 | 4 fold values (EER, common dev) | 1411 / 741 | 0.0987 | 0.2764 | 0.1875 | 0.1165-0.3292; 0.0893-0.2930; 0.6925-0.9667 | 20261111-SESSABLRUN-8568ffa | subject-held-out (session ablation) |
+| SESSABL-P12C | LivenessNet, arm B, 4 fold models, seed 43 (pooled) | T-ABL-B | S-FOLD-ALL | E-CACHE | P-REF | 0.5 (fixed) | 2535 / 1730 | 0.2304 | 0.4966 | 0.3635 | 0.6424 | 4 fold values (EER, common dev) | 2618 / 493 | 0.0657 | 0.5128 | 0.2892 | 0.2262-0.4880; 0.1655-0.4025; 0.4761-0.8233 | 20261111-SESSABLRUN-8568ffa | subject-held-out (session ablation) |
+| SESSABL-P12C | LivenessNet, arm B, 4 fold models, seed 44 (pooled) | T-ABL-B | S-FOLD-ALL | E-CACHE | P-REF | 0.5 (fixed) | 1880 / 1957 | 0.2606 | 0.3683 | 0.3144 | 0.7998 | 4 fold values (EER, common dev) | 2071 / 1194 | 0.1590 | 0.4057 | 0.2823 | 0.1794-0.4571; 0.1394-0.4272; 0.6478-0.9155 | 20261111-SESSABLRUN-8568ffa | subject-held-out (session ablation) |
+| SESSABL-P12C | LivenessNet, arm A*, 4 fold models, seed 42 (pooled) | T-ABL-A* | S-FOLD-ALL | E-CACHE | P-REF | 0.5 (fixed) | 427 / 1764 | 0.2349 | 0.0836 | 0.1593 | 0.9102 | 4 fold values (EER, common dev) | 758 / 1375 | 0.1831 | 0.1485 | 0.1658 | 0.0900-0.2512; 0.0847-0.2547; 0.8429-0.9680 | 20261111-SESSABLRUN-8568ffa | subject-held-out (session ablation) |
+| SESSABL-P12C | LivenessNet, arm A*, 4 fold models, seed 43 (pooled) | T-ABL-A* | S-FOLD-ALL | E-CACHE | P-REF | 0.5 (fixed) | 235 / 1721 | 0.2292 | 0.0460 | 0.1376 | 0.9526 | 4 fold values (EER, common dev) | 198 / 1975 | 0.2630 | 0.0388 | 0.1509 | 0.0652-0.2324; 0.0748-0.2572; 0.8791-0.9905 | 20261111-SESSABLRUN-8568ffa | subject-held-out (session ablation) |
+| SESSABL-P12C | LivenessNet, arm A*, 4 fold models, seed 44 (pooled) | T-ABL-A* | S-FOLD-ALL | E-CACHE | P-REF | 0.5 (fixed) | 973 / 654 | 0.0871 | 0.1906 | 0.1388 | 0.8931 | 4 fold values (EER, common dev) | 809 / 745 | 0.0992 | 0.1585 | 0.1288 | 0.0420-0.2586; 0.0462-0.2372; 0.7289-0.9949 | 20261111-SESSABLRUN-8568ffa | subject-held-out (session ablation) |
+| SESSABL-P12C | LivenessNet, arm B', 4 fold models, seed 42 (pooled) | T-ABL-B' | S-FOLD-ALL | E-CACHE | P-REF | 0.5 (fixed) | 2086 / 1569 | 0.2089 | 0.4086 | 0.3088 | 0.6940 | 4 fold values (EER, common dev) | 2360 / 1858 | 0.2474 | 0.4623 | 0.3549 | 0.1620-0.4551; 0.2273-0.4862; 0.5139-0.8596 | 20261111-SESSABLRUN-8568ffa | subject-held-out (session ablation) |
+| SESSABL-P12C | LivenessNet, arm B', 4 fold models, seed 43 (pooled) | T-ABL-B' | S-FOLD-ALL | E-CACHE | P-REF | 0.5 (fixed) | 2171 / 2045 | 0.2723 | 0.4253 | 0.3488 | 0.6433 | 4 fold values (EER, common dev) | 2838 / 920 | 0.1225 | 0.5559 | 0.3392 | 0.2367-0.4547; 0.2313-0.4338; 0.4763-0.8223 | 20261111-SESSABLRUN-8568ffa | subject-held-out (session ablation) |
+| SESSABL-P12C | LivenessNet, arm B', 4 fold models, seed 44 (pooled) | T-ABL-B' | S-FOLD-ALL | E-CACHE | P-REF | 0.5 (fixed) | 2506 / 1374 | 0.1830 | 0.4909 | 0.3369 | 0.6894 | 4 fold values (EER, common dev) | 2304 / 1412 | 0.1880 | 0.4513 | 0.3197 | 0.2021-0.4565; 0.1816-0.4338; 0.5262-0.8772 | 20261111-SESSABLRUN-8568ffa | subject-held-out (session ablation) |
 
 **3.1 Same sessions as training (01–02).** The three N1 checkpoints make no error on the 491 training-session frames
 never used for fitting or early stopping: ACER 0.0000 and AUROC 1.0000 for every seed, on the 410 frames of the 7
@@ -613,14 +681,219 @@ of the two runs.
 
 *Conclusion.* Train/dev: in this trial the longer patience let the ten degenerate trainings, and B fold 3 seed 44, reach
 the recovery criterion within 12 epochs, with no degenerate model among the 36. It does not separate the duration of the
-training from the learning-rate reduction, which came with it in 35 of 36 models and preceded every recovery of the ten;
-it does not show that every model is stable (the recovery holds at the last epoch in 28 of 36, 8 of the ten; B' fold 4
-seed 42 relapsed; two of the ten and two of the other 26 stay below 0.9 dev accuracy at the checkpoint); and it does not
-explain the saturation of the dev in the first epochs, which remains. Test: it is not used to choose the recipe; the
-primary question of the ablation (does session 03 in training change the error on held-out subjects?) stays inconclusive
-under the rule fixed before the run, with patience 4 and with patience 12; the 7 changed secondary verdicts and the
-per-model changes, in both directions, come with 15 changed restored epochs and are not evidence for the change or for
-the session effect.
+training from the learning-rate reduction (the constant-rate control, §3.10), which came with it in 35 of 36 models and
+preceded every recovery of the ten; it does not show that every model is stable (the recovery holds at the last epoch in
+28 of 36, 8 of the ten; B' fold 4 seed 42 relapsed; two of the ten and two of the other 26 stay below 0.9 dev accuracy
+at the checkpoint); and it does not explain the saturation of the dev in the first epochs, which remains. Test: it is
+not used to choose the recipe; the primary question of the ablation (does session 03 in training change the error on
+held-out subjects?) stays inconclusive under the rule fixed before the run, with patience 4 and with patience 12; the 7
+changed secondary verdicts and the per-model changes, in both directions, come with 15 changed restored epochs and are
+not evidence for the change or for the session effect.
+
+**3.10 Three regimes on the same 36 models: patience 4, patience 12 with the learning-rate reduction, patience 12 at a
+constant rate (runs 20261106-SESSABLRUN-d999458, 20261109-SESSABLRUN-6a50265 and 20261111-SESSABLRUN-8568ffa;
+comparisons 20261109-PATVER-4f2b925 and 20261111-LRCTRL-ff53279).** The three runs use the same 36 models, data, order,
+dev, threshold rule and seeds. From p4 to p12 only `early_stopping_patience` changes (4 → 12); from p12 to p12c only the
+scheduler (ReduceLROnPlateau → a constant rate 0.001). Each step has its own comparison, with its reading rule fixed
+before its run (§3.9 for p4 → p12; §2, the note of the control and the reading rule of its comparison configuration for
+p12 → p12c); the table puts the three regimes side by side and adds no rule of its own. All 36 models are in the compact
+table below; the full columns are in `tables/three_regimes_table.md`, one row per model in two tables, each followed by
+its counts: train and dev (for each run epochs run, restored epoch, degenerate, first recovery, recovery holds at last
+epoch, epochs at 0.5 and epochs at 0.5 after the first recovery, best val_loss, dev accuracy and dev AUROC at the
+checkpoint, last lr; then the first reduced epoch of p12, the shared epochs p12/p12c, restored epoch changed p4→p12 and
+p12→p12c, same weights p12/p12c), then the test per model (ACER at 0.5, ACER at the dev threshold and AUROC in strata 03
+and all for each run). The pooled values of the control run per arm, seed and stratum and the 84 verdicts of the three
+runs side by side are in `tables/session_ablation_table_constant_lr.md`; stratum all is also in rows SESSABL-P12C of the
+table.
+
+*(i) Training and dev.* Compact table (`tables/three_regimes_table_compact.md`; p4 = run `20261106-SESSABLRUN-d999458`,
+patience 4; p12 = run `20261109-SESSABLRUN-6a50265`, patience 12 with ReduceLROnPlateau; p12c = run
+`20261111-SESSABLRUN-8568ffa`, patience 12 at a constant learning rate 0.001; "in the ten" = one of the ten degenerate
+trainings of the p4 run, — = not among the ten; first recovery = first epoch meeting the recovery criterion of §2, —
+when none; "holds at last epoch" = that criterion met at the last epoch run; dev acc at ckpt = dev accuracy at the
+restored epoch; "restored epoch changed" = the two restored epochs differ, — when equal; train and dev only, the test
+per model is in the annex). "Restored epoch changed" compares the restored epochs only: from p12 to p12c the two
+checkpoints are the same weights only when the same restored epoch lies inside the shared window (the epochs before the
+first reduction of the rate in p12, identical in the two runs) (in the public files the hashes of the weight and
+threshold files still differ, as different archives; the identity is shown by the restored epoch inside the shared
+window and by identical test values and dev threshold, checked by the synthesis script); the same restored epoch after
+the window belongs to another training. The summary lines below the table are computed from its rows and from the
+curves.
+
+| model | in the ten | restored epoch p4 → p12 → p12c | first recovery p4 → p12 → p12c | holds at last epoch p4 → p12 → p12c | dev acc at ckpt p4 → p12 → p12c | restored epoch changed p4→p12 / p12→p12c |
+|---|---|---|---|---|---|---|
+| B fold 1 seed 42 | yes | 1 → 10 → 9 | — → 8 → 4 | no → yes → yes | 0.5000 → 0.9950 → 1.0000 | yes / yes |
+| B fold 1 seed 43 | — | 11 → 11 → 9 | 5 → 5 → 5 | yes → yes → yes | 0.9975 → 0.9975 → 1.0000 | — / yes |
+| B fold 1 seed 44 | — | 6 → 11 → 11 | 6 → 6 → 6 | yes → yes → yes | 0.9950 → 0.9975 → 1.0000 | yes / — |
+| B fold 2 seed 42 | — | 9 → 9 → 10 | 5 → 5 → 8 | no → no → yes | 0.9475 → 0.9475 → 0.9950 | — / yes |
+| B fold 2 seed 43 | — | 7 → 7 → 7 | 7 → 7 → 6 | yes → yes → yes | 1.0000 → 1.0000 → 1.0000 | — / — |
+| B fold 2 seed 44 | — | 10 → 10 → 9 | 6 → 6 → 5 | yes → yes → no | 0.9975 → 0.9975 → 0.9975 | — / yes |
+| B fold 3 seed 42 | — | 12 → 12 → 12 | 6 → 6 → 7 | yes → yes → yes | 1.0000 → 1.0000 → 1.0000 | — / — |
+| B fold 3 seed 43 | — | 10 → 10 → 9 | 6 → 6 → 6 | yes → yes → yes | 0.9925 → 0.9925 → 0.9250 | — / yes |
+| B fold 3 seed 44 | — | 3 → 11 → 10 | — → 10 → 7 | no → yes → yes | 0.2375 → 1.0000 → 0.9150 | yes / yes |
+| B fold 4 seed 42 | — | 11 → 11 → 11 | 6 → 6 → 6 | yes → yes → yes | 1.0000 → 1.0000 → 1.0000 | — / — |
+| B fold 4 seed 43 | — | 6 → 12 → 6 | 6 → 6 → 6 | yes → yes → no | 1.0000 → 1.0000 → 1.0000 | yes / yes |
+| B fold 4 seed 44 | yes | 2 → 11 → 11 | — → 7 → 10 | no → yes → yes | 0.5000 → 0.9925 → 1.0000 | yes / — |
+| A* fold 1 seed 42 | — | 10 → 10 → 10 | 6 → 6 → 6 | yes → yes → yes | 0.9950 → 0.9950 → 0.9950 | — / — |
+| A* fold 1 seed 43 | — | 9 → 9 → 9 | 7 → 7 → 7 | yes → yes → no | 0.9975 → 0.9975 → 0.9975 | — / — |
+| A* fold 1 seed 44 | — | 11 → 11 → 9 | 7 → 7 → 7 | yes → yes → yes | 0.9875 → 0.9875 → 0.9975 | — / yes |
+| A* fold 2 seed 42 | — | 11 → 11 → 7 | 5 → 5 → 5 | yes → yes → yes | 1.0000 → 1.0000 → 1.0000 | — / yes |
+| A* fold 2 seed 43 | yes | 1 → 10 → 9 | — → 7 → 6 | no → yes → yes | 0.5000 → 1.0000 → 1.0000 | yes / yes |
+| A* fold 2 seed 44 | yes | 1 → 12 → 10 | — → 10 → 5 | no → yes → yes | 0.5000 → 0.9975 → 1.0000 | yes / yes |
+| A* fold 3 seed 42 | yes | 1 → 9 → 10 | — → 9 → 6 | no → yes → no | 0.5000 → 0.9425 → 0.9900 | yes / yes |
+| A* fold 3 seed 43 | — | 12 → 12 → 12 | 6 → 6 → 6 | yes → yes → yes | 0.9975 → 0.9975 → 0.9725 | — / — |
+| A* fold 3 seed 44 | yes | 1 → 11 → 8 | — → 11 → 7 | no → no → yes | 0.5000 → 0.8900 → 0.8750 | yes / yes |
+| A* fold 4 seed 42 | — | 10 → 10 → 11 | 10 → 10 → 9 | no → no → yes | 0.7975 → 0.7975 → 0.8975 | — / yes |
+| A* fold 4 seed 43 | — | 9 → 9 → 9 | 7 → 7 → 7 | no → no → no | 0.9950 → 0.9950 → 0.9950 | — / — |
+| A* fold 4 seed 44 | yes | 1 → 12 → 8 | — → 10 → 6 | no → yes → yes | 0.5000 → 0.8650 → 0.9975 | yes / yes |
+| B' fold 1 seed 42 | — | 2 → 12 → 10 | 2 → 2 → 2 | no → yes → yes | 0.7725 → 0.9975 → 0.9975 | yes / yes |
+| B' fold 1 seed 43 | — | 4 → 4 → 12 | 4 → 4 → 4 | no → no → yes | 0.9400 → 0.9400 → 0.9675 | — / yes |
+| B' fold 1 seed 44 | yes | 1 → 9 → 6 | — → 7 → 6 | no → no → yes | 0.5000 → 0.9950 → 0.9975 | yes / yes |
+| B' fold 2 seed 42 | — | 11 → 11 → 10 | 11 → 11 → — | no → no → no | 0.8775 → 0.8775 → 0.8550 | — / yes |
+| B' fold 2 seed 43 | — | 10 → 10 → 12 | 3 → 3 → 3 | yes → yes → yes | 1.0000 → 1.0000 → 0.9950 | — / yes |
+| B' fold 2 seed 44 | yes | 2 → 12 → 12 | — → 12 → 7 | no → yes → yes | 0.5000 → 0.9875 → 0.9950 | yes / — |
+| B' fold 3 seed 42 | — | 1 → 11 → 4 | 1 → 1 → 1 | no → yes → yes | 0.8325 → 0.9900 → 0.9900 | yes / yes |
+| B' fold 3 seed 43 | — | 9 → 9 → 9 | 7 → 7 → 7 | yes → yes → no | 1.0000 → 1.0000 → 1.0000 | — / — |
+| B' fold 3 seed 44 | — | 9 → 9 → 9 | 7 → 7 → 8 | yes → yes → no | 0.9975 → 0.9975 → 0.9850 | — / — |
+| B' fold 4 seed 42 | — | 2 → 2 → 11 | 1 → 1 → 1 | no → no → no | 0.9175 → 0.9175 → 0.9700 | — / yes |
+| B' fold 4 seed 43 | — | 3 → 3 → 3 | 3 → 3 → 3 | no → yes → yes | 1.0000 → 1.0000 → 1.0000 | — / — |
+| B' fold 4 seed 44 | yes | 1 → 11 → 10 | — → 10 → 10 | no → yes → no | 0.5000 → 0.9850 → 0.8900 | yes / yes |
+
+**Recovery** (train and dev only)
+
+- Models: 36 (3 arms x 4 folds x 3 seeds); complete: p4 36, p12 36, p12c 36.
+- The ten (degenerate with p4) with a recovery: p4 0 of 10, p12 10 of 10, p12c 10 of 10.
+- Degenerate among the 36: p4 10, p12 0, p12c 0.
+- With a recovery among the 36: p4 25, p12 36, p12c 35.
+- First recovery of the ten, median (min-max): p4 —, p12 9.5 (7-12), p12c 6 (4-10).
+- First recovery of the ten, p12c against p12: earlier in 8, at the same epoch in 1, later in 1.
+- First recovery of the other 26, median (min-max) [with one]: p4 6 (1-11) [25], p12 6 (1-11) [26], p12c 6 (1-9) [25].
+- Recovery lost (outside the ten): p4 to p12 none; p12 to p12c B' fold 2 seed 42.
+
+**Stability** (train and dev only)
+
+- Recovery holds at the last epoch: p4 16 of 36, p12 28 of 36, p12c 26 of 36.
+- Recovery holds at the last epoch, the ten: p4 0, p12 8, p12c 8; the other 26: p4 16, p12 20, p12c 18.
+- Holds at the last epoch with p12 but not with p12c: 7; with p12c but not with p12: 5.
+- Models with an epoch at 0.5 after their first recovery (a relapse): p4 5, p12 5, p12c 6.
+- B fold 3 seed 44 (reported apart): first recovery — → 10 → 7; holds at last no → yes → yes; at 0.5 after it — → 0 → 0.
+- B' fold 2 seed 42 (recovery lost): first recovery 11 → 11 → —; holds at last no → no → no; at 0.5 after it 0 → 0 → —.
+- B' fold 4 seed 42 (reported apart): first recovery 1 → 1 → 1; holds at last no → no → no; at 0.5 after it 2 → 3 → 3.
+
+**Selected checkpoint** (train and dev only)
+
+- Restored epoch changed: p4 to p12 15 of 36 (10 of the ten), p12 to p12c 23 of 36 (8 of the ten).
+- Same restored epoch with p12 and p12c: 13; of these, same weights (inside the shared window): 5.
+- Different checkpoints with p12 and p12c: 31 of 36 (another restored epoch 23, same epoch after the window 8).
+- Best val_loss at the checkpoint, p12c against p12: higher in 12, lower in 19, equal in 5.
+- Dev accuracy at the checkpoint, p12c against p12: higher in 14, lower in 8, equal in 14.
+- Dev accuracy and AUROC at the checkpoint, next four lines: median (min-max) per regime.
+- Dev acc at ckpt, the ten: p4 0.5000 (0.5000-0.5000), p12 0.9900 (0.8650-1.0000), p12c 0.9975 (0.8750-1.0000).
+- Dev acc at ckpt, the other 26: p4 0.9963 (0.2375-1.0000), p12 0.9975 (0.7975-1.0000), p12c 0.9963 (0.8550-1.0000).
+- Dev AUROC at ckpt, the ten: p4 0.5000 (0.2114-0.9975), p12 0.9955 (0.9895-1.0000), p12c 1.0000 (0.9831-1.0000).
+- Dev AUROC at ckpt, the other 26: p4 1.0000 (0.0950-1.0000), p12 1.0000 (0.9830-1.0000), p12c 1.0000 (0.8678-1.0000).
+- Dev acc at ckpt below 0.9: p4 15 of 36, p12 4 of 36, p12c 4 of 36 (the ten: p4 10, p12 2, p12c 2).
+- B fold 3 seed 44: restored epoch 3 → 11 → 10; dev acc at ckpt 0.2375 → 1.0000 → 0.9150.
+- B' fold 2 seed 42: restored epoch 11 → 11 → 10; dev acc at ckpt 0.8775 → 0.8775 → 0.8550.
+- B' fold 4 seed 42: restored epoch 2 → 2 → 11; dev acc at ckpt 0.9175 → 0.9175 → 0.9700.
+
+Read by block, the same counts with the models named:
+
+- Recovery. The ten degenerate trainings of the p4 run recover in none of the ten with p4, in 10 of 10 with p12 and in
+  10 of 10 with p12c; degenerate models among the 36: 10, 0 and 0; models with a recovery: 25, 36 and 35 of 36. First
+  recovery of the ten: median 9.5 (7–12) with p12, every one after the first reduction of the rate (first reduced epoch
+  4 or 5); median 6 (4–10) with p12c, at 0.001, earlier in 8 of the ten, at the same epoch in B' fold 4 seed 44 (10) and
+  later in B fold 4 seed 44 (10 against 7). The other 26: median 6 (1–11) with p4 (25 of 26) and p12 (26 of 26), 6 (1–9)
+  with p12c (25 of 26). One recovery is lost with p12c, outside the ten: B' fold 2 seed 42, whose first recovery was at
+  epoch 11 with p4 and p12 (with p12 the only epoch meeting the criterion, at 0.0005: dev accuracy 0.8775, followed by
+  0.4625 at epoch 12) and which with p12c has dev accuracy 0.77–0.8625 at epochs 9–12 with `val_loss` never below 1.6. B
+  fold 3 seed 44, without recovery with p4 (restored epoch 3, dev accuracy 0.2375), recovers at epoch 10 with p12 and at
+  epoch 7 with p12c. By the rule of the control the p12 → p12c outcome is mixed, reported model by model (`NOTE.md`),
+  with no overall verdict (`reading_rule.b` of the configuration of its comparison).
+- Stability. The recovery criterion holds at the last epoch in 16 of 36 models with p4 (none of the ten), 28 with p12 (8
+  of the ten) and 26 with p12c (8 of the ten). It holds with p12 but not with p12c in 7 models (B fold 2 seed 44, B fold
+  4 seed 43, A\* fold 1 seed 43, A\* fold 3 seed 42, B' fold 3 seeds 43 and 44, B' fold 4 seed 44), with p12c but not
+  with p12 in 5 (B fold 2 seed 42, A\* fold 3 seed 44, A\* fold 4 seed 42, B' fold 1 seeds 43 and 44), in neither in 3
+  (A\* fold 4 seed 43, B' fold 2 seed 42, B' fold 4 seed 42). Models with an epoch at 0.5 after their first recovery (a
+  relapse; an observation, not a criterion): 5 with p4, 5 with p12, 6 with p12c. B' fold 4 seed 42 relapses in all three
+  regimes: it restores epoch 2 with p4 and p12, and its dev accuracy is 0.5 at epochs 5–7 with p12 (5–6 already with p4,
+  shared history), with the rate halved at epochs 5, 7, 9 and 11, and at epochs 6–8 with p12c, at 0.001, where it
+  restores epoch 11 (dev accuracy 0.9700); it is not degenerate in any regime. Epochs at 0.5 for the ten: median 4 in
+  all three regimes (2–6, 2–7 and 2–5); between p12 and p12c they change in 12 of the 36 models, in both directions. The
+  saturation of the dev in the first epochs remains in every regime, and the dev curves after the recovery are not
+  monotone.
+- Selected checkpoint. In every regime the checkpoint is the epoch of minimum dev `val_loss`, chosen among
+  the 5–12 epochs run with p4 and among 12 with p12 and p12c. The restored epoch changed in 15 of 36 models from p4 to
+  p12 (10 of the ten, 5 of the other 26) and in 23 of 36 from p12 to p12c (8 of the ten, 15 of the other 26). From p4 to
+  p12 the 21 models with an unchanged restored epoch have identical test values and dev threshold (§3.9). From p12 to
+  p12c 13 models keep the restored epoch, but in only 5 of them does it lie inside the shared window (A\* fold 1 seeds
+  42 and 43, A\* fold 4 seed 43, B' fold 3 seed 43, B' fold 4 seed 43): these are the same weights (in the public files
+  the hashes of the weight and threshold files still differ, as different archives; the identity is shown by the
+  restored epoch inside the shared window and by identical test values and dev threshold, checked by the synthesis
+  script); the other 8 are different trainings after the window, so 31 of the 36 checkpoints differ. Dev accuracy at the
+  checkpoint, the ten: median 0.5000 (0.5000–0.5000) with p4, 0.9900 (0.8650–1.0000) with p12, 0.9975 (0.8750–1.0000)
+  with p12c; the other 26: 0.9963 (0.2375–1.0000), 0.9975 (0.7975–1.0000), 0.9963 (0.8550–1.0000); dev AUROC at the
+  checkpoint, the ten: 0.5000 (0.2114–0.9975), 0.9955 (0.9895–1.0000), 1.0000 (0.9831–1.0000); the other 26: 1.0000
+  (0.0950–1.0000), 1.0000 (0.9830–1.0000), 1.0000 (0.8678–1.0000). Dev accuracy below 0.9 at the checkpoint: 15 of 36
+  models with p4 (10 of the ten), 4 with p12 (2 of the ten) and 4 with p12c (2 of the ten: A\* fold 3 seed 44 0.8750, B'
+  fold 4 seed 44 0.8900; and A\* fold 4 seed 42 0.8975, B' fold 2 seed 42 0.8550). From p12 to p12c the best `val_loss`
+  at the checkpoint is higher in 12 models, lower in 19 and equal in 5; the dev accuracy at the checkpoint is higher in
+  14, lower in 8 and equal in 14. Last recorded rate: 0.0005 for the ten with p4; with p12, among the 36, 0.0005 to
+  0.0000625 (0.001 in A\* fold 1 seed 42 only; the ten 0.00025 or 0.000125); 0.001 in every model with p12c.
+
+*(ii) Test, reported separately and never used to choose or judge the recipe.* Read only from the public
+`aggregate.json` of the three runs (primary comparison A\* − B, stratum 03, seeds 42 / 43 / 44, difference [paired
+bootstrap]):
+
+| regime | AUROC | ACER at the dev threshold | primary verdicts (AUROC; ACER dev) |
+|---|---|---|---|
+| p4 | +0.2658 [−0.0060, 0.4862], +0.2064 [−0.0729, 0.4510], −0.0103 [−0.2949, 0.2683] | −0.0854 [−0.3192, 0.1665], −0.1703 [−0.3013, −0.0303], −0.0008 [−0.1787, 0.2265] | inconclusive; inconclusive |
+| p12 | +0.2186 [0.0643, 0.4011], +0.3971 [0.2309, 0.5873], +0.1689 [−0.0214, 0.3888] | −0.2007 [−0.3589, 0.0024], −0.2772 [−0.3922, −0.1407], −0.0811 [−0.2545, 0.0999] | inconclusive; inconclusive |
+| p12c | +0.1286 [−0.0576, 0.3794], +0.5694 [0.3222, 0.7760], +0.1945 [−0.0458, 0.4088] | −0.0343 [−0.1970, 0.1349], −0.2425 [−0.3920, −0.0661], −0.2293 [−0.3733, −0.0629] | inconclusive; inconclusive |
+
+- The two primary verdicts (A\* − B, stratum 03) are inconclusive in all three regimes: with p12c the AUROC differences
+  have the same sign and the intervals of seeds 42 and 44 include 0; the ACER differences have the same sign and the
+  interval of seed 42 includes 0.
+- Of the 84 verdicts, consistent / inconclusive: 1 / 83 with p4, 6 / 78 with p12, 10 / 74 with p12c; 69 are the same in
+  the three runs. From p4 to p12 7 differ (§3.9): A\* − B, BPCER and ACER at 0.5, strata 03 and all, become consistent
+  (A\* lower); A\* − B', AUROC, strata 03 and all, become consistent (A\* higher); B' − B, APCER at the dev threshold,
+  stratum 03, becomes inconclusive. From p12 to p12c 12 differ: the four A\* − B verdicts at 0.5 that became consistent
+  with p12 are inconclusive again; A\* − B', BPCER and ACER at 0.5 and at the dev threshold, strata 03 and all, become
+  consistent (A\* lower); A\* − B', AUROC, strata 03 and all, is consistent (A\* higher) in both.
+- Per model (p12c against p12; lower / equal / higher, of 36): stratum 03 ACER at 0.5 8 / 5 / 23, ACER at the dev
+  threshold 15 / 5 / 16,
+  AUROC 19 / 5 / 12; stratum all ACER at 0.5 9 / 5 / 22, ACER at the dev threshold 16 / 5 / 15, AUROC 16 / 5 / 15. The 5
+  models with the same weights (restored epoch inside the shared window; file hashes differ, as different archives) have
+  identical test values and dev threshold in both runs, as the script checks; the other 31 differ, in every arm.
+- Stratum 03, pooled per arm and seed, p12 → p12c (seeds 42 / 43 / 44): AUROC B 0.7314 → 0.7326, 0.5185 → 0.3608, 0.7646
+  → 0.6470; A\* 0.9500 → 0.8612, 0.9155 → 0.9303, 0.9335 → 0.8415; B' 0.8020 → 0.5587, 0.4101 → 0.4416, 0.5646 → 0.5321.
+  ACER at the dev threshold B 0.3747 → 0.2624, 0.4408 → 0.4265, 0.2893 → 0.3916; A\* 0.1740 → 0.2281, 0.1636 → 0.1840,
+  0.2082 → 0.1623; B' 0.2908 → 0.4732, 0.4720 → 0.4681, 0.5040 → 0.4241. Six of the nine pooled AUROC values fall (B
+  seeds 43 and 44, A\* seeds 42 and 44, B' seeds 42 and 44) and four of the nine pooled ACER values at the dev threshold
+  rise (B seed 44, A\* seeds 42 and 43, B' seed 42).
+- The test values per model differ in the 15 models whose restored epoch changed from p4 to p12 (21 identical) and in 31
+  of 36 from p12 to p12c (5 identical), in every arm; these differences are not attributable to the ten alone and are
+  not a verdict on any regime or on the session-03 question.
+
+*Conclusion.* Train/dev: on the same 36 models, the ten degenerate trainings of patience 4 recover within 12 epochs both
+with the learning-rate reduction and at a constant rate (10 of 10 in each, earlier at the constant rate in 8 of the
+ten), and no model is degenerate in either 12-epoch regime; for the ten, the recovery of the patience-12 run is
+reproduced without the reduction; the ten alone would meet the first case of the rule, which gives that reading only
+when no recovery is lost outside the ten, which is not the case here. The conclusion stays mixed: at the constant rate
+one recovery is lost outside the ten, B' fold 2 seed 42, whose recovery with the reduction was itself marginal (one
+epoch); by the rule fixed before the run there is no overall verdict, and the three regimes show neither that the
+reduction is unnecessary nor that it is necessary. No regime shows that every model is stable (recovery holding at the
+last epoch in 16, 28 and 26 of 36; the relapse of B' fold 4 seed 42 in all three), and none explains the saturation of
+the dev in the first epochs. The selected checkpoint moves with the rate path (23 of 36 restored epochs, 31 of 36
+checkpoints from p12 to p12c), so dev and test values at the checkpoint differ for reasons beyond the recovery; neither
+12-epoch regime is better than the other on every train/dev count (p12c against p12: models with a recovery 35 against
+36, recovery holding at the last epoch 26 against 28; best val_loss lower in 19 of 36, dev accuracy at the checkpoint
+higher in 14 and lower in 8). Test: the primary results stay inconclusive in all three regimes; the changed secondary
+verdicts (7 and 12 of 84) come with changed checkpoints, and the recipe is not chosen on the test. Limits: the criteria
+were defined after the first (patience-4) run, while the rules of the two later comparisons were fixed before their
+runs; the constant rate tests the absence of the reduction, not the level of the rate (0.001 is never varied); the dev
+is small (2–3 subjects, 400 frames per fold) and chooses the checkpoint among 12 epochs; one dataset, one attack type
+(print), three seeds per fold, folds not independent; the cause of the early dev saturation is not tested.
 
 ## 4. Reading and limits
 
@@ -656,85 +929,44 @@ the session effect.
   sampled session-03 frames); on the same 3,000 frames (§3.6) the difference remains for every seed (ACER at 0.5 −0.3643
   to −0.3010, AUROC +0.5088 to +0.5900, paired bootstrap intervals not containing zero), still with different training
   roles, so it is associated with the whole design, not with one factor.
-- Recipe stability (session ablation run and patience verification, §3.8–§3.9): with patience 4, 10 of 36 trainings were
-  degenerate and the primary comparison A\* − B was inconclusive; with patience 12 the ten recover in this trial, none
-  of the 36 is degenerate, and the primary comparison is still inconclusive. The result supports the longer patience for
-  these 36 trainings on train/dev; it does not identify why the dev saturates, and it says nothing new about session 03.
-  Limits: the criteria (degenerate, saturated epoch, recovery) were defined after the parent run, from its cards, and
-  the degenerate criterion misses at least one failure of the same family (B fold 3 seed 44 with patience 4); the dev of
-  2–3 subjects (400 frames per fold) drives early stopping, the learning-rate reduction, the checkpoint and the
-  threshold, and with patience 12 it chooses the checkpoint among 12 epochs instead of 5–12, a more optimistic selection
-  on the dev; one dataset, one attack type (print), three seeds per fold, folds not independent; the stop and the
-  learning-rate reduction are not separated (35 of 36 models halved their rate); the cause of the early dev saturation
-  is not tested (seven hypotheses in the note of PR #22); the recovery holds at the last epoch in 28 of 36 models only;
-  15 of 36 restored epochs changed; the test differences between the two runs come from those models, not from the
-  recovery of the ten alone, and are not evidence for or against the change; with patience 12 the recipe is no longer
-  the one of the folds run (patience 4), which stays a reference, not a paired control.
+- Recipe stability (session ablation run, patience verification and constant learning-rate control, §3.8–§3.10): with
+  patience 4, 10 of 36 trainings were degenerate; with patience 12, with or without the learning-rate reduction, the ten
+  recover and none of the 36 is degenerate; the primary comparison A\* − B is inconclusive in all three regimes. The two
+  12-epoch regimes support the longer patience for these 36 trainings on train/dev; whether the learning-rate reduction
+  contributes stays open: the result of the control is mixed (the ten recover at a constant rate, earlier in 8 of them,
+  but B' fold 2 seed 42 loses its marginal recovery), with no overall verdict. None of the regimes identifies why the
+  dev saturates, and none says anything new about session 03. Limits: the criteria (degenerate, saturated epoch,
+  recovery) were defined after the patience-4 run, from its cards, and the degenerate criterion misses at least one
+  failure of the same family (B fold 3 seed 44 with patience 4); the recovery criterion is a threshold on one dev epoch
+  (B' fold 2 seed 42 fails it at the constant rate by its `val_loss` alone); the dev of 2–3 subjects (400 frames per
+  fold) drives early stopping, the learning-rate reduction where present, the checkpoint and the threshold, and with
+  patience 12 it chooses the checkpoint among 12 epochs instead of 5–12, a more optimistic selection on the dev; the
+  constant rate tests the absence of the reduction, not the level of the rate; the recovery holds at the last epoch in
+  28 (p12) and 26 (p12c) of 36 models only; the restored epoch changed in 15 of 36 models from p4 to p12 and in 23 of 36
+  from p12 to p12c, with 31 of 36 different checkpoints, so the test differences between the runs come from those
+  models, not from the recovery of the ten alone, and are not evidence for or against any regime; one dataset, one
+  attack type (print), three seeds per fold, folds not independent; the cause of the early dev saturation is not tested
+  (seven hypotheses in the note of PR #22); with patience 12 the recipe is no longer the one of the folds run (patience
+  4), which stays a reference, not a paired control.
 
-## 5. State on 10 November and proposed control
+## 5. State on 11 November
 
 **Done.** The subject-held-out folds run and the step zero were accepted by 4 November (PR #16 to #18; §2, §3.5). The
 session ablation was proposed on 4 November (PR #20, merge `3f682a4`), authorised on 5 November and run with patience 4
 (PR #21, merge `67f641c`; §2, §3.8). Its ten degenerate trainings were studied from the train/dev curves, with one
 change proposed and agreed on 7 November (PR #22, merge `12dc78a`). The change was verified on the same 36 models and
-the comparison accepted on 10 November (PR #23, merge `ec6c023`; §3.9). This update (10 November) adds those runs to
-Methods, Results, the unified table, two annexes and the compact patience table, and the fifth reading; it runs no
-training and no inference. The extension to the other session directions stays left out (coordinator, 3 November).
+the comparison accepted on 10 November (PR #23, merge `ec6c023`; §3.9); the update of the synthesis of that day (PR #24,
+merge `1e340fc`) proposed one control, which the coordinator agreed on 10 November. The control, patience 12 at a
+constant learning rate on the same 36 models, was run on 11 November and accepted the same day (PR #25, merge `a1ca91f`;
+§2, §3.10): comparison valid (shared histories identical in 36 of 36, rate 0.001 at every epoch), outcome mixed with no
+overall verdict (the ten recover, none of the 36 is degenerate, the recovery of B' fold 2 seed 42 is lost), primary test
+verdicts inconclusive. This update (11 November) adds the control to Methods, Results, the unified table, two annexes
+and the compact three-regime table, and the fifth reading; it runs no training and no inference and adds no seed and no
+model. No new control is proposed and nothing has been started. The extension to the other session directions stays left
+out (coordinator, 3 November).
 
-**Proposed control: duration or learning-rate reduction (to be agreed before any training; nothing started).** Question:
-in the patience-12 setting, do the ten recover because training lasts 12 epochs, or does the learning-rate reduction
-that comes with it contribute? The control changes one thing with respect to the patience-12 run and nothing else; no
-extra seed is added.
-
-- Fixed (equal to run `20261109-SESSABLRUN-6a50265`): the same 36 models (arms B, A\* and B' × 4 folds × seeds 42, 43,
-  44) in the same order; the same fitting frames, common dev, test frames, folds and seeds; LivenessNet as in
-  `architectures.py`; augmentation on the fitting frames only; batch 16; Adam, learning rate 0.001, clipnorm 1.0;
-  balanced class weights; `early_stopping_patience` 12, at most 12 epochs; checkpoint = the epoch of minimum dev
-  `val_loss`; EER threshold on the dev only, frozen before any test frame is scored, 0.5 also reported; test computed,
-  sealed and reported separately; CPU; overall cap 360 minutes. All 36 models, not only the ten, because the primary
-  reading requires that none of the 36 be degenerate and the validity check applies to every model.
-- The one change: ReduceLROnPlateau removed, so the learning rate stays 0.001 for the whole training. In the patience-12
-  run the rate was halved in 35 of the 36 models, the first lower rate recorded between epoch 4 and epoch 12; A\* fold 1
-  seed 42 was never reduced.
-- Implementation (delivered for agreement before the run). The scheduler is written in the trainer of the folds run
-  (`ReduceLROnPlateau(monitor="val_loss", factor=0.5, patience=2, min_lr=1e-6)` in `nuaa_folds_run.py`); the
-  configuration already names it in the descriptive field `training.scheduler`, checked against the frozen recipe
-  `FROZEN_TRAINING` of `nuaa_folds_run.py` but not read by the trainer. The control sets that field to `none` and the
-  trainer reads it; the amendment check of `nuaa_session_ablation_run.py`, today hard-wired to
-  `training.early_stopping_patience` 4 → 12, is extended to this one field, with an amendment block like the patience-12
-  one: the new configuration pinned by SHA-256, its parent = the patience-12 configuration `ca039df5…`, refused by the
-  runner before any data is read unless every other field is equal; the two earlier configurations keep the scheduler. A
-  callback records the rate per epoch, so that the `lr` field stays in the history: today it enters only through the
-  logs of ReduceLROnPlateau (the card copies the history keys present in the logs).
-- Reading criterion, fixed before the run. (a) Validity: for every model the history must be identical, in all five
-  fields, to the patience-12 run over the epochs recorded at 0.001 in that run (Keras records the rate of an epoch
-  before reducing it: epochs 1 to 3 when the first lower rate is recorded at epoch 4; all 12 for A\* fold 1 seed 42);
-  otherwise the largest difference is reported and the comparison is not valid. The rule relies on the determinism shown
-  in §3.9 (a) (36 of 36 shared histories identical, largest difference 0.0). (b) Primary: among the ten original
-  degenerate trainings, the number that recover within 12 epochs with the constant rate, and among the 36 the number
-  degenerate (same criteria as §2). If all ten recover and none of the 36 is degenerate, the recovery of the ten is
-  reproduced without the reduction: consistent with the extra epochs being sufficient in these 36 trainings. If at least
-  one of the ten does not recover with the constant rate, the outcome is consistent with a contribution of the reduction
-  in these trainings, and the models are listed one by one; one failure among the ten is enough for this second reading.
-  A mixed outcome (for example all ten recover but another model becomes degenerate or loses its recovery) is reported
-  as such, model by model. (c) Secondary, reported for every model: first-recovery epoch against the patience-12 run,
-  whether the recovery holds at epoch 12, restored epoch, dev accuracy and dev AUROC at the checkpoint, epochs at 0.5; B
-  fold 3 seed 44 (recovered at epoch 10 with patience 12) and B' fold 4 seed 42 (the relapse of §3.9, epochs 5–6 already
-  at 0.5 with patience 4, shared history) reported apart. (d) Test: computed and sealed by the runner as before,
-  reported in a separate section, never used to choose or judge. (e) Time, against the estimate; a run stopped by the
-  cap or incomplete gets no verdict.
-- Budget: 36 trainings × 12 epochs, the same as the patience-12 run, whose wall time was 17,940.9 s (training 16,866.2
-  s) on a machine not dedicated to the run; estimate 17,940.9 s (13,090 s at the per-epoch times of the patience-4 run),
-  cap 21,600 s; run alone, as one heavy process. The margin under the cap, 3,659.1 s (about 20 % of the estimate), is
-  thinner than the +37 % by which the patience-12 run exceeded its own estimate, and a run stopped by the cap gets no
-  verdict. No other change and no extra seed, as the coordinator asked.
-- Declared limits: a constant rate tests the absence of the reduction, not the level of the rate (0.001 is never
-  varied); with a different rate path the checkpoint chosen by the minimum dev `val_loss` can change, so dev and test
-  values at the checkpoint differ for reasons beyond the recovery; the dev is small (2–3 subjects, 400 frames per fold)
-  and chooses the checkpoint among 12 epochs; the reduction is removed in all 36 models, including the 16 whose first
-  recovery already came at 0.001 with patience 12; criteria defined after the parent run; one dataset, one attack type,
-  three seeds.
-- What it would not decide: the quality on the test (the test is sealed and not used to choose); the cause of the dev
-  saturation in the first epochs (BatchNormalization statistics, dropout, augmentation, learning-rate level, small dev,
-  initialisation stay untested hypotheses); whether a lower constant rate would also work; whether the reduction alone,
-  without the extra epochs, would be enough; the session-03 question of the ablation.
+**Possible next steps, none started** (from `CONCLUSION.md` of the control; possibilities only, each would need the
+coordinator's agreement): more seeds per fold, so that a single training such as B' fold 2 seed 42 weighs less; a rule
+for the trainings whose recovery does not hold at the last epoch, fixed before any further run; a check of the other
+candidate causes of the saturation (BatchNormalization or the level of the rate), as already stated in the earlier
+notes.

@@ -1,4 +1,4 @@
-# NUAA synthesis: Methods/Results of C1, M1, N1, N2, the C1 crop check, the subject-held-out folds run, the session ablation run and the patience verification, in one table
+# NUAA synthesis: Methods/Results of C1, M1, N1, N2, the C1 crop check, the subject-held-out folds run, the session ablation run, the patience verification and the constant learning-rate control, in one table
 
 Written on the coordinator's request of 2 November 2026 (C2 card), revised on 3 November after the coordinator's review
 (three precisions, labels of the generated tables, checksums) and on 4 November on the coordinator's request of that
@@ -16,37 +16,53 @@ and run, at 0.5 and at the dev threshold, with the bootstrap over subjects; 57 r
 `tables/patience_table.md` (the 36 models with patience 4 and 12 side by side: train and dev, then the test, each
 followed by counts computed from its rows; its compact form, `tables/patience_table_compact.md`, with the 36 models and
 the same counts, is embedded in `SYNTHESIS.md`) and `tables/session_ablation_table.md` (every arm, seed and session
-stratum of both runs and the 84 verdicts of the reading rule of each run side by side, the 7 that differ marked). This
-folder holds the synthesis document, the unified table rebuilt from the public aggregates of `research/pad-2026`, of the
-update of 4 November and of the packages of PR #21 and PR #23, the script that rebuilds and checks it, its tests and
-their logs. No inference and no training: every cell comes from a file of this branch, accepted in `research/pad-2026`,
-delivered with the update of 4 November (FOLDS-N1 rows: run `20261104-FOLDSCOMPARE-3b3bcca`, folder
-`research/nuaa-folds-n1-compare`) or accepted with PR #21 and PR #23 (SESSABL rows and the two new annexes), named with
-its SHA-256 in `tables/summary_table.json` (twenty-five sources: the C1 and M1 tables, the M2 manifest aggregate, the
-N1, N2 and crop-check aggregates, the N1 subject file, the public fold schema, the aggregate and the run record of the
-folds run, the aggregate of the comparison with N1; for each of the two session ablation runs its aggregate, run record,
-public `SHA256SUMS` and `status.json`; for the comparison of the two runs its aggregate, `comparison.csv`, `curves.csv`,
-`SHA256SUMS` and `status.json`). Besides copied values, the patience annex holds counts derived from the public rows and
-epoch curves (the recovery criterion of the comparison at the last epoch run, restored epochs changed, test values
-lower, equal or higher with patience 12, and two counts at the cut-offs used in `CONCLUSION.md` of the patience
-verification, first recovery at epoch 10 or later and dev accuracy below 0.9, cut-offs taken from it): counts of models,
-not new metrics. "Restored epoch changed" compares the restored epochs only: with the same restored epoch the weight and
-threshold file hashes still differ in every model, and the identity of the 21 unchanged models is shown by identical
-test values and dev threshold, which the script checks. C1, M1, M2, N1, N2, the C1 crop check, the fold schema, the step
-zero, the folds run, the C2 runner, the R2 reference, the session ablation run, the degenerate-trainings package and the
-patience verification are unchanged. The script reads nothing restricted; §3.7 quotes values computed read-only from the
-restricted run files (sources given): descriptive calculations on the existing scores, no inference, no training, not
-verified by `check`.
+stratum of both runs and the 84 verdicts of the reading rule of each run side by side, the 7 that differ marked).
+Revised on 11 November on the coordinator's request of that day, after the merge of the constant learning-rate control
+(PR #25: run `20261111-SESSABLRUN-8568ffa`, patience 12 at a constant learning rate, and the comparison with the
+patience-12 run `20261111-LRCTRL-ff53279`): the run in the unified table (9 rows SESSABL-P12C pooled over the four
+folds, one per arm and seed; 66 rows, from 57), two annexes, `tables/three_regimes_table.md` (the 36 models in the three
+regimes, patience 4, patience 12 with the learning-rate reduction and patience 12 at a constant rate, side by side:
+train and dev, then the test, each followed by counts computed from its rows; its compact form,
+`tables/three_regimes_table_compact.md`, with the 36 models and the same counts, is embedded in `SYNTHESIS.md`, §3.10)
+and `tables/session_ablation_table_constant_lr.md` (every arm, seed and session stratum of the control run and the 84
+verdicts of the three runs side by side, those that differ marked; a separate annex, so that
+`tables/session_ablation_table.md` stays as it was), the control in Methods, a new §3.10, the fifth reading extended, §5
+as the state on 11 November. This folder holds the synthesis document, the unified table rebuilt from the public
+aggregates of `research/pad-2026`, of the update of 4 November and of the packages of PR #21, PR #23 and PR #25, the
+script that rebuilds and checks it, its tests and their logs. No inference and no training: every cell comes from a file
+of this branch, accepted in `research/pad-2026`, delivered with the update of 4 November (FOLDS-N1 rows: run
+`20261104-FOLDSCOMPARE-3b3bcca`, folder `research/nuaa-folds-n1-compare`) or accepted with PR #21, PR #23 and PR #25
+(SESSABL rows and the annexes), named with its SHA-256 in `tables/summary_table.json` (thirty-four sources: the C1 and
+M1 tables, the M2 manifest aggregate, the N1, N2 and crop-check aggregates, the N1 subject file, the public fold schema,
+the aggregate and the run record of the folds run, the aggregate of the comparison with N1; for each of the three
+session ablation runs its aggregate, run record, public `SHA256SUMS` and `status.json`; for each of the two comparisons
+of those runs its aggregate, `comparison.csv`, `curves.csv`, `SHA256SUMS` and `status.json`). Besides copied values, the
+patience annex holds counts derived from the public rows and epoch curves (the recovery criterion of the comparison at
+the last epoch run, restored epochs changed, test values lower, equal or higher with patience 12, and two counts at the
+cut-offs used in `CONCLUSION.md` of the patience verification, first recovery at epoch 10 or later and dev accuracy
+below 0.9, cut-offs taken from it): counts of models, not new metrics. "Restored epoch changed" compares the restored
+epochs only: with the same restored epoch the weight and threshold file hashes still differ in every model, and the
+identity of the 21 unchanged models is shown by identical test values and dev threshold, which the script checks. The
+three-regime annex holds counts of the same kind (recovery, stability and selected checkpoint in the three runs, test
+values lower, equal or higher from patience 12 to the constant rate, verdicts consistent and changed), also counts of
+models, not new metrics; from patience 12 to the constant rate the same restored epoch is the same weights only inside
+the shared window of the two histories; the hashes of the weight and threshold files still differ (different archives),
+and the identity of those 5 models is shown by the restored epoch inside the window and by identical test values and dev
+threshold, which the script checks. C1, M1, M2, N1, N2, the C1 crop check, the fold schema, the step zero, the folds
+run, the C2 runner, the R2 reference, the session ablation run, the degenerate-trainings package, the patience
+verification and the constant learning-rate control are unchanged. The script reads nothing restricted; §3.7 quotes
+values computed read-only from the restricted run files (sources given): descriptive calculations on the existing
+scores, no inference, no training, not verified by `check`.
 
 ## Contents
 
 | path | what it is |
 |---|---|
-| `SYNTHESIS.md` | the synthesis: question, methods (with the subject-held-out folds run), results (unified table in compact form, with the rows of the session ablation run and of its patience-12 verification; same sessions, session transfer, dataset transfer, context, the folds run by seed, stratum and fold, the comparison with N1 on the same 3,000 frames, the analysis of fold 1 seed 43 and fold 4, then the session ablation run and the patience comparison, with the 36 models in the compact table of `tables/patience_table_compact.md`), readings and limits, state on 10 November and the proposed control |
-| `tables/summary_table.md` | the unified table, one row per result accepted in `research/pad-2026` or delivered with this update (FOLDS-N1 rows: run `20261104-FOLDSCOMPARE-3b3bcca`, folder `research/nuaa-folds-n1-compare`); 57 rows: C1 4, M1 4, N1 3, N2 sessions 6, N2 combined 2, crop check 2, folds run 15 = 12 fold × seed and 3 pooled per seed, folds run on the N1 test frames 3, session ablation run with patience 4 9 and with patience 12 9 (arms B, A*, B' × seeds 42/43/44, pooled over the four folds, stratum all); with model, training data, early stopping, test set, unit, extractor, threshold and its origin, denominators, error counts, APCER/BPCER/ACER/AUROC, for the folds-run and session-ablation rows also the dev threshold with its error counts and rates and, for the pooled and the N1-frames rows, the bootstrap over subjects; run id, same-session or transfer |
+| `SYNTHESIS.md` | the synthesis: question, methods (with the subject-held-out folds run, the session ablation run, the patience verification and the constant learning-rate control), results (unified table in compact form, with the rows of the session ablation run with patience 4, patience 12 and patience 12 at a constant learning rate; same sessions, session transfer, dataset transfer, context, the folds run by seed, stratum and fold, the comparison with N1 on the same 3,000 frames, the analysis of fold 1 seed 43 and fold 4, the session ablation run, the patience comparison with the 36 models in the compact table of `tables/patience_table_compact.md`, then the three regimes with the 36 models in the compact table of `tables/three_regimes_table_compact.md`), readings and limits, state on 11 November |
+| `tables/summary_table.md` | the unified table, one row per result accepted in `research/pad-2026` or delivered with this update (FOLDS-N1 rows: run `20261104-FOLDSCOMPARE-3b3bcca`, folder `research/nuaa-folds-n1-compare`); 66 rows: C1 4, M1 4, N1 3, N2 sessions 6, N2 combined 2, crop check 2, folds run 15 = 12 fold × seed and 3 pooled per seed, folds run on the N1 test frames 3, session ablation run with patience 4 9, with patience 12 9 and with patience 12 at a constant learning rate 0.001 9 (arms B, A*, B' × seeds 42/43/44, pooled over the four folds, stratum all); with model, training data, early stopping, test set, unit, extractor, threshold and its origin, denominators, error counts, APCER/BPCER/ACER/AUROC, for the folds-run and session-ablation rows also the dev threshold with its error counts and rates and, for the pooled and the N1-frames rows, the bootstrap over subjects; run id, same-session or transfer |
 | `tables/summary_table_compact.md` | the same rows with codes and a legend (the form used in `SYNTHESIS.md`) |
 | `tables/summary_table.csv` | the same rows, machine-readable, with a `source` column (file and SHA-256 prefix) |
-| `tables/summary_table.json` | the rows plus the sources with full SHA-256, the run ids, the crop paired statistics, the N2 subsets (fitting and early-stopping subjects), the N1 C1-subset rows |
+| `tables/summary_table.json` | the rows plus the 34 sources with full SHA-256, the run ids, the crop paired statistics, the N2 subsets (fitting and early-stopping subjects), the N1 C1-subset rows |
 | `tables/cross_dataset_table.md` | annex: the 16 cross-dataset CNN rows of the C1 table (dataset transfer to NUAA at 0.5) |
 | `tables/context_rows_table.md` | annex: the other analyzers of the C1 table on the same 300 images (pre-trained models, probes, hand-crafted features) |
 | `tables/subject_sensitivity_table.md` | annex: N1 part 1, sensitivity of the M1 result to the 16 test subjects |
@@ -55,8 +71,11 @@ verified by `check`.
 | `tables/patience_table.md` | annex: the 36 models of the session ablation run (arm, fold, seed, one of the ten original degenerate trainings), patience 4 and 12 side by side: epochs run, restored epoch, degenerate, first recovery, recovery holding at the last epoch, best val_loss, dev accuracy and AUROC at the checkpoint, epochs at 0.5, last lr (fixed decimals), shared epochs and whether identical, restored epoch changed, then counts computed from the rows; a second table, same order, with the test per model (ACER at 0.5 and at the dev threshold, AUROC; strata 03 and all) in both runs, then counts of models lower, equal or higher with patience 12 |
 | `tables/patience_table_compact.md` | the 36 models in compact form for `SYNTHESIS.md` (model, in the ten, restored epoch, first recovery, recovery holding at the last epoch and dev accuracy at the checkpoint as "p4 → p12", restored epoch changed), a legend line and the same counts as the train and dev table of `patience_table.md`, built from the same rows |
 | `tables/session_ablation_table.md` | annex: the two session ablation runs (patience 4 and 12), pooled over the four folds per arm, seed, stratum (01, 02, 03, all) and patience with the bootstrap, median and range over the seeds, the 84 verdicts of the reading rule of each run side by side with the per-seed differences and their paired bootstrap intervals, the verdicts that differ marked, then counts |
-| `livenesslab/scripts/nuaa_synthesis.py` | `build` and `check` (with `--synthesis`, `check` also requires every table line of the compact table and every table and summary line of the compact patience table to appear verbatim in `SYNTHESIS.md`); standard library only |
-| `livenesslab/scripts/check_nuaa_synthesis.py` | 123 tests on a synthetic `research/` tree (no data, no dependency; the two session ablation runs and their comparison with 36 models, epoch curves and 84 verdicts each, with boundary cases: a val_loss tie, val_accuracy 0.75 and val_loss 1.0 exactly, a dev accuracy of 0.9 and a first recovery at epoch 10 exactly, an NA cell, an lr of 6.25e-05, different verdict counts in the two runs): every row and annex cell against the fixture, every consistency check against a faulty source (folds run, comparison with N1, session ablation runs and patience comparison included), trial runs (dirty tree, run id ending with `-dev`) refused, the reading rule at its boundaries, byte-exact `check`, `check --synthesis` failing when a line of either compact table is missing or altered, every summary line asserted in full, error paths without traceback |
+| `tables/three_regimes_table.md` | annex: the 36 models in the three regimes on the same models and data, patience 4 (run `20261106-SESSABLRUN-d999458`), patience 12 with ReduceLROnPlateau (`20261109-SESSABLRUN-6a50265`) and patience 12 at a constant learning rate 0.001 (`20261111-SESSABLRUN-8568ffa`), side by side: epochs run, restored epoch, degenerate, first recovery, recovery holding at the last epoch, epochs at 0.5 and epochs at 0.5 after the first recovery, best val_loss, dev accuracy and AUROC at the checkpoint, last lr, first reduced epoch and shared window of the patience-12 run, restored epoch changed p4→p12 and p12→p12c, same weights p12/p12c; counts computed from the rows in three blocks (recovery, stability, selected checkpoint); then the test per model (ACER at 0.5 and at the dev threshold, AUROC; strata 03 and all) in the three runs and its counts |
+| `tables/three_regimes_table_compact.md` | the 36 models in compact form for `SYNTHESIS.md` (model, in the ten, restored epoch, first recovery, recovery holding at the last epoch and dev accuracy at the checkpoint as "p4 → p12 → p12c", restored epoch changed p4→p12 / p12→p12c), a legend and the same counts in the same three blocks as `three_regimes_table.md`, built from the same rows |
+| `tables/session_ablation_table_constant_lr.md` | annex: the constant learning-rate run pooled over the four folds per arm, seed and stratum with the bootstrap, median and range over the seeds, and the 84 verdicts of the reading rule of the three runs side by side (per-seed differences of the constant-lr run), the verdicts that differ p4/p12 and p12/p12c marked and listed; a separate annex, so that `tables/session_ablation_table.md` stays as it was |
+| `livenesslab/scripts/nuaa_synthesis.py` | `build` and `check` (with `--synthesis`, `check` also requires every table line of the compact table and every table and summary line of the compact patience table and of the compact three-regime table to appear verbatim in `SYNTHESIS.md`); standard library only |
+| `livenesslab/scripts/check_nuaa_synthesis.py` | 144 tests on a synthetic `research/` tree (no data, no dependency; the three session ablation runs (patience 4, patience 12, patience 12 at a constant learning rate) and their two comparisons with 36 models, epoch curves and 84 verdicts each, with boundary cases (for the constant-lr control: a lost recovery outside the ten, same weights inside the shared window, the same restored epoch after it, a relapse right after the first recovery, a never-reduced model, the three outcomes of its reading rule): a val_loss tie, val_accuracy 0.75 and val_loss 1.0 exactly, a dev accuracy of 0.9 and a first recovery at epoch 10 exactly, an NA cell, an lr of 6.25e-05, different verdict counts in the two runs): every row and annex cell against the fixture, every consistency check against a faulty source (folds run, comparison with N1, session ablation runs, patience comparison, constant-lr run and its comparison, with the cross-check of the two comparisons, included), trial runs (dirty tree, run id ending with `-dev`) refused, the reading rule at its boundaries, byte-exact `check`, `check --synthesis` failing when a line of any of the three compact tables is missing or altered, every summary line asserted in full, error paths without traceback |
 | `test_logs/check_nuaa_synthesis.txt`, `test_logs/linux.txt` | outputs of the tests on macOS and in a Linux container |
 | `SHA256SUMS` | SHA-256 of every committed file of this folder |
 
@@ -76,6 +95,7 @@ verified by `check`.
 | session ablation run (patience 4) | `research/nuaa-session-ablation-run/` | `tables/aggregate.json`, `tables/run_record.json`, `tables/SHA256SUMS`, `run/status.json` (run `20261106-SESSABLRUN-d999458`) | PR #21, merge `67f641c` |
 | degenerate trainings | `research/nuaa-degenerate-trainings/` | not read: its criteria (degenerate, saturation, recovery, checkpoint agreement) are read from the comparison aggregate of PR #23, which copies them with the same values | PR #22, merge `12dc78a` |
 | patience verification (patience 12) and comparison of the two runs | `research/nuaa-patience-verification/` | `tables/aggregate.json`, `tables/run_record.json`, `tables/SHA256SUMS`, `run/status.json` (run `20261109-SESSABLRUN-6a50265`); `comparison/aggregate.json`, `comparison/comparison.csv`, `comparison/curves.csv`, `comparison/SHA256SUMS`, `comparison_run/status.json` (run `20261109-PATVER-4f2b925`) | PR #23, merge `ec6c023` |
+| constant learning-rate control (patience 12, constant rate) and comparison with the patience-12 run | `research/nuaa-constant-lr-control/` | `tables/aggregate.json`, `tables/run_record.json`, `tables/SHA256SUMS`, `run/status.json` (run `20261111-SESSABLRUN-8568ffa`); `comparison/aggregate.json`, `comparison/comparison.csv`, `comparison/curves.csv`, `comparison/SHA256SUMS`, `comparison_run/status.json` (run `20261111-LRCTRL-ff53279`) | PR #25, merge `a1ca91f` |
 
 The C1 rows of the unified table take their counts from the M1 table (which carries the counts at 0.5 and at the dev
 threshold for the same scores); the script checks them against the C1 table (rates, AUC, denominators), against the
@@ -104,8 +124,8 @@ minus N1), the paired decisions and subject counts against the counts, the media
 and the control values of the coordinator (agreement at the digits he gave: 100 × ACER rounded to two decimals, AUROC to
 five; no tolerance). For each of the two session ablation runs it checks that aggregate, run record and `status.json`
 come from a clean tree with status `PASS` (`passed` true in `status.json`), describe the same run of the delivered
-configuration (run id ending with the commit and without `-dev`, commit, configuration SHA-256, end time, amendment)
-and are anchored (`status.json` gives the SHA-256 of the public `SHA256SUMS`, which gives those of the aggregate and the
+configuration (run id ending with the commit and without `-dev`, commit, configuration SHA-256, end time, amendment) and
+are anchored (`status.json` gives the SHA-256 of the public `SHA256SUMS`, which gives those of the aggregate and the
 record); that the 36 models (3 arms × 4 folds × 3 seeds) are complete, none missing, not stopped, within the cap; that
 the record names the approved fold schema and the folds run read here (run id, SHA-256 of its aggregate and record),
 with the same bootstrap; that the fitting and dev cells of the record are the same in both runs and give the sizes of
@@ -115,24 +135,40 @@ have the subjects of the folds run, medians and ranges equal the per-seed values
 parameters; that every difference of the three comparisons (per model and pooled) is minuend minus subtrahend; and that
 each of the 84 verdicts of each run is the reading rule applied to the per-seed differences and intervals (verdict,
 direction, reason, primary or secondary label), the primary verdicts included. The amendment of the patience-12 run must
-name the configuration of the parent run and `training.early_stopping_patience` from the parent patience to the new
-one, as given by the comparison. For the comparison of the two runs it requires an official run (clean tree, status
-`PASS`, run id without `-dev`, delivered configuration, the declarations true), anchored (`status.json` → `SHA256SUMS` →
+name the configuration of the parent run and `training.early_stopping_patience` from the parent patience to the new one,
+as given by the comparison. For the comparison of the two runs it requires an official run (clean tree, status `PASS`,
+run id without `-dev`, delivered configuration, the declarations true), anchored (`status.json` → `SHA256SUMS` →
 aggregate, `comparison.csv`, `curves.csv`), whose inputs are the two runs read here (run id, commit, configuration,
-status, SHA-256 of their `status.json` and `SHA256SUMS`, 36 complete models, patience 4 and 12) and whose
-`status.json` gives `verification_status` `PASS`, the status of the patience-12 run; it rebuilds every value of
-`comparison.csv` except the dev AUROC at the checkpoint (copied; checked against the JSON rows and the group medians)
-from `curves.csv` with the criteria of the comparison aggregate (restored epoch = first epoch of minimum dev val_loss,
-epochs run = the early-stopping replay with the patience of the run, degenerate, first recovery, epochs at 0.5, last
-lr, dev accuracy at the checkpoint within the checkpoint tolerance; the largest shared-history differences are required
-to be 0) and checks it against the JSON rows of the comparison and the training cards of both aggregates; it checks the
-shared histories (identical 36/36), the ten (the degenerate models of the patience-4 run), the verdict (`positive`,
-reproduced from the rows), the group medians, section (d) (the verdicts and medians of both aggregates, 7 verdicts
-changed) and section (e) (times equal to the run records, within the cap), and that every model whose restored epoch
-did not change has identical test values and dev threshold in both runs (21 of 21). Every verdict direction is
-checked in full (arm, sign, metric name as in the runner, arm), and the primary verdicts in verdict, direction, reason
-and label. No generated Markdown table may hold a duplicated row. Any difference
-stops the build and nothing is written.
+status, SHA-256 of their `status.json` and `SHA256SUMS`, 36 complete models, patience 4 and 12) and whose `status.json`
+gives `verification_status` `PASS`, the status of the patience-12 run; it rebuilds every value of `comparison.csv`
+except the dev AUROC at the checkpoint (copied; checked against the JSON rows and the group medians) from `curves.csv`
+with the criteria of the comparison aggregate (restored epoch = first epoch of minimum dev val_loss, epochs run = the
+early-stopping replay with the patience of the run, degenerate, first recovery, epochs at 0.5, last lr, dev accuracy at
+the checkpoint within the checkpoint tolerance; the largest shared-history differences are required to be 0) and checks
+it against the JSON rows of the comparison and the training cards of both aggregates; it checks the shared histories
+(identical 36/36), the ten (the degenerate models of the patience-4 run), the verdict (`positive`, reproduced from the
+rows), the group medians, section (d) (the verdicts and medians of both aggregates, 7 verdicts changed) and section (e)
+(times equal to the run records, within the cap), and that every model whose restored epoch did not change has identical
+test values and dev threshold in both runs (21 of 21). Every verdict direction is checked in full (arm, sign, metric
+name as in the runner, arm), and the primary verdicts in verdict, direction, reason and label. For the constant
+learning-rate run it makes the same checks as for the other two runs (clean tree, `PASS`, run id ending with the commit
+and without `-dev`, anchors, 36 models within the cap, fold schema and folds run of reference, cells equal to the
+patience-12 run, metrics, every verdict reproduced from the reading rule), and requires a run id and a configuration
+other than those of the patience-12 run, the same reading rule and an amendment naming the patience-12 configuration as
+parent and `training.scheduler` from ReduceLROnPlateau to a constant rate, as in its comparison. For that comparison it
+requires an official run with status `PASS`, anchored like the other, whose inputs are the patience-12 run and the
+constant-lr run (patience 12 in both), with the maximum number of epochs and the criteria of the patience comparison; it
+rebuilds every row of `comparison.csv` from the curves (the public curves of the patience-12 run for the reference) and
+checks it against the training cards of both runs; it requires the patience-12 columns of this comparison to equal those
+of the patience comparison, the ten included, the histories to be identical in the five fields within the shared window
+(the epochs at the recipe rate of the patience-12 run), the rate of the control to equal the recorded recipe rate at
+every epoch, and the outcome of the reading rule to be the one recomputed from the rows (`mixed`); it checks sections
+(a) to (e) and that the models with the same restored epoch inside the shared window have identical test values and dev
+threshold in both runs (5 of 5). The three-regime annexes are built from the rows of the two comparisons, and the
+verdicts of the three runs go to the separate annex `tables/session_ablation_table_constant_lr.md`, so that
+`tables/session_ablation_table.md`, `tables/patience_table.md` and `tables/patience_table_compact.md` stay byte for byte
+as they were. No generated Markdown table may hold a duplicated row. Any difference stops the build and nothing is
+written.
 
 ## Commands (from the repository root)
 
@@ -143,8 +179,8 @@ python research/nuaa-synthesis/livenesslab/scripts/nuaa_synthesis.py build --res
 ```
 
 Check that the committed tables are byte for byte what the sources give and that every line of the compact table, and
-every table and summary line of the compact patience table, is in `SYNTHESIS.md` verbatim (exit code 1 on any
-difference):
+every table and summary line of the compact patience table and of the compact three-regime table, is in `SYNTHESIS.md`
+verbatim (exit code 1 on any difference):
 
 ```bash
 python research/nuaa-synthesis/livenesslab/scripts/nuaa_synthesis.py check --research research --out research/nuaa-synthesis/tables --synthesis research/nuaa-synthesis/SYNTHESIS.md
@@ -172,11 +208,12 @@ writes UTF-8 with LF line endings on every platform.
 ## What the synthesis does not do
 
 It adds no result, no uncertainty estimate and no statistical test to the accepted runs (the bootstraps of the folds
-run, of the comparison and of the two session ablation runs are copied from their aggregates; the counts of the patience
-annex are counts of models derived from the public rows and curves, not new metrics); the script does not re-read the
-restricted per-image scores (§3.7 quotes read-only calculations on the restricted run files, with sources); it does not
-change any accepted document; it runs no training and no inference. Section 5 of `SYNTHESIS.md` records the state on 10
-November: folds run and step zero accepted (PR #16 to #18), session ablation run (PR #21), degenerate trainings (PR
-#22), patience verification (PR #23), this update; the extension to the other session directions stays left out; it ends
-with one proposed control (learning-rate reduction removed, everything else as in the patience-12 run), to be agreed
-before any training, not started.
+run, of the comparison and of the three session ablation runs are copied from their aggregates; the counts of the
+patience and three-regime annexes are counts of models derived from the public rows and curves, not new metrics); the
+script does not re-read the restricted per-image scores (§3.7 quotes read-only calculations on the restricted run files,
+with sources); it does not change any accepted document; it runs no training and no inference. Section 5 of
+`SYNTHESIS.md` records the state on 11 November: folds run and step zero accepted (PR #16 to #18), session ablation run
+(PR #21), degenerate trainings (PR #22), patience verification (PR #23), the update of 10 November (PR #24), constant
+learning-rate control (PR #25), this update; the extension to the other session directions stays left out; no new
+control is proposed and nothing has been started; the possible next steps of the control's `CONCLUSION.md` are listed as
+possibilities only.

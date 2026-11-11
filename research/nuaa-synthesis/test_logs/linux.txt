@@ -1,4 +1,4 @@
-# Linux container python:3.12 (aarch64), Python 3.12.16, 2026-11-10T18:07Z; run from the repository root, standard library only
+# Linux container python:3.12 (aarch64), Python 3.12.16, 2026-11-11T21:26Z; run from the repository root, standard library only
 $ python -I research/nuaa-synthesis/livenesslab/scripts/check_nuaa_synthesis.py -v
 test_amendment_of_the_patience_run (__main__.TestAblationChecks.test_amendment_of_the_patience_run) ... ok
 test_cells_and_cards (__main__.TestAblationChecks.test_cells_and_cards) ... ok
@@ -90,6 +90,30 @@ test_subject_counts_at_0_5_differ_from_m1 (__main__.TestConsistency.test_subject
 test_subject_counts_differ_from_m1 (__main__.TestConsistency.test_subject_counts_differ_from_m1) ... ok
 test_subject_table_not_reproduced (__main__.TestConsistency.test_subject_table_not_reproduced) ... ok
 test_subject_threshold_differs_from_m1 (__main__.TestConsistency.test_subject_threshold_differs_from_m1) ... ok
+test_amendment_parent_is_the_patience_12_configuration (__main__.TestConstantLrChecks.test_amendment_parent_is_the_patience_12_configuration) ... ok
+test_comparison_identity_and_anchors (__main__.TestConstantLrChecks.test_comparison_identity_and_anchors) ... ok
+test_cross_check_with_the_patience_comparison (__main__.TestConstantLrChecks.test_cross_check_with_the_patience_comparison)
+Le colonne parent_* del confronto a lr costante = le new_* del confronto delle pazienze (stessa run): anche il dev ... ok
+test_csv_structure (__main__.TestConstantLrChecks.test_csv_structure) ... ok
+test_error_paths_without_traceback (__main__.TestConstantLrChecks.test_error_paths_without_traceback) ... ok
+test_inputs_are_the_patience_12_run_and_the_constant_lr_run (__main__.TestConstantLrChecks.test_inputs_are_the_patience_12_run_and_the_constant_lr_run) ... ok
+test_lists_and_json_rows (__main__.TestConstantLrChecks.test_lists_and_json_rows) ... ok
+test_models_complete_cap_cells_and_rule (__main__.TestConstantLrChecks.test_models_complete_cap_cells_and_rule) ... ok
+test_recipe_criteria_and_recorded_rate (__main__.TestConstantLrChecks.test_recipe_criteria_and_recorded_rate) ... ok
+test_rows_rebuilt_from_the_curves_and_cards (__main__.TestConstantLrChecks.test_rows_rebuilt_from_the_curves_and_cards) ... ok
+test_run_identity_clean_tree_and_anchors (__main__.TestConstantLrChecks.test_run_identity_clean_tree_and_anchors) ... ok
+test_same_weights_give_the_same_test_values (__main__.TestConstantLrChecks.test_same_weights_give_the_same_test_values) ... ok
+test_sections_a_to_e (__main__.TestConstantLrChecks.test_sections_a_to_e) ... ok
+test_shared_window_identity_and_constant_rate (__main__.TestConstantLrChecks.test_shared_window_identity_and_constant_rate) ... ok
+test_compact_rows (__main__.TestConstantLrRows.test_compact_rows) ... ok
+test_constant_lr_annex_and_verdicts (__main__.TestConstantLrRows.test_constant_lr_annex_and_verdicts) ... ok
+test_never_reduced_model_and_other_verdicts (__main__.TestConstantLrRows.test_never_reduced_model_and_other_verdicts)
+Un modello mai ridotto con pazienza 12 (finestra di 12 epoche, come A* fold 1 seed 42); la regola (b) riapplicata: ... ok
+test_rows_cell_by_cell_and_existing_rows_unchanged (__main__.TestConstantLrRows.test_rows_cell_by_cell_and_existing_rows_unchanged) ... ok
+test_summary_width_is_enforced (__main__.TestConstantLrRows.test_summary_width_is_enforced)
+Le righe di riepilogo delle tre condizioni stanno alla lettera in SYNTHESIS.md: oltre la larghezza, build si ferma ... ok
+test_three_regimes_compact_and_synthesis_lines (__main__.TestConstantLrRows.test_three_regimes_compact_and_synthesis_lines) ... ok
+test_three_regimes_table_cell_by_cell (__main__.TestConstantLrRows.test_three_regimes_table_cell_by_cell) ... ok
 test_annex_every_stratum_and_summary (__main__.TestFolds.test_annex_every_stratum_and_summary) ... ok
 test_bootstrap_parameters_and_intervals (__main__.TestFolds.test_bootstrap_parameters_and_intervals) ... ok
 test_clean_tree_and_delivered_configuration (__main__.TestFolds.test_clean_tree_and_delivered_configuration) ... ok
@@ -127,10 +151,14 @@ test_section_e_train_seconds_tolerance (__main__.TestReviewFaults.test_section_e
 test_verification_status_of_the_comparison (__main__.TestReviewFaults.test_verification_status_of_the_comparison) ... ok
 
 ----------------------------------------------------------------------
-Ran 123 tests in 14.816s
+Ran 144 tests in 31.111s
 
 OK
 
 $ python -I research/nuaa-synthesis/livenesslab/scripts/nuaa_synthesis.py check --research research --out research/nuaa-synthesis/tables --synthesis research/nuaa-synthesis/SYNTHESIS.md
-CHECK: 12 files + synthesis, 0 problems
+CHECK: 15 files + synthesis, 0 problems
 RESULT: PASS
+
+$ cd research/nuaa-synthesis && sha256sum -c SHA256SUMS | grep -vc ": OK$" ; echo lines: $(wc -l < SHA256SUMS)
+0
+lines: 21
