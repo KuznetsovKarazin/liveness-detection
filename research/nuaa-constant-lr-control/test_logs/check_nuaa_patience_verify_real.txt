@@ -1,0 +1,11 @@
+# macOS, Python 3.11.16, NumPy 1.26.4, OpenCV 4.11.0, TensorFlow 2.15.0, 2026-11-11 10:50 CET; run from the development repository root with --real (the reference run and the control run read only, no test score read); code of commit 8c40e11
+# SHA-256 edc839849ac76be9ce3149a3c217f35b6f1f430e352b471d03b78398093f4b9e  scripts/nuaa_patience_verify.py
+# SHA-256 e2c5281819ad54b14886e21940a5036c7adb0978f9f6cda3ce8e10a81b2bbe29  scripts/check_nuaa_patience_verify.py
+..................................................................................................................................................................................
+----------------------------------------------------------------------
+Ran 178 tests in 27.552s
+
+OK
+tests run: 178, failures: 0, errors: 0, skipped: 0
+RESULT: PASS
+exit 0

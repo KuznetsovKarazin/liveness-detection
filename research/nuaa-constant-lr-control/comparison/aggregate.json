@@ -1,0 +1,5394 @@
+{
+ "run_id": "20261111-LRCTRL-ff53279",
+ "commit": "ff53279",
+ "dirty": false,
+ "config_sha256": "e4896a2640f4e26c5b2c1ff220965a9aad6c0f78461571ca53dc9240a0714c4f",
+ "delivered_configuration": true,
+ "request": {
+  "date": "2026-11-10",
+  "card": "C2",
+  "text": "coordinator, C2 card, comment of 10 November 2026 (original wording): ''Confermo il controllo proposto: stessi 36 modelli e dati, pazienza 12, massimo 12 epoche, learning rate costante a 0,001 e limite di 360 minuti. Ci serve per distinguere l'effetto della durata da quello della riduzione del learning rate; il test resta separato e non guida le scelte. Prima del run aggiorni configurazione e runner, verificando che cambi soltanto lo scheduler e che il percorso originale resti invariato. Registri il learning rate effettivo a ogni epoca. Superati questi controlli, pu\u00f2 avviare il run senza attendere un ulteriore via libera. Conservi tutti gli esiti e verifichi l'identit\u00e0 delle storie prima della prima riduzione del learning rate nel riferimento. In caso di discrepanze o superamento del budget, si fermi e riporti il punto raggiunto, senza ulteriori tentativi o conclusioni sul run incompleto.'' The reading rule is the one of delivery/synthesis/SYNTHESIS.md, section 5, 'Reading criterion, fixed before the run'."
+ },
+ "task": "Comparison of the constant learning-rate control run (configuration constant_lr_control: ReduceLROnPlateau removed, learning rate 0.001 at every epoch, early_stopping_patience 12, at most 12 epochs) with the reference run 20261109-SESSABLRUN-6a50265 (patience12_verification), same 36 LivenessNet models, by the reading rule fixed before the run (delivery/synthesis/SYNTHESIS.md, section 5, 'State on 10 November and proposed control'): (a) histories identical to the reference run over its epochs recorded at the recipe rate before the first learning-rate reduction, and a constant rate in the control, otherwise the comparison is not valid; (b) primary outcome on train/dev for the ten original degenerate trainings of the patience-4 run and for the 36 models; (c) secondary outcomes per model; (d) the test, read only from the public aggregate of the two runs, in a separate section, not used to choose or judge; (e) no verdict for an incomplete or failed run. Reads training cards, dev scores and frozen thresholds (restricted) and the public aggregates; no training, no inference, no test score read.",
+ "reading_rule": {
+  "a": "validity: for every model the history of the control run must be identical, in loss, accuracy, val_loss, val_accuracy and lr (difference 0), to the reference run over the epochs recorded at the recipe rate in that run (Keras records the rate of an epoch before reducing it: epochs 1 to 3 when the first lower rate is recorded at epoch 4; all 12 for a model never reduced), and the rate of the control run must be the recipe rate at every epoch; otherwise the largest difference (or the models with another rate) is reported and the comparison is declared not valid: no verdict",
+  "b": "primary outcome on train/dev: among the ten original degenerate trainings of the patience-4 run, the number that recover within 12 epochs with the constant rate, and among the 36 the number degenerate (same criteria). If all ten recover and none of the 36 is degenerate, the recovery of the ten is reproduced without the reduction: consistent with the extra epochs being sufficient in these trainings. If at least one of the ten does not recover, the outcome is consistent with a contribution of the reduction in these trainings, and the models are listed one by one. A mixed outcome (for example all ten recover but another model becomes degenerate or loses its recovery) is reported as such, model by model, with no overall verdict",
+  "c": "secondary outcomes per model, reference against control run: first-recovery epoch, whether the recovery criterion still holds at the last epoch, restored epoch and whether it changes, best val_loss, dev accuracy and dev AUROC at the checkpoint (from the dev scores, checked row by row), epochs at 0.5, the first reduced epoch of the reference run and the rate of the control run; B fold 3 seed 44 and B' fold 4 seed 42 reported apart",
+  "d": "the test: only from the public aggregate.json of the two runs (never from the restricted test scores), the verdicts and the median differences over the seeds of A* - B, B' - B and A* - B' side by side, in a separate section, never used to choose or judge",
+  "e": "if the control run is INCOMPLETE (cap or voluntary stop) or FAIL, no verdict is given and what is complete is reported; the time is reported against the estimate"
+ },
+ "criteria": {
+  "degenerate": {
+   "restored_epochs": [
+    1,
+    2
+   ],
+   "val_acc_at_best": 0.5,
+   "tolerance": 1e-06,
+   "text": "restored_epoch in {1, 2} and val_acc_at_best = 0.5 (within 1e-6): the rule written in the delivery of the session ablation run, re-applied here"
+  },
+  "saturation": {
+   "val_accuracy": 0.5,
+   "tolerance": 1e-06,
+   "text": "an epoch is saturated when val_accuracy = 0.5 within 1e-6 (balanced dev: every frame assigned to the same class, or exactly half wrong)"
+  },
+  "recovery": {
+   "val_accuracy_min": 0.75,
+   "val_loss_max": 1.0,
+   "text": "first epoch with val_accuracy >= 0.75 and val_loss < 1.0 (dev only)"
+  },
+  "checkpoint_agreement_tolerance": 1e-06,
+  "shared_history_difference": 0,
+  "shared_history_window": "parent_epochs_before_first_lr_reduction",
+  "recorded_recipe_lr": 0.0010000000474974513,
+  "original_degenerate_models": [
+   "arm_a_star_fold2_seed43",
+   "arm_a_star_fold2_seed44",
+   "arm_a_star_fold3_seed42",
+   "arm_a_star_fold3_seed44",
+   "arm_a_star_fold4_seed44",
+   "arm_b_fold1_seed42",
+   "arm_b_fold4_seed44",
+   "arm_b_prime_fold1_seed44",
+   "arm_b_prime_fold2_seed44",
+   "arm_b_prime_fold4_seed44"
+  ],
+  "source": "criteria.degenerate, criteria.saturation, criteria.recovery, criteria.checkpoint_agreement_tolerance and criteria.shared_history_difference equal to delivery/patienceverify/nuaa_patience_verify.json (and to delivery/degenerate/nuaa_degenerate_trainings.json); original_degenerate_models: the ten degenerate trainings of run 20261106-SESSABLRUN-d999458 (patience 4), as listed in that configuration and in the public aggregate of comparison 20261109-PATVER-4f2b925; shared_history_window: the epochs of the reference run recorded at the recipe rate before its first learning-rate reduction (delivery/synthesis/SYNTHESIS.md, section 5, reading criterion (a)); recorded_recipe_lr: recipe.lr as Keras records it in history.lr (float32 value of 0.001), compared exactly"
+ },
+ "recipe": {
+  "max_epochs": 12,
+  "monitor": "val_loss",
+  "min_delta": 0,
+  "restore_best_weights": true,
+  "batch": 16,
+  "lr": 0.001,
+  "source": "training cards (max_epochs, early_stopping_patience, batch, lr) and the Keras 2.15 defaults of EarlyStopping (min_delta 0, strict improvement); early_stopping_patience 12 in both runs (inputs.<run>.early_stopping_patience); the scheduler is ReduceLROnPlateau in the reference run and constant in the control run (inputs.verification_run.amendment)"
+ },
+ "original_degenerate": [
+  "A* fold 2 seed 43",
+  "A* fold 2 seed 44",
+  "A* fold 3 seed 42",
+  "A* fold 3 seed 44",
+  "A* fold 4 seed 44",
+  "B fold 1 seed 42",
+  "B fold 4 seed 44",
+  "B' fold 1 seed 44",
+  "B' fold 2 seed 44",
+  "B' fold 4 seed 44"
+ ],
+ "models_without_recovery_parent": [],
+ "inputs": {
+  "parent_run": {
+   "run_id": "20261109-SESSABLRUN-6a50265",
+   "status": "PASS",
+   "config_sha256": "ca039df5d3114f9cb983c7256330aae671de54ae34d949ad4e9b9c80beb6aa43",
+   "commit": "6a50265",
+   "status_sha256": "af6a1d1e1f7b3c90a9e9122ea0ce2d542adfd4cab07a2a9465b8b5af623ccf6d",
+   "public_sums_sha256": "018d5079917856b5efbf3db70656eb134b8b6de8b8bda46cceef8e28362a1ff2",
+   "restricted_sums_sha256": "6787bc2bfb280fc0fa2d48323f1cdb15a84d754843bc8703e923098d6f2d2142",
+   "early_stopping_patience": 12,
+   "complete_models": 36,
+   "missing_models": 0,
+   "early_stopping_replay": "36/36 reproduced",
+   "test_section": "public aggregate.json",
+   "shared_history_windows": {
+    "rule": "parent_epochs_before_first_lr_reduction",
+    "recorded_recipe_lr": 0.0010000000474974513,
+    "models": 36,
+    "min_shared_epochs": 3,
+    "max_shared_epochs": 12,
+    "never_reduced": 1,
+    "first_reduction_epoch_min": 4,
+    "first_reduction_epoch_max": 12
+   },
+   "folder": "results/sessionablationrun/20261109-SESSABLRUN-6a50265"
+  },
+  "verification_run": {
+   "run_id": "20261111-SESSABLRUN-8568ffa",
+   "status": "PASS",
+   "config_sha256": "60b38e094da8c2243f3f9386f69d216bf8b853a3511b73538feec39e09b0d58f",
+   "commit": "8568ffa",
+   "status_sha256": "f16a2720013888f54560fb82ced8c014b56c4da4098a9431970671db6a531f3a",
+   "public_sums_sha256": "cb353b754318e20927e113ed9877a3f6d4af58972adf307779fd03a28ff1c8ca",
+   "restricted_sums_sha256": "ea821cbad2d8ccf86fb970a7e5868bd7acffd4f965467a7003452b726af0ce67",
+   "early_stopping_patience": 12,
+   "complete_models": 36,
+   "missing_models": 0,
+   "early_stopping_replay": "36/36 reproduced",
+   "test_section": "public aggregate.json",
+   "folder": "results/sessionablationrun/20261111-SESSABLRUN-8568ffa"
+  }
+ },
+ "verdict": "mixed (no overall verdict)",
+ "sections": {
+  "a": {
+   "rule": "validity: for every model the history of the control run must be identical, in loss, accuracy, val_loss, val_accuracy and lr (difference 0), to the reference run over the epochs recorded at the recipe rate in that run (Keras records the rate of an epoch before reducing it: epochs 1 to 3 when the first lower rate is recorded at epoch 4; all 12 for a model never reduced), and the rate of the control run must be the recipe rate at every epoch; otherwise the largest difference (or the models with another rate) is reported and the comparison is declared not valid: no verdict",
+   "models_compared": 36,
+   "identical": 36,
+   "valid": true,
+   "largest_difference": null,
+   "new_history_shorter_than_shared": [],
+   "max_abs_difference_per_field": {
+    "loss": 0.0,
+    "accuracy": 0.0,
+    "val_loss": 0.0,
+    "val_accuracy": 0.0,
+    "lr": 0.0
+   },
+   "window": {
+    "rule": "parent_epochs_before_first_lr_reduction",
+    "recorded_recipe_lr": 0.0010000000474974513,
+    "models": 36,
+    "min_shared_epochs": 3,
+    "max_shared_epochs": 12,
+    "never_reduced": 1,
+    "first_reduction_epoch_min": 4,
+    "first_reduction_epoch_max": 12
+   },
+   "new_lr_constant": 36,
+   "new_lr_not_constant": [],
+   "new_lr_values": [
+    0.0010000000474974513
+   ]
+  },
+  "b": {
+   "rule": "primary outcome on train/dev: among the ten original degenerate trainings of the patience-4 run, the number that recover within 12 epochs with the constant rate, and among the 36 the number degenerate (same criteria). If all ten recover and none of the 36 is degenerate, the recovery of the ten is reproduced without the reduction: consistent with the extra epochs being sufficient in these trainings. If at least one of the ten does not recover, the outcome is consistent with a contribution of the reduction in these trainings, and the models are listed one by one. A mixed outcome (for example all ten recover but another model becomes degenerate or loses its recovery) is reported as such, model by model, with no overall verdict",
+   "verdict": "mixed (no overall verdict)",
+   "conclusion": "Mixed outcome, no overall verdict: the ten original degenerate trainings all recover within 12 epochs with the constant learning rate (0.001), but degenerate among the 36: none; recovery of the patience12 run not reproduced outside the ten: B' fold 2 seed 42. Reported model by model.",
+   "verification_status": "PASS",
+   "ten": [
+    "A* fold 2 seed 43",
+    "A* fold 2 seed 44",
+    "A* fold 3 seed 42",
+    "A* fold 3 seed 44",
+    "A* fold 4 seed 44",
+    "B fold 1 seed 42",
+    "B fold 4 seed 44",
+    "B' fold 1 seed 44",
+    "B' fold 2 seed 44",
+    "B' fold 4 seed 44"
+   ],
+   "ten_recovered": 10,
+   "ten_complete": 10,
+   "ten_without_recovery": [],
+   "ten_degenerate": [],
+   "degenerate_among_complete": [],
+   "without_recovery_outside_ten": [
+    "B' fold 2 seed 42"
+   ],
+   "without_recovery_parent": [],
+   "missing_models": [],
+   "ten_first_recovery": {
+    "A* fold 2 seed 43": 6,
+    "A* fold 2 seed 44": 5,
+    "A* fold 3 seed 42": 6,
+    "A* fold 3 seed 44": 7,
+    "A* fold 4 seed 44": 6,
+    "B fold 1 seed 42": 4,
+    "B fold 4 seed 44": 10,
+    "B' fold 1 seed 44": 6,
+    "B' fold 2 seed 44": 7,
+    "B' fold 4 seed 44": 10
+   },
+   "recovery_not_reproduced_outside_ten": [
+    "B' fold 2 seed 42"
+   ],
+   "ten_model_by_model": [
+    {
+     "model": "A* fold 2 seed 43",
+     "complete": true,
+     "first_recovery": 6,
+     "first_recovery_parent": 7,
+     "recovered_at_last_epoch": true,
+     "restored_epoch": 9,
+     "degenerate": false
+    },
+    {
+     "model": "A* fold 2 seed 44",
+     "complete": true,
+     "first_recovery": 5,
+     "first_recovery_parent": 10,
+     "recovered_at_last_epoch": true,
+     "restored_epoch": 10,
+     "degenerate": false
+    },
+    {
+     "model": "A* fold 3 seed 42",
+     "complete": true,
+     "first_recovery": 6,
+     "first_recovery_parent": 9,
+     "recovered_at_last_epoch": false,
+     "restored_epoch": 10,
+     "degenerate": false
+    },
+    {
+     "model": "A* fold 3 seed 44",
+     "complete": true,
+     "first_recovery": 7,
+     "first_recovery_parent": 11,
+     "recovered_at_last_epoch": true,
+     "restored_epoch": 8,
+     "degenerate": false
+    },
+    {
+     "model": "A* fold 4 seed 44",
+     "complete": true,
+     "first_recovery": 6,
+     "first_recovery_parent": 10,
+     "recovered_at_last_epoch": true,
+     "restored_epoch": 8,
+     "degenerate": false
+    },
+    {
+     "model": "B fold 1 seed 42",
+     "complete": true,
+     "first_recovery": 4,
+     "first_recovery_parent": 8,
+     "recovered_at_last_epoch": true,
+     "restored_epoch": 9,
+     "degenerate": false
+    },
+    {
+     "model": "B fold 4 seed 44",
+     "complete": true,
+     "first_recovery": 10,
+     "first_recovery_parent": 7,
+     "recovered_at_last_epoch": true,
+     "restored_epoch": 11,
+     "degenerate": false
+    },
+    {
+     "model": "B' fold 1 seed 44",
+     "complete": true,
+     "first_recovery": 6,
+     "first_recovery_parent": 7,
+     "recovered_at_last_epoch": true,
+     "restored_epoch": 6,
+     "degenerate": false
+    },
+    {
+     "model": "B' fold 2 seed 44",
+     "complete": true,
+     "first_recovery": 7,
+     "first_recovery_parent": 12,
+     "recovered_at_last_epoch": true,
+     "restored_epoch": 12,
+     "degenerate": false
+    },
+    {
+     "model": "B' fold 4 seed 44",
+     "complete": true,
+     "first_recovery": 10,
+     "first_recovery_parent": 10,
+     "recovered_at_last_epoch": false,
+     "restored_epoch": 10,
+     "degenerate": false
+    }
+   ]
+  },
+  "c": {
+   "rule": "secondary outcomes per model, reference against control run: first-recovery epoch, whether the recovery criterion still holds at the last epoch, restored epoch and whether it changes, best val_loss, dev accuracy and dev AUROC at the checkpoint (from the dev scores, checked row by row), epochs at 0.5, the first reduced epoch of the reference run and the rate of the control run; B fold 3 seed 44 and B' fold 4 seed 42 reported apart",
+   "summary": [
+    {
+     "group": "the ten",
+     "side": "parent",
+     "first_recovery": {
+      "models": 10,
+      "median": 9.5,
+      "min": 7,
+      "max": 12
+     },
+     "restored_epoch": {
+      "models": 10,
+      "median": 11.0,
+      "min": 9,
+      "max": 12
+     },
+     "best_val_loss": {
+      "models": 10,
+      "median": 0.13732461631298065,
+      "min": 0.00038420394412241876,
+      "max": 0.5238613486289978
+     },
+     "dev_acc": {
+      "models": 10,
+      "median": 0.99,
+      "min": 0.865,
+      "max": 1.0
+     },
+     "dev_auroc": {
+      "models": 10,
+      "median": 0.9954937500000001,
+      "min": 0.989525,
+      "max": 1.0
+     },
+     "epochs_at_half": {
+      "models": 10,
+      "median": 4.0,
+      "min": 2,
+      "max": 7
+     },
+     "lr_last": {
+      "models": 10,
+      "median": 0.00018750000890577212,
+      "min": 0.0001250000059371814,
+      "max": 0.0002500000118743628
+     }
+    },
+    {
+     "group": "the ten",
+     "side": "new",
+     "first_recovery": {
+      "models": 10,
+      "median": 6.0,
+      "min": 4,
+      "max": 10
+     },
+     "restored_epoch": {
+      "models": 10,
+      "median": 9.5,
+      "min": 6,
+      "max": 12
+     },
+     "best_val_loss": {
+      "models": 10,
+      "median": 0.01415794575586915,
+      "min": 0.0001393290440319106,
+      "max": 0.3141130805015564
+     },
+     "dev_acc": {
+      "models": 10,
+      "median": 0.9975,
+      "min": 0.875,
+      "max": 1.0
+     },
+     "dev_auroc": {
+      "models": 10,
+      "median": 1.0,
+      "min": 0.98315,
+      "max": 1.0
+     },
+     "epochs_at_half": {
+      "models": 10,
+      "median": 4.0,
+      "min": 2,
+      "max": 5
+     },
+     "lr_last": {
+      "models": 10,
+      "median": 0.0010000000474974513,
+      "min": 0.0010000000474974513,
+      "max": 0.0010000000474974513
+     }
+    },
+    {
+     "group": "the other 26",
+     "side": "parent",
+     "first_recovery": {
+      "models": 26,
+      "median": 6.0,
+      "min": 1,
+      "max": 11
+     },
+     "restored_epoch": {
+      "models": 26,
+      "median": 10.0,
+      "min": 2,
+      "max": 12
+     },
+     "best_val_loss": {
+      "models": 26,
+      "median": 0.015340692363679409,
+      "min": 0.00010710876085795462,
+      "max": 0.8749825358390808
+     },
+     "dev_acc": {
+      "models": 26,
+      "median": 0.9975,
+      "min": 0.7975,
+      "max": 1.0
+     },
+     "dev_auroc": {
+      "models": 26,
+      "median": 1.0,
+      "min": 0.9829625,
+      "max": 1.0
+     },
+     "epochs_at_half": {
+      "models": 26,
+      "median": 3.0,
+      "min": 1,
+      "max": 7
+     },
+     "lr_last": {
+      "models": 26,
+      "median": 0.0002500000118743628,
+      "min": 6.25000029685907e-05,
+      "max": 0.0010000000474974513
+     }
+    },
+    {
+     "group": "the other 26",
+     "side": "new",
+     "first_recovery": {
+      "models": 25,
+      "median": 6,
+      "min": 1,
+      "max": 9
+     },
+     "restored_epoch": {
+      "models": 26,
+      "median": 9.5,
+      "min": 3,
+      "max": 12
+     },
+     "best_val_loss": {
+      "models": 26,
+      "median": 0.015414067544043064,
+      "min": 9.175399463856593e-05,
+      "max": 1.6847424507141113
+     },
+     "dev_acc": {
+      "models": 26,
+      "median": 0.9962500000000001,
+      "min": 0.855,
+      "max": 1.0
+     },
+     "dev_auroc": {
+      "models": 26,
+      "median": 1.0,
+      "min": 0.867825,
+      "max": 1.0
+     },
+     "epochs_at_half": {
+      "models": 26,
+      "median": 3.5,
+      "min": 1,
+      "max": 7
+     },
+     "lr_last": {
+      "models": 26,
+      "median": 0.0010000000474974513,
+      "min": 0.0010000000474974513,
+      "max": 0.0010000000474974513
+     }
+    },
+    {
+     "group": "all 36",
+     "side": "parent",
+     "first_recovery": {
+      "models": 36,
+      "median": 7.0,
+      "min": 1,
+      "max": 12
+     },
+     "restored_epoch": {
+      "models": 36,
+      "median": 10.5,
+      "min": 2,
+      "max": 12
+     },
+     "best_val_loss": {
+      "models": 36,
+      "median": 0.02671066764742136,
+      "min": 0.00010710876085795462,
+      "max": 0.8749825358390808
+     },
+     "dev_acc": {
+      "models": 36,
+      "median": 0.9962500000000001,
+      "min": 0.7975,
+      "max": 1.0
+     },
+     "dev_auroc": {
+      "models": 36,
+      "median": 0.999975,
+      "min": 0.9829625,
+      "max": 1.0
+     },
+     "epochs_at_half": {
+      "models": 36,
+      "median": 3.5,
+      "min": 1,
+      "max": 7
+     },
+     "lr_last": {
+      "models": 36,
+      "median": 0.0002500000118743628,
+      "min": 6.25000029685907e-05,
+      "max": 0.0010000000474974513
+     }
+    },
+    {
+     "group": "all 36",
+     "side": "new",
+     "first_recovery": {
+      "models": 35,
+      "median": 6,
+      "min": 1,
+      "max": 10
+     },
+     "restored_epoch": {
+      "models": 36,
+      "median": 9.5,
+      "min": 3,
+      "max": 12
+     },
+     "best_val_loss": {
+      "models": 36,
+      "median": 0.01519349031150341,
+      "min": 9.175399463856593e-05,
+      "max": 1.6847424507141113
+     },
+     "dev_acc": {
+      "models": 36,
+      "median": 0.9975,
+      "min": 0.855,
+      "max": 1.0
+     },
+     "dev_auroc": {
+      "models": 36,
+      "median": 1.0,
+      "min": 0.867825,
+      "max": 1.0
+     },
+     "epochs_at_half": {
+      "models": 36,
+      "median": 4.0,
+      "min": 1,
+      "max": 7
+     },
+     "lr_last": {
+      "models": 36,
+      "median": 0.0010000000474974513,
+      "min": 0.0010000000474974513,
+      "max": 0.0010000000474974513
+     }
+    }
+   ],
+   "recovered": {
+    "parent": 36,
+    "new": 35,
+    "new_complete": 36
+   },
+   "recovered_at_last_epoch": {
+    "parent": 28,
+    "new": 26
+   },
+   "restored_epoch_changed": 23,
+   "reported_apart": [
+    {
+     "model": "B fold 3 seed 44",
+     "arm": "arm_b",
+     "fold": 3,
+     "seed": 44,
+     "in_ten": false,
+     "new_status": "complete",
+     "parent": {
+      "epochs_run": 12,
+      "restored_epoch": 11,
+      "best_val_loss": 0.011896664276719093,
+      "val_acc_at_best": 1.0,
+      "degenerate": false,
+      "first_recovery": 10,
+      "recovered": true,
+      "dev_acc": 1.0,
+      "dev_auroc": 1.0,
+      "epochs_at_half": 3,
+      "lr": [
+       0.0010000000474974513,
+       0.0010000000474974513,
+       0.0010000000474974513,
+       0.0010000000474974513,
+       0.0010000000474974513,
+       0.0005000000237487257,
+       0.0005000000237487257,
+       0.0002500000118743628,
+       0.0002500000118743628,
+       0.0001250000059371814,
+       0.0001250000059371814,
+       0.0001250000059371814
+      ],
+      "lr_last": 0.0001250000059371814,
+      "train_seconds": 493.0,
+      "shared_epochs": 5,
+      "first_lr_reduction_epoch": 6,
+      "recovered_at_last_epoch": true
+     },
+     "new": {
+      "epochs_run": 12,
+      "restored_epoch": 10,
+      "best_val_loss": 0.14570370316505432,
+      "val_acc_at_best": 0.9150000214576721,
+      "degenerate": false,
+      "first_recovery": 7,
+      "recovered": true,
+      "dev_acc": 0.915,
+      "dev_auroc": 1.0,
+      "epochs_at_half": 3,
+      "lr": [
+       0.0010000000474974513,
+       0.0010000000474974513,
+       0.0010000000474974513,
+       0.0010000000474974513,
+       0.0010000000474974513,
+       0.0010000000474974513,
+       0.0010000000474974513,
+       0.0010000000474974513,
+       0.0010000000474974513,
+       0.0010000000474974513,
+       0.0010000000474974513,
+       0.0010000000474974513
+      ],
+      "lr_last": 0.0010000000474974513,
+      "train_seconds": 442.1,
+      "lr_constant": true,
+      "lr_values": [
+       0.0010000000474974513
+      ],
+      "recovered_at_last_epoch": true
+     },
+     "shared_epochs": 5,
+     "shared_identical": true,
+     "max_abs_diff_shared": {
+      "loss": 0.0,
+      "accuracy": 0.0,
+      "val_loss": 0.0,
+      "val_accuracy": 0.0,
+      "lr": 0.0
+     },
+     "first_lr_reduction_epoch_parent": 6,
+     "new_lr_constant": true,
+     "new_lr_values": [
+      0.0010000000474974513
+     ],
+     "restored_epoch_changed": true,
+     "reported_apart": true
+    },
+    {
+     "model": "B' fold 4 seed 42",
+     "arm": "arm_b_prime",
+     "fold": 4,
+     "seed": 42,
+     "in_ten": false,
+     "new_status": "complete",
+     "parent": {
+      "epochs_run": 12,
+      "restored_epoch": 2,
+      "best_val_loss": 0.1375407874584198,
+      "val_acc_at_best": 0.9175000190734863,
+      "degenerate": false,
+      "first_recovery": 1,
+      "recovered": true,
+      "dev_acc": 0.9175,
+      "dev_auroc": 0.99655,
+      "epochs_at_half": 3,
+      "lr": [
+       0.0010000000474974513,
+       0.0010000000474974513,
+       0.0010000000474974513,
+       0.0010000000474974513,
+       0.0005000000237487257,
+       0.0005000000237487257,
+       0.0002500000118743628,
+       0.0002500000118743628,
+       0.0001250000059371814,
+       0.0001250000059371814,
+       6.25000029685907e-05,
+       6.25000029685907e-05
+      ],
+      "lr_last": 6.25000029685907e-05,
+      "train_seconds": 328.7,
+      "shared_epochs": 4,
+      "first_lr_reduction_epoch": 5,
+      "recovered_at_last_epoch": false
+     },
+     "new": {
+      "epochs_run": 12,
+      "restored_epoch": 11,
+      "best_val_loss": 0.09675449132919312,
+      "val_acc_at_best": 0.9700000286102295,
+      "degenerate": false,
+      "first_recovery": 1,
+      "recovered": true,
+      "dev_acc": 0.97,
+      "dev_auroc": 0.99405,
+      "epochs_at_half": 3,
+      "lr": [
+       0.0010000000474974513,
+       0.0010000000474974513,
+       0.0010000000474974513,
+       0.0010000000474974513,
+       0.0010000000474974513,
+       0.0010000000474974513,
+       0.0010000000474974513,
+       0.0010000000474974513,
+       0.0010000000474974513,
+       0.0010000000474974513,
+       0.0010000000474974513,
+       0.0010000000474974513
+      ],
+      "lr_last": 0.0010000000474974513,
+      "train_seconds": 309.2,
+      "lr_constant": true,
+      "lr_values": [
+       0.0010000000474974513
+      ],
+      "recovered_at_last_epoch": false
+     },
+     "shared_epochs": 4,
+     "shared_identical": true,
+     "max_abs_diff_shared": {
+      "loss": 0.0,
+      "accuracy": 0.0,
+      "val_loss": 0.0,
+      "val_accuracy": 0.0,
+      "lr": 0.0
+     },
+     "first_lr_reduction_epoch_parent": 5,
+     "new_lr_constant": true,
+     "new_lr_values": [
+      0.0010000000474974513
+     ],
+     "restored_epoch_changed": true,
+     "reported_apart": true
+    }
+   ]
+  },
+  "d": {
+   "label": "not used to choose or judge the recipe",
+   "rule": "the test: only from the public aggregate.json of the two runs (never from the restricted test scores), the verdicts and the median differences over the seeds of A* - B, B' - B and A* - B' side by side, in a separate section, never used to choose or judge",
+   "reported": true,
+   "source": "public/aggregate.json of the two runs (never the restricted test scores)",
+   "primary": [
+    {
+     "metric": "auroc",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference"
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference"
+     }
+    },
+    {
+     "metric": "acer_dev",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference"
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference"
+     }
+    }
+   ],
+   "rows": [
+    {
+     "comparison": "A* - B",
+     "stratum": "01",
+     "metric": "apcer_05",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": -0.04678362573099415
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": -0.10877192982456141
+     }
+    },
+    {
+     "comparison": "A* - B",
+     "stratum": "01",
+     "metric": "bpcer_05",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": -0.049493813273340834
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": 0.0798650168728909
+     }
+    },
+    {
+     "comparison": "A* - B",
+     "stratum": "01",
+     "metric": "acer_05",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": -0.0481387195021675
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": -0.012203737690683412
+     }
+    },
+    {
+     "comparison": "A* - B",
+     "stratum": "01",
+     "metric": "apcer_dev",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": 0.0011695906432748538
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": -0.050292397660818715
+     }
+    },
+    {
+     "comparison": "A* - B",
+     "stratum": "01",
+     "metric": "bpcer_dev",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": -0.008998875140607425
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": 0.04274465691788526
+     }
+    },
+    {
+     "comparison": "A* - B",
+     "stratum": "01",
+     "metric": "acer_dev",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": -0.01970411593287681
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": -0.03359843177497549
+     }
+    },
+    {
+     "comparison": "A* - B",
+     "stratum": "01",
+     "metric": "auroc",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": 0.003789000059203129
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": 0.007016886047138793
+     }
+    },
+    {
+     "comparison": "A* - B",
+     "stratum": "02",
+     "metric": "apcer_05",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "a seed has a zero difference",
+      "median": 0.001119820828667413
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "a seed has a zero difference",
+      "median": 0.00335946248600224
+     }
+    },
+    {
+     "comparison": "A* - B",
+     "stratum": "02",
+     "metric": "bpcer_05",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": 0.00117096018735363
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": 0.00819672131147541
+     }
+    },
+    {
+     "comparison": "A* - B",
+     "stratum": "02",
+     "metric": "acer_05",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": 0.0011453905080105215
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": 0.02985423971508821
+     }
+    },
+    {
+     "comparison": "A* - B",
+     "stratum": "02",
+     "metric": "apcer_dev",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": 0.0022396416573348264
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": 0.040313549832026875
+     }
+    },
+    {
+     "comparison": "A* - B",
+     "stratum": "02",
+     "metric": "bpcer_dev",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": -0.00351288056206089
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": 0.00117096018735363
+     }
+    },
+    {
+     "comparison": "A* - B",
+     "stratum": "02",
+     "metric": "acer_dev",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": -0.0011965298666967382
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": 0.02074225500969025
+     }
+    },
+    {
+     "comparison": "A* - B",
+     "stratum": "02",
+     "metric": "auroc",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": -0.006477652100254194
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": -0.001232589670898565
+     }
+    },
+    {
+     "comparison": "A* - B",
+     "stratum": "03",
+     "metric": "apcer_05",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": -0.01944106925880923
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": 0.00503384829022735
+     }
+    },
+    {
+     "comparison": "A* - B",
+     "stratum": "03",
+     "metric": "bpcer_05",
+     "parent": {
+      "verdict": "consistent",
+      "direction": "A* lower BPCER (0.5) than B",
+      "reason": "same sign for every seed and every interval excludes 0",
+      "median": -0.41701368233194525
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": -0.3194527067221892
+     }
+    },
+    {
+     "comparison": "A* - B",
+     "stratum": "03",
+     "metric": "acer_05",
+     "parent": {
+      "verdict": "consistent",
+      "direction": "A* lower ACER (0.5) than B",
+      "reason": "same sign for every seed and every interval excludes 0",
+      "median": -0.23811680233897523
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": -0.26474284355376954
+     }
+    },
+    {
+     "comparison": "A* - B",
+     "stratum": "03",
+     "metric": "apcer_dev",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": 0.12098593994098247
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": 0.11126540531157786
+     }
+    },
+    {
+     "comparison": "A* - B",
+     "stratum": "03",
+     "metric": "bpcer_dev",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": -0.44318857822724567
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": -0.3967876264128495
+     }
+    },
+    {
+     "comparison": "A* - B",
+     "stratum": "03",
+     "metric": "acer_dev",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": -0.2006777815628504
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": -0.22929122684988945
+     }
+    },
+    {
+     "comparison": "A* - B",
+     "stratum": "03",
+     "metric": "auroc",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": 0.2185742021496574
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": 0.1945400780505152
+     }
+    },
+    {
+     "comparison": "A* - B",
+     "stratum": "all",
+     "metric": "apcer_05",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": -0.01717938473831404
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": -0.0011985617259288872
+     }
+    },
+    {
+     "comparison": "A* - B",
+     "stratum": "all",
+     "metric": "bpcer_05",
+     "parent": {
+      "verdict": "consistent",
+      "direction": "A* lower BPCER (0.5) than B",
+      "reason": "same sign for every seed and every interval excludes 0",
+      "median": -0.2993143976493634
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": -0.17766895200783547
+     }
+    },
+    {
+     "comparison": "A* - B",
+     "stratum": "all",
+     "metric": "acer_05",
+     "parent": {
+      "verdict": "consistent",
+      "direction": "A* lower ACER (0.5) than B",
+      "reason": "same sign for every seed and every interval excludes 0",
+      "median": -0.15751443680577107
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": -0.17559702760865875
+     }
+    },
+    {
+     "comparison": "A* - B",
+     "stratum": "all",
+     "metric": "apcer_dev",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": 0.09734984685044615
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": 0.08443201491543481
+     }
+    },
+    {
+     "comparison": "A* - B",
+     "stratum": "all",
+     "metric": "bpcer_dev",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": -0.35710088148873653
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": -0.2472086190009794
+     }
+    },
+    {
+     "comparison": "A* - B",
+     "stratum": "all",
+     "metric": "acer_dev",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": -0.1621700971566735
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": -0.13834094483289988
+     }
+    },
+    {
+     "comparison": "A* - B",
+     "stratum": "all",
+     "metric": "auroc",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": 0.11053752147765483
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": 0.09326096310936827
+     }
+    },
+    {
+     "comparison": "B' - B",
+     "stratum": "01",
+     "metric": "apcer_05",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": -0.016374269005847954
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": 0.0046783625730994205
+     }
+    },
+    {
+     "comparison": "B' - B",
+     "stratum": "01",
+     "metric": "bpcer_05",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": 0.056242969628796394
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": -0.008998875140607423
+     }
+    },
+    {
+     "comparison": "B' - B",
+     "stratum": "01",
+     "metric": "acer_05",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": 0.026079634782494296
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": 0.025325123833205065
+     }
+    },
+    {
+     "comparison": "B' - B",
+     "stratum": "01",
+     "metric": "apcer_dev",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": 0.04912280701754386
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": 0.06783625730994153
+     }
+    },
+    {
+     "comparison": "B' - B",
+     "stratum": "01",
+     "metric": "bpcer_dev",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": 0.04386951631046119
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": 0.03149606299212598
+     }
+    },
+    {
+     "comparison": "B' - B",
+     "stratum": "01",
+     "metric": "acer_dev",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": 0.04649616166400253
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": 0.06370124787033199
+     }
+    },
+    {
+     "comparison": "B' - B",
+     "stratum": "01",
+     "metric": "auroc",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": -0.031027700484807852
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": -0.0027943875436623467
+     }
+    },
+    {
+     "comparison": "B' - B",
+     "stratum": "02",
+     "metric": "apcer_05",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": 0.0011198208286674132
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "a seed has a zero difference",
+      "median": 0.02463605823068309
+     }
+    },
+    {
+     "comparison": "B' - B",
+     "stratum": "02",
+     "metric": "bpcer_05",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": 0.00702576112412178
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": 0.01405152224824356
+     }
+    },
+    {
+     "comparison": "B' - B",
+     "stratum": "02",
+     "metric": "acer_05",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": 0.004632701390728303
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": 0.05461814634248684
+     }
+    },
+    {
+     "comparison": "B' - B",
+     "stratum": "02",
+     "metric": "apcer_dev",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": 0.0022396416573348264
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": 0.011198208286674132
+     }
+    },
+    {
+     "comparison": "B' - B",
+     "stratum": "02",
+     "metric": "bpcer_dev",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": 0.00234192037470726
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": 0.13114754098360656
+     }
+    },
+    {
+     "comparison": "B' - B",
+     "stratum": "02",
+     "metric": "acer_dev",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": 0.000611049773019923
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": 0.0672535017348044
+     }
+    },
+    {
+     "comparison": "B' - B",
+     "stratum": "02",
+     "metric": "auroc",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": -0.0012247220772545475
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": -0.07789179960714487
+     }
+    },
+    {
+     "comparison": "B' - B",
+     "stratum": "03",
+     "metric": "apcer_05",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": -0.04235375802812011
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": -0.03298038534976566
+     }
+    },
+    {
+     "comparison": "B' - B",
+     "stratum": "03",
+     "metric": "bpcer_05",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": 0.02914931588340275
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": 0.1591314693634741
+     }
+    },
+    {
+     "comparison": "B' - B",
+     "stratum": "03",
+     "metric": "acer_05",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": -0.006602221072358694
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": 0.036778024214804195
+     }
+    },
+    {
+     "comparison": "B' - B",
+     "stratum": "03",
+     "metric": "apcer_dev",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": 0.061621246311404254
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": 0.059364693629578205
+     }
+    },
+    {
+     "comparison": "B' - B",
+     "stratum": "03",
+     "metric": "bpcer_dev",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": 0.0187388459250446
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": 0.030933967876264123
+     }
+    },
+    {
+     "comparison": "B' - B",
+     "stratum": "03",
+     "metric": "acer_dev",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": 0.03124062587868265
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": 0.04158002676719841
+     }
+    },
+    {
+     "comparison": "B' - B",
+     "stratum": "03",
+     "metric": "auroc",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": -0.10836757883245574
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": -0.11489689796030478
+     }
+    },
+    {
+     "comparison": "B' - B",
+     "stratum": "all",
+     "metric": "apcer_05",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": -0.029564522572912505
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": -0.013450526035424154
+     }
+    },
+    {
+     "comparison": "B' - B",
+     "stratum": "all",
+     "metric": "bpcer_05",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": 0.057590597453476944
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": 0.12262487757100882
+     }
+    },
+    {
+     "comparison": "B' - B",
+     "stratum": "all",
+     "metric": "acer_05",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": 0.014013037440282206
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": 0.022492356217918785
+     }
+    },
+    {
+     "comparison": "B' - B",
+     "stratum": "all",
+     "metric": "apcer_dev",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": 0.052736715940870954
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": 0.05686509521907045
+     }
+    },
+    {
+     "comparison": "B' - B",
+     "stratum": "all",
+     "metric": "bpcer_dev",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": 0.06777668952007831
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": 0.04564152791381004
+     }
+    },
+    {
+     "comparison": "B' - B",
+     "stratum": "all",
+     "metric": "acer_dev",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": 0.05626149697737831
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": 0.04998005005811501
+     }
+    },
+    {
+     "comparison": "B' - B",
+     "stratum": "all",
+     "metric": "auroc",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": -0.11216587760374785
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": -0.11041564357182099
+     }
+    },
+    {
+     "comparison": "A* - B'",
+     "stratum": "01",
+     "metric": "apcer_05",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": 0.0011695906432748538
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": -0.10760233918128656
+     }
+    },
+    {
+     "comparison": "A* - B'",
+     "stratum": "01",
+     "metric": "bpcer_05",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": -0.04611923509561305
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": 0.08886389201349831
+     }
+    },
+    {
+     "comparison": "A* - B'",
+     "stratum": "01",
+     "metric": "acer_05",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": -0.054858932107170806
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": -0.009369223583894123
+     }
+    },
+    {
+     "comparison": "A* - B'",
+     "stratum": "01",
+     "metric": "apcer_dev",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": -0.07953216374269007
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": -0.11812865497076024
+     }
+    },
+    {
+     "comparison": "A* - B'",
+     "stratum": "01",
+     "metric": "bpcer_dev",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": -0.048368953880764905
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": 0.015748031496062992
+     }
+    },
+    {
+     "comparison": "A* - B'",
+     "stratum": "01",
+     "metric": "acer_dev",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": -0.05524243680066307
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": -0.03364645208822581
+     }
+    },
+    {
+     "comparison": "A* - B'",
+     "stratum": "01",
+     "metric": "auroc",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": 0.03481670054401098
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": -0.0007110953236107997
+     }
+    },
+    {
+     "comparison": "A* - B'",
+     "stratum": "02",
+     "metric": "apcer_05",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "a seed has a zero difference",
+      "median": 0.0
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "a seed has a zero difference",
+      "median": -0.02127659574468085
+     }
+    },
+    {
+     "comparison": "A* - B'",
+     "stratum": "02",
+     "metric": "bpcer_05",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": 0.05269320843091335
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "a seed has a zero difference",
+      "median": -0.0058548009367681494
+     }
+    },
+    {
+     "comparison": "A* - B'",
+     "stratum": "02",
+     "metric": "acer_05",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": 0.02970606670145892
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": -0.015807962529273994
+     }
+    },
+    {
+     "comparison": "A* - B'",
+     "stratum": "02",
+     "metric": "apcer_dev",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": -0.0011198208286674132
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": -0.010078387458006719
+     }
+    },
+    {
+     "comparison": "A* - B'",
+     "stratum": "02",
+     "metric": "bpcer_dev",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": 0.00117096018735363
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": -0.12997658079625293
+     }
+    },
+    {
+     "comparison": "A* - B'",
+     "stratum": "02",
+     "metric": "acer_dev",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": -0.0010942511493243047
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": -0.04147205299611079
+     }
+    },
+    {
+     "comparison": "A* - B'",
+     "stratum": "02",
+     "metric": "auroc",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": -0.005252930022999647
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": 0.07451660193385456
+     }
+    },
+    {
+     "comparison": "A* - B'",
+     "stratum": "03",
+     "metric": "apcer_05",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": 0.009026210727304279
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": -0.036972747786842564
+     }
+    },
+    {
+     "comparison": "A* - B'",
+     "stratum": "03",
+     "metric": "bpcer_05",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": -0.6701368233194527
+     },
+     "new": {
+      "verdict": "consistent",
+      "direction": "A* lower BPCER (0.5) than B'",
+      "reason": "same sign for every seed and every interval excludes 0",
+      "median": -0.4785841760856633
+     }
+    },
+    {
+     "comparison": "A* - B'",
+     "stratum": "03",
+     "metric": "acer_05",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": -0.3305553062960742
+     },
+     "new": {
+      "verdict": "consistent",
+      "direction": "A* lower ACER (0.5) than B'",
+      "reason": "same sign for every seed and every interval excludes 0",
+      "median": -0.30152086776857373
+     }
+    },
+    {
+     "comparison": "A* - B'",
+     "stratum": "03",
+     "metric": "apcer_dev",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": 0.05936469362957822
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": -0.06040617948272867
+     }
+    },
+    {
+     "comparison": "A* - B'",
+     "stratum": "03",
+     "metric": "bpcer_dev",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": -0.6511005353955979
+     },
+     "new": {
+      "verdict": "consistent",
+      "direction": "A* lower BPCER (dev threshold) than B'",
+      "reason": "same sign for every seed and every interval excludes 0",
+      "median": -0.4298036882807853
+     }
+    },
+    {
+     "comparison": "A* - B'",
+     "stratum": "03",
+     "metric": "acer_dev",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": -0.29586792088300984
+     },
+     "new": {
+      "verdict": "consistent",
+      "direction": "A* lower ACER (dev threshold) than B'",
+      "reason": "same sign for every seed and every interval excludes 0",
+      "median": -0.26176914638947957
+     }
+    },
+    {
+     "comparison": "A* - B'",
+     "stratum": "03",
+     "metric": "auroc",
+     "parent": {
+      "verdict": "consistent",
+      "direction": "A* higher AUROC than B'",
+      "reason": "same sign for every seed and every interval excludes 0",
+      "median": 0.36892648582372123
+     },
+     "new": {
+      "verdict": "consistent",
+      "direction": "A* higher AUROC than B'",
+      "reason": "same sign for every seed and every interval excludes 0",
+      "median": 0.30943697601082
+     }
+    },
+    {
+     "comparison": "A* - B'",
+     "stratum": "all",
+     "metric": "apcer_05",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": 0.008656279131708619
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": -0.043148222133439856
+     }
+    },
+    {
+     "comparison": "A* - B'",
+     "stratum": "all",
+     "metric": "bpcer_05",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": -0.44054848188050927
+     },
+     "new": {
+      "verdict": "consistent",
+      "direction": "A* lower BPCER (0.5) than B'",
+      "reason": "same sign for every seed and every interval excludes 0",
+      "median": -0.32497551420176296
+     }
+    },
+    {
+     "comparison": "A* - B'",
+     "stratum": "all",
+     "metric": "acer_05",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": -0.21594610137440032
+     },
+     "new": {
+      "verdict": "consistent",
+      "direction": "A* lower ACER (0.5) than B'",
+      "reason": "same sign for every seed and every interval excludes 0",
+      "median": -0.19808938382657754
+     }
+    },
+    {
+     "comparison": "A* - B'",
+     "stratum": "all",
+     "metric": "apcer_dev",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": 0.044613130909575194
+     },
+     "new": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the sign differs across the seeds",
+      "median": -0.06432281262485018
+     }
+    },
+    {
+     "comparison": "A* - B'",
+     "stratum": "all",
+     "metric": "bpcer_dev",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": -0.42840352595494613
+     },
+     "new": {
+      "verdict": "consistent",
+      "direction": "A* lower BPCER (dev threshold) than B'",
+      "reason": "same sign for every seed and every interval excludes 0",
+      "median": -0.3138099902056807
+     }
+    },
+    {
+     "comparison": "A* - B'",
+     "stratum": "all",
+     "metric": "acer_dev",
+     "parent": {
+      "verdict": "inconclusive",
+      "direction": null,
+      "reason": "the bootstrap interval of a seed does not exclude 0 on the side of the difference",
+      "median": -0.19189519752268544
+     },
+     "new": {
+      "verdict": "consistent",
+      "direction": "A* lower ACER (dev threshold) than B'",
+      "reason": "same sign for every seed and every interval excludes 0",
+      "median": -0.18906640141526543
+     }
+    },
+    {
+     "comparison": "A* - B'",
+     "stratum": "all",
+     "metric": "auroc",
+     "parent": {
+      "verdict": "consistent",
+      "direction": "A* higher AUROC than B'",
+      "reason": "same sign for every seed and every interval excludes 0",
+      "median": 0.2046228430551963
+     },
+     "new": {
+      "verdict": "consistent",
+      "direction": "A* higher AUROC than B'",
+      "reason": "same sign for every seed and every interval excludes 0",
+      "median": 0.21615538337344853
+     }
+    }
+   ],
+   "verdicts_changed": 12
+  },
+  "e": {
+   "rule": "if the control run is INCOMPLETE (cap or voluntary stop) or FAIL, no verdict is given and what is complete is reported; the time is reported against the estimate",
+   "per_arm": [
+    {
+     "run": "patience12",
+     "arm": "B",
+     "models": 12,
+     "epochs": 144,
+     "train_seconds": 6135.8,
+     "seconds_per_epoch": 42.609722222222224
+    },
+    {
+     "run": "patience12",
+     "arm": "A*",
+     "models": 12,
+     "epochs": 144,
+     "train_seconds": 5762.6,
+     "seconds_per_epoch": 40.01805555555555
+    },
+    {
+     "run": "patience12",
+     "arm": "B'",
+     "models": 12,
+     "epochs": 144,
+     "train_seconds": 4967.8,
+     "seconds_per_epoch": 34.4986111111111
+    },
+    {
+     "run": "constant_lr",
+     "arm": "B",
+     "models": 12,
+     "epochs": 144,
+     "train_seconds": 5258.2,
+     "seconds_per_epoch": 36.515277777777776
+    },
+    {
+     "run": "constant_lr",
+     "arm": "A*",
+     "models": 12,
+     "epochs": 144,
+     "train_seconds": 5335.0,
+     "seconds_per_epoch": 37.048611111111114
+    },
+    {
+     "run": "constant_lr",
+     "arm": "B'",
+     "models": 12,
+     "epochs": 144,
+     "train_seconds": 3735.1,
+     "seconds_per_epoch": 25.93819444444445
+    }
+   ],
+   "new_train_seconds": 14328.3,
+   "new_wall_seconds": 15217.0,
+   "parent_wall_seconds": 17940.9,
+   "estimate_seconds": 17940.9,
+   "cap_seconds": 21600,
+   "wall_minus_estimate_seconds": -2723.9,
+   "within_cap": true,
+   "final_writes_after_cap": false,
+   "stopped": null
+  }
+ },
+ "rows": [
+  {
+   "model": "B fold 1 seed 42",
+   "in_ten": true,
+   "new_status": "complete",
+   "parent": {
+    "epochs_run": 12,
+    "restored_epoch": 10,
+    "best_val_loss": 0.037804268300533295,
+    "val_acc_at_best": 0.9950000047683716,
+    "degenerate": false,
+    "first_recovery": 8,
+    "recovered": true,
+    "dev_acc": 0.995,
+    "dev_auroc": 0.995975,
+    "epochs_at_half": 5,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0002500000118743628
+    ],
+    "lr_last": 0.0002500000118743628,
+    "train_seconds": 567.8,
+    "shared_epochs": 3,
+    "first_lr_reduction_epoch": 4,
+    "recovered_at_last_epoch": true
+   },
+   "new": {
+    "epochs_run": 12,
+    "restored_epoch": 9,
+    "best_val_loss": 0.00032056376221589744,
+    "val_acc_at_best": 1.0,
+    "degenerate": false,
+    "first_recovery": 4,
+    "recovered": true,
+    "dev_acc": 1.0,
+    "dev_auroc": 1.0,
+    "epochs_at_half": 3,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513
+    ],
+    "lr_last": 0.0010000000474974513,
+    "train_seconds": 383.0,
+    "lr_constant": true,
+    "lr_values": [
+     0.0010000000474974513
+    ],
+    "recovered_at_last_epoch": true
+   },
+   "shared_epochs": 3,
+   "shared_identical": true,
+   "max_abs_diff_shared": {
+    "loss": 0.0,
+    "accuracy": 0.0,
+    "val_loss": 0.0,
+    "val_accuracy": 0.0,
+    "lr": 0.0
+   },
+   "first_lr_reduction_epoch_parent": 4,
+   "new_lr_constant": true,
+   "new_lr_values": [
+    0.0010000000474974513
+   ],
+   "restored_epoch_changed": true,
+   "reported_apart": false
+  },
+  {
+   "model": "B fold 1 seed 43",
+   "in_ten": false,
+   "new_status": "complete",
+   "parent": {
+    "epochs_run": 12,
+    "restored_epoch": 11,
+    "best_val_loss": 0.005580410361289978,
+    "val_acc_at_best": 0.9975000023841858,
+    "degenerate": false,
+    "first_recovery": 5,
+    "recovered": true,
+    "dev_acc": 0.9975,
+    "dev_auroc": 0.999975,
+    "epochs_at_half": 3,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0005000000237487257
+    ],
+    "lr_last": 0.0005000000237487257,
+    "train_seconds": 554.4,
+    "shared_epochs": 8,
+    "first_lr_reduction_epoch": 9,
+    "recovered_at_last_epoch": true
+   },
+   "new": {
+    "epochs_run": 12,
+    "restored_epoch": 9,
+    "best_val_loss": 0.002184332115575671,
+    "val_acc_at_best": 1.0,
+    "degenerate": false,
+    "first_recovery": 5,
+    "recovered": true,
+    "dev_acc": 1.0,
+    "dev_auroc": 1.0,
+    "epochs_at_half": 3,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513
+    ],
+    "lr_last": 0.0010000000474974513,
+    "train_seconds": 468.9,
+    "lr_constant": true,
+    "lr_values": [
+     0.0010000000474974513
+    ],
+    "recovered_at_last_epoch": true
+   },
+   "shared_epochs": 8,
+   "shared_identical": true,
+   "max_abs_diff_shared": {
+    "loss": 0.0,
+    "accuracy": 0.0,
+    "val_loss": 0.0,
+    "val_accuracy": 0.0,
+    "lr": 0.0
+   },
+   "first_lr_reduction_epoch_parent": 9,
+   "new_lr_constant": true,
+   "new_lr_values": [
+    0.0010000000474974513
+   ],
+   "restored_epoch_changed": true,
+   "reported_apart": false
+  },
+  {
+   "model": "B fold 1 seed 44",
+   "in_ten": false,
+   "new_status": "complete",
+   "parent": {
+    "epochs_run": 12,
+    "restored_epoch": 11,
+    "best_val_loss": 0.02236255444586277,
+    "val_acc_at_best": 0.9975000023841858,
+    "degenerate": false,
+    "first_recovery": 6,
+    "recovered": true,
+    "dev_acc": 0.9975,
+    "dev_auroc": 0.999975,
+    "epochs_at_half": 3,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0002500000118743628,
+     0.0002500000118743628
+    ],
+    "lr_last": 0.0002500000118743628,
+    "train_seconds": 403.3,
+    "shared_epochs": 8,
+    "first_lr_reduction_epoch": 9,
+    "recovered_at_last_epoch": true
+   },
+   "new": {
+    "epochs_run": 12,
+    "restored_epoch": 11,
+    "best_val_loss": 0.000714471098035574,
+    "val_acc_at_best": 1.0,
+    "degenerate": false,
+    "first_recovery": 6,
+    "recovered": true,
+    "dev_acc": 1.0,
+    "dev_auroc": 1.0,
+    "epochs_at_half": 3,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513
+    ],
+    "lr_last": 0.0010000000474974513,
+    "train_seconds": 460.9,
+    "lr_constant": true,
+    "lr_values": [
+     0.0010000000474974513
+    ],
+    "recovered_at_last_epoch": true
+   },
+   "shared_epochs": 8,
+   "shared_identical": true,
+   "max_abs_diff_shared": {
+    "loss": 0.0,
+    "accuracy": 0.0,
+    "val_loss": 0.0,
+    "val_accuracy": 0.0,
+    "lr": 0.0
+   },
+   "first_lr_reduction_epoch_parent": 9,
+   "new_lr_constant": true,
+   "new_lr_values": [
+    0.0010000000474974513
+   ],
+   "restored_epoch_changed": false,
+   "reported_apart": false
+  },
+  {
+   "model": "B fold 2 seed 42",
+   "in_ten": false,
+   "new_status": "complete",
+   "parent": {
+    "epochs_run": 12,
+    "restored_epoch": 9,
+    "best_val_loss": 0.23077523708343506,
+    "val_acc_at_best": 0.9474999904632568,
+    "degenerate": false,
+    "first_recovery": 5,
+    "recovered": true,
+    "dev_acc": 0.9475,
+    "dev_auroc": 0.9887875,
+    "epochs_at_half": 3,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0001250000059371814
+    ],
+    "lr_last": 0.0001250000059371814,
+    "train_seconds": 405.0,
+    "shared_epochs": 4,
+    "first_lr_reduction_epoch": 5,
+    "recovered_at_last_epoch": false
+   },
+   "new": {
+    "epochs_run": 12,
+    "restored_epoch": 10,
+    "best_val_loss": 0.012481193989515305,
+    "val_acc_at_best": 0.9950000047683716,
+    "degenerate": false,
+    "first_recovery": 8,
+    "recovered": true,
+    "dev_acc": 0.995,
+    "dev_auroc": 1.0,
+    "epochs_at_half": 4,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513
+    ],
+    "lr_last": 0.0010000000474974513,
+    "train_seconds": 437.7,
+    "lr_constant": true,
+    "lr_values": [
+     0.0010000000474974513
+    ],
+    "recovered_at_last_epoch": true
+   },
+   "shared_epochs": 4,
+   "shared_identical": true,
+   "max_abs_diff_shared": {
+    "loss": 0.0,
+    "accuracy": 0.0,
+    "val_loss": 0.0,
+    "val_accuracy": 0.0,
+    "lr": 0.0
+   },
+   "first_lr_reduction_epoch_parent": 5,
+   "new_lr_constant": true,
+   "new_lr_values": [
+    0.0010000000474974513
+   ],
+   "restored_epoch_changed": true,
+   "reported_apart": false
+  },
+  {
+   "model": "B fold 2 seed 43",
+   "in_ten": false,
+   "new_status": "complete",
+   "parent": {
+    "epochs_run": 12,
+    "restored_epoch": 7,
+    "best_val_loss": 0.001136314240284264,
+    "val_acc_at_best": 1.0,
+    "degenerate": false,
+    "first_recovery": 7,
+    "recovered": true,
+    "dev_acc": 1.0,
+    "dev_auroc": 1.0,
+    "epochs_at_half": 4,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0001250000059371814
+    ],
+    "lr_last": 0.0001250000059371814,
+    "train_seconds": 562.6,
+    "shared_epochs": 3,
+    "first_lr_reduction_epoch": 4,
+    "recovered_at_last_epoch": true
+   },
+   "new": {
+    "epochs_run": 12,
+    "restored_epoch": 7,
+    "best_val_loss": 0.0009372061467729509,
+    "val_acc_at_best": 1.0,
+    "degenerate": false,
+    "first_recovery": 6,
+    "recovered": true,
+    "dev_acc": 1.0,
+    "dev_auroc": 1.0,
+    "epochs_at_half": 4,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513
+    ],
+    "lr_last": 0.0010000000474974513,
+    "train_seconds": 441.3,
+    "lr_constant": true,
+    "lr_values": [
+     0.0010000000474974513
+    ],
+    "recovered_at_last_epoch": true
+   },
+   "shared_epochs": 3,
+   "shared_identical": true,
+   "max_abs_diff_shared": {
+    "loss": 0.0,
+    "accuracy": 0.0,
+    "val_loss": 0.0,
+    "val_accuracy": 0.0,
+    "lr": 0.0
+   },
+   "first_lr_reduction_epoch_parent": 4,
+   "new_lr_constant": true,
+   "new_lr_values": [
+    0.0010000000474974513
+   ],
+   "restored_epoch_changed": false,
+   "reported_apart": false
+  },
+  {
+   "model": "B fold 2 seed 44",
+   "in_ten": false,
+   "new_status": "complete",
+   "parent": {
+    "epochs_run": 12,
+    "restored_epoch": 10,
+    "best_val_loss": 0.002951626433059573,
+    "val_acc_at_best": 0.9975000023841858,
+    "degenerate": false,
+    "first_recovery": 6,
+    "recovered": true,
+    "dev_acc": 0.9975,
+    "dev_auroc": 1.0,
+    "epochs_at_half": 4,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0002500000118743628
+    ],
+    "lr_last": 0.0002500000118743628,
+    "train_seconds": 442.7,
+    "shared_epochs": 3,
+    "first_lr_reduction_epoch": 4,
+    "recovered_at_last_epoch": true
+   },
+   "new": {
+    "epochs_run": 12,
+    "restored_epoch": 9,
+    "best_val_loss": 0.0022439302410930395,
+    "val_acc_at_best": 0.9975000023841858,
+    "degenerate": false,
+    "first_recovery": 5,
+    "recovered": true,
+    "dev_acc": 0.9975,
+    "dev_auroc": 1.0,
+    "epochs_at_half": 5,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513
+    ],
+    "lr_last": 0.0010000000474974513,
+    "train_seconds": 433.8,
+    "lr_constant": true,
+    "lr_values": [
+     0.0010000000474974513
+    ],
+    "recovered_at_last_epoch": false
+   },
+   "shared_epochs": 3,
+   "shared_identical": true,
+   "max_abs_diff_shared": {
+    "loss": 0.0,
+    "accuracy": 0.0,
+    "val_loss": 0.0,
+    "val_accuracy": 0.0,
+    "lr": 0.0
+   },
+   "first_lr_reduction_epoch_parent": 4,
+   "new_lr_constant": true,
+   "new_lr_values": [
+    0.0010000000474974513
+   ],
+   "restored_epoch_changed": true,
+   "reported_apart": false
+  },
+  {
+   "model": "B fold 3 seed 42",
+   "in_ten": false,
+   "new_status": "complete",
+   "parent": {
+    "epochs_run": 12,
+    "restored_epoch": 12,
+    "best_val_loss": 0.016772573813796043,
+    "val_acc_at_best": 1.0,
+    "degenerate": false,
+    "first_recovery": 6,
+    "recovered": true,
+    "dev_acc": 1.0,
+    "dev_auroc": 1.0,
+    "epochs_at_half": 4,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0002500000118743628
+    ],
+    "lr_last": 0.0002500000118743628,
+    "train_seconds": 396.3,
+    "shared_epochs": 5,
+    "first_lr_reduction_epoch": 6,
+    "recovered_at_last_epoch": true
+   },
+   "new": {
+    "epochs_run": 12,
+    "restored_epoch": 12,
+    "best_val_loss": 0.003919597715139389,
+    "val_acc_at_best": 1.0,
+    "degenerate": false,
+    "first_recovery": 7,
+    "recovered": true,
+    "dev_acc": 1.0,
+    "dev_auroc": 1.0,
+    "epochs_at_half": 5,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513
+    ],
+    "lr_last": 0.0010000000474974513,
+    "train_seconds": 449.5,
+    "lr_constant": true,
+    "lr_values": [
+     0.0010000000474974513
+    ],
+    "recovered_at_last_epoch": true
+   },
+   "shared_epochs": 5,
+   "shared_identical": true,
+   "max_abs_diff_shared": {
+    "loss": 0.0,
+    "accuracy": 0.0,
+    "val_loss": 0.0,
+    "val_accuracy": 0.0,
+    "lr": 0.0
+   },
+   "first_lr_reduction_epoch_parent": 6,
+   "new_lr_constant": true,
+   "new_lr_values": [
+    0.0010000000474974513
+   ],
+   "restored_epoch_changed": false,
+   "reported_apart": false
+  },
+  {
+   "model": "B fold 3 seed 43",
+   "in_ten": false,
+   "new_status": "complete",
+   "parent": {
+    "epochs_run": 12,
+    "restored_epoch": 10,
+    "best_val_loss": 0.0530545711517334,
+    "val_acc_at_best": 0.9925000071525574,
+    "degenerate": false,
+    "first_recovery": 6,
+    "recovered": true,
+    "dev_acc": 0.9925,
+    "dev_auroc": 1.0,
+    "epochs_at_half": 4,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0005000000237487257
+    ],
+    "lr_last": 0.0005000000237487257,
+    "train_seconds": 683.1,
+    "shared_epochs": 8,
+    "first_lr_reduction_epoch": 9,
+    "recovered_at_last_epoch": true
+   },
+   "new": {
+    "epochs_run": 12,
+    "restored_epoch": 9,
+    "best_val_loss": 0.1083160936832428,
+    "val_acc_at_best": 0.925000011920929,
+    "degenerate": false,
+    "first_recovery": 6,
+    "recovered": true,
+    "dev_acc": 0.925,
+    "dev_auroc": 0.999875,
+    "epochs_at_half": 4,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513
+    ],
+    "lr_last": 0.0010000000474974513,
+    "train_seconds": 432.2,
+    "lr_constant": true,
+    "lr_values": [
+     0.0010000000474974513
+    ],
+    "recovered_at_last_epoch": true
+   },
+   "shared_epochs": 8,
+   "shared_identical": true,
+   "max_abs_diff_shared": {
+    "loss": 0.0,
+    "accuracy": 0.0,
+    "val_loss": 0.0,
+    "val_accuracy": 0.0,
+    "lr": 0.0
+   },
+   "first_lr_reduction_epoch_parent": 9,
+   "new_lr_constant": true,
+   "new_lr_values": [
+    0.0010000000474974513
+   ],
+   "restored_epoch_changed": true,
+   "reported_apart": false
+  },
+  {
+   "model": "B fold 3 seed 44",
+   "in_ten": false,
+   "new_status": "complete",
+   "parent": {
+    "epochs_run": 12,
+    "restored_epoch": 11,
+    "best_val_loss": 0.011896664276719093,
+    "val_acc_at_best": 1.0,
+    "degenerate": false,
+    "first_recovery": 10,
+    "recovered": true,
+    "dev_acc": 1.0,
+    "dev_auroc": 1.0,
+    "epochs_at_half": 3,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0001250000059371814,
+     0.0001250000059371814,
+     0.0001250000059371814
+    ],
+    "lr_last": 0.0001250000059371814,
+    "train_seconds": 493.0,
+    "shared_epochs": 5,
+    "first_lr_reduction_epoch": 6,
+    "recovered_at_last_epoch": true
+   },
+   "new": {
+    "epochs_run": 12,
+    "restored_epoch": 10,
+    "best_val_loss": 0.14570370316505432,
+    "val_acc_at_best": 0.9150000214576721,
+    "degenerate": false,
+    "first_recovery": 7,
+    "recovered": true,
+    "dev_acc": 0.915,
+    "dev_auroc": 1.0,
+    "epochs_at_half": 3,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513
+    ],
+    "lr_last": 0.0010000000474974513,
+    "train_seconds": 442.1,
+    "lr_constant": true,
+    "lr_values": [
+     0.0010000000474974513
+    ],
+    "recovered_at_last_epoch": true
+   },
+   "shared_epochs": 5,
+   "shared_identical": true,
+   "max_abs_diff_shared": {
+    "loss": 0.0,
+    "accuracy": 0.0,
+    "val_loss": 0.0,
+    "val_accuracy": 0.0,
+    "lr": 0.0
+   },
+   "first_lr_reduction_epoch_parent": 6,
+   "new_lr_constant": true,
+   "new_lr_values": [
+    0.0010000000474974513
+   ],
+   "restored_epoch_changed": true,
+   "reported_apart": true
+  },
+  {
+   "model": "B fold 4 seed 42",
+   "in_ten": false,
+   "new_status": "complete",
+   "parent": {
+    "epochs_run": 12,
+    "restored_epoch": 11,
+    "best_val_loss": 0.0005423180991783738,
+    "val_acc_at_best": 1.0,
+    "degenerate": false,
+    "first_recovery": 6,
+    "recovered": true,
+    "dev_acc": 1.0,
+    "dev_auroc": 1.0,
+    "epochs_at_half": 3,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0002500000118743628
+    ],
+    "lr_last": 0.0002500000118743628,
+    "train_seconds": 647.7,
+    "shared_epochs": 5,
+    "first_lr_reduction_epoch": 6,
+    "recovered_at_last_epoch": true
+   },
+   "new": {
+    "epochs_run": 12,
+    "restored_epoch": 11,
+    "best_val_loss": 9.175399463856593e-05,
+    "val_acc_at_best": 1.0,
+    "degenerate": false,
+    "first_recovery": 6,
+    "recovered": true,
+    "dev_acc": 1.0,
+    "dev_auroc": 1.0,
+    "epochs_at_half": 3,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513
+    ],
+    "lr_last": 0.0010000000474974513,
+    "train_seconds": 434.3,
+    "lr_constant": true,
+    "lr_values": [
+     0.0010000000474974513
+    ],
+    "recovered_at_last_epoch": true
+   },
+   "shared_epochs": 5,
+   "shared_identical": true,
+   "max_abs_diff_shared": {
+    "loss": 0.0,
+    "accuracy": 0.0,
+    "val_loss": 0.0,
+    "val_accuracy": 0.0,
+    "lr": 0.0
+   },
+   "first_lr_reduction_epoch_parent": 6,
+   "new_lr_constant": true,
+   "new_lr_values": [
+    0.0010000000474974513
+   ],
+   "restored_epoch_changed": false,
+   "reported_apart": false
+  },
+  {
+   "model": "B fold 4 seed 43",
+   "in_ten": false,
+   "new_status": "complete",
+   "parent": {
+    "epochs_run": 12,
+    "restored_epoch": 12,
+    "best_val_loss": 0.0007243567961268127,
+    "val_acc_at_best": 1.0,
+    "degenerate": false,
+    "first_recovery": 6,
+    "recovered": true,
+    "dev_acc": 1.0,
+    "dev_auroc": 1.0,
+    "epochs_at_half": 3,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0002500000118743628,
+     0.0002500000118743628
+    ],
+    "lr_last": 0.0002500000118743628,
+    "train_seconds": 503.1,
+    "shared_epochs": 8,
+    "first_lr_reduction_epoch": 9,
+    "recovered_at_last_epoch": true
+   },
+   "new": {
+    "epochs_run": 12,
+    "restored_epoch": 6,
+    "best_val_loss": 0.001289231819100678,
+    "val_acc_at_best": 1.0,
+    "degenerate": false,
+    "first_recovery": 6,
+    "recovered": true,
+    "dev_acc": 1.0,
+    "dev_auroc": 1.0,
+    "epochs_at_half": 3,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513
+    ],
+    "lr_last": 0.0010000000474974513,
+    "train_seconds": 433.8,
+    "lr_constant": true,
+    "lr_values": [
+     0.0010000000474974513
+    ],
+    "recovered_at_last_epoch": false
+   },
+   "shared_epochs": 8,
+   "shared_identical": true,
+   "max_abs_diff_shared": {
+    "loss": 0.0,
+    "accuracy": 0.0,
+    "val_loss": 0.0,
+    "val_accuracy": 0.0,
+    "lr": 0.0
+   },
+   "first_lr_reduction_epoch_parent": 9,
+   "new_lr_constant": true,
+   "new_lr_values": [
+    0.0010000000474974513
+   ],
+   "restored_epoch_changed": true,
+   "reported_apart": false
+  },
+  {
+   "model": "B fold 4 seed 44",
+   "in_ten": true,
+   "new_status": "complete",
+   "parent": {
+    "epochs_run": 12,
+    "restored_epoch": 11,
+    "best_val_loss": 0.026230763643980026,
+    "val_acc_at_best": 0.9925000071525574,
+    "degenerate": false,
+    "first_recovery": 7,
+    "recovered": true,
+    "dev_acc": 0.9925,
+    "dev_auroc": 1.0,
+    "epochs_at_half": 2,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0001250000059371814,
+     0.0001250000059371814
+    ],
+    "lr_last": 0.0001250000059371814,
+    "train_seconds": 476.8,
+    "shared_epochs": 4,
+    "first_lr_reduction_epoch": 5,
+    "recovered_at_last_epoch": true
+   },
+   "new": {
+    "epochs_run": 12,
+    "restored_epoch": 11,
+    "best_val_loss": 0.003668705001473427,
+    "val_acc_at_best": 1.0,
+    "degenerate": false,
+    "first_recovery": 10,
+    "recovered": true,
+    "dev_acc": 1.0,
+    "dev_auroc": 1.0,
+    "epochs_at_half": 2,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513
+    ],
+    "lr_last": 0.0010000000474974513,
+    "train_seconds": 440.7,
+    "lr_constant": true,
+    "lr_values": [
+     0.0010000000474974513
+    ],
+    "recovered_at_last_epoch": true
+   },
+   "shared_epochs": 4,
+   "shared_identical": true,
+   "max_abs_diff_shared": {
+    "loss": 0.0,
+    "accuracy": 0.0,
+    "val_loss": 0.0,
+    "val_accuracy": 0.0,
+    "lr": 0.0
+   },
+   "first_lr_reduction_epoch_parent": 5,
+   "new_lr_constant": true,
+   "new_lr_values": [
+    0.0010000000474974513
+   ],
+   "restored_epoch_changed": false,
+   "reported_apart": false
+  },
+  {
+   "model": "A* fold 1 seed 42",
+   "in_ten": false,
+   "new_status": "complete",
+   "parent": {
+    "epochs_run": 12,
+    "restored_epoch": 10,
+    "best_val_loss": 0.010433278977870941,
+    "val_acc_at_best": 0.9950000047683716,
+    "degenerate": false,
+    "first_recovery": 6,
+    "recovered": true,
+    "dev_acc": 0.995,
+    "dev_auroc": 1.0,
+    "epochs_at_half": 4,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513
+    ],
+    "lr_last": 0.0010000000474974513,
+    "train_seconds": 534.5,
+    "shared_epochs": 12,
+    "first_lr_reduction_epoch": null,
+    "recovered_at_last_epoch": true
+   },
+   "new": {
+    "epochs_run": 12,
+    "restored_epoch": 10,
+    "best_val_loss": 0.010433278977870941,
+    "val_acc_at_best": 0.9950000047683716,
+    "degenerate": false,
+    "first_recovery": 6,
+    "recovered": true,
+    "dev_acc": 0.995,
+    "dev_auroc": 1.0,
+    "epochs_at_half": 4,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513
+    ],
+    "lr_last": 0.0010000000474974513,
+    "train_seconds": 470.0,
+    "lr_constant": true,
+    "lr_values": [
+     0.0010000000474974513
+    ],
+    "recovered_at_last_epoch": true
+   },
+   "shared_epochs": 12,
+   "shared_identical": true,
+   "max_abs_diff_shared": {
+    "loss": 0.0,
+    "accuracy": 0.0,
+    "val_loss": 0.0,
+    "val_accuracy": 0.0,
+    "lr": 0.0
+   },
+   "first_lr_reduction_epoch_parent": null,
+   "new_lr_constant": true,
+   "new_lr_values": [
+    0.0010000000474974513
+   ],
+   "restored_epoch_changed": false,
+   "reported_apart": false
+  },
+  {
+   "model": "A* fold 1 seed 43",
+   "in_ten": false,
+   "new_status": "complete",
+   "parent": {
+    "epochs_run": 12,
+    "restored_epoch": 9,
+    "best_val_loss": 0.016455506905913353,
+    "val_acc_at_best": 0.9975000023841858,
+    "degenerate": false,
+    "first_recovery": 7,
+    "recovered": true,
+    "dev_acc": 0.9975,
+    "dev_auroc": 0.9995,
+    "epochs_at_half": 3,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0005000000237487257
+    ],
+    "lr_last": 0.0005000000237487257,
+    "train_seconds": 450.9,
+    "shared_epochs": 11,
+    "first_lr_reduction_epoch": 12,
+    "recovered_at_last_epoch": true
+   },
+   "new": {
+    "epochs_run": 12,
+    "restored_epoch": 9,
+    "best_val_loss": 0.016455506905913353,
+    "val_acc_at_best": 0.9975000023841858,
+    "degenerate": false,
+    "first_recovery": 7,
+    "recovered": true,
+    "dev_acc": 0.9975,
+    "dev_auroc": 0.9995,
+    "epochs_at_half": 3,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513
+    ],
+    "lr_last": 0.0010000000474974513,
+    "train_seconds": 459.2,
+    "lr_constant": true,
+    "lr_values": [
+     0.0010000000474974513
+    ],
+    "recovered_at_last_epoch": false
+   },
+   "shared_epochs": 11,
+   "shared_identical": true,
+   "max_abs_diff_shared": {
+    "loss": 0.0,
+    "accuracy": 0.0,
+    "val_loss": 0.0,
+    "val_accuracy": 0.0,
+    "lr": 0.0
+   },
+   "first_lr_reduction_epoch_parent": 12,
+   "new_lr_constant": true,
+   "new_lr_values": [
+    0.0010000000474974513
+   ],
+   "restored_epoch_changed": false,
+   "reported_apart": false
+  },
+  {
+   "model": "A* fold 1 seed 44",
+   "in_ten": false,
+   "new_status": "complete",
+   "parent": {
+    "epochs_run": 12,
+    "restored_epoch": 11,
+    "best_val_loss": 0.03451446816325188,
+    "val_acc_at_best": 0.987500011920929,
+    "degenerate": false,
+    "first_recovery": 7,
+    "recovered": true,
+    "dev_acc": 0.9875,
+    "dev_auroc": 0.99915,
+    "epochs_at_half": 2,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0005000000237487257
+    ],
+    "lr_last": 0.0005000000237487257,
+    "train_seconds": 399.7,
+    "shared_epochs": 3,
+    "first_lr_reduction_epoch": 4,
+    "recovered_at_last_epoch": true
+   },
+   "new": {
+    "epochs_run": 12,
+    "restored_epoch": 9,
+    "best_val_loss": 0.026902861893177032,
+    "val_acc_at_best": 0.9975000023841858,
+    "degenerate": false,
+    "first_recovery": 7,
+    "recovered": true,
+    "dev_acc": 0.9975,
+    "dev_auroc": 0.99785,
+    "epochs_at_half": 2,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513
+    ],
+    "lr_last": 0.0010000000474974513,
+    "train_seconds": 433.7,
+    "lr_constant": true,
+    "lr_values": [
+     0.0010000000474974513
+    ],
+    "recovered_at_last_epoch": true
+   },
+   "shared_epochs": 3,
+   "shared_identical": true,
+   "max_abs_diff_shared": {
+    "loss": 0.0,
+    "accuracy": 0.0,
+    "val_loss": 0.0,
+    "val_accuracy": 0.0,
+    "lr": 0.0
+   },
+   "first_lr_reduction_epoch_parent": 4,
+   "new_lr_constant": true,
+   "new_lr_values": [
+    0.0010000000474974513
+   ],
+   "restored_epoch_changed": true,
+   "reported_apart": false
+  },
+  {
+   "model": "A* fold 2 seed 42",
+   "in_ten": false,
+   "new_status": "complete",
+   "parent": {
+    "epochs_run": 12,
+    "restored_epoch": 11,
+    "best_val_loss": 0.00010710876085795462,
+    "val_acc_at_best": 1.0,
+    "degenerate": false,
+    "first_recovery": 5,
+    "recovered": true,
+    "dev_acc": 1.0,
+    "dev_auroc": 1.0,
+    "epochs_at_half": 3,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0002500000118743628
+    ],
+    "lr_last": 0.0002500000118743628,
+    "train_seconds": 441.4,
+    "shared_epochs": 9,
+    "first_lr_reduction_epoch": 10,
+    "recovered_at_last_epoch": true
+   },
+   "new": {
+    "epochs_run": 12,
+    "restored_epoch": 7,
+    "best_val_loss": 0.0001141823740908876,
+    "val_acc_at_best": 1.0,
+    "degenerate": false,
+    "first_recovery": 5,
+    "recovered": true,
+    "dev_acc": 1.0,
+    "dev_auroc": 1.0,
+    "epochs_at_half": 3,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513
+    ],
+    "lr_last": 0.0010000000474974513,
+    "train_seconds": 432.6,
+    "lr_constant": true,
+    "lr_values": [
+     0.0010000000474974513
+    ],
+    "recovered_at_last_epoch": true
+   },
+   "shared_epochs": 9,
+   "shared_identical": true,
+   "max_abs_diff_shared": {
+    "loss": 0.0,
+    "accuracy": 0.0,
+    "val_loss": 0.0,
+    "val_accuracy": 0.0,
+    "lr": 0.0
+   },
+   "first_lr_reduction_epoch_parent": 10,
+   "new_lr_constant": true,
+   "new_lr_values": [
+    0.0010000000474974513
+   ],
+   "restored_epoch_changed": true,
+   "reported_apart": false
+  },
+  {
+   "model": "A* fold 2 seed 43",
+   "in_ten": true,
+   "new_status": "complete",
+   "parent": {
+    "epochs_run": 12,
+    "restored_epoch": 10,
+    "best_val_loss": 0.00038420394412241876,
+    "val_acc_at_best": 1.0,
+    "degenerate": false,
+    "first_recovery": 7,
+    "recovered": true,
+    "dev_acc": 1.0,
+    "dev_auroc": 1.0,
+    "epochs_at_half": 4,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0002500000118743628
+    ],
+    "lr_last": 0.0002500000118743628,
+    "train_seconds": 566.6,
+    "shared_epochs": 3,
+    "first_lr_reduction_epoch": 4,
+    "recovered_at_last_epoch": true
+   },
+   "new": {
+    "epochs_run": 12,
+    "restored_epoch": 9,
+    "best_val_loss": 0.005125273019075394,
+    "val_acc_at_best": 1.0,
+    "degenerate": false,
+    "first_recovery": 6,
+    "recovered": true,
+    "dev_acc": 1.0,
+    "dev_auroc": 1.0,
+    "epochs_at_half": 5,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513
+    ],
+    "lr_last": 0.0010000000474974513,
+    "train_seconds": 441.3,
+    "lr_constant": true,
+    "lr_values": [
+     0.0010000000474974513
+    ],
+    "recovered_at_last_epoch": true
+   },
+   "shared_epochs": 3,
+   "shared_identical": true,
+   "max_abs_diff_shared": {
+    "loss": 0.0,
+    "accuracy": 0.0,
+    "val_loss": 0.0,
+    "val_accuracy": 0.0,
+    "lr": 0.0
+   },
+   "first_lr_reduction_epoch_parent": 4,
+   "new_lr_constant": true,
+   "new_lr_values": [
+    0.0010000000474974513
+   ],
+   "restored_epoch_changed": true,
+   "reported_apart": false
+  },
+  {
+   "model": "A* fold 2 seed 44",
+   "in_ten": true,
+   "new_status": "complete",
+   "parent": {
+    "epochs_run": 12,
+    "restored_epoch": 12,
+    "best_val_loss": 0.21711580455303192,
+    "val_acc_at_best": 0.9975000023841858,
+    "degenerate": false,
+    "first_recovery": 10,
+    "recovered": true,
+    "dev_acc": 0.9975,
+    "dev_auroc": 0.9950125,
+    "epochs_at_half": 3,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0002500000118743628
+    ],
+    "lr_last": 0.0002500000118743628,
+    "train_seconds": 398.2,
+    "shared_epochs": 3,
+    "first_lr_reduction_epoch": 4,
+    "recovered_at_last_epoch": true
+   },
+   "new": {
+    "epochs_run": 12,
+    "restored_epoch": 10,
+    "best_val_loss": 0.0001393290440319106,
+    "val_acc_at_best": 1.0,
+    "degenerate": false,
+    "first_recovery": 5,
+    "recovered": true,
+    "dev_acc": 1.0,
+    "dev_auroc": 1.0,
+    "epochs_at_half": 3,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513
+    ],
+    "lr_last": 0.0010000000474974513,
+    "train_seconds": 439.4,
+    "lr_constant": true,
+    "lr_values": [
+     0.0010000000474974513
+    ],
+    "recovered_at_last_epoch": true
+   },
+   "shared_epochs": 3,
+   "shared_identical": true,
+   "max_abs_diff_shared": {
+    "loss": 0.0,
+    "accuracy": 0.0,
+    "val_loss": 0.0,
+    "val_accuracy": 0.0,
+    "lr": 0.0
+   },
+   "first_lr_reduction_epoch_parent": 4,
+   "new_lr_constant": true,
+   "new_lr_values": [
+    0.0010000000474974513
+   ],
+   "restored_epoch_changed": true,
+   "reported_apart": false
+  },
+  {
+   "model": "A* fold 3 seed 42",
+   "in_ten": true,
+   "new_status": "complete",
+   "parent": {
+    "epochs_run": 12,
+    "restored_epoch": 9,
+    "best_val_loss": 0.32822296023368835,
+    "val_acc_at_best": 0.9424999952316284,
+    "degenerate": false,
+    "first_recovery": 9,
+    "recovered": true,
+    "dev_acc": 0.9425,
+    "dev_auroc": 0.99,
+    "epochs_at_half": 3,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0001250000059371814
+    ],
+    "lr_last": 0.0001250000059371814,
+    "train_seconds": 468.4,
+    "shared_epochs": 3,
+    "first_lr_reduction_epoch": 4,
+    "recovered_at_last_epoch": true
+   },
+   "new": {
+    "epochs_run": 12,
+    "restored_epoch": 10,
+    "best_val_loss": 0.025634635239839554,
+    "val_acc_at_best": 0.9900000095367432,
+    "degenerate": false,
+    "first_recovery": 6,
+    "recovered": true,
+    "dev_acc": 0.99,
+    "dev_auroc": 1.0,
+    "epochs_at_half": 2,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513
+    ],
+    "lr_last": 0.0010000000474974513,
+    "train_seconds": 442.2,
+    "lr_constant": true,
+    "lr_values": [
+     0.0010000000474974513
+    ],
+    "recovered_at_last_epoch": false
+   },
+   "shared_epochs": 3,
+   "shared_identical": true,
+   "max_abs_diff_shared": {
+    "loss": 0.0,
+    "accuracy": 0.0,
+    "val_loss": 0.0,
+    "val_accuracy": 0.0,
+    "lr": 0.0
+   },
+   "first_lr_reduction_epoch_parent": 4,
+   "new_lr_constant": true,
+   "new_lr_values": [
+    0.0010000000474974513
+   ],
+   "restored_epoch_changed": true,
+   "reported_apart": false
+  },
+  {
+   "model": "A* fold 3 seed 43",
+   "in_ten": false,
+   "new_status": "complete",
+   "parent": {
+    "epochs_run": 12,
+    "restored_epoch": 12,
+    "best_val_loss": 0.008836408145725727,
+    "val_acc_at_best": 0.9975000023841858,
+    "degenerate": false,
+    "first_recovery": 6,
+    "recovered": true,
+    "dev_acc": 0.9975,
+    "dev_auroc": 1.0,
+    "epochs_at_half": 5,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0005000000237487257
+    ],
+    "lr_last": 0.0005000000237487257,
+    "train_seconds": 546.0,
+    "shared_epochs": 8,
+    "first_lr_reduction_epoch": 9,
+    "recovered_at_last_epoch": true
+   },
+   "new": {
+    "epochs_run": 12,
+    "restored_epoch": 12,
+    "best_val_loss": 0.09757300466299057,
+    "val_acc_at_best": 0.9725000262260437,
+    "degenerate": false,
+    "first_recovery": 6,
+    "recovered": true,
+    "dev_acc": 0.9725,
+    "dev_auroc": 0.997825,
+    "epochs_at_half": 5,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513
+    ],
+    "lr_last": 0.0010000000474974513,
+    "train_seconds": 444.8,
+    "lr_constant": true,
+    "lr_values": [
+     0.0010000000474974513
+    ],
+    "recovered_at_last_epoch": true
+   },
+   "shared_epochs": 8,
+   "shared_identical": true,
+   "max_abs_diff_shared": {
+    "loss": 0.0,
+    "accuracy": 0.0,
+    "val_loss": 0.0,
+    "val_accuracy": 0.0,
+    "lr": 0.0
+   },
+   "first_lr_reduction_epoch_parent": 9,
+   "new_lr_constant": true,
+   "new_lr_values": [
+    0.0010000000474974513
+   ],
+   "restored_epoch_changed": false,
+   "reported_apart": false
+  },
+  {
+   "model": "A* fold 3 seed 44",
+   "in_ten": true,
+   "new_status": "complete",
+   "parent": {
+    "epochs_run": 12,
+    "restored_epoch": 11,
+    "best_val_loss": 0.5238613486289978,
+    "val_acc_at_best": 0.8899999856948853,
+    "degenerate": false,
+    "first_recovery": 11,
+    "recovered": true,
+    "dev_acc": 0.89,
+    "dev_auroc": 0.989525,
+    "epochs_at_half": 4,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0001250000059371814,
+     0.0001250000059371814
+    ],
+    "lr_last": 0.0001250000059371814,
+    "train_seconds": 439.8,
+    "shared_epochs": 3,
+    "first_lr_reduction_epoch": 4,
+    "recovered_at_last_epoch": false
+   },
+   "new": {
+    "epochs_run": 12,
+    "restored_epoch": 8,
+    "best_val_loss": 0.24502065777778625,
+    "val_acc_at_best": 0.875,
+    "degenerate": false,
+    "first_recovery": 7,
+    "recovered": true,
+    "dev_acc": 0.875,
+    "dev_auroc": 1.0,
+    "epochs_at_half": 4,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513
+    ],
+    "lr_last": 0.0010000000474974513,
+    "train_seconds": 444.6,
+    "lr_constant": true,
+    "lr_values": [
+     0.0010000000474974513
+    ],
+    "recovered_at_last_epoch": true
+   },
+   "shared_epochs": 3,
+   "shared_identical": true,
+   "max_abs_diff_shared": {
+    "loss": 0.0,
+    "accuracy": 0.0,
+    "val_loss": 0.0,
+    "val_accuracy": 0.0,
+    "lr": 0.0
+   },
+   "first_lr_reduction_epoch_parent": 4,
+   "new_lr_constant": true,
+   "new_lr_values": [
+    0.0010000000474974513
+   ],
+   "restored_epoch_changed": true,
+   "reported_apart": false
+  },
+  {
+   "model": "A* fold 4 seed 42",
+   "in_ten": false,
+   "new_status": "complete",
+   "parent": {
+    "epochs_run": 12,
+    "restored_epoch": 10,
+    "best_val_loss": 0.8106253743171692,
+    "val_acc_at_best": 0.7975000143051147,
+    "degenerate": false,
+    "first_recovery": 10,
+    "recovered": true,
+    "dev_acc": 0.7975,
+    "dev_auroc": 0.999,
+    "epochs_at_half": 3,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0005000000237487257
+    ],
+    "lr_last": 0.0005000000237487257,
+    "train_seconds": 556.9,
+    "shared_epochs": 4,
+    "first_lr_reduction_epoch": 5,
+    "recovered_at_last_epoch": false
+   },
+   "new": {
+    "epochs_run": 12,
+    "restored_epoch": 11,
+    "best_val_loss": 0.2092381715774536,
+    "val_acc_at_best": 0.8974999785423279,
+    "degenerate": false,
+    "first_recovery": 9,
+    "recovered": true,
+    "dev_acc": 0.8975,
+    "dev_auroc": 0.97145,
+    "epochs_at_half": 3,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513
+    ],
+    "lr_last": 0.0010000000474974513,
+    "train_seconds": 439.0,
+    "lr_constant": true,
+    "lr_values": [
+     0.0010000000474974513
+    ],
+    "recovered_at_last_epoch": true
+   },
+   "shared_epochs": 4,
+   "shared_identical": true,
+   "max_abs_diff_shared": {
+    "loss": 0.0,
+    "accuracy": 0.0,
+    "val_loss": 0.0,
+    "val_accuracy": 0.0,
+    "lr": 0.0
+   },
+   "first_lr_reduction_epoch_parent": 5,
+   "new_lr_constant": true,
+   "new_lr_values": [
+    0.0010000000474974513
+   ],
+   "restored_epoch_changed": true,
+   "reported_apart": false
+  },
+  {
+   "model": "A* fold 4 seed 43",
+   "in_ten": false,
+   "new_status": "complete",
+   "parent": {
+    "epochs_run": 12,
+    "restored_epoch": 9,
+    "best_val_loss": 0.027190571650862694,
+    "val_acc_at_best": 0.9950000047683716,
+    "degenerate": false,
+    "first_recovery": 7,
+    "recovered": true,
+    "dev_acc": 0.995,
+    "dev_auroc": 0.9993,
+    "epochs_at_half": 4,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0005000000237487257
+    ],
+    "lr_last": 0.0005000000237487257,
+    "train_seconds": 436.4,
+    "shared_epochs": 11,
+    "first_lr_reduction_epoch": 12,
+    "recovered_at_last_epoch": false
+   },
+   "new": {
+    "epochs_run": 12,
+    "restored_epoch": 9,
+    "best_val_loss": 0.027190571650862694,
+    "val_acc_at_best": 0.9950000047683716,
+    "degenerate": false,
+    "first_recovery": 7,
+    "recovered": true,
+    "dev_acc": 0.995,
+    "dev_auroc": 0.9993,
+    "epochs_at_half": 4,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513
+    ],
+    "lr_last": 0.0010000000474974513,
+    "train_seconds": 438.8,
+    "lr_constant": true,
+    "lr_values": [
+     0.0010000000474974513
+    ],
+    "recovered_at_last_epoch": false
+   },
+   "shared_epochs": 11,
+   "shared_identical": true,
+   "max_abs_diff_shared": {
+    "loss": 0.0,
+    "accuracy": 0.0,
+    "val_loss": 0.0,
+    "val_accuracy": 0.0,
+    "lr": 0.0
+   },
+   "first_lr_reduction_epoch_parent": 12,
+   "new_lr_constant": true,
+   "new_lr_values": [
+    0.0010000000474974513
+   ],
+   "restored_epoch_changed": false,
+   "reported_apart": false
+  },
+  {
+   "model": "A* fold 4 seed 44",
+   "in_ten": true,
+   "new_status": "complete",
+   "parent": {
+    "epochs_run": 12,
+    "restored_epoch": 12,
+    "best_val_loss": 0.3154405355453491,
+    "val_acc_at_best": 0.8650000095367432,
+    "degenerate": false,
+    "first_recovery": 10,
+    "recovered": true,
+    "dev_acc": 0.865,
+    "dev_auroc": 0.99985,
+    "epochs_at_half": 5,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0001250000059371814,
+     0.0001250000059371814,
+     0.0001250000059371814
+    ],
+    "lr_last": 0.0001250000059371814,
+    "train_seconds": 523.8,
+    "shared_epochs": 3,
+    "first_lr_reduction_epoch": 4,
+    "recovered_at_last_epoch": true
+   },
+   "new": {
+    "epochs_run": 12,
+    "restored_epoch": 8,
+    "best_val_loss": 0.012301539070904255,
+    "val_acc_at_best": 0.9975000023841858,
+    "degenerate": false,
+    "first_recovery": 6,
+    "recovered": true,
+    "dev_acc": 0.9975,
+    "dev_auroc": 1.0,
+    "epochs_at_half": 4,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513
+    ],
+    "lr_last": 0.0010000000474974513,
+    "train_seconds": 449.4,
+    "lr_constant": true,
+    "lr_values": [
+     0.0010000000474974513
+    ],
+    "recovered_at_last_epoch": true
+   },
+   "shared_epochs": 3,
+   "shared_identical": true,
+   "max_abs_diff_shared": {
+    "loss": 0.0,
+    "accuracy": 0.0,
+    "val_loss": 0.0,
+    "val_accuracy": 0.0,
+    "lr": 0.0
+   },
+   "first_lr_reduction_epoch_parent": 4,
+   "new_lr_constant": true,
+   "new_lr_values": [
+    0.0010000000474974513
+   ],
+   "restored_epoch_changed": true,
+   "reported_apart": false
+  },
+  {
+   "model": "B' fold 1 seed 42",
+   "in_ten": false,
+   "new_status": "complete",
+   "parent": {
+    "epochs_run": 12,
+    "restored_epoch": 12,
+    "best_val_loss": 0.0032698444556444883,
+    "val_acc_at_best": 0.9975000023841858,
+    "degenerate": false,
+    "first_recovery": 2,
+    "recovered": true,
+    "dev_acc": 0.9975,
+    "dev_auroc": 1.0,
+    "epochs_at_half": 5,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0001250000059371814,
+     0.0001250000059371814,
+     0.0001250000059371814,
+     0.0001250000059371814
+    ],
+    "lr_last": 0.0001250000059371814,
+    "train_seconds": 394.2,
+    "shared_epochs": 4,
+    "first_lr_reduction_epoch": 5,
+    "recovered_at_last_epoch": true
+   },
+   "new": {
+    "epochs_run": 12,
+    "restored_epoch": 10,
+    "best_val_loss": 0.014372628182172775,
+    "val_acc_at_best": 0.9975000023841858,
+    "degenerate": false,
+    "first_recovery": 2,
+    "recovered": true,
+    "dev_acc": 0.9975,
+    "dev_auroc": 0.999725,
+    "epochs_at_half": 3,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513
+    ],
+    "lr_last": 0.0010000000474974513,
+    "train_seconds": 304.9,
+    "lr_constant": true,
+    "lr_values": [
+     0.0010000000474974513
+    ],
+    "recovered_at_last_epoch": true
+   },
+   "shared_epochs": 4,
+   "shared_identical": true,
+   "max_abs_diff_shared": {
+    "loss": 0.0,
+    "accuracy": 0.0,
+    "val_loss": 0.0,
+    "val_accuracy": 0.0,
+    "lr": 0.0
+   },
+   "first_lr_reduction_epoch_parent": 5,
+   "new_lr_constant": true,
+   "new_lr_values": [
+    0.0010000000474974513
+   ],
+   "restored_epoch_changed": true,
+   "reported_apart": false
+  },
+  {
+   "model": "B' fold 1 seed 43",
+   "in_ten": false,
+   "new_status": "complete",
+   "parent": {
+    "epochs_run": 12,
+    "restored_epoch": 4,
+    "best_val_loss": 0.8646859526634216,
+    "val_acc_at_best": 0.9399999976158142,
+    "degenerate": false,
+    "first_recovery": 4,
+    "recovered": true,
+    "dev_acc": 0.94,
+    "dev_auroc": 0.9899375,
+    "epochs_at_half": 1,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0001250000059371814,
+     0.0001250000059371814
+    ],
+    "lr_last": 0.0001250000059371814,
+    "train_seconds": 345.5,
+    "shared_epochs": 6,
+    "first_lr_reduction_epoch": 7,
+    "recovered_at_last_epoch": false
+   },
+   "new": {
+    "epochs_run": 12,
+    "restored_epoch": 12,
+    "best_val_loss": 0.06423652917146683,
+    "val_acc_at_best": 0.9674999713897705,
+    "degenerate": false,
+    "first_recovery": 4,
+    "recovered": true,
+    "dev_acc": 0.9675,
+    "dev_auroc": 1.0,
+    "epochs_at_half": 1,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513
+    ],
+    "lr_last": 0.0010000000474974513,
+    "train_seconds": 306.3,
+    "lr_constant": true,
+    "lr_values": [
+     0.0010000000474974513
+    ],
+    "recovered_at_last_epoch": true
+   },
+   "shared_epochs": 6,
+   "shared_identical": true,
+   "max_abs_diff_shared": {
+    "loss": 0.0,
+    "accuracy": 0.0,
+    "val_loss": 0.0,
+    "val_accuracy": 0.0,
+    "lr": 0.0
+   },
+   "first_lr_reduction_epoch_parent": 7,
+   "new_lr_constant": true,
+   "new_lr_values": [
+    0.0010000000474974513
+   ],
+   "restored_epoch_changed": true,
+   "reported_apart": false
+  },
+  {
+   "model": "B' fold 1 seed 44",
+   "in_ten": true,
+   "new_status": "complete",
+   "parent": {
+    "epochs_run": 12,
+    "restored_epoch": 9,
+    "best_val_loss": 0.1895395666360855,
+    "val_acc_at_best": 0.9950000047683716,
+    "degenerate": false,
+    "first_recovery": 7,
+    "recovered": true,
+    "dev_acc": 0.995,
+    "dev_auroc": 0.995,
+    "epochs_at_half": 5,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0001250000059371814
+    ],
+    "lr_last": 0.0001250000059371814,
+    "train_seconds": 379.8,
+    "shared_epochs": 3,
+    "first_lr_reduction_epoch": 4,
+    "recovered_at_last_epoch": false
+   },
+   "new": {
+    "epochs_run": 12,
+    "restored_epoch": 6,
+    "best_val_loss": 0.3141130805015564,
+    "val_acc_at_best": 0.9975000023841858,
+    "degenerate": false,
+    "first_recovery": 6,
+    "recovered": true,
+    "dev_acc": 0.9975,
+    "dev_auroc": 0.9975,
+    "epochs_at_half": 5,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513
+    ],
+    "lr_last": 0.0010000000474974513,
+    "train_seconds": 313.3,
+    "lr_constant": true,
+    "lr_values": [
+     0.0010000000474974513
+    ],
+    "recovered_at_last_epoch": true
+   },
+   "shared_epochs": 3,
+   "shared_identical": true,
+   "max_abs_diff_shared": {
+    "loss": 0.0,
+    "accuracy": 0.0,
+    "val_loss": 0.0,
+    "val_accuracy": 0.0,
+    "lr": 0.0
+   },
+   "first_lr_reduction_epoch_parent": 4,
+   "new_lr_constant": true,
+   "new_lr_values": [
+    0.0010000000474974513
+   ],
+   "restored_epoch_changed": true,
+   "reported_apart": false
+  },
+  {
+   "model": "B' fold 2 seed 42",
+   "in_ten": false,
+   "new_status": "complete",
+   "parent": {
+    "epochs_run": 12,
+    "restored_epoch": 11,
+    "best_val_loss": 0.8749825358390808,
+    "val_acc_at_best": 0.8774999976158142,
+    "degenerate": false,
+    "first_recovery": 11,
+    "recovered": true,
+    "dev_acc": 0.8775,
+    "dev_auroc": 0.9829625,
+    "epochs_at_half": 7,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0005000000237487257
+    ],
+    "lr_last": 0.0005000000237487257,
+    "train_seconds": 390.5,
+    "shared_epochs": 8,
+    "first_lr_reduction_epoch": 9,
+    "recovered_at_last_epoch": false
+   },
+   "new": {
+    "epochs_run": 12,
+    "restored_epoch": 10,
+    "best_val_loss": 1.6847424507141113,
+    "val_acc_at_best": 0.8550000190734863,
+    "degenerate": false,
+    "first_recovery": null,
+    "recovered": false,
+    "dev_acc": 0.855,
+    "dev_auroc": 0.867825,
+    "epochs_at_half": 7,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513
+    ],
+    "lr_last": 0.0010000000474974513,
+    "train_seconds": 319.2,
+    "lr_constant": true,
+    "lr_values": [
+     0.0010000000474974513
+    ],
+    "recovered_at_last_epoch": false
+   },
+   "shared_epochs": 8,
+   "shared_identical": true,
+   "max_abs_diff_shared": {
+    "loss": 0.0,
+    "accuracy": 0.0,
+    "val_loss": 0.0,
+    "val_accuracy": 0.0,
+    "lr": 0.0
+   },
+   "first_lr_reduction_epoch_parent": 9,
+   "new_lr_constant": true,
+   "new_lr_values": [
+    0.0010000000474974513
+   ],
+   "restored_epoch_changed": true,
+   "reported_apart": false
+  },
+  {
+   "model": "B' fold 2 seed 43",
+   "in_ten": false,
+   "new_status": "complete",
+   "parent": {
+    "epochs_run": 12,
+    "restored_epoch": 10,
+    "best_val_loss": 0.0042328545823693275,
+    "val_acc_at_best": 1.0,
+    "degenerate": false,
+    "first_recovery": 3,
+    "recovered": true,
+    "dev_acc": 1.0,
+    "dev_auroc": 1.0,
+    "epochs_at_half": 3,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0005000000237487257
+    ],
+    "lr_last": 0.0005000000237487257,
+    "train_seconds": 596.4,
+    "shared_epochs": 8,
+    "first_lr_reduction_epoch": 9,
+    "recovered_at_last_epoch": true
+   },
+   "new": {
+    "epochs_run": 12,
+    "restored_epoch": 12,
+    "best_val_loss": 0.021726515144109726,
+    "val_acc_at_best": 0.9950000047683716,
+    "degenerate": false,
+    "first_recovery": 3,
+    "recovered": true,
+    "dev_acc": 0.995,
+    "dev_auroc": 1.0,
+    "epochs_at_half": 3,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513
+    ],
+    "lr_last": 0.0010000000474974513,
+    "train_seconds": 307.5,
+    "lr_constant": true,
+    "lr_values": [
+     0.0010000000474974513
+    ],
+    "recovered_at_last_epoch": true
+   },
+   "shared_epochs": 8,
+   "shared_identical": true,
+   "max_abs_diff_shared": {
+    "loss": 0.0,
+    "accuracy": 0.0,
+    "val_loss": 0.0,
+    "val_accuracy": 0.0,
+    "lr": 0.0
+   },
+   "first_lr_reduction_epoch_parent": 9,
+   "new_lr_constant": true,
+   "new_lr_values": [
+    0.0010000000474974513
+   ],
+   "restored_epoch_changed": true,
+   "reported_apart": false
+  },
+  {
+   "model": "B' fold 2 seed 44",
+   "in_ten": true,
+   "new_status": "complete",
+   "parent": {
+    "epochs_run": 12,
+    "restored_epoch": 12,
+    "best_val_loss": 0.07364147156476974,
+    "val_acc_at_best": 0.987500011920929,
+    "degenerate": false,
+    "first_recovery": 12,
+    "recovered": true,
+    "dev_acc": 0.9875,
+    "dev_auroc": 0.995,
+    "epochs_at_half": 7,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0002500000118743628
+    ],
+    "lr_last": 0.0002500000118743628,
+    "train_seconds": 582.6,
+    "shared_epochs": 4,
+    "first_lr_reduction_epoch": 5,
+    "recovered_at_last_epoch": true
+   },
+   "new": {
+    "epochs_run": 12,
+    "restored_epoch": 12,
+    "best_val_loss": 0.016014352440834045,
+    "val_acc_at_best": 0.9950000047683716,
+    "degenerate": false,
+    "first_recovery": 7,
+    "recovered": true,
+    "dev_acc": 0.995,
+    "dev_auroc": 1.0,
+    "epochs_at_half": 5,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513
+    ],
+    "lr_last": 0.0010000000474974513,
+    "train_seconds": 306.7,
+    "lr_constant": true,
+    "lr_values": [
+     0.0010000000474974513
+    ],
+    "recovered_at_last_epoch": true
+   },
+   "shared_epochs": 4,
+   "shared_identical": true,
+   "max_abs_diff_shared": {
+    "loss": 0.0,
+    "accuracy": 0.0,
+    "val_loss": 0.0,
+    "val_accuracy": 0.0,
+    "lr": 0.0
+   },
+   "first_lr_reduction_epoch_parent": 5,
+   "new_lr_constant": true,
+   "new_lr_values": [
+    0.0010000000474974513
+   ],
+   "restored_epoch_changed": false,
+   "reported_apart": false
+  },
+  {
+   "model": "B' fold 3 seed 42",
+   "in_ten": false,
+   "new_status": "complete",
+   "parent": {
+    "epochs_run": 12,
+    "restored_epoch": 11,
+    "best_val_loss": 0.05158989503979683,
+    "val_acc_at_best": 0.9900000095367432,
+    "degenerate": false,
+    "first_recovery": 1,
+    "recovered": true,
+    "dev_acc": 0.99,
+    "dev_auroc": 0.997525,
+    "epochs_at_half": 3,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0001250000059371814,
+     0.0001250000059371814,
+     0.0001250000059371814
+    ],
+    "lr_last": 0.0001250000059371814,
+    "train_seconds": 429.4,
+    "shared_epochs": 3,
+    "first_lr_reduction_epoch": 4,
+    "recovered_at_last_epoch": true
+   },
+   "new": {
+    "epochs_run": 12,
+    "restored_epoch": 4,
+    "best_val_loss": 0.025984102860093117,
+    "val_acc_at_best": 0.9900000095367432,
+    "degenerate": false,
+    "first_recovery": 1,
+    "recovered": true,
+    "dev_acc": 0.99,
+    "dev_auroc": 1.0,
+    "epochs_at_half": 5,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513
+    ],
+    "lr_last": 0.0010000000474974513,
+    "train_seconds": 310.8,
+    "lr_constant": true,
+    "lr_values": [
+     0.0010000000474974513
+    ],
+    "recovered_at_last_epoch": true
+   },
+   "shared_epochs": 3,
+   "shared_identical": true,
+   "max_abs_diff_shared": {
+    "loss": 0.0,
+    "accuracy": 0.0,
+    "val_loss": 0.0,
+    "val_accuracy": 0.0,
+    "lr": 0.0
+   },
+   "first_lr_reduction_epoch_parent": 4,
+   "new_lr_constant": true,
+   "new_lr_values": [
+    0.0010000000474974513
+   ],
+   "restored_epoch_changed": true,
+   "reported_apart": false
+  },
+  {
+   "model": "B' fold 3 seed 43",
+   "in_ten": false,
+   "new_status": "complete",
+   "parent": {
+    "epochs_run": 12,
+    "restored_epoch": 9,
+    "best_val_loss": 0.0011376126203686,
+    "val_acc_at_best": 1.0,
+    "degenerate": false,
+    "first_recovery": 7,
+    "recovered": true,
+    "dev_acc": 1.0,
+    "dev_auroc": 1.0,
+    "epochs_at_half": 5,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0005000000237487257
+    ],
+    "lr_last": 0.0005000000237487257,
+    "train_seconds": 459.7,
+    "shared_epochs": 11,
+    "first_lr_reduction_epoch": 12,
+    "recovered_at_last_epoch": true
+   },
+   "new": {
+    "epochs_run": 12,
+    "restored_epoch": 9,
+    "best_val_loss": 0.0011376126203686,
+    "val_acc_at_best": 1.0,
+    "degenerate": false,
+    "first_recovery": 7,
+    "recovered": true,
+    "dev_acc": 1.0,
+    "dev_auroc": 1.0,
+    "epochs_at_half": 5,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513
+    ],
+    "lr_last": 0.0010000000474974513,
+    "train_seconds": 307.8,
+    "lr_constant": true,
+    "lr_values": [
+     0.0010000000474974513
+    ],
+    "recovered_at_last_epoch": false
+   },
+   "shared_epochs": 11,
+   "shared_identical": true,
+   "max_abs_diff_shared": {
+    "loss": 0.0,
+    "accuracy": 0.0,
+    "val_loss": 0.0,
+    "val_accuracy": 0.0,
+    "lr": 0.0
+   },
+   "first_lr_reduction_epoch_parent": 12,
+   "new_lr_constant": true,
+   "new_lr_values": [
+    0.0010000000474974513
+   ],
+   "restored_epoch_changed": false,
+   "reported_apart": false
+  },
+  {
+   "model": "B' fold 3 seed 44",
+   "in_ten": false,
+   "new_status": "complete",
+   "parent": {
+    "epochs_run": 12,
+    "restored_epoch": 9,
+    "best_val_loss": 0.034095726907253265,
+    "val_acc_at_best": 0.9975000023841858,
+    "degenerate": false,
+    "first_recovery": 7,
+    "recovered": true,
+    "dev_acc": 0.9975,
+    "dev_auroc": 1.0,
+    "epochs_at_half": 6,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0002500000118743628
+    ],
+    "lr_last": 0.0002500000118743628,
+    "train_seconds": 367.4,
+    "shared_epochs": 5,
+    "first_lr_reduction_epoch": 6,
+    "recovered_at_last_epoch": true
+   },
+   "new": {
+    "epochs_run": 12,
+    "restored_epoch": 9,
+    "best_val_loss": 0.08138628304004669,
+    "val_acc_at_best": 0.9850000143051147,
+    "degenerate": false,
+    "first_recovery": 8,
+    "recovered": true,
+    "dev_acc": 0.985,
+    "dev_auroc": 1.0,
+    "epochs_at_half": 7,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513
+    ],
+    "lr_last": 0.0010000000474974513,
+    "train_seconds": 319.3,
+    "lr_constant": true,
+    "lr_values": [
+     0.0010000000474974513
+    ],
+    "recovered_at_last_epoch": false
+   },
+   "shared_epochs": 5,
+   "shared_identical": true,
+   "max_abs_diff_shared": {
+    "loss": 0.0,
+    "accuracy": 0.0,
+    "val_loss": 0.0,
+    "val_accuracy": 0.0,
+    "lr": 0.0
+   },
+   "first_lr_reduction_epoch_parent": 6,
+   "new_lr_constant": true,
+   "new_lr_values": [
+    0.0010000000474974513
+   ],
+   "restored_epoch_changed": false,
+   "reported_apart": false
+  },
+  {
+   "model": "B' fold 4 seed 42",
+   "in_ten": false,
+   "new_status": "complete",
+   "parent": {
+    "epochs_run": 12,
+    "restored_epoch": 2,
+    "best_val_loss": 0.1375407874584198,
+    "val_acc_at_best": 0.9175000190734863,
+    "degenerate": false,
+    "first_recovery": 1,
+    "recovered": true,
+    "dev_acc": 0.9175,
+    "dev_auroc": 0.99655,
+    "epochs_at_half": 3,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0001250000059371814,
+     0.0001250000059371814,
+     6.25000029685907e-05,
+     6.25000029685907e-05
+    ],
+    "lr_last": 6.25000029685907e-05,
+    "train_seconds": 328.7,
+    "shared_epochs": 4,
+    "first_lr_reduction_epoch": 5,
+    "recovered_at_last_epoch": false
+   },
+   "new": {
+    "epochs_run": 12,
+    "restored_epoch": 11,
+    "best_val_loss": 0.09675449132919312,
+    "val_acc_at_best": 0.9700000286102295,
+    "degenerate": false,
+    "first_recovery": 1,
+    "recovered": true,
+    "dev_acc": 0.97,
+    "dev_auroc": 0.99405,
+    "epochs_at_half": 3,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513
+    ],
+    "lr_last": 0.0010000000474974513,
+    "train_seconds": 309.2,
+    "lr_constant": true,
+    "lr_values": [
+     0.0010000000474974513
+    ],
+    "recovered_at_last_epoch": false
+   },
+   "shared_epochs": 4,
+   "shared_identical": true,
+   "max_abs_diff_shared": {
+    "loss": 0.0,
+    "accuracy": 0.0,
+    "val_loss": 0.0,
+    "val_accuracy": 0.0,
+    "lr": 0.0
+   },
+   "first_lr_reduction_epoch_parent": 5,
+   "new_lr_constant": true,
+   "new_lr_values": [
+    0.0010000000474974513
+   ],
+   "restored_epoch_changed": true,
+   "reported_apart": true
+  },
+  {
+   "model": "B' fold 4 seed 43",
+   "in_ten": false,
+   "new_status": "complete",
+   "parent": {
+    "epochs_run": 12,
+    "restored_epoch": 3,
+    "best_val_loss": 0.014225877821445465,
+    "val_acc_at_best": 1.0,
+    "degenerate": false,
+    "first_recovery": 3,
+    "recovered": true,
+    "dev_acc": 1.0,
+    "dev_auroc": 1.0,
+    "epochs_at_half": 3,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0001250000059371814,
+     0.0001250000059371814,
+     6.25000029685907e-05
+    ],
+    "lr_last": 6.25000029685907e-05,
+    "train_seconds": 367.2,
+    "shared_epochs": 5,
+    "first_lr_reduction_epoch": 6,
+    "recovered_at_last_epoch": true
+   },
+   "new": {
+    "epochs_run": 12,
+    "restored_epoch": 3,
+    "best_val_loss": 0.014225877821445465,
+    "val_acc_at_best": 1.0,
+    "degenerate": false,
+    "first_recovery": 3,
+    "recovered": true,
+    "dev_acc": 1.0,
+    "dev_auroc": 1.0,
+    "epochs_at_half": 4,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513
+    ],
+    "lr_last": 0.0010000000474974513,
+    "train_seconds": 307.8,
+    "lr_constant": true,
+    "lr_values": [
+     0.0010000000474974513
+    ],
+    "recovered_at_last_epoch": true
+   },
+   "shared_epochs": 5,
+   "shared_identical": true,
+   "max_abs_diff_shared": {
+    "loss": 0.0,
+    "accuracy": 0.0,
+    "val_loss": 0.0,
+    "val_accuracy": 0.0,
+    "lr": 0.0
+   },
+   "first_lr_reduction_epoch_parent": 6,
+   "new_lr_constant": true,
+   "new_lr_values": [
+    0.0010000000474974513
+   ],
+   "restored_epoch_changed": false,
+   "reported_apart": false
+  },
+  {
+   "model": "B' fold 4 seed 44",
+   "in_ten": true,
+   "new_status": "complete",
+   "parent": {
+    "epochs_run": 12,
+    "restored_epoch": 11,
+    "best_val_loss": 0.0851096659898758,
+    "val_acc_at_best": 0.9850000143051147,
+    "degenerate": false,
+    "first_recovery": 10,
+    "recovered": true,
+    "dev_acc": 0.985,
+    "dev_auroc": 0.9988,
+    "epochs_at_half": 4,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0005000000237487257,
+     0.0005000000237487257,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0002500000118743628,
+     0.0002500000118743628
+    ],
+    "lr_last": 0.0002500000118743628,
+    "train_seconds": 326.4,
+    "shared_epochs": 3,
+    "first_lr_reduction_epoch": 4,
+    "recovered_at_last_epoch": true
+   },
+   "new": {
+    "epochs_run": 12,
+    "restored_epoch": 10,
+    "best_val_loss": 0.27852538228034973,
+    "val_acc_at_best": 0.8899999856948853,
+    "degenerate": false,
+    "first_recovery": 10,
+    "recovered": true,
+    "dev_acc": 0.89,
+    "dev_auroc": 0.98315,
+    "epochs_at_half": 4,
+    "lr": [
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513,
+     0.0010000000474974513
+    ],
+    "lr_last": 0.0010000000474974513,
+    "train_seconds": 322.3,
+    "lr_constant": true,
+    "lr_values": [
+     0.0010000000474974513
+    ],
+    "recovered_at_last_epoch": false
+   },
+   "shared_epochs": 3,
+   "shared_identical": true,
+   "max_abs_diff_shared": {
+    "loss": 0.0,
+    "accuracy": 0.0,
+    "val_loss": 0.0,
+    "val_accuracy": 0.0,
+    "lr": 0.0
+   },
+   "first_lr_reduction_epoch_parent": 4,
+   "new_lr_constant": true,
+   "new_lr_values": [
+    0.0010000000474974513
+   ],
+   "restored_epoch_changed": true,
+   "reported_apart": false
+  }
+ ],
+ "restricted": "none: this comparison writes no restricted output (the per-frame dev scores are read in place and never copied)",
+ "figures": {
+  "files": [
+   "figure_no_recovery.png",
+   "figure_ten.png",
+   "figure_val_accuracy_all.png"
+  ],
+  "note": "figure_ten.png, figure_no_recovery.png, figure_val_accuracy_all.png written"
+ },
+ "declarations": {
+  "no_training": true,
+  "no_inference": true,
+  "no_test_scores_read": true,
+  "test_from_public_aggregate_only": true,
+  "test_not_used_to_judge_the_recipe": true,
+  "reading_rule_fixed_before_the_run": true,
+  "criteria_defined_in_the_previous_package": true,
+  "no_identifiers": "the public files hold no subject identifier, no image key, no per-frame row and no per-subject count; subject_id is read from the dev scores only to scan the public files",
+  "dev_columns_read": "dev_scores.csv: label and score_attack for the measures; subject_id only to scan the public files, never written; arm, fold, train_seed, role, checkpoint_sha256, sample_id, file_sha256, prediction_05, prediction_dev, threshold_dev and threshold_sha256 only for row-by-row consistency checks (with the card, the frozen threshold, the other models of the fold and the same model of the other run). threshold.json: arm, fold, train_seed, checkpoint_sha256, value, dev_scores_sha256, frozen_at for consistency only. Training cards: the history and the recipe fields, train_seconds for the times, weights_file, weights_sha256, dev_keys_sha256, saved and test_scored_after_threshold for consistency only. status.json: identity, outcome, models, anchors and wall_seconds. Public aggregate.json: run_id, status, config_sha256, strata, primary_verdicts and, for the three comparisons, verdicts and pooled_summary_over_seeds medians only",
+  "limits": "the criteria are those of the previous package, defined after the patience-4 run; a constant rate tests the absence of the reduction, not the level of the rate (0.001 is never varied); with a different rate path the checkpoint chosen by the minimum dev val_loss can change, so dev and test values at the checkpoint differ for reasons beyond the recovery; the dev is small and chooses the checkpoint among 12 epochs; the reduction is removed in all 36 models; one dataset, one attack type, three seeds; the test section is descriptive and never part of the verdict"
+ },
+ "environment": {
+  "python": "3.11.16",
+  "matplotlib": "3.11.2"
+ },
+ "code_sha256": {
+  "scripts/nuaa_patience_verify.py": "edc839849ac76be9ce3149a3c217f35b6f1f430e352b471d03b78398093f4b9e",
+  "scripts/m2_writers.py": "22760abc368dede3aa0a690a241f6622afe1ba586940422497db8a33994ee34a",
+  "scripts/path_guard.py": "e5fa9c835c23745ff932e157a44d3104eb9713d86bbdecc9cdbbd3caa7a7ee34",
+  "scripts/package_rules.py": "96ec7ffab4b089bac71fd18918fcd32af72d15980cdfa1361cc84bb43e0e4c11"
+ },
+ "schema": "nuaa-patience-verify-config/2",
+ "labels": {
+  "parent_run": "patience12",
+  "verification_run": "constant_lr"
+ },
+ "amendment": {
+  "parent_config_sha256": "ca039df5d3114f9cb983c7256330aae671de54ae34d949ad4e9b9c80beb6aa43",
+  "changed_field": "training.scheduler",
+  "from": "ReduceLROnPlateau(monitor=val_loss, factor=0.5, patience=2, min_lr=1e-6)",
+  "to": "constant (no ReduceLROnPlateau; the initial learning rate for every epoch; the learning rate in effect is recorded in history.lr at the end of every epoch)"
+ },
+ "models_reported_apart": [
+  "B fold 3 seed 44",
+  "B' fold 4 seed 42"
+ ]
+}

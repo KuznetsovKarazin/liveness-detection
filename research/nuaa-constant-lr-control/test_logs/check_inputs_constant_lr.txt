@@ -1,0 +1,8 @@
+# macOS, Python 3.11.16, NumPy 1.26.4, OpenCV 4.11.0, TensorFlow 2.15.0, 2026-11-11 10:50 CET; check-inputs of the runner on the real inputs with the constant-lr configuration (read only); code of commit 8c40e11
+# SHA-256 9c45255199b87a41126b77867d5bbcf0da6f6ecf1684bf8fdd89185f463a276e  scripts/nuaa_session_ablation_run.py
+# SHA-256 60b38e094da8c2243f3f9386f69d216bf8b853a3511b73538feec39e09b0d58f  delivery/constlr/nuaa_session_ablation_run_constant_lr.json
+# SHA-256 ca039df5d3114f9cb983c7256330aae671de54ae34d949ad4e9b9c80beb6aa43  delivery/patienceverify/nuaa_session_ablation_run_patience12.json
+AMENDMENT: configuration constant_lr_control 60b38e094da8, parent ca039df5d311 equal in every field except training.scheduler (ReduceLROnPlateau -> constant) and amendment
+CHECK-INPUTS: configuration 60b38e094da8, 5 M2 manifests, 12 fold manifests of 20261103-FOLDS-67b7f3d, 16 cell manifests of 20261104-SESSABL-5d89888 (counts, nesting, disjoint subjects; devmix not read), cache 6000 frames linked, extracted frames 6614 with every frame SHA-256 equal to 20261103-FOLDSRUN-e174812, manifest rows from the cache 19206 and from the extracted file 9944 (each exactly once), 12614 originals, architecture verified, OpenCV 4.11.0, TensorFlow 2.15.0 installed and not imported; nothing written
+RESULT: PASS (check-inputs)
+exit 0

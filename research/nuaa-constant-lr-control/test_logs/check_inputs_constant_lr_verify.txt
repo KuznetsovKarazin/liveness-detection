@@ -1,0 +1,6 @@
+# macOS, Python 3.11.16, NumPy 1.26.4, OpenCV 4.11.0, TensorFlow 2.15.0, 2026-11-11 10:50 CET; check-inputs of the comparison on the real inputs (the reference run and the control run read only, no test score read); code of commit 8c40e11
+# SHA-256 edc839849ac76be9ce3149a3c217f35b6f1f430e352b471d03b78398093f4b9e  scripts/nuaa_patience_verify.py
+# SHA-256 e4896a2640f4e26c5b2c1ff220965a9aad6c0f78461571ca53dc9240a0714c4f  delivery/constlr/nuaa_constant_lr_verify.json
+CHECK-INPUTS: configuration e4896a2640f4 (delivered: True), patience12 run 20261109-SESSABLRUN-6a50265 (PASS, 36 cards, dev scores and thresholds; early stopping replay 36/36 reproduced); shared-history windows 3-12 epochs at lr 0.0010000000474974513, never reduced 1/36; constant_lr run 20261111-SESSABLRUN-8568ffa (PASS, 36 complete models, 0 missing; early stopping replay 36/36 reproduced; test section: public aggregate.json); nothing written
+RESULT: PASS (check-inputs)
+exit 0

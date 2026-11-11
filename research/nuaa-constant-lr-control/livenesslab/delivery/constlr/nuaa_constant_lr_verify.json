@@ -1,0 +1,140 @@
+{
+ "schema": "nuaa-patience-verify-config/2",
+ "task": "Comparison of the constant learning-rate control run (configuration constant_lr_control: ReduceLROnPlateau removed, learning rate 0.001 at every epoch, early_stopping_patience 12, at most 12 epochs) with the reference run 20261109-SESSABLRUN-6a50265 (patience12_verification), same 36 LivenessNet models, by the reading rule fixed before the run (delivery/synthesis/SYNTHESIS.md, section 5, 'State on 10 November and proposed control'): (a) histories identical to the reference run over its epochs recorded at the recipe rate before the first learning-rate reduction, and a constant rate in the control, otherwise the comparison is not valid; (b) primary outcome on train/dev for the ten original degenerate trainings of the patience-4 run and for the 36 models; (c) secondary outcomes per model; (d) the test, read only from the public aggregate of the two runs, in a separate section, not used to choose or judge; (e) no verdict for an incomplete or failed run. Reads training cards, dev scores and frozen thresholds (restricted) and the public aggregates; no training, no inference, no test score read.",
+ "request": {
+  "date": "2026-11-10",
+  "card": "C2",
+  "text": "coordinator, C2 card, comment of 10 November 2026 (original wording): ''Confermo il controllo proposto: stessi 36 modelli e dati, pazienza 12, massimo 12 epoche, learning rate costante a 0,001 e limite di 360 minuti. Ci serve per distinguere l'effetto della durata da quello della riduzione del learning rate; il test resta separato e non guida le scelte. Prima del run aggiorni configurazione e runner, verificando che cambi soltanto lo scheduler e che il percorso originale resti invariato. Registri il learning rate effettivo a ogni epoca. Superati questi controlli, può avviare il run senza attendere un ulteriore via libera. Conservi tutti gli esiti e verifichi l'identità delle storie prima della prima riduzione del learning rate nel riferimento. In caso di discrepanze o superamento del budget, si fermi e riporti il punto raggiunto, senza ulteriori tentativi o conclusioni sul run incompleto.'' The reading rule is the one of delivery/synthesis/SYNTHESIS.md, section 5, 'Reading criterion, fixed before the run'."
+ },
+ "inputs": {
+  "parent_run": {
+   "label": "patience12",
+   "run_id": "20261109-SESSABLRUN-6a50265",
+   "folder": "results/sessionablationrun/20261109-SESSABLRUN-6a50265",
+   "config_sha256": "ca039df5d3114f9cb983c7256330aae671de54ae34d949ad4e9b9c80beb6aa43",
+   "commit": "6a50265",
+   "configuration_name": "patience12_verification",
+   "early_stopping_patience": 12,
+   "status_sha256": "af6a1d1e1f7b3c90a9e9122ea0ce2d542adfd4cab07a2a9465b8b5af623ccf6d",
+   "public_sums_sha256": "018d5079917856b5efbf3db70656eb134b8b6de8b8bda46cceef8e28362a1ff2",
+   "restricted_sums_sha256": "6787bc2bfb280fc0fa2d48323f1cdb15a84d754843bc8703e923098d6f2d2142"
+  },
+  "verification_run": {
+   "label": "constant_lr",
+   "run_id": "20261111-SESSABLRUN-8568ffa",
+   "folder": "results/sessionablationrun/20261111-SESSABLRUN-8568ffa",
+   "config_sha256": "60b38e094da8c2243f3f9386f69d216bf8b853a3511b73538feec39e09b0d58f",
+   "commit": "8568ffa",
+   "configuration_name": "constant_lr_control",
+   "amendment": {
+    "parent_config_sha256": "ca039df5d3114f9cb983c7256330aae671de54ae34d949ad4e9b9c80beb6aa43",
+    "changed_field": "training.scheduler",
+    "from": "ReduceLROnPlateau(monitor=val_loss, factor=0.5, patience=2, min_lr=1e-6)",
+    "to": "constant (no ReduceLROnPlateau; the initial learning rate for every epoch; the learning rate in effect is recorded in history.lr at the end of every epoch)"
+   },
+   "early_stopping_patience": 12,
+   "status_sha256": "f16a2720013888f54560fb82ced8c014b56c4da4098a9431970671db6a531f3a",
+   "public_sums_sha256": "cb353b754318e20927e113ed9877a3f6d4af58972adf307779fd03a28ff1c8ca",
+   "restricted_sums_sha256": "ea821cbad2d8ccf86fb970a7e5868bd7acffd4f965467a7003452b726af0ce67",
+   "anchors_note": "filled after the run 20261111-SESSABLRUN-8568ffa (PASS, 36/36 trainings, commit 8568ffa, clean tree): run_id, commit and folder from status.json of the run; the anchors are the SHA-256 of status.json, public/SHA256SUMS and restricted/SHA256SUMS of the run folder; config_sha256 equal to the one recorded in status.json of the run. 'none' for public_sums_sha256 only if the run is FAIL (no public folder)."
+  },
+  "arms": [
+   "arm_b",
+   "arm_a_star",
+   "arm_b_prime"
+  ],
+  "folds": [
+   1,
+   2,
+   3,
+   4
+  ],
+  "seeds": [
+   42,
+   43,
+   44
+  ],
+  "models": 36,
+  "dev_rows": 400
+ },
+ "recipe": {
+  "max_epochs": 12,
+  "monitor": "val_loss",
+  "min_delta": 0,
+  "restore_best_weights": true,
+  "batch": 16,
+  "lr": 0.001,
+  "source": "training cards (max_epochs, early_stopping_patience, batch, lr) and the Keras 2.15 defaults of EarlyStopping (min_delta 0, strict improvement); early_stopping_patience 12 in both runs (inputs.<run>.early_stopping_patience); the scheduler is ReduceLROnPlateau in the reference run and constant in the control run (inputs.verification_run.amendment)"
+ },
+ "criteria": {
+  "degenerate": {
+   "restored_epochs": [
+    1,
+    2
+   ],
+   "val_acc_at_best": 0.5,
+   "tolerance": 1e-06,
+   "text": "restored_epoch in {1, 2} and val_acc_at_best = 0.5 (within 1e-6): the rule written in the delivery of the session ablation run, re-applied here"
+  },
+  "saturation": {
+   "val_accuracy": 0.5,
+   "tolerance": 1e-06,
+   "text": "an epoch is saturated when val_accuracy = 0.5 within 1e-6 (balanced dev: every frame assigned to the same class, or exactly half wrong)"
+  },
+  "recovery": {
+   "val_accuracy_min": 0.75,
+   "val_loss_max": 1.0,
+   "text": "first epoch with val_accuracy >= 0.75 and val_loss < 1.0 (dev only)"
+  },
+  "checkpoint_agreement_tolerance": 1e-06,
+  "shared_history_difference": 0,
+  "shared_history_window": "parent_epochs_before_first_lr_reduction",
+  "recorded_recipe_lr": 0.0010000000474974513,
+  "original_degenerate_models": [
+   "arm_a_star_fold2_seed43",
+   "arm_a_star_fold2_seed44",
+   "arm_a_star_fold3_seed42",
+   "arm_a_star_fold3_seed44",
+   "arm_a_star_fold4_seed44",
+   "arm_b_fold1_seed42",
+   "arm_b_fold4_seed44",
+   "arm_b_prime_fold1_seed44",
+   "arm_b_prime_fold2_seed44",
+   "arm_b_prime_fold4_seed44"
+  ],
+  "source": "criteria.degenerate, criteria.saturation, criteria.recovery, criteria.checkpoint_agreement_tolerance and criteria.shared_history_difference equal to delivery/patienceverify/nuaa_patience_verify.json (and to delivery/degenerate/nuaa_degenerate_trainings.json); original_degenerate_models: the ten degenerate trainings of run 20261106-SESSABLRUN-d999458 (patience 4), as listed in that configuration and in the public aggregate of comparison 20261109-PATVER-4f2b925; shared_history_window: the epochs of the reference run recorded at the recipe rate before its first learning-rate reduction (delivery/synthesis/SYNTHESIS.md, section 5, reading criterion (a)); recorded_recipe_lr: recipe.lr as Keras records it in history.lr (float32 value of 0.001), compared exactly"
+ },
+ "models_without_recovery_parent": [],
+ "models_reported_apart": [
+  "arm_b_fold3_seed44",
+  "arm_b_prime_fold4_seed42"
+ ],
+ "reading_rule": {
+  "a": "validity: for every model the history of the control run must be identical, in loss, accuracy, val_loss, val_accuracy and lr (difference 0), to the reference run over the epochs recorded at the recipe rate in that run (Keras records the rate of an epoch before reducing it: epochs 1 to 3 when the first lower rate is recorded at epoch 4; all 12 for a model never reduced), and the rate of the control run must be the recipe rate at every epoch; otherwise the largest difference (or the models with another rate) is reported and the comparison is declared not valid: no verdict",
+  "b": "primary outcome on train/dev: among the ten original degenerate trainings of the patience-4 run, the number that recover within 12 epochs with the constant rate, and among the 36 the number degenerate (same criteria). If all ten recover and none of the 36 is degenerate, the recovery of the ten is reproduced without the reduction: consistent with the extra epochs being sufficient in these trainings. If at least one of the ten does not recover, the outcome is consistent with a contribution of the reduction in these trainings, and the models are listed one by one. A mixed outcome (for example all ten recover but another model becomes degenerate or loses its recovery) is reported as such, model by model, with no overall verdict",
+  "c": "secondary outcomes per model, reference against control run: first-recovery epoch, whether the recovery criterion still holds at the last epoch, restored epoch and whether it changes, best val_loss, dev accuracy and dev AUROC at the checkpoint (from the dev scores, checked row by row), epochs at 0.5, the first reduced epoch of the reference run and the rate of the control run; B fold 3 seed 44 and B' fold 4 seed 42 reported apart",
+  "d": "the test: only from the public aggregate.json of the two runs (never from the restricted test scores), the verdicts and the median differences over the seeds of A* - B, B' - B and A* - B' side by side, in a separate section, never used to choose or judge",
+  "e": "if the control run is INCOMPLETE (cap or voluntary stop) or FAIL, no verdict is given and what is complete is reported; the time is reported against the estimate"
+ },
+ "time": {
+  "estimate_seconds": 17940.9,
+  "cap_seconds": 21600,
+  "source": "delivery/synthesis/SYNTHESIS.md, section 5, 'Budget': 36 trainings x 12 epochs, the same as the reference run, whose wall time was 17,940.9 s; cap 21,600 s (360 minutes)"
+ },
+ "declarations": {
+  "no_training": true,
+  "no_inference": true,
+  "no_test_scores_read": true,
+  "test_from_public_aggregate_only": true,
+  "test_not_used_to_judge_the_recipe": true,
+  "reading_rule_fixed_before_the_run": true,
+  "criteria_defined_in_the_previous_package": true,
+  "no_identifiers": "the public files hold no subject identifier, no image key, no per-frame row and no per-subject count; subject_id is read from the dev scores only to scan the public files",
+  "dev_columns_read": "dev_scores.csv: label and score_attack for the measures; subject_id only to scan the public files, never written; arm, fold, train_seed, role, checkpoint_sha256, sample_id, file_sha256, prediction_05, prediction_dev, threshold_dev and threshold_sha256 only for row-by-row consistency checks (with the card, the frozen threshold, the other models of the fold and the same model of the other run). threshold.json: arm, fold, train_seed, checkpoint_sha256, value, dev_scores_sha256, frozen_at for consistency only. Training cards: the history and the recipe fields, train_seconds for the times, weights_file, weights_sha256, dev_keys_sha256, saved and test_scored_after_threshold for consistency only. status.json: identity, outcome, models, anchors and wall_seconds. Public aggregate.json: run_id, status, config_sha256, strata, primary_verdicts and, for the three comparisons, verdicts and pooled_summary_over_seeds medians only",
+  "limits": "the criteria are those of the previous package, defined after the patience-4 run; a constant rate tests the absence of the reduction, not the level of the rate (0.001 is never varied); with a different rate path the checkpoint chosen by the minimum dev val_loss can change, so dev and test values at the checkpoint differ for reasons beyond the recovery; the dev is small and chooses the checkpoint among 12 epochs; the reduction is removed in all 36 models; one dataset, one attack type, three seeds; the test section is descriptive and never part of the verdict"
+ },
+ "outputs": {
+  "public": "comparison.csv (one row per model, with the shared-history window, the first reduced epoch of the reference run and the rate of the control run), curves.csv (control run, one row per model and epoch), aggregate.json and aggregate.md (sections a-e and declarations), figure_ten.png, figure_no_recovery.png and figure_val_accuracy_all.png (only when matplotlib is available, otherwise a declared skip), SHA256SUMS; no subject identifier, no image key, no per-frame row",
+  "restricted": "none: the comparison writes no restricted output (the per-frame dev scores are read in place and never copied)"
+ }
+}

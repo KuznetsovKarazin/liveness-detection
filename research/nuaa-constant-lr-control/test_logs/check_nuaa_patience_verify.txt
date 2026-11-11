@@ -1,0 +1,29 @@
+# macOS, Python 3.11.16, NumPy 1.26.4, OpenCV 4.11.0, TensorFlow 2.15.0, 2026-11-11 10:50 CET; run from the development repository root, declared skips for the --real tests; code of commit 8c40e11
+# SHA-256 edc839849ac76be9ce3149a3c217f35b6f1f430e352b471d03b78398093f4b9e  scripts/nuaa_patience_verify.py
+# SHA-256 e2c5281819ad54b14886e21940a5036c7adb0978f9f6cda3ce8e10a81b2bbe29  scripts/check_nuaa_patience_verify.py
+...........................................................................ssss...................................................................................................
+----------------------------------------------------------------------
+Ran 178 tests in 24.816s
+
+OK (skipped=4)
+tests run: 178, failures: 0, errors: 0, skipped: 4
+skipped __main__.TestRealInputs.test_real_inputs_read_only: missing input: the read-only test on the real inputs runs only with --real
+skipped __main__.TestRealInputsV2.test_real_card_with_scheduler_accepted_as_control_card: missing input: the read-only test on the real inputs runs only with --real
+skipped __main__.TestRealInputsV2.test_ten_equal_to_the_comparison_run: missing input: the read-only test on the real inputs runs only with --real
+skipped __main__.TestRealInputsV2.test_windows_of_the_reference_run: missing input: the read-only test on the real inputs runs only with --real
+RESULT: PASS
+exit 0
+
+# python3 of the system, Python 3.14.7, standard library only
+...........................................................................ssss...................................................................................................
+----------------------------------------------------------------------
+Ran 178 tests in 25.226s
+
+OK (skipped=4)
+tests run: 178, failures: 0, errors: 0, skipped: 4
+skipped __main__.TestRealInputs.test_real_inputs_read_only: missing input: the read-only test on the real inputs runs only with --real
+skipped __main__.TestRealInputsV2.test_real_card_with_scheduler_accepted_as_control_card: missing input: the read-only test on the real inputs runs only with --real
+skipped __main__.TestRealInputsV2.test_ten_equal_to_the_comparison_run: missing input: the read-only test on the real inputs runs only with --real
+skipped __main__.TestRealInputsV2.test_windows_of_the_reference_run: missing input: the read-only test on the real inputs runs only with --real
+RESULT: PASS
+exit 0
