@@ -1,0 +1,14 @@
+# macOS, Python 3.11.16, NumPy 1.26.4, OpenCV 4.11.0, TensorFlow 2.15.0, 2026-11-11 10:50 CET; run from the development repository root with the real inputs and the three configurations present (read only); code of commit 8c40e11
+# SHA-256 9c45255199b87a41126b77867d5bbcf0da6f6ecf1684bf8fdd89185f463a276e  scripts/nuaa_session_ablation_run.py
+# SHA-256 912e9d8dd2bb78e34254754a9025c3406b3f65839880a8788d7c951a20528abe  scripts/check_nuaa_session_ablation_run.py
+# SHA-256 82fed566cfa8ac0b280b55edbf430e7051dff1ae83d17a902d78157f2c72ffb2  scripts/nuaa_folds_run.py
+...............== LivenessNet seed 42: 12 epochs in 0s, restored epoch 3 (val_loss 0.700000)
+..........................== LivenessNet seed 42: 12 epochs in 0s, restored epoch 3 (val_loss 0.700000)
+..............................................................................
+----------------------------------------------------------------------
+Ran 119 tests in 49.384s
+
+OK
+tests run: 119, failures: 0, errors: 0, skipped: 0
+RESULT: PASS
+exit 0

@@ -1,0 +1,49 @@
+# macOS, Python 3.11.16, NumPy 1.26.4, OpenCV 4.11.0, TensorFlow 2.15.0, 2026-11-11 10:50 CET; run from the development repository root with the real inputs present (read only); code of commit 8c40e11
+# SHA-256 82fed566cfa8ac0b280b55edbf430e7051dff1ae83d17a902d78157f2c72ffb2  scripts/nuaa_folds_run.py
+# SHA-256 07706652755a45c993ec22db70bd6befa21d3439f1f9f7983f0eb2c415968cc3  scripts/check_nuaa_folds_run.py
+.....................................................   X_train: 24 equal, 0 different, worst max abs diff 0, detectors {'Haar': 12, 'RetinaFace': 12}
+   X_test: 24 equal, 0 different, worst max abs diff 0, detectors {'Haar': 15, 'RetinaFace': 9}
+.   X_train: 24 equal, 0 different, worst max abs diff 0, detectors {'Haar': 12, 'RetinaFace': 12}
+   X_train: 24 equal, 0 different, worst max abs diff 0, detectors {'Haar': 12, 'RetinaFace': 12}
+.   DIFF X_train[0]: max abs difference 1
+   DIFF X_train[1]: max abs difference 1
+   DIFF X_train[2]: max abs difference 1
+   DIFF X_train[3]: max abs difference 1
+   DIFF X_train[4]: max abs difference 1
+   DIFF X_train[5]: max abs difference 1
+   DIFF X_train[6]: max abs difference 1
+   DIFF X_train[7]: max abs difference 1
+   DIFF X_train[8]: max abs difference 1
+   DIFF X_train[9]: max abs difference 1
+   DIFF X_train[10]: max abs difference 1
+   DIFF X_train[11]: max abs difference 1
+   DIFF X_train[12]: max abs difference 1
+   DIFF X_train[13]: max abs difference 1
+   DIFF X_train[14]: max abs difference 1
+   DIFF X_train[15]: max abs difference 1
+   DIFF X_train[16]: max abs difference 1
+   DIFF X_train[17]: max abs difference 1
+   DIFF X_train[18]: max abs difference 1
+   DIFF X_train[19]: max abs difference 1
+   DIFF X_train[20]: max abs difference 1
+   DIFF X_train[21]: max abs difference 1
+   DIFF X_train[22]: max abs difference 1
+   DIFF X_train[23]: max abs difference 1
+   X_train: 0 equal, 24 different, worst max abs diff 1, detectors {'Haar': 12, 'RetinaFace': 12}
+.   X_train: 24 equal, 0 different, worst max abs diff 0, detectors {'Haar': 12, 'RetinaFace': 12}
+   X_test: 24 equal, 0 different, worst max abs diff 0, detectors {'Haar': 15, 'RetinaFace': 9}
+.   X_train: 24 equal, 0 different, worst max abs diff 0, detectors {'Haar': 12, 'RetinaFace': 12}
+   X_test: 24 equal, 0 different, worst max abs diff 0, detectors {'Haar': 15, 'RetinaFace': 9}
+   X_train: 24 equal, 0 different, worst max abs diff 0, detectors {'Haar': 12, 'RetinaFace': 12}
+   X_test: 24 equal, 0 different, worst max abs diff 0, detectors {'Haar': 16, 'RetinaFace': 8}
+............== LivenessNet seed 43: 12 epochs in 0s, restored epoch 12 (val_loss 0.390000)
+....== LivenessNet seed 43: 6 epochs in 0s, restored epoch 2 (val_loss 0.500000)
+...== LivenessNet seed 43: 12 epochs in 0s, restored epoch 12 (val_loss 0.390000)
+...
+----------------------------------------------------------------------
+Ran 79 tests in 31.723s
+
+OK
+tests run: 79, failures: 0, errors: 0, skipped: 0
+RESULT: PASS
+exit 0

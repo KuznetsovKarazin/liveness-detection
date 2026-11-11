@@ -1,0 +1,20 @@
+{
+ "run_id": "20261111-LRCTRL-ff53279",
+ "commit": "ff53279",
+ "dirty": false,
+ "config_sha256": "e4896a2640f4e26c5b2c1ff220965a9aad6c0f78461571ca53dc9240a0714c4f",
+ "delivered_configuration": true,
+ "command": "run",
+ "restricted": "none: this comparison writes no restricted output (the per-frame dev scores are read in place and never copied)",
+ "status": "PASS",
+ "passed": true,
+ "finished": "2026-11-11T08:46:53+0100",
+ "wall_seconds": 2.7,
+ "verdict": "mixed (no overall verdict)",
+ "verification_status": "PASS",
+ "figures": "figure_ten.png, figure_no_recovery.png, figure_val_accuracy_all.png written",
+ "public_files": 7,
+ "public_sums_sha256": "3b15fdeb2f4a86920cef791d792ea96d2d48238d5aae6be56a8b1c7194f309f3",
+ "run_log_sha256": "3cabc83020ad5ea43393fd3eac6b66ad041b614db64bd64b5f898db55b4c278b",
+ "timestamps": "status.json and run.log only; the public files hold no date or run time of this command"
+}
