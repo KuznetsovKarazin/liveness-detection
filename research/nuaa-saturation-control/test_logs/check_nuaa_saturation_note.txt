@@ -1,0 +1,95 @@
+# macOS, Python 3.14.7, 2026-11-12 16:44 CET; run from the repository root, standard library only
+$ python3 -I -B research/nuaa-saturation-control/livenesslab/scripts/check_nuaa_saturation_note.py -v
+test_bn_and_dropout_positions (__main__.TestArchitecture.test_bn_and_dropout_positions) ... ok
+test_first_bn_after_dropout (__main__.TestArchitecture.test_first_bn_after_dropout) ... ok
+test_layer_without_name (__main__.TestArchitecture.test_layer_without_name) ... ok
+test_layers_md_marks (__main__.TestArchitecture.test_layers_md_marks) ... ok
+test_missing_class (__main__.TestArchitecture.test_missing_class) ... ok
+test_momentum_refused (__main__.TestArchitecture.test_momentum_refused) ... ok
+test_order_and_count (__main__.TestArchitecture.test_order_and_count) ... ok
+test_other_class_not_read (__main__.TestArchitecture.test_other_class_not_read) ... ok
+test_total_of_22_layers (__main__.TestArchitecture.test_total_of_22_layers) ... ok
+test_wrong_bn_dropout_count (__main__.TestArchitecture.test_wrong_bn_dropout_count) ... ok
+test_36_rows_sorted (__main__.TestBuildCounts.test_36_rows_sorted) ... ok
+test_auroc_counts (__main__.TestBuildCounts.test_auroc_counts) ... ok
+test_cost_hand_computed (__main__.TestBuildCounts.test_cost_hand_computed) ... ok
+test_criterion_and_saturation_counts (__main__.TestBuildCounts.test_criterion_and_saturation_counts) ... ok
+test_criterion_val_loss_branch_and_restored_epoch_3 (__main__.TestBuildCounts.test_criterion_val_loss_branch_and_restored_epoch_3) ... ok
+test_degenerate_count_and_epochs (__main__.TestBuildCounts.test_degenerate_count_and_epochs) ... ok
+test_first_recovery_and_boundary_row (__main__.TestBuildCounts.test_first_recovery_and_boundary_row) ... ok
+test_later_runs (__main__.TestBuildCounts.test_later_runs) ... ok
+test_residuals_per_row (__main__.TestBuildCounts.test_residuals_per_row) ... ok
+test_sizes_and_runs (__main__.TestBuildCounts.test_sizes_and_runs) ... ok
+test_sources_hashes (__main__.TestBuildCounts.test_sources_hashes) ... ok
+test_train_accuracy_epoch1 (__main__.TestBuildCounts.test_train_accuracy_epoch1) ... ok
+test_build_writes_five_files (__main__.TestCommands.test_build_writes_five_files) ... ok
+test_check_detects_edited_table (__main__.TestCommands.test_check_detects_edited_table) ... ok
+test_check_detects_missing_source (__main__.TestCommands.test_check_detects_missing_source) ... ok
+test_check_detects_missing_table (__main__.TestCommands.test_check_detects_missing_table) ... ok
+test_check_detects_source_hash_change (__main__.TestCommands.test_check_detects_source_hash_change) ... ok
+test_check_note_every_fragment_required (__main__.TestCommands.test_check_note_every_fragment_required)
+Ogni frammento della lista, tolto dalla nota, fa fallire il controllo. ... ok
+test_check_note_ignores_line_breaks (__main__.TestCommands.test_check_note_ignores_line_breaks) ... ok
+test_check_note_missing_number (__main__.TestCommands.test_check_note_missing_number) ... ok
+test_check_note_passes (__main__.TestCommands.test_check_note_passes) ... ok
+test_check_passes (__main__.TestCommands.test_check_passes) ... ok
+test_check_without_build (__main__.TestCommands.test_check_without_build) ... ok
+test_error_without_traceback (__main__.TestCommands.test_error_without_traceback) ... ok
+test_help (__main__.TestCommands.test_help) ... ok
+test_architecture_hash_mismatch (__main__.TestErrorPaths.test_architecture_hash_mismatch) ... ok
+test_bad_weights_hash (__main__.TestErrorPaths.test_bad_weights_hash) ... ok
+test_comparison_restored_epoch (__main__.TestErrorPaths.test_comparison_restored_epoch) ... ok
+test_degenerate_criterion_changed (__main__.TestErrorPaths.test_degenerate_criterion_changed) ... ok
+test_degenerate_flag_with_dev_not_half (__main__.TestErrorPaths.test_degenerate_flag_with_dev_not_half) ... ok
+test_dirty_record (__main__.TestErrorPaths.test_dirty_record) ... ok
+test_epochs_at_half_mismatch (__main__.TestErrorPaths.test_epochs_at_half_mismatch) ... ok
+test_first_recovery_mismatch (__main__.TestErrorPaths.test_first_recovery_mismatch) ... ok
+test_flag_missing_on_a_degenerate_model (__main__.TestErrorPaths.test_flag_missing_on_a_degenerate_model) ... ok
+test_gpu_device_refused (__main__.TestErrorPaths.test_gpu_device_refused) ... ok
+test_in_ten_mismatch (__main__.TestErrorPaths.test_in_ten_mismatch) ... ok
+test_missing_architecture (__main__.TestErrorPaths.test_missing_architecture) ... ok
+test_missing_model (__main__.TestErrorPaths.test_missing_model) ... ok
+test_missing_source (__main__.TestErrorPaths.test_missing_source) ... ok
+test_missing_threshold_timing (__main__.TestErrorPaths.test_missing_threshold_timing) ... ok
+test_models_and_curves_disagree (__main__.TestErrorPaths.test_models_and_curves_disagree) ... ok
+test_n_fitting_against_config (__main__.TestErrorPaths.test_n_fitting_against_config) ... ok
+test_per_epoch_mean_must_match_train_seconds (__main__.TestErrorPaths.test_per_epoch_mean_must_match_train_seconds) ... ok
+test_restored_epoch_not_minimum (__main__.TestErrorPaths.test_restored_epoch_not_minimum) ... ok
+test_short_row_names_file_and_line (__main__.TestErrorPaths.test_short_row_names_file_and_line) ... ok
+test_steps_per_epoch_mismatch (__main__.TestErrorPaths.test_steps_per_epoch_mismatch) ... ok
+test_training_block_disagrees (__main__.TestErrorPaths.test_training_block_disagrees) ... ok
+test_med_range (__main__.TestFormulas.test_med_range) ... ok
+test_residual_59_steps_and_epochs (__main__.TestFormulas.test_residual_59_steps_and_epochs) ... ok
+test_residual_88_steps (__main__.TestFormulas.test_residual_88_steps) ... ok
+test_residual_invalid (__main__.TestFormulas.test_residual_invalid) ... ok
+test_residual_zero_steps (__main__.TestFormulas.test_residual_zero_steps) ... ok
+test_steps_per_epoch (__main__.TestFormulas.test_steps_per_epoch) ... ok
+test_word_and_thousands (__main__.TestFormulas.test_word_and_thousands) ... ok
+test_checkpoints_csv (__main__.TestOutputs.test_checkpoints_csv) ... ok
+test_deterministic_and_lf (__main__.TestOutputs.test_deterministic_and_lf) ... ok
+test_facts_md_lines (__main__.TestOutputs.test_facts_md_lines) ... ok
+test_json_sorted_keys (__main__.TestOutputs.test_json_sorted_keys) ... ok
+test_note_numbers_from_facts (__main__.TestOutputs.test_note_numbers_from_facts) ... ok
+test_by_model_duplicate_epoch (__main__.TestParsers.test_by_model_duplicate_epoch) ... ok
+test_by_model_gap (__main__.TestParsers.test_by_model_gap) ... ok
+test_half_tolerance (__main__.TestParsers.test_half_tolerance) ... ok
+test_num_rejects_text_and_inf (__main__.TestParsers.test_num_rejects_text_and_inf) ... ok
+test_parse_csv_empty (__main__.TestParsers.test_parse_csv_empty) ... ok
+test_parse_csv_long_row (__main__.TestParsers.test_parse_csv_long_row) ... ok
+test_parse_csv_missing_column (__main__.TestParsers.test_parse_csv_missing_column) ... ok
+test_parse_csv_rows (__main__.TestParsers.test_parse_csv_rows) ... ok
+test_parse_csv_short_row (__main__.TestParsers.test_parse_csv_short_row) ... ok
+test_parse_json_invalid (__main__.TestParsers.test_parse_json_invalid) ... ok
+test_parse_json_not_object (__main__.TestParsers.test_parse_json_not_object) ... ok
+test_check_committed_tables_and_note (__main__.TestRealPublicFiles.test_check_committed_tables_and_note) ... ok
+test_no_subject_identifier_in_outputs (__main__.TestRealPublicFiles.test_no_subject_identifier_in_outputs) ... ok
+test_real_facts (__main__.TestRealPublicFiles.test_real_facts) ... ok
+
+----------------------------------------------------------------------
+Ran 83 tests in 0.661s
+
+OK
+
+$ python3 -I -B research/nuaa-saturation-control/livenesslab/scripts/nuaa_saturation_note.py check --research research --out research/nuaa-saturation-control/tables --note research/nuaa-saturation-control/NOTE.md
+CHECK: 5 files + note, 0 problems
+RESULT: PASS
