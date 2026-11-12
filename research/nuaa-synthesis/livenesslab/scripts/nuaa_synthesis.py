@@ -1,6 +1,6 @@
 """
 Sintesi NUAA (C1, M1, N1, N2, confronto del ritaglio, run a fold di soggetti, run di ablazione delle sessioni con pazienza
-4 e 12 e loro confronto): ricostruisce la tabella unica dei risultati accettati leggendo
+4 e 12 e loro confronto, controllo con pazienza 12 a learning rate costante e suo confronto): ricostruisce la tabella unica dei risultati accettati leggendo
 soltanto gli aggregati pubblici già uniti in research/pad-2026 (nessun dato riservato, nessuna inferenza, nessun numero
 nuovo). Ogni cella della tabella viene da un file accettato, citato riga per riga con il suo SHA-256 al momento della
 costruzione; i testi descrittivi (conteggi dei manifest, soggetti) vengono dall'aggregato pubblico dei manifest M2.
@@ -36,19 +36,27 @@ Sorgenti (percorsi relativi alla cartella research/ del repository del gruppo):
   nuaa-patience-verification/comparison/aggregate.json, comparison.csv, curves.csv, SHA256SUMS e
   nuaa-patience-verification/comparison_run/status.json   confronto delle due run (una riga per modello, curve per
                                                            epoca, criteri, verdetto, sezioni a-e)
+  nuaa-constant-lr-control/tables/aggregate.json, run_record.json, SHA256SUMS e run/status.json
+                                                           controllo a lr costante (PR #25): stesso disegno, pazienza 12,
+                                                           lr 0,001 senza ReduceLROnPlateau, con il blocco amendment
+  nuaa-constant-lr-control/comparison/aggregate.json, comparison.csv, curves.csv, SHA256SUMS e
+  nuaa-constant-lr-control/comparison_run/status.json     confronto del controllo con la run con pazienza 12 (schema 2:
+                                                           finestra delle storie comuni, lr per epoca, sezioni a-e)
+In tutto 34 sorgenti, ciascuna con il suo SHA-256 in summary_table.json.
 
 Sottocomandi:
   build --research <research/> --out <cartella>   scrive summary_table.{md,csv,json}, summary_table_compact.md,
                                                   cross_dataset_table.md, context_rows_table.md,
                                                   subject_sensitivity_table.md, folds_run_table.md,
                                                   n1_same_ids_table.md, patience_table.md,
-                                                  session_ablation_table.md, patience_table_compact.md
-                                                  (UTF-8, fine riga LF)
+                                                  session_ablation_table.md, patience_table_compact.md,
+                                                  three_regimes_table.md, three_regimes_table_compact.md,
+                                                  session_ablation_table_constant_lr.md (UTF-8, fine riga LF)
   check --research <research/> --out <cartella>   ricostruisce in memoria e confronta byte per byte con i file di --out;
                                                   esce con 1 se un file manca o differisce; con --synthesis <SYNTHESIS.md>
                                                   esige anche che ogni riga della tabella compatta e ogni riga
                                                   (tabella e righe di riepilogo) della tabella compatta della
-                                                  pazienza stiano nel documento
+                                                  pazienza e di quella delle tre condizioni stiano nel documento
 Entrambi eseguono i controlli di coerenza fra le sorgenti e si fermano con errore se uno non regge: ogni aggregato con
 passed vero e albero pulito (il file dei soggetti N1, che non ha passed: albero pulito e tabella M1 riprodotta); il
 suffisso di ogni run id uguale al commit registrato; nessuna riga duplicata nelle tabelle Markdown; in ogni riga,
@@ -88,7 +96,32 @@ ripristinata = argmin della val_loss, replay dell'arresto precoce, degenere, pri
 accuratezza dev al checkpoint entro la tolleranza) e uguale alle righe JSON e alle schede delle due run; storie
 condivise identiche; le dieci = i degeneri con pazienza 4; verdetto positivo riprodotto; mediane per gruppo; sezione
 (d) = verdetti e mediane delle due run e numero dei verdetti cambiati; tempi entro il tetto e uguali ai record; stesso
-checkpoint -> stessi valori di test e stessa soglia dev. Nessuna tabella Markdown generata con una riga duplicata. Il
+checkpoint -> stessi valori di test e stessa soglia dev. Run a lr costante: gli stessi controlli delle altre due run
+(albero pulito, PASS, run id con il commit e senza -dev, status.json -> SHA256SUMS -> aggregato e record, 36 modelli
+entro il tetto, schema e run a fold di riferimento, celle uguali alla run con pazienza 12, metriche, verdetti della regola
+di lettura riprodotti), run id e configurazione diversi dalla run con pazienza 12, stessa regola di lettura; amendment =
+configurazione della pazienza 12 (genitore), campo training.scheduler da ReduceLROnPlateau(...) a «constant ...», uguale
+a quello del confronto. Confronto a lr costante: run ufficiale con status PASS, ancore (status.json -> SHA256SUMS ->
+aggregato, CSV, curve), dichiarazioni; ingressi = la run con pazienza 12 (riferimento) e la run a lr costante (run id,
+commit, configurazione, stato, SHA-256 di status.json e SHA256SUMS, modelli, pazienza 12); max_epochs e criteri
+(degeneri, saturazione, ripresa, tolleranze) uguali al confronto delle pazienze; lr registrato della ricetta = recipe.lr
+o il suo valore float32; ogni riga del CSV ricostruita dalle curve (riferimento: le curve pubbliche della pazienza 12;
+controllo: le sue curve) e uguale alle schede delle due run; CONTROLLO INCROCIATO: le colonne parent_* uguali alle new_*
+del confronto delle pazienze, in_ten compreso; finestra delle storie comuni = epoche iniziali al lr registrato del
+riferimento (prima variazione una riduzione), storie identiche nei cinque campi con scarto 0 dentro la finestra; lr del
+controllo uguale al lr registrato in ogni epoca (new_lr_constant vero per i 36 e new_lr_values); recupero all'ultima
+epoca, epoca ripristinata cambiata, riportati a parte e flag delle curve coerenti; righe JSON = CSV; liste dell'aggregato
+(dieci, senza ripresa nel riferimento, riportati a parte); sezioni a (storie, lr, finestre), b (esito della regola di
+lettura ricalcolato: «contribution» se uno dei dieci non riprende, «sufficient» senza degeneri e senza riprese perse,
+altrimenti «mixed»), c, d (verdetti delle due run, verdetti cambiati contati come nel confronto, solo il verdetto), e
+(tempi, tetto, secondi per braccio arrotondati al decimo); stessi pesi (stessa epoca ripristinata dentro la finestra) ->
+stessi valori di test e stessa soglia dev. Annessi delle tre condizioni: three_regimes_table.md (36 modelli, train/dev
+delle tre run affiancati, righe di riepilogo in tre blocchi: ripresa, stabilità, checkpoint selezionato; poi il test per
+modello e le sue righe) e la sua forma compatta per SYNTHESIS.md; i verdetti delle tre run stanno in un annesso separato,
+session_ablation_table_constant_lr.md (aggregati della run a lr costante e 84 verdetti delle tre run affiancati), perché
+aggiungere la terza run a session_ablation_table.md avrebbe cambiato le righe dei verdetti delle due run (colonne per
+run): session_ablation_table.md, patience_table.md e patience_table_compact.md restano byte per byte quelli di prima.
+Nessuna tabella Markdown generata con una riga duplicata. Il
 controllo copre le celle delle tabelle; i numeri della prosa del documento restano da verificare a mano contro le
 tabelle e le fonti.
 
@@ -101,6 +134,7 @@ import io
 import json
 import re
 import statistics
+import struct
 import sys
 from pathlib import Path
 
@@ -132,6 +166,15 @@ SOURCES = {
     "patver_curves": "nuaa-patience-verification/comparison/curves.csv",
     "patver_sums": "nuaa-patience-verification/comparison/SHA256SUMS",
     "patver_status": "nuaa-patience-verification/comparison_run/status.json",
+    "constlr_aggregate": "nuaa-constant-lr-control/tables/aggregate.json",
+    "constlr_record": "nuaa-constant-lr-control/tables/run_record.json",
+    "constlr_sums": "nuaa-constant-lr-control/tables/SHA256SUMS",
+    "constlr_status": "nuaa-constant-lr-control/run/status.json",
+    "lrctrl_aggregate": "nuaa-constant-lr-control/comparison/aggregate.json",
+    "lrctrl_comparison": "nuaa-constant-lr-control/comparison/comparison.csv",
+    "lrctrl_curves": "nuaa-constant-lr-control/comparison/curves.csv",
+    "lrctrl_sums": "nuaa-constant-lr-control/comparison/SHA256SUMS",
+    "lrctrl_status": "nuaa-constant-lr-control/comparison_run/status.json",
 }
 
 NUAA_CNNS = ("livenessnet__nuaa", "attacknet_v1__nuaa", "attacknet_v2_1__nuaa", "attacknet_v2_2__nuaa")
@@ -1328,6 +1371,24 @@ def ablation_run(where: str, agg: dict, rec: dict, status: dict, sums: dict, H: 
             "cap": cap}
 
 
+def replay_side(h: list, n: int, p: int, max_epochs: int, crit: dict, lab: str, problems: list) -> dict:
+    """Una run di un modello dalle sue prime n epoche (curve per epoca): criteri dell'aggregato del confronto e replay
+    dell'arresto precoce con la pazienza p; in più le epoche a 0,5 dopo la prima ripresa (ricadute)."""
+    vl = [e["val_loss"] for e in h[:n]]
+    restored = vl.index(min(vl)) + 1
+    if n != min(max_epochs, restored + p):
+        problems.append("%s: %d epochs run, early stopping with patience %d and best epoch %d gives %d"
+                        % (lab, n, p, restored, min(max_epochs, restored + p)))
+    holds = [e["val_accuracy"] >= crit["rec_acc"] and e["val_loss"] < crit["rec_loss"] for e in h[:n]]
+    first = holds.index(True) + 1 if any(holds) else None
+    half = [abs(e["val_accuracy"] - crit["sat_acc"]) <= crit["sat_tol"] for e in h[:n]]
+    return {"epochs_run": n, "restored_epoch": restored, "best_val_loss": min(vl), "first_recovery": first,
+            "recovered": first is not None, "holding_last": holds[-1],
+            "degenerate": restored in crit["rest_set"] and abs(h[restored - 1]["val_accuracy"] - crit["acc_half"]) <= crit["tol_deg"],
+            "epochs_at_half": sum(half), "half_after_recovery": 0 if first is None else sum(half[first:]),
+            "lr_last": h[n - 1]["lr"], "val_acc_restored": h[restored - 1]["val_accuracy"], "holds": holds}
+
+
 def patience_compare(cmp: dict, cstatus: dict, csums: dict, crows: list, curves: list, runs: dict, H: dict, statuses: dict,
                      folds: dict, problems: list) -> dict:
     """Confronto delle due run (pazienza 4 e 12, PR #23): run ufficiale e ancore, ingressi uguali alle due run lette qui,
@@ -1420,20 +1481,11 @@ def patience_compare(cmp: dict, cstatus: dict, csums: dict, crows: list, curves:
     if sorted(hist) != sorted(order):
         fail("%s: the models of curves.csv are not the %d models" % (where, len(order)))
 
+    crit = {"rest_set": rest_set, "acc_half": acc_half, "tol_deg": tol_deg, "sat_acc": sat_acc, "sat_tol": sat_tol,
+            "rec_acc": rec_acc, "rec_loss": rec_loss}
+
     def side(h, n, p, lab):
-        """Una run di un modello dalle sue prime n epoche: criteri dell'aggregato e replay dell'arresto precoce."""
-        vl = [e["val_loss"] for e in h[:n]]
-        restored = vl.index(min(vl)) + 1
-        if n != min(max_epochs, restored + p):
-            problems.append("%s: %d epochs run, early stopping with patience %d and best epoch %d gives %d"
-                            % (lab, n, p, restored, min(max_epochs, restored + p)))
-        holds = [e["val_accuracy"] >= rec_acc and e["val_loss"] < rec_loss for e in h[:n]]
-        first = holds.index(True) + 1 if any(holds) else None
-        return {"epochs_run": n, "restored_epoch": restored, "best_val_loss": min(vl), "first_recovery": first,
-                "recovered": first is not None, "holding_last": holds[-1],
-                "degenerate": restored in rest_set and abs(h[restored - 1]["val_accuracy"] - acc_half) <= tol_deg,
-                "epochs_at_half": sum(abs(e["val_accuracy"] - sat_acc) <= sat_tol for e in h[:n]),
-                "lr_last": h[n - 1]["lr"], "val_acc_restored": h[restored - 1]["val_accuracy"], "holds": holds}
+        return replay_side(h, n, p, max_epochs, crit, lab, problems)
 
     models = []
     for i, ((a, k, s), c) in enumerate(zip(order, crows), 2):
@@ -1604,7 +1656,373 @@ def patience_compare(cmp: dict, cstatus: dict, csums: dict, crows: list, curves:
             problems.append("%s %s: same checkpoint in both runs, but test values or dev threshold differ" % (where, model_label(a, k, s)))
     return {"models": models, "labels": labels, "ten": ten, "patience": patience, "changed": changed, "max_epochs": max_epochs,
             "criteria_text": crit_text, "rec_criterion": (rec_acc, rec_loss), "d_label": sd_["label"], "same_ckpt": len(same_ckpt),
-            "verdict": verdict}
+            "verdict": verdict, "crit": crit, "criteria": cr, "order": order,
+            "hist": {k: sorted(v, key=lambda e: e["epoch"]) for k, v in hist.items()}}
+
+
+# --- controllo a learning rate costante (PR #25): run con pazienza 12 a lr 0,001 e confronto con la run a pazienza 12 ----
+
+CONST_BLOCK = "Session ablation run, patience %d, constant lr"
+LRCTRL_FIELDS = PATVER_FIELDS + ["amendment", "labels", "models_reported_apart", "reading_rule"]
+LRCTRL_DECLARATIONS = PATVER_DECLARATIONS + ("criteria_defined_in_the_previous_package",)
+LRCTRL_EXTRA_COLUMNS = ["parent_recovered_at_last_epoch", "new_recovered_at_last_epoch", "restored_epoch_changed",
+                        "first_lr_reduction_epoch_parent", "new_lr_constant", "new_lr_values", "reported_apart"]
+LRCTRL_COLUMNS = CMP_COLUMNS + LRCTRL_EXTRA_COLUMNS
+LRCTRL_WINDOW_RULE = "parent_epochs_before_first_lr_reduction"
+# Esiti della regola di lettura (b) del confronto, nell'ordine in cui la regola li applica (nuaa_patience_verify.py, schema 2)
+LRCTRL_VERDICTS = {"contribution": "consistent with a contribution of the reduction", "sufficient": "consistent with sufficient epochs",
+                   "mixed": "mixed (no overall verdict)"}
+SCHEDULER_FIELD = "training.scheduler"
+# Modelli riportati a parte fissati prima del run (NOTE.md del controllo, models_reported_apart della configurazione del
+# confronto) ed etichette delle due run nel confronto
+LRCTRL_REPORTED_APART = ["B fold 3 seed 44", "B' fold 4 seed 42"]
+LRCTRL_LABELS = {"parent_run": "patience12", "verification_run": "constant_lr"}
+# criteri del confronto che devono essere quelli del confronto delle pazienze (stessi degeneri, saturazione, ripresa)
+SHARED_CRITERIA = ("degenerate", "saturation", "recovery", "checkpoint_agreement_tolerance", "shared_history_difference")
+
+
+def float32(v: float) -> float:
+    """Il valore come lo registra Keras in float32 (0,001 -> 0.0010000000474974513)."""
+    return struct.unpack("f", struct.pack("f", v))[0]
+
+
+def lr_window(h: list, lr_rec: float) -> tuple:
+    """Finestra delle storie comuni: epoche iniziali con lr esattamente uguale al lr registrato della ricetta; prima epoca
+    a lr diverso (None se il lr non cambia mai). Il lr di Keras è quello con cui l'epoca è stata addestrata."""
+    w = 0
+    while w < len(h) and h[w]["lr"] == lr_rec:
+        w += 1
+    return w, (w + 1 if w < len(h) else None)
+
+
+def lrctrl_compare(cmp: dict, cstatus: dict, csums: dict, crows: list, curves: list, runs: dict, pc: dict, H: dict,
+                   statuses: dict, folds: dict, problems: list) -> dict:
+    """Confronto del controllo a lr costante (schema 2 del confronto): run ufficiale e ancore, ingressi = la run con pazienza
+    12 (riferimento) e la run a lr costante lette qui, emendamento training.scheduler con genitore la configurazione della
+    pazienza 12, criteri uguali al confronto delle pazienze; ogni riga del CSV ricostruita dalle curve (riferimento: le curve
+    pubbliche della run con pazienza 12; controllo: le curve di questo confronto), le colonne parent_* uguali alle new_* del
+    confronto delle pazienze (stessa run), finestra delle storie comuni (epoche al lr della ricetta) e identità esatta
+    delle curve in quella finestra, lr del controllo = lr della ricetta in ogni epoca, verdetto della regola di lettura (b)
+    ricalcolato, sezioni a-e ricostruite, stessi pesi -> stessi valori di test e stessa soglia dev."""
+    ref, new = runs["new"], runs["const"]
+    where = "constant-lr comparison"
+    for d, w in ((cmp, "aggregate"), (cstatus, "status")):
+        if d.get("dirty") is not False:
+            fail("%s %s: dirty is not false" % (where, w))
+        if str(d.get("run_id", "")).endswith("-dev"):
+            fail("%s %s: run id %r ends with -dev (trial run)" % (where, w, d.get("run_id")))
+        run_id_check(d, "%s %s" % (where, w))
+        if d.get("delivered_configuration") is not True:
+            fail("%s %s: not a run of the delivered configuration" % (where, w))
+    if cstatus.get("passed") is not True or cstatus.get("status") != "PASS" or cstatus.get("command") != "run":
+        fail("%s status: passed %r, status %r, command %r" % (where, cstatus.get("passed"), cstatus.get("status"), cstatus.get("command")))
+    for k in ("run_id", "commit", "config_sha256", "verdict"):
+        if cstatus.get(k) != cmp.get(k):
+            problems.append("%s status: %s %r differs from the aggregate %r" % (where, k, cstatus.get(k), cmp.get(k)))
+    if cstatus.get("verification_status") != new["agg"]["status"] or cstatus.get("verification_status") != "PASS":
+        problems.append("%s status: verification_status %r is not the status of the constant-lr run %r, PASS"
+                        % (where, cstatus.get("verification_status"), new["agg"]["status"]))
+    if cstatus.get("public_sums_sha256") != H["lrctrl_sums"]:
+        problems.append("%s status: public_sums_sha256 is not the SHA-256 of %s" % (where, SOURCES["lrctrl_sums"]))
+    for name, key in (("aggregate.json", "lrctrl_aggregate"), ("comparison.csv", "lrctrl_comparison"), ("curves.csv", "lrctrl_curves")):
+        if csums.get(name) != H[key]:
+            problems.append("%s: %s in SHA256SUMS is not the SHA-256 of %s" % (where, name, SOURCES[key]))
+    for k in LRCTRL_DECLARATIONS:
+        if dig(cmp, "declarations", k) is not True:
+            problems.append("%s: declaration %s is not true" % (where, k))
+
+    # Ingressi: riferimento = la run con pazienza 12, controllo = la run a lr costante (run id, commit, configurazione, ancore)
+    for side_, key, run in (("new", "parent_run", ref), ("const", "verification_run", new)):
+        inp = dig(cmp, "inputs", key)
+        if not isinstance(inp, dict):
+            fail("%s: inputs.%s missing" % (where, key))
+        a, st_ = run["agg"], statuses[side_]
+        want = {"run_id": a["run_id"], "commit": a["commit"], "config_sha256": a["config_sha256"], "status": "PASS",
+                "status_sha256": H[run["keys"]["status"]], "public_sums_sha256": H[run["keys"]["sums"]],
+                "restricted_sums_sha256": st_.get("restricted_sums_sha256"), "complete_models": len(run["names"]), "missing_models": 0,
+                "early_stopping_patience": pc["patience"]["new"]}
+        got = {k: inp.get(k) for k in want}
+        if got != want:
+            problems.append("%s: inputs.%s %r differ from the run read here %r"
+                            % (where, key, {k: v for k, v in got.items() if v != want[k]}, {k: v for k, v in want.items() if v != got[k]}))
+    if ref["agg"]["run_id"] == new["agg"]["run_id"] or ref["agg"]["config_sha256"] == new["agg"]["config_sha256"]:
+        problems.append("%s: the reference and the constant-lr run have the same run id or configuration" % where)
+    am = new["agg"].get("amendment")
+    if not isinstance(am, dict) or am.get("parent_config_sha256") != ref["agg"]["config_sha256"] or am.get("changed_field") != SCHEDULER_FIELD \
+            or not str(am.get("from", "")).startswith("ReduceLROnPlateau(") or not str(am.get("to", "")).startswith("constant"):
+        problems.append("%s: amendment of the constant-lr run %r is not parent %s, %s ReduceLROnPlateau(...) -> constant"
+                        % (where, am, ref["agg"]["config_sha256"][:12], SCHEDULER_FIELD))
+    if not isinstance(cmp.get("amendment"), dict) or not isinstance(am, dict) or \
+            any(cmp["amendment"].get(k) != am.get(k) for k in ("parent_config_sha256", "changed_field", "from", "to")):
+        problems.append("%s: amendment of the comparison differs from the amendment of the constant-lr run" % where)
+    max_epochs = dig(cmp, "recipe", "max_epochs")
+    if max_epochs != pc["max_epochs"]:
+        problems.append("%s: recipe.max_epochs %r differs from the patience comparison %r" % (where, max_epochs, pc["max_epochs"]))
+    cr = cmp["criteria"]
+    if not isinstance(cr, dict) or any(cr.get(k) != pc["criteria"].get(k) for k in SHARED_CRITERIA):
+        fail("%s: criteria differ from the patience comparison (%s)" % (where, ", ".join(SHARED_CRITERIA)))
+    lr_rec, lr_recipe = cr.get("recorded_recipe_lr"), dig(cmp, "recipe", "lr")
+    if cr.get("shared_history_window") != LRCTRL_WINDOW_RULE or cr.get("shared_history_difference") != 0:
+        fail("%s: shared-history window %r (difference %r), expected %s with difference 0"
+             % (where, cr.get("shared_history_window"), cr.get("shared_history_difference"), LRCTRL_WINDOW_RULE))
+    if not isinstance(lr_recipe, float) or not isinstance(lr_rec, float) or lr_rec not in (lr_recipe, float32(lr_recipe)):
+        fail("%s: recorded_recipe_lr %r is neither recipe.lr %r nor its float32 value" % (where, lr_rec, lr_recipe))
+    crit = pc["crit"]
+    p12 = pc["patience"]["new"]
+
+    # Curve del controllo; righe del CSV nell'ordine dei modelli
+    order, labels = pc["order"], pc["labels"]
+    if len(crows) != len(order):
+        fail("%s: comparison.csv has %d rows, expected %d" % (where, len(crows), len(order)))
+    hist = {}
+    for i, c in enumerate(curves, 2):
+        lab = "%s curves.csv line %d" % (where, i)
+        e = {"epoch": csv_int(c["epoch"], lab), "in_ten": csv_flag(c["in_ten"], lab)}
+        e.update({f: csv_float(c[f], lab) for f in HISTORY_FIELDS})
+        e.update({f: csv_flag(c[f], lab) for f in ("is_restored", "saturated", "shared_with_parent", "degenerate", "recovered_by_epoch")})
+        hist.setdefault((c["arm"], c["fold"], c["seed"]), []).append(e)
+    if sorted(hist) != sorted(order):
+        fail("%s: the models of curves.csv are not the %d models" % (where, len(order)))
+    apart = cmp["models_reported_apart"]
+    if not isinstance(apart, list) or len(set(apart)) != len(apart) or any(l not in labels for l in apart):
+        fail("%s: models_reported_apart is not a list of distinct models of the run" % where)
+    if apart != LRCTRL_REPORTED_APART:
+        problems.append("%s: models_reported_apart %r is not the list fixed before the run %r" % (where, apart, LRCTRL_REPORTED_APART))
+    pcm = {(r["arm"], r["fold"], r["seed"]): r for r in pc["models"]}
+    models = []
+    for i, ((a, k, s), c) in enumerate(zip(order, crows), 2):
+        lab = "%s comparison.csv %s" % (where, model_label(a, k, s))
+        if (c["arm"], c["fold"], c["seed"]) != (a, k, s):
+            fail("%s: line %d is %s fold %s seed %s, expected the models in arm, fold, seed order" % (where, i, c["arm"], c["fold"], c["seed"]))
+        row = {"arm": a, "fold": k, "seed": s, "label": model_label(a, k, s), "in_ten": csv_flag(c["in_ten"], lab),
+               "new_status": c["new_status"], "shared_epochs": csv_int(c["shared_epochs"], lab),
+               "shared_identical": csv_flag(c["shared_identical"], lab),
+               "max_abs_diff": {f: csv_float(c["max_abs_diff_shared_" + f], lab) for f in HISTORY_FIELDS},
+               "restored_epoch_changed": csv_flag(c["restored_epoch_changed"], lab),
+               "first_lr_reduction": csv_int(c["first_lr_reduction_epoch_parent"], lab, empty_ok=True),
+               "new_lr_constant": csv_flag(c["new_lr_constant"], lab), "new_lr_values": c["new_lr_values"],
+               "reported_apart": csv_flag(c["reported_apart"], lab)}
+        for sd in ("parent", "new"):
+            row[sd] = {"epochs_run": csv_int(c[sd + "_epochs_run"], lab), "restored_epoch": csv_int(c[sd + "_restored_epoch"], lab),
+                       "degenerate": csv_flag(c[sd + "_degenerate"], lab), "recovered": csv_flag(c[sd + "_recovered"], lab),
+                       "first_recovery": csv_int(c[sd + "_first_recovery"], lab, empty_ok=True),
+                       "best_val_loss": csv_float(c[sd + "_best_val_loss"], lab),
+                       "dev_acc_at_checkpoint": csv_float(c[sd + "_dev_acc_at_checkpoint"], lab),
+                       "dev_auroc_at_checkpoint": csv_float(c[sd + "_dev_auroc_at_checkpoint"], lab),
+                       "epochs_at_half": csv_int(c[sd + "_epochs_at_half"], lab), "lr_last": csv_float(c[sd + "_lr_last"], lab),
+                       "recovered_at_last_epoch": csv_flag(c[sd + "_recovered_at_last_epoch"], lab)}
+        # Controllo incrociato: il riferimento di questo confronto è la run con pazienza 12 del confronto delle pazienze
+        other = pcm[(a, k, s)]
+        if any(row["parent"][f] != other["new"][f] for f in SIDE_FIELDS) or row["in_ten"] != other["in_ten"]:
+            problems.append("%s: the reference columns (parent_*) or in_ten differ from the patience-12 columns (new_*) of the "
+                            "patience comparison" % lab)
+        hp = pc["hist"][(a, k, s)]
+        hn = sorted(hist[(a, k, s)], key=lambda e: e["epoch"])
+        if [e["epoch"] for e in hn] != list(range(1, len(hn) + 1)) or len(hn) != row["new"]["epochs_run"]:
+            problems.append("%s: curves.csv epochs are not 1..%d" % (lab, row["new"]["epochs_run"]))
+            continue
+        if row["new_status"] != "complete":
+            problems.append("%s: status %r in the constant-lr run" % (lab, row["new_status"]))
+        der = {"parent": replay_side(hp, len(hp), p12, max_epochs, crit, "%s reference" % lab, problems),
+               "new": replay_side(hn, len(hn), p12, max_epochs, crit, "%s constant lr" % lab, problems)}
+        for sd, run in (("parent", ref), ("new", new)):
+            x, d = row[sd], der[sd]
+            diff = [f for f in ("epochs_run", "restored_epoch", "best_val_loss", "degenerate", "recovered", "first_recovery",
+                                "epochs_at_half", "lr_last") if x[f] != d[f]]
+            if x["recovered_at_last_epoch"] != d["holding_last"]:
+                diff.append("recovered_at_last_epoch")
+            if diff:
+                problems.append("%s %s: %s differ from the curves with the criteria of the aggregate"
+                                % (lab, "reference" if sd == "parent" else "constant lr", ", ".join(diff)))
+            if abs(x["dev_acc_at_checkpoint"] - d["val_acc_restored"]) > cr["checkpoint_agreement_tolerance"]:
+                problems.append("%s %s: dev accuracy at the checkpoint differs from val_accuracy of the restored epoch"
+                                % (lab, "reference" if sd == "parent" else "constant lr"))
+            tr = run["training"][model_name(a, k, s)]
+            if (tr["epochs_run"], tr["restored_epoch"], tr["best_val_loss"]) != (x["epochs_run"], x["restored_epoch"], x["best_val_loss"]):
+                problems.append("%s %s: epochs, restored epoch or best val_loss differ from the training card of the run"
+                                % (lab, "reference" if sd == "parent" else "constant lr"))
+        # Finestra delle storie comuni (lr della ricetta nel riferimento) e identità esatta delle curve dentro la finestra
+        w, first = lr_window(hp, lr_rec)
+        if w == 0 or (first is not None and hp[w]["lr"] > lr_rec):
+            problems.append("%s: the reference does not start at the recipe rate or its first change is not a reduction" % lab)
+        mad = {f: max([abs(hn[j][f] - hp[j][f]) for j in range(min(w, len(hn)))], default=0.0) for f in HISTORY_FIELDS}
+        ident = len(hn) >= w and all(hn[j][f] == hp[j][f] for j in range(w) for f in HISTORY_FIELDS)
+        if (row["shared_epochs"], row["first_lr_reduction"]) != (w, first):
+            problems.append("%s: shared epochs %s and first reduced epoch %s, the reference curves give %d and %s"
+                            % (lab, row["shared_epochs"], row["first_lr_reduction"], w, first))
+        if not ident or not row["shared_identical"] or row["max_abs_diff"] != mad or any(v != 0 for v in mad.values()):
+            problems.append("%s: shared history not identical over the %d epochs at the recipe rate" % (lab, w))
+        lrs = [e["lr"] for e in hn]
+        const = all(v == lr_rec for v in lrs)
+        if row["new_lr_constant"] != const or row["new_lr_values"] != ";".join(repr(v) for v in sorted(set(lrs))) or not const:
+            problems.append("%s: the learning rate of the constant-lr run is not %r at every epoch (or new_lr_constant / "
+                            "new_lr_values differ from the curves)" % (lab, lr_rec))
+        if row["restored_epoch_changed"] != (row["parent"]["restored_epoch"] != row["new"]["restored_epoch"]):
+            problems.append("%s: restored_epoch_changed differs from the restored epochs" % lab)
+        if row["reported_apart"] != (row["label"] in apart):
+            problems.append("%s: reported_apart differs from models_reported_apart" % lab)
+        for e in hn:
+            want = (e["epoch"] <= w, e["epoch"] == der["new"]["restored_epoch"], abs(e["val_accuracy"] - crit["sat_acc"]) <= crit["sat_tol"],
+                    der["new"]["holds"][e["epoch"] - 1], row["new"]["degenerate"], row["in_ten"])
+            if (e["shared_with_parent"], e["is_restored"], e["saturated"], e["recovered_by_epoch"], e["degenerate"], e["in_ten"]) != want:
+                problems.append("%s epoch %d: flags of curves.csv differ from the values" % (lab, e["epoch"]))
+                break
+        row.update({"derived": der, "window": w, "lrs": sorted(set(lrs)), "hist": hn,
+                    "same_weights": row["parent"]["restored_epoch"] == row["new"]["restored_epoch"] and row["new"]["restored_epoch"] <= w})
+        models.append(row)
+    if len(models) != len(order):
+        fail("consistency problems:\n  - " + "\n  - ".join(problems))
+
+    # I dieci, le liste dell'aggregato
+    ten = [r["label"] for r in models if r["in_ten"]]
+    if not isinstance(cmp["original_degenerate"], list) or sorted(cmp["original_degenerate"]) != sorted(pc["ten"]) or \
+            sorted(dig(cr, "original_degenerate_models") or []) != sorted(model_name(r["arm"], r["fold"], r["seed"]) for r in models if r["in_ten"]):
+        problems.append("%s: original_degenerate differs from the ten of the patience comparison" % where)
+    if not isinstance(cmp["models_without_recovery_parent"], list) or \
+            sorted(cmp["models_without_recovery_parent"]) != sorted(r["label"] for r in models if not r["parent"]["recovered"]):
+        problems.append("%s: models_without_recovery_parent differs from the rows" % where)
+
+    # Righe JSON = CSV
+    jrows = cmp["rows"]
+    if not isinstance(jrows, list) or len(jrows) != len(models):
+        fail("%s: aggregate rows are not %d" % (where, len(models)))
+    for r, j in zip(models, jrows):
+        ok = isinstance(j, dict) and j.get("model") == r["label"] and j.get("in_ten") is r["in_ten"] and j.get("new_status") == r["new_status"] \
+            and j.get("shared_epochs") == r["shared_epochs"] and j.get("shared_identical") is r["shared_identical"] \
+            and j.get("max_abs_diff_shared") == r["max_abs_diff"] and j.get("first_lr_reduction_epoch_parent") == r["first_lr_reduction"] \
+            and j.get("new_lr_constant") is r["new_lr_constant"] and j.get("new_lr_values") == r["lrs"] \
+            and j.get("restored_epoch_changed") is r["restored_epoch_changed"] and j.get("reported_apart") is r["reported_apart"]
+        for sd in ("parent", "new"):
+            ok = ok and all(dig(j, sd, jf) == r[sd][cf] for jf, cf in ROW_SIDE_FIELDS.items()) \
+                and dig(j, sd, "recovered_at_last_epoch") is r[sd]["recovered_at_last_epoch"]
+        ok = ok and (dig(j, "parent", "shared_epochs"), dig(j, "parent", "first_lr_reduction_epoch")) == (r["shared_epochs"], r["first_lr_reduction"]) \
+            and (dig(j, "new", "lr_constant"), dig(j, "new", "lr_values")) == (r["new_lr_constant"], r["lrs"])
+        if not ok:
+            problems.append("%s: aggregate row %s differs from comparison.csv" % (where, r["label"]))
+
+    # (a) validità: storie comuni, lr costante, finestre
+    sects = cmp["sections"]
+    if not isinstance(sects, dict) or not all(isinstance(sects.get(x), dict) for x in "abcde"):
+        fail("%s: sections a-e missing" % where)
+    sa, sb, sc, sd_, se = (sects[x] for x in "abcde")
+    rr = cmp["reading_rule"]
+    if not isinstance(rr, dict) or any(not isinstance(rr.get(x), str) or not rr[x] or sects[x].get("rule") != rr[x] for x in "abcde"):
+        problems.append("%s: reading rule (a)-(e) missing or not the rule quoted in the sections" % where)
+    wins = [r["window"] for r in models]
+    firsts = [r["first_lr_reduction"] for r in models if r["first_lr_reduction"] is not None]
+    want_w = {"rule": LRCTRL_WINDOW_RULE, "recorded_recipe_lr": lr_rec, "models": len(models), "min_shared_epochs": min(wins),
+              "max_shared_epochs": max(wins), "never_reduced": len(models) - len(firsts),
+              "first_reduction_epoch_min": min(firsts) if firsts else None, "first_reduction_epoch_max": max(firsts) if firsts else None}
+    n_ident = sum(r["shared_identical"] for r in models)
+    n_const = sum(r["new_lr_constant"] for r in models)
+    got_a = {k: sa.get(k) for k in ("models_compared", "identical", "valid", "largest_difference", "new_history_shorter_than_shared",
+                                     "max_abs_difference_per_field", "new_lr_constant", "new_lr_not_constant", "new_lr_values", "window")}
+    want_a = {"models_compared": len(models), "identical": n_ident, "valid": True, "largest_difference": None,
+              "new_history_shorter_than_shared": [], "max_abs_difference_per_field": {f: 0.0 for f in HISTORY_FIELDS},
+              "new_lr_constant": n_const, "new_lr_not_constant": [], "new_lr_values": [lr_rec], "window": want_w}
+    if got_a != want_a or dig(cmp, "inputs", "parent_run", "shared_history_windows") != want_w:
+        problems.append("%s: section a (shared histories, constant rate, windows) differs from the rows in %s"
+                        % (where, sorted(k for k in want_a if got_a[k] != want_a[k]) or ["inputs.parent_run.shared_history_windows"]))
+
+    # (b) esito primario: la regola di lettura riapplicata alle righe
+    ten_not_rec = [r["label"] for r in models if r["in_ten"] and not r["new"]["recovered"]]
+    deg = [r["label"] for r in models if r["new"]["degenerate"]]
+    lost = [r["label"] for r in models if not r["in_ten"] and r["parent"]["recovered"] and not r["new"]["recovered"]]
+    verdict = LRCTRL_VERDICTS["contribution" if ten_not_rec else "sufficient" if not deg and not lost else "mixed"]
+    if (cmp["verdict"], sb.get("verdict"), cstatus.get("verdict")) != (verdict, verdict, verdict):
+        problems.append("%s: verdict %r (section b %r, status %r); the reading rule applied to the rows gives %r"
+                        % (where, cmp["verdict"], sb.get("verdict"), cstatus.get("verdict"), verdict))
+    want_b = {"ten": sorted(ten), "ten_recovered": sum(1 for r in models if r["in_ten"] and r["new"]["recovered"]), "ten_complete": len(ten),
+              "ten_without_recovery": ten_not_rec, "ten_degenerate": [l for l in ten if l in deg], "degenerate_among_complete": deg,
+              "without_recovery_outside_ten": [r["label"] for r in models if not r["in_ten"] and not r["new"]["recovered"]],
+              "without_recovery_parent": sorted(r["label"] for r in models if not r["parent"]["recovered"]), "missing_models": [],
+              "ten_first_recovery": {r["label"]: r["new"]["first_recovery"] for r in models if r["in_ten"]},
+              "verification_status": new["agg"]["status"], "recovery_not_reproduced_outside_ten": lost,
+              "ten_model_by_model": [{"model": r["label"], "complete": True, "first_recovery": r["new"]["first_recovery"],
+                                      "first_recovery_parent": r["parent"]["first_recovery"],
+                                      "recovered_at_last_epoch": r["new"]["recovered_at_last_epoch"],
+                                      "restored_epoch": r["new"]["restored_epoch"], "degenerate": r["new"]["degenerate"]}
+                                     for r in models if r["in_ten"]]}
+    got_b = {k: sb.get(k) for k in want_b}
+    for k in ("ten", "without_recovery_parent"):
+        got_b[k] = sorted(got_b[k]) if isinstance(got_b[k], list) else got_b[k]
+    if isinstance(got_b["ten_model_by_model"], list):
+        got_b["ten_model_by_model"] = sorted(got_b["ten_model_by_model"], key=lambda x: str(x.get("model")) if isinstance(x, dict) else "")
+        want_b["ten_model_by_model"] = sorted(want_b["ten_model_by_model"], key=lambda x: x["model"])
+    if got_b != want_b:
+        problems.append("%s: section b differs from the rows in %s" % (where, sorted(k for k in want_b if got_b[k] != want_b[k])))
+
+    # (c) secondari
+    groups = {"the ten": [r for r in models if r["in_ten"]], "the other 26": [r for r in models if not r["in_ten"]], "all 36": models}
+    want_s = []
+    for g in SUMMARY_GROUPS:
+        for sd in ("parent", "new"):
+            e = {"group": g, "side": sd}
+            for jm, cf in SUMMARY_MEASURES.items():
+                vals = [r[sd][cf] for r in groups[g] if r[sd][cf] is not None]
+                e[jm] = {"models": len(vals), "median": statistics.median(vals) if vals else None,
+                         "min": min(vals) if vals else None, "max": max(vals) if vals else None}
+            want_s.append(e)
+    want_c = {"summary": want_s,
+              "recovered": {"parent": sum(r["parent"]["recovered"] for r in models), "new": sum(r["new"]["recovered"] for r in models),
+                            "new_complete": len(models)},
+              "recovered_at_last_epoch": {"parent": sum(r["parent"]["recovered_at_last_epoch"] for r in models),
+                                          "new": sum(r["new"]["recovered_at_last_epoch"] for r in models)},
+              "restored_epoch_changed": sum(r["restored_epoch_changed"] for r in models),
+              "reported_apart": [dict(j, arm=r["arm"], fold=int(r["fold"]), seed=int(r["seed"])) for r, j in zip(models, jrows)
+                                 if r["label"] in apart]}
+    got_c = {k: sc.get(k) for k in want_c}
+    if got_c != want_c:
+        problems.append("%s: section c differs from the rows in %s" % (where, sorted(k for k in want_c if got_c[k] != want_c[k])))
+
+    # (d) test: verdetti delle due run uguali agli aggregati
+    vp, vn = ref["verdicts"], new["verdicts"]
+    keys_ = [(c[0], st, m) for c in ABL_COMPARISONS for st in FOLDS_STRATA for m in FOLDS_SUMMARY_KEYS]
+    changed = [k for k in keys_ if (vp[k]["verdict"], vp[k]["direction"]) != (vn[k]["verdict"], vn[k]["direction"])]
+    want_d = [{"comparison": COMPARISON_LABELS[c], "stratum": st, "metric": m,
+               "parent": {"verdict": vp[(c, st, m)]["verdict"], "direction": vp[(c, st, m)]["direction"],
+                          "reason": vp[(c, st, m)]["reason"], "median": vp[(c, st, m)]["median"]},
+               "new": {"verdict": vn[(c, st, m)]["verdict"], "direction": vn[(c, st, m)]["direction"],
+                       "reason": vn[(c, st, m)]["reason"], "median": vn[(c, st, m)]["median"]}} for c, st, m in keys_]
+    if sd_.get("rows") != want_d:
+        problems.append("%s: section d rows differ from the verdicts and medians of the two aggregates" % where)
+    want_p = [{"metric": m, "parent": {k: vp[("a_star_minus_b", PRIMARY_STRATUM, m)][k] for k in ("verdict", "direction", "reason")},
+               "new": {k: vn[("a_star_minus_b", PRIMARY_STRATUM, m)][k] for k in ("verdict", "direction", "reason")}} for m in PRIMARY_METRICS]
+    if sd_.get("primary") != want_p:
+        problems.append("%s: section d primary verdicts differ from the two aggregates" % where)
+    n_changed = sum(1 for k in keys_ if vp[k]["verdict"] != vn[k]["verdict"])
+    if sd_.get("verdicts_changed") != n_changed:
+        problems.append("%s: section d declares %r verdicts changed, the two aggregates give %d" % (where, sd_.get("verdicts_changed"), n_changed))
+    if not isinstance(sd_.get("label"), str) or sd_.get("reported") is not True:
+        problems.append("%s: section d label missing or not reported" % where)
+
+    # (e) tempi: entro il tetto, uguali ai record; epoche e secondi per braccio uguali alle schede
+    if (se.get("new_wall_seconds"), se.get("parent_wall_seconds"), se.get("cap_seconds"), se.get("within_cap"),
+            se.get("final_writes_after_cap"), se.get("stopped")) != (new["rec"]["wall_seconds"], ref["rec"]["wall_seconds"],
+                                                                      new["cap"], True, False, None):
+        problems.append("%s: section e (wall times, cap, within the cap, stop) differs from the run records" % where)
+    rl = cmp["labels"]
+    if rl != LRCTRL_LABELS:
+        problems.append("%s: labels %r of the two runs are not %r" % (where, rl, LRCTRL_LABELS))
+    want_e = []
+    for sd, run in (("parent_run", ref), ("verification_run", new)):
+        for a in ABL_ARMS:
+            cards = [run["training"][model_name(a, k, s)] for k in folds["folds"] for s in folds["seeds"]]
+            want_e.append((dig(rl, sd), ARM_LABELS[a], len(cards), sum(t["epochs_run"] for t in cards), sum(t["train_seconds"] for t in cards)))
+    got_e = [(x.get("run"), x.get("arm"), x.get("models"), x.get("epochs"), x.get("train_seconds")) if isinstance(x, dict) else None
+             for x in se.get("per_arm") or []]
+    if len(got_e) != len(want_e) or any(g is None or g[:4] != w[:4] or g[4] != round(w[4], 1) for g, w in zip(got_e, want_e)):
+        problems.append("%s: section e per arm (models, epochs, train seconds) differs from the training cards" % where)
+
+    # Stessi pesi (epoca ripristinata dentro la finestra comune e uguale): stessi valori di test e stessa soglia dev
+    for r in models:
+        a, k, s = r["arm"], r["fold"], r["seed"]
+        if r["same_weights"] and (ref["raw"][(a, k, s)] != new["raw"][(a, k, s)] or
+                                  ref["training"][model_name(a, k, s)]["dev_threshold"] != new["training"][model_name(a, k, s)]["dev_threshold"]):
+            problems.append("%s %s: same weights in both runs (restored epoch inside the shared window), but test values or dev "
+                            "threshold differ" % (where, r["label"]))
+    return {"models": models, "ten": ten, "changed": changed, "verdict": verdict, "lost": lost, "apart": apart, "lr": lr_recipe,
+            "lr_rec": lr_rec, "window": want_w, "labels": rl}
 
 
 def span(vals: list) -> str:
@@ -1617,19 +2035,23 @@ def fmt_lr(v: float) -> str:
     return ("%.10f" % v).rstrip("0").rstrip(".")
 
 
-def ablation_rows(run: dict, patience: int, folds: dict, T: dict, src: str) -> list:
-    """Righe della tabella unica: per braccio e seed, i 4 modelli dei fold aggregati (strato all), soglie 0,5 e dev, bootstrap."""
+def ablation_rows(run: dict, patience: int, folds: dict, T: dict, src: str, const_lr: str = None) -> list:
+    """Righe della tabella unica: per braccio e seed, i 4 modelli dei fold aggregati (strato all), soglie 0,5 e dev, bootstrap.
+    Con const_lr (il lr costante come testo) le righe del controllo a lr costante: blocco, id e testo dell'arresto propri."""
     rows = []
+    tag = "C" if const_lr else ""
     for a in ABL_ARMS:
         for s in folds["seeds"]:
             cards = [run["training"][model_name(a, k, s)] for k in folds["folds"]]
             b = run["boot"].get((a, s, "all"))
-            rows.append(row(row="SESSABL-P%d-%s-seed%s" % (patience, ARM_IDS[a], s), block=ABL_BLOCK % patience,
+            rows.append(row(row="SESSABL-P%d%s-%s-seed%s" % (patience, tag, ARM_IDS[a], s),
+                            block=(CONST_BLOCK if const_lr else ABL_BLOCK) % patience,
                             model="LivenessNet, %s, the %d fold models of seed %s pooled over the held-out folds; early-stopping "
-                                  "patience %d (epochs run %s, restored epochs %s)"
-                                  % (ARM_TEXTS[a].split(":")[0], len(cards), s, patience, span([t["epochs_run"] for t in cards]),
+                                  "patience %d%s (epochs run %s, restored epochs %s)"
+                                  % (ARM_TEXTS[a].split(":")[0], len(cards), s, patience,
+                                     ", constant learning rate %s" % const_lr if const_lr else "", span([t["epochs_run"] for t in cards]),
                                      span([t["restored_epoch"] for t in cards])),
-                            training_data=T["abl_train_" + a], early_stopping=T["abl_dev_p%d" % patience],
+                            training_data=T["abl_train_" + a], early_stopping=T["abl_dev_p%d%s" % (patience, tag.lower())],
                             test_set=T["folds_test_all"], extractor=EXTRACTOR_FOLDS, threshold="0.5", threshold_origin=THR_ABL_ORIGIN,
                             threshold_dev=THR_DEV_POOLED, run_id=run["agg"]["run_id"], transfer=TRANSFER_ABL,
                             bootstrap=("ACER 0.5 %s; ACER dev %s; AUROC %s" % (iv(b, "acer_05"), iv(b, "acer_dev"), iv(b, "auroc"))
@@ -1638,8 +2060,9 @@ def ablation_rows(run: dict, patience: int, folds: dict, T: dict, src: str) -> l
     return rows
 
 
-def abl_texts(run: dict, patience: dict, max_epochs: int) -> dict:
-    """Testi delle righe di ablazione, costruiti dalle celle del record (uguali nelle due run: controllato da build)."""
+def abl_texts(run: dict, patience: dict, max_epochs: int, const: tuple = None) -> dict:
+    """Testi delle righe di ablazione, costruiti dalle celle del record (uguali nelle run: controllato da build); con const
+    (pazienza, lr come testo) anche il testo dell'arresto del controllo a lr costante e la sua parte della legenda."""
     def cell(c):
         return c.replace("bona_fide", "bf").replace("attack", "att")
     T = {}
@@ -1658,6 +2081,14 @@ def abl_texts(run: dict, patience: dict, max_epochs: int) -> dict:
     T["abl_dev_legend"] = ("common dev of the fold (sessions 01-02 of the subjects of the next held-out fold, no session 03, %s "
                            "frames) for early stopping, learning-rate schedule and EER threshold; patience %s"
                            % (fmt(run["n_dev"]), " and ".join("%d in the SESSABL-P%d rows" % (p, p) for p in patience.values())))
+    if const:
+        p, lr = const
+        T["abl_dev_p%dc" % p] = ("common dev of the fold (sessions 01-02 of the subjects of the next held-out fold, no session 03): "
+                                 "%s frames, %s per class x session cell (%s); early stopping with patience %d, at most %d epochs, "
+                                 "minimum dev val_loss restored; constant learning rate %s (no ReduceLROnPlateau); EER threshold"
+                                 % (fmt(run["n_dev"]), per_cell, ", ".join(cell(x) for x in dv), p, max_epochs, lr))
+        T["abl_dev_legend"] += ("; in the SESSABL-P%dC rows patience %d with a constant learning rate %s instead of the schedule"
+                                % (p, p, lr))
     return T
 
 
@@ -1801,6 +2232,199 @@ def ablation_annex(runs: dict, pc: dict, folds: dict) -> dict:
                for c in t1]
     return {"patience_train_dev": t1, "patience_test": t2, "patience_lines": lines1, "test_lines": lines2, "patience_compact": compact,
             "pooled": pooled_rows, "pooled_summary": summary_rows, "verdicts": verdict_rows, "verdict_lines": lines3}
+
+
+# Le tre condizioni sugli stessi 36 modelli: pazienza 4 (run di ablazione), pazienza 12 con ReduceLROnPlateau (verifica
+# della pazienza), pazienza 12 a lr costante (controllo); chiave della run in runs e nome breve nelle tabelle
+REGIMES = (("p4", "parent"), ("p12", "new"), ("p12c", "const"))
+
+
+def three_regimes_annex(runs: dict, pc: dict, lc: dict, folds: dict) -> dict:
+    """Annesso delle tre condizioni: per modello train/dev (dalle curve, già controllate), poi il test per modello; righe di
+    riepilogo calcolate dalle righe, in tre blocchi (ripresa, stabilità, checkpoint selezionato) più quelle del test;
+    tabella dei verdetti delle tre run e aggregati della run a lr costante."""
+    M, L = pc["models"], lc["models"]
+    n = len(M)
+
+    def val(i, reg):
+        """(valori del CSV, valori ricavati dalle curve) del modello i nella condizione reg."""
+        if reg == "p4":
+            return M[i]["parent"], M[i]["derived"]["parent"]
+        if reg == "p12":
+            return M[i]["new"], M[i]["derived"]["new"]
+        return L[i]["new"], L[i]["derived"]["new"]
+
+    def changed(i, a, b):
+        return val(i, a)[0]["restored_epoch"] != val(i, b)[0]["restored_epoch"]
+    ten = [i for i in range(n) if M[i]["in_ten"]]
+    oth = [i for i in range(n) if not M[i]["in_ten"]]
+    labels = pc["labels"]
+    dash = "—"
+
+    def fr(v):
+        return dash if v is None else v
+    t1, t2, compact = [], [], []
+    for i, r in enumerate(M):
+        a, k, s = r["arm"], r["fold"], r["seed"]
+        cells = [ARM_LABELS[a], k, s, yn(r["in_ten"])]
+        for reg, _ in REGIMES:
+            x, d = val(i, reg)
+            cells += [x["epochs_run"], x["restored_epoch"], yn(x["degenerate"]), fr(x["first_recovery"]), yn(d["holding_last"]),
+                      x["epochs_at_half"], d["half_after_recovery"] if x["recovered"] else dash, "%.4f" % x["best_val_loss"],
+                      "%.4f" % x["dev_acc_at_checkpoint"], "%.4f" % x["dev_auroc_at_checkpoint"], fmt_lr(x["lr_last"])]
+        cells += [fr(L[i]["first_lr_reduction"]), L[i]["window"], yn(changed(i, "p4", "p12")), yn(changed(i, "p12", "p12c")),
+                  yn(L[i]["same_weights"])]
+        t1.append(cells)
+        tc = [ARM_LABELS[a], k, s, yn(r["in_ten"]), yn(changed(i, "p4", "p12")), yn(changed(i, "p12", "p12c")), yn(L[i]["same_weights"])]
+        for _, side in REGIMES:
+            for st in ("03", "all"):
+                m = runs[side]["raw"][(a, k, s)][st]
+                tc += [f4(m["acer_05"]), f4(m["acer_dev"]), f4(m["auroc"])]
+        t2.append(tc)
+        compact.append([labels[i], "yes" if r["in_ten"] else dash] + [
+            " → ".join(str(f(val(i, reg))) for reg, _ in REGIMES)
+            for f in (lambda v: v[0]["restored_epoch"], lambda v: fr(v[0]["first_recovery"]), lambda v: yn(v[1]["holding_last"]),
+                      lambda v: "%.4f" % v[0]["dev_acc_at_checkpoint"])]
+            + ["%s / %s" % ("yes" if changed(i, "p4", "p12") else dash, "yes" if changed(i, "p12", "p12c") else dash)])
+
+    def cnt(idx, f):
+        return sum(1 for i in idx if f(i))
+
+    def per_reg(f, sep=", "):
+        return sep.join("%s %s" % (reg, f(reg)) for reg, _ in REGIMES)
+
+    def rng(vals, form="%g"):
+        if not vals:
+            return dash
+        return "%s (%s-%s)" % (form % statistics.median(vals), form % min(vals), form % max(vals))
+    A = range(n)
+    rec = lambda reg: (lambda i: val(i, reg)[0]["recovered"])
+    hold = lambda reg: (lambda i: val(i, reg)[1]["holding_last"])
+    nten, noth = len(ten), len(oth)
+    recovery = [
+        "Models: %d (%d arms x %d folds x %d seeds); complete: %s." % (n, len(ABL_ARMS), len(folds["folds"]), len(folds["seeds"]),
+                                                                       per_reg(lambda reg: n)),
+        "The ten (degenerate with p4) with a recovery: %s." % per_reg(lambda reg: "%d of %d" % (cnt(ten, rec(reg)), nten)),
+        "Degenerate among the %d: %s." % (n, per_reg(lambda reg: cnt(A, lambda i: val(i, reg)[0]["degenerate"]))),
+        "With a recovery among the %d: %s." % (n, per_reg(lambda reg: cnt(A, rec(reg)))),
+        "First recovery of the ten, median (min-max): %s." % per_reg(
+            lambda reg: rng([val(i, reg)[0]["first_recovery"] for i in ten if val(i, reg)[0]["recovered"]])),
+        "First recovery of the ten, p12c against p12: earlier in %d, at the same epoch in %d, later in %d." % tuple(
+            cnt(ten, lambda i, sg=sg: val(i, "p12")[0]["recovered"] and val(i, "p12c")[0]["recovered"]
+                and (val(i, "p12c")[0]["first_recovery"] > val(i, "p12")[0]["first_recovery"]) - (val(i, "p12c")[0]["first_recovery"]
+                                                                                                    < val(i, "p12")[0]["first_recovery"]) == sg)
+            for sg in (-1, 0, 1)),
+        "First recovery of the other %d, median (min-max) [with one]: %s." % (noth, per_reg(
+            lambda reg: "%s [%d]" % (rng([val(i, reg)[0]["first_recovery"] for i in oth if val(i, reg)[0]["recovered"]]), cnt(oth, rec(reg))))),
+        "Recovery lost (outside the ten): p4 to p12 %s; p12 to p12c %s." % tuple(
+            ", ".join(labels[i] for i in oth if val(i, x)[0]["recovered"] and not val(i, y)[0]["recovered"]) or "none"
+            for x, y in (("p4", "p12"), ("p12", "p12c"))),
+    ]
+    apart = [i for i in range(n) if labels[i] in lc["apart"] or labels[i] in lc["lost"]]
+
+    def why(i):
+        return ", ".join(w for w, c in (("reported apart", labels[i] in lc["apart"]), ("recovery lost", labels[i] in lc["lost"])) if c)
+
+    def arrow(i, f):
+        return " → ".join(str(f(val(i, reg))) for reg, _ in REGIMES)
+    stability = [
+        "Recovery holds at the last epoch: %s." % per_reg(lambda reg: "%d of %d" % (cnt(A, hold(reg)), n)),
+        "Recovery holds at the last epoch, the ten: %s; the other %d: %s." % (
+            per_reg(lambda reg: cnt(ten, hold(reg))), noth, per_reg(lambda reg: cnt(oth, hold(reg)))),
+        "Holds at the last epoch with p12 but not with p12c: %d; with p12c but not with p12: %d." % (
+            cnt(A, lambda i: hold("p12")(i) and not hold("p12c")(i)), cnt(A, lambda i: hold("p12c")(i) and not hold("p12")(i))),
+        "Models with an epoch at 0.5 after their first recovery (a relapse): %s." % per_reg(
+            lambda reg: cnt(A, lambda i: val(i, reg)[1]["half_after_recovery"] > 0)),
+    ] + ["%s (%s): first recovery %s; holds at last %s; at 0.5 after it %s." % (
+        labels[i], why(i), arrow(i, lambda v: fr(v[0]["first_recovery"])), arrow(i, lambda v: yn(v[1]["holding_last"])),
+        arrow(i, lambda v: v[1]["half_after_recovery"] if v[0]["recovered"] else dash)) for i in apart]
+    same_ep = [i for i in A if not changed(i, "p12", "p12c")]
+    same_w = [i for i in A if L[i]["same_weights"]]
+
+    def cmp3(f, words):
+        sg = [cnt(A, lambda i, s=s: (f(val(i, "p12c")) > f(val(i, "p12"))) - (f(val(i, "p12c")) < f(val(i, "p12"))) == s) for s in (1, -1, 0)]
+        return ", ".join("%s in %d" % (w, c) for w, c in zip(words, sg))
+    checkpoint = [
+        "Restored epoch changed: p4 to p12 %d of %d (%d of the ten), p12 to p12c %d of %d (%d of the ten)." % (
+            cnt(A, lambda i: changed(i, "p4", "p12")), n, cnt(ten, lambda i: changed(i, "p4", "p12")),
+            cnt(A, lambda i: changed(i, "p12", "p12c")), n, cnt(ten, lambda i: changed(i, "p12", "p12c"))),
+        "Same restored epoch with p12 and p12c: %d; of these, same weights (inside the shared window): %d." % (len(same_ep), len(same_w)),
+        "Different checkpoints with p12 and p12c: %d of %d (another restored epoch %d, same epoch after the window %d)." % (
+            n - len(same_w), n, n - len(same_ep), len(same_ep) - len(same_w)),
+        "Best val_loss at the checkpoint, p12c against p12: %s." % cmp3(lambda v: v[0]["best_val_loss"], ("higher", "lower", "equal")),
+        "Dev accuracy at the checkpoint, p12c against p12: %s." % cmp3(lambda v: v[0]["dev_acc_at_checkpoint"], ("higher", "lower", "equal")),
+        "Dev accuracy and AUROC at the checkpoint, next four lines: median (min-max) per regime.",
+    ]
+    for what, key in (("Dev acc at ckpt", "dev_acc_at_checkpoint"), ("Dev AUROC at ckpt", "dev_auroc_at_checkpoint")):
+        for group, idx in (("the ten", ten), ("the other %d" % noth, oth)):
+            checkpoint.append("%s, %s: %s." % (what, group, per_reg(lambda reg: rng([val(i, reg)[0][key] for i in idx], "%.4f"))))
+    checkpoint.append("Dev acc at ckpt below %g: %s (the ten: %s)." % (
+        LOW_DEV_ACCURACY, per_reg(lambda reg: "%d of %d" % (cnt(A, lambda i: val(i, reg)[0]["dev_acc_at_checkpoint"] < LOW_DEV_ACCURACY), n)),
+        per_reg(lambda reg: cnt(ten, lambda i: val(i, reg)[0]["dev_acc_at_checkpoint"] < LOW_DEV_ACCURACY))))
+    checkpoint += ["%s: restored epoch %s; dev acc at ckpt %s." % (
+        labels[i], arrow(i, lambda v: v[0]["restored_epoch"]), arrow(i, lambda v: "%.4f" % v[0]["dev_acc_at_checkpoint"])) for i in apart]
+
+    # Test (separato, non usato per giudicare): stessi pesi -> stessi valori (controllato); confronti p12c contro p12
+    test = ["Same test values and dev threshold with p12 and p12c (checked): the %d models with the same weights." % len(same_w)]
+    for st in ("03", "all"):
+        for key, label in (("acer_05", "ACER at 0.5"), ("acer_dev", "ACER at the dev threshold"), ("auroc", "AUROC")):
+            def cv(i, st=st, key=key):
+                a, k, s = M[i]["arm"], M[i]["fold"], M[i]["seed"]
+                x, y = runs["new"]["raw"][(a, k, s)][st][key], runs["const"]["raw"][(a, k, s)][st][key]
+                return None if x is None or y is None else (y > x) - (y < x)
+            test.append("Stratum %s, %s, p12c vs p12: lower %d, equal %d, higher %d of %d%s." % (
+                st, label, cnt(A, lambda i: cv(i) == -1), cnt(A, lambda i: cv(i) == 0), cnt(A, lambda i: cv(i) == 1), n,
+                "; NA %d (a class absent)" % cnt(A, lambda i: cv(i) is None) if cnt(A, lambda i: cv(i) is None) else ""))
+    keys_ = [(c[0], st, m) for c in ABL_COMPARISONS for st in FOLDS_STRATA for m in FOLDS_SUMMARY_KEYS]
+    vs = {side: runs[side]["verdicts"] for _, side in REGIMES}
+    test.append("Verdicts, %d per run, consistent: %s." % (len(keys_), per_reg(
+        lambda reg: sum(vs[dict(REGIMES)[reg]][k]["verdict"] == "consistent" for k in keys_))))
+    test.append("Verdicts that differ: p4 vs p12 %d of %d, p12 vs p12c %d of %d (list in `session_ablation_table_constant_lr.md`)."
+                % (len(pc["changed"]), len(keys_), len(lc["changed"]), len(keys_)))
+    for m in PRIMARY_METRICS:
+        test.append("Primary verdict (A* - B, stratum %s, %s): %s." % (PRIMARY_STRATUM, m, per_reg(
+            lambda reg: vs[dict(REGIMES)[reg]][("a_star_minus_b", PRIMARY_STRATUM, m)]["verdict"])))
+    for l in recovery + stability + checkpoint + test:
+        if len("- " + l) > SUMMARY_WIDTH:
+            fail("summary line longer than %d characters: %s" % (SUMMARY_WIDTH, l))
+
+    # Annesso dei verdetti a tre: aggregati della run a lr costante, mediane, verdetti delle tre run
+    run = runs["const"]
+    pooled, summary, verdicts = [], [], []
+    for a in ABL_ARMS:
+        for s in folds["seeds"]:
+            for st in FOLDS_STRATA:
+                m, b, nsub = run["pooled"][(a, s, st)], run["boot"].get((a, s, st)), run["praw"][(a, s, st)].get("n_subjects")
+                x, d = m["05"], m["dev"]
+                pooled.append([ARM_LABELS[a], s, st, x["n_bona_fide"], x["n_attack"], nsub,
+                               "%s / %s" % (x["rejected_bona_fide"], x["accepted_attacks"]), f4(x["bpcer"]), f4(x["apcer"]),
+                               "%s [%s]" % (f4(x["acer"]), iv(b, "acer_05") if b else "NA"),
+                               "%s / %s" % (d["rejected_bona_fide"], d["accepted_attacks"]), f4(d["bpcer"]), f4(d["apcer"]),
+                               "%s [%s]" % (f4(d["acer"]), iv(b, "acer_dev") if b else "NA"),
+                               "%s [%s]" % (f4(x["auroc"]), iv(b, "auroc") if b else "NA")])
+    for a in ABL_ARMS:
+        for st in FOLDS_STRATA:
+            e = run["agg"]["pooled_summary_over_seeds"][a][st]
+            summary.append([ARM_LABELS[a], st] + ["%s (%s-%s)" % (f4(e[k]["median"]), f4(e[k]["min"]), f4(e[k]["max"]))
+                                                  for k in ("acer_05", "acer_dev", "auroc")])
+
+    def vtext(v):
+        return "%s (%s)" % (v["verdict"], v["direction"] if v["direction"] else v["reason"])
+    for k in keys_:
+        c, st, m = k
+        v4, v12, vc = (vs[side][k] for _, side in REGIMES)
+        verdicts.append([COMPARISON_LABELS[c], st, m, vc["label"], vtext(v4), vtext(v12), vtext(vc),
+                         "; ".join("%s [%s, %s]" % (f4(d), f4(lo), f4(hi)) for d, lo, hi in vc["per_seed"]), f4(vc["median"]),
+                         "yes" if k in pc["changed"] else dash, "yes" if k in lc["changed"] else dash])
+    vlines = ["Verdicts that differ between p4 and p12: %d of %d; between p12 and p12c: %d of %d; in all three the same: %d."
+              % (len(pc["changed"]), len(keys_), len(lc["changed"]), len(keys_),
+                 sum(1 for k in keys_ if k not in pc["changed"] and k not in lc["changed"]))]
+    for title, ch, x, y in (("p4 -> p12", pc["changed"], "parent", "new"), ("p12 -> p12c", lc["changed"], "new", "const")):
+        vlines += ["%s: %s stratum %s %s, %s -> %s." % (title, COMPARISON_LABELS[c], st, m, vtext(vs[x][(c, st, m)]), vtext(vs[y][(c, st, m)]))
+                   for c, st, m in ch]
+    return {"train_dev": t1, "test": t2, "compact": compact, "recovery_lines": recovery, "stability_lines": stability,
+            "checkpoint_lines": checkpoint, "test_lines": test, "pooled": pooled, "pooled_summary": summary, "verdicts": verdicts,
+            "verdict_lines": vlines}
 
 
 def build(research: Path) -> dict:
@@ -2131,13 +2755,38 @@ def build(research: Path) -> dict:
     pv_rows = read_csv_rows(paths["patver_comparison"], CMP_COLUMNS, SOURCES["patver_comparison"])
     pv_curves = read_csv_rows(paths["patver_curves"], CURVE_COLUMNS, SOURCES["patver_curves"])
     pc = patience_compare(pv_agg, pv_status, pv_sums, pv_rows, pv_curves, runs, hashes, statuses, folds, problems)
-    T.update(abl_texts(runs["parent"], pc["patience"], pc["max_epochs"]))
+
+    # Controllo a lr costante (PR #25): terza run sugli stessi 36 modelli e suo confronto con la run con pazienza 12
+    keys = {"aggregate": "constlr_aggregate", "record": "constlr_record", "sums": "constlr_sums", "status": "constlr_status"}
+    st_ = read_json(paths[keys["status"]], ABL_STATUS_FIELDS, clean=False)
+    runs["const"] = ablation_run("constant-lr run", read_json(paths[keys["aggregate"]], ABL_AGG_FIELDS, clean=False),
+                                 read_json(paths[keys["record"]], ABL_REC_FIELDS, clean=False), st_,
+                                 read_sums(paths[keys["sums"]], SOURCES[keys["sums"]]), hashes, keys, folds, fsch, problems)
+    runs["const"]["keys"], statuses["const"] = keys, st_
+    if runs["const"]["agg"]["run_id"] in (runs["parent"]["agg"]["run_id"], runs["new"]["agg"]["run_id"]):
+        fail("constant-lr run: the same run as %s" % runs["const"]["agg"]["run_id"])
+    if runs["const"]["agg"]["reading_rule"] != runs["new"]["agg"]["reading_rule"]:
+        problems.append("constant-lr run: reading rule differs from the patience verification run")
+    for k in ("cells", "dev_cells", "n_fit", "n_dev"):
+        if runs["const"][k] != runs["new"][k]:
+            problems.append("constant-lr run: %s differ from the patience verification run (same 36 models expected)" % k)
+    lc_agg = read_json(paths["lrctrl_aggregate"], LRCTRL_FIELDS, clean=False)
+    lc_status = read_json(paths["lrctrl_status"], PATVER_STATUS_FIELDS, clean=False)
+    lc_sums = read_sums(paths["lrctrl_sums"], SOURCES["lrctrl_sums"])
+    lc_rows = read_csv_rows(paths["lrctrl_comparison"], LRCTRL_COLUMNS, SOURCES["lrctrl_comparison"])
+    lc_curves = read_csv_rows(paths["lrctrl_curves"], CURVE_COLUMNS, SOURCES["lrctrl_curves"])
+    lc = lrctrl_compare(lc_agg, lc_status, lc_sums, lc_rows, lc_curves, runs, pc, hashes, statuses, folds, problems)
+
+    T.update(abl_texts(runs["parent"], pc["patience"], pc["max_epochs"], const=(pc["patience"]["new"], fmt_lr(lc["lr"]))))
     for side, pre in (("parent", "sessabl"), ("new", "patience")):
         rows.extend(ablation_rows(runs[side], pc["patience"][side], folds, T, "%s; %s; %s" % (src(pre + "_aggregate"), src(pre + "_record"),
                                                                                              src("folds_schema"))))
+    rows.extend(ablation_rows(runs["const"], pc["patience"]["new"], folds, T, "%s; %s; %s" % (
+        src("constlr_aggregate"), src("constlr_record"), src("folds_schema")), const_lr=fmt_lr(lc["lr"])))
     if problems:  # gli annessi leggono strutture che i controlli sopra hanno trovato incoerenti: fermarsi prima
         fail("consistency problems:\n  - " + "\n  - ".join(problems))
     abl_annex = ablation_annex(runs, pc, folds)
+    three_annex = three_regimes_annex(runs, pc, lc, folds)
     sources = {k: {"path": SOURCES[k], "sha256": hashes[k]} for k in SOURCES}
 
     if problems:
@@ -2145,13 +2794,14 @@ def build(research: Path) -> dict:
 
     doc = {
         "schema": SCHEMA,
-        "what": "unified table of the accepted NUAA results (C1, M1, N1, N2, C1 crop check, subject-held-out folds run, session ablation run with early-stopping patience 4 and 12), rebuilt from the public aggregates of research/pad-2026; no restricted data, no inference, no new number",
+        "what": "unified table of the accepted NUAA results (C1, M1, N1, N2, C1 crop check, subject-held-out folds run, session ablation run with early-stopping patience 4 and 12, and with patience 12 at a constant learning rate), rebuilt from the public aggregates of research/pad-2026; no restricted data, no inference, no new number",
         "sources": sources,
         "runs": dict({"C1": C1_RUN, "M1": M1_RUN, "N1": n1["run_id"], "N1_subjects": n1s["run_id"], "N2_sessions": n2s["run_id"],
                       "N2_combined": n2c["run_id"], "C1_crop_check": crop["run_id"], "Fold_schema": fsch["run_id"],
                       "Folds_run": fagg["run_id"], "Folds_vs_N1": cmp_agg["run_id"],
                       "Session_ablation_run": runs["parent"]["agg"]["run_id"], "Patience_12_run": runs["new"]["agg"]["run_id"],
-                      "Patience_comparison": pv_agg["run_id"]}),
+                      "Patience_comparison": pv_agg["run_id"], "Constant_lr_run": runs["const"]["agg"]["run_id"],
+                      "Constant_lr_comparison": lc_agg["run_id"]}),
         "decision": "attack if score_attack > threshold (tie = bona fide); label 0 bona fide, 1 attack; score = probability of attack",
         "texts": T,
         "manifest_counts": mc,
@@ -2182,6 +2832,19 @@ def build(research: Path) -> dict:
             "reading_rule": runs["parent"]["agg"]["reading_rule"],
             "verdicts_changed": [list(k) for k in pc["changed"]],
             "annex": abl_annex,
+            "constant_lr": {
+                "run": {"run_id": runs["const"]["agg"]["run_id"], "commit": runs["const"]["agg"]["commit"],
+                        "config_sha256": runs["const"]["agg"]["config_sha256"], "finished": runs["const"]["agg"]["finished"],
+                        "early_stopping_patience": pc["patience"]["new"], "learning_rate": lc["lr"],
+                        "wall_seconds": runs["const"]["rec"]["wall_seconds"], "wall_cap_seconds": runs["const"]["cap"],
+                        "models": len(runs["const"]["names"]), "amendment": runs["const"]["agg"].get("amendment")},
+                "comparison_run": {"run_id": lc_agg["run_id"], "commit": lc_agg["commit"], "config_sha256": lc_agg["config_sha256"],
+                                   "verdict": lc["verdict"], "recorded_recipe_lr": lc["lr_rec"], "shared_history_windows": lc["window"],
+                                   "models_reported_apart": lc["apart"], "recovery_lost": lc["lost"],
+                                   "test_section_label": lc_agg["sections"]["d"]["label"]},
+                "verdicts_changed": [list(k) for k in lc["changed"]],
+                "annex": three_annex,
+            },
         },
     }
     return doc
@@ -2212,8 +2875,9 @@ def summary_md(doc: dict) -> str:
               "acer_dev": "ACER dev", "bootstrap": "bootstrap over subjects, percentiles 2.5-97.5"}
     out = io.StringIO()
     out.write("# Unified table of the accepted NUAA results (C1, M1, N1, N2, C1 crop check, subject-held-out folds run, "
-              "session ablation run with early-stopping patience %s)\n\n" % " and ".join(
-                  str(doc["session_ablation"]["runs"][sd]["early_stopping_patience"]) for sd in ("parent", "new")))
+              "session ablation run with early-stopping patience %s, and with patience %d at a constant learning rate)\n\n" % (" and ".join(
+                  str(doc["session_ablation"]["runs"][sd]["early_stopping_patience"]) for sd in ("parent", "new")),
+                  doc["session_ablation"]["constant_lr"]["run"]["early_stopping_patience"]))
     out.write("Built by `nuaa_synthesis.py build` from the public aggregates merged in `research/pad-2026` "
               "(sources and SHA-256 in `summary_table.json`); no restricted data, no inference, no new number. "
               "%s. APCER = accepted attacks / attacks, BPCER = rejected bona fide / bona fide, ACER = their mean, "
@@ -2236,14 +2900,18 @@ TRANSFER_CODES = {TRANSFER_SAME: "same", TRANSFER_SESSION_ALL: "session", TRANSF
                   TRANSFER_FOLDS_N1: "subject-held-out, N1 test frames", TRANSFER_ABL: "subject-held-out (session ablation)"}
 
 
+ABL_BLOCK_RE = ABL_BLOCK.replace("%d", r"(\d+)") + "(" + re.escape(CONST_BLOCK.split("%d")[1]) + ")?"
+
+
 def short_block(block: str) -> str:
-    """Codice breve del blocco; i blocchi dell'ablazione portano la pazienza («Session ablation run, patience 4» -> SESSABL-P4)."""
-    mm = re.fullmatch(ABL_BLOCK.replace("%d", r"(\d+)"), block)
-    return "SESSABL-P" + mm.group(1) if mm else SHORT_BLOCK[block]
+    """Codice breve del blocco; i blocchi dell'ablazione portano la pazienza («Session ablation run, patience 4» -> SESSABL-P4)
+    e il controllo a lr costante una C («Session ablation run, patience 12, constant lr» -> SESSABL-P12C)."""
+    mm = re.fullmatch(ABL_BLOCK_RE, block)
+    return "SESSABL-P" + mm.group(1) + ("C" if mm.group(2) else "") if mm else SHORT_BLOCK[block]
 
 
 def is_abl(r: dict) -> bool:
-    return re.fullmatch(ABL_BLOCK.replace("%d", r"\d+"), r["block"]) is not None
+    return re.fullmatch(ABL_BLOCK_RE, r["block"]) is not None
 
 
 def short_model(r: dict) -> str:
@@ -2268,7 +2936,7 @@ def short_model(r: dict) -> str:
     if r["block"] == COMPARE_BLOCK:
         return "LivenessNet, 4 fold models, seed %s (N1 test frames)" % r["row"].split("seed")[1]
     if is_abl(r):
-        mm = re.fullmatch(r"SESSABL-P\d+-(\w+)-seed(\d+)", r["row"])
+        mm = re.fullmatch(r"SESSABL-P\d+C?-(\w+)-seed(\d+)", r["row"])
         arm = {v: k for k, v in ARM_IDS.items()}.get(mm.group(1)) if mm else None
         if arm:
             return "LivenessNet, arm %s, 4 fold models, seed %s (pooled)" % (ARM_LABELS[arm], mm.group(2))
@@ -2349,17 +3017,18 @@ def compact_md(doc: dict) -> str:
     out.write(md_table(cols, compact_rows(doc), labels, empty="\u2014"))
     out.write("\nLegend. Blocks: C1, M1, N1 (part 2), N2-S (N2 part 1, sessions), N2-C (N2 part 2, combined model), CROP (C1 crop check), "
               "FOLDS (subject-held-out folds run: one row per held-out fold and seed, stratum all, and one row per seed pooled over the four folds), "
-              "FOLDS-N1 (the fold models on the 3,000 N1 test frames), %s (session ablation run and its verification run with "
-              "another early-stopping patience: one row per arm and seed pooled over the four folds, stratum all; every model, "
-              "stratum and verdict in `session_ablation_table.md` and `patience_table.md`); "
+              "FOLDS-N1 (the fold models on the 3,000 N1 test frames), %s (session ablation run, its verification run with "
+              "another early-stopping patience and its control with a constant learning rate: one row per arm and seed pooled "
+              "over the four folds, stratum all; every model, stratum and verdict in `session_ablation_table.md`, "
+              "`session_ablation_table_constant_lr.md`, `patience_table.md` and `three_regimes_table.md`); "
               "ckpt = checkpoint; \"rejected bf / accepted att.\" = rejected bona fide / accepted attacks, the numerators of BPCER and APCER. "
               "The columns from \"dev thr.\" to \"bootstrap\" apply to the FOLDS, FOLDS-N1 and SESSABL rows only (\u2014 elsewhere): the errors and rates "
               "at the dev threshold of each model, and for the pooled rows the 2.5-97.5 percentiles of 1,000 bootstrap resamples "
               "of the held-out subjects (seed 0) for ACER at 0.5, ACER at the dev threshold and AUROC. "
               "Unit = image (frame) in every row; %s; APCER = accepted attacks / attacks, BPCER = rejected bona fide / bona fide, "
               "ACER = their mean, AUROC threshold-free (`auc` in the C1 table, `test AUC` in the M1 table).\n\n"
-              % (" and ".join("SESSABL-P%d" % doc["session_ablation"]["runs"][sd]["early_stopping_patience"] for sd in ("parent", "new")),
-                 doc["decision"]))
+              % (", ".join("SESSABL-P%d" % doc["session_ablation"]["runs"][sd]["early_stopping_patience"] for sd in ("parent", "new"))
+                 + " and SESSABL-P%dC" % doc["session_ablation"]["constant_lr"]["run"]["early_stopping_patience"], doc["decision"]))
     for group, items in compact_legend(doc).items():
         for code, text in items.items():
             out.write("- `%s` (%s): %s\n" % (code, group, text))
@@ -2551,11 +3220,131 @@ def patience_compact_md(doc: dict) -> str:
             + "".join("- %s\n" % l for l in a["patience_lines"]))
 
 
+THREE_SIDE = ["epochs run", "restored epoch", "degenerate", "first recovery", "recovery holds at last epoch", "epochs at 0.5",
+              "epochs at 0.5 after first recovery", "best val_loss", "dev acc at ckpt", "dev AUROC at ckpt", "last lr"]
+THREE_BLOCKS = (("recovery_lines", "Recovery"), ("stability_lines", "Stability"), ("checkpoint_lines", "Selected checkpoint"))
+
+
+def three_legend(doc: dict) -> str:
+    sa = doc["session_ablation"]
+    cl = sa["constant_lr"]
+    return ("p4 = run `%s` (early-stopping patience %d, ReduceLROnPlateau), p12 = run `%s` (patience %d, ReduceLROnPlateau), "
+            "p12c = run `%s` (patience %d, constant learning rate %s); the same 36 models, data and seeds in the three runs"
+            % (sa["runs"]["parent"]["run_id"], sa["runs"]["parent"]["early_stopping_patience"], sa["runs"]["new"]["run_id"],
+               sa["runs"]["new"]["early_stopping_patience"], cl["run"]["run_id"], cl["run"]["early_stopping_patience"],
+               fmt_lr(cl["run"]["learning_rate"])))
+
+
+def three_blocks(a: dict) -> str:
+    return "".join("\n**%s** (train and dev only)\n\n" % title + "".join("- %s\n" % l for l in a[key]) for key, title in THREE_BLOCKS)
+
+
+def three_md(doc: dict) -> str:
+    """Annesso delle tre condizioni: i 36 modelli, train/dev affiancati, righe di riepilogo in tre blocchi, poi il test."""
+    sa, cl = doc["session_ablation"], doc["session_ablation"]["constant_lr"]
+    a, c, cc = cl["annex"], sa["comparison_run"], cl["comparison_run"]
+    tr = lambda reg: ["%s (%s)" % (h, reg) for h in THREE_SIDE]
+    return ("# Annex: the three regimes on the same %d LivenessNet models of the session ablation design (patience 4; patience 12 "
+            "with ReduceLROnPlateau; patience 12 with a constant learning rate)\n\n"
+            "%s. Train and dev from the public comparisons `%s` (p4 against p12: `%s`, `%s`) and `%s` (p12 against p12c: `%s`, "
+            "`%s`), checked by `nuaa_synthesis.py`: every value rebuilt from the epoch curves with the criteria of the comparison "
+            "aggregates (restored epoch = first epoch of minimum dev val_loss; epochs run = the early-stopping replay; degenerate: "
+            "%s; recovery: %s), equal to the JSON rows and to the training cards of the three public aggregates; the p12 columns "
+            "of the second comparison are required to equal those of the first (the same run), and the curves of p12 and p12c "
+            "to be identical over the epochs at the recipe rate of p12 (shared window: from epoch 1 to the epoch at whose end "
+            "p12 first reduced the rate; all 12 when never reduced), and the rate of p12c to be %r at every epoch. "
+            "\"First recovery\" = first epoch meeting the recovery criterion (— when none); \"recovery holds at last epoch\" = "
+            "the recovery criterion met at the last epoch run; \"epochs at 0.5 after first recovery\" = dev epochs at 0.5 after "
+            "the first recovery (a relapse; — without a recovery); \"first reduced epoch (p12)\" = first epoch of p12 at a "
+            "reduced rate (— when never reduced). Checkpoint = restored epoch; dev = the common dev of the fold (sessions 01-02). "
+            "\"Same checkpoint (window) p12/p12c\" = the same restored epoch inside the shared window, where the two trainings "
+            "are identical: in the public aggregates `weights_sha256` and `dev_threshold_sha256` still differ between p12 and "
+            "p12c in every model (different files), and the identity of these checkpoints is shown by the restored epoch inside "
+            "the shared window, identical test values and an identical `dev_threshold`, all checked by `nuaa_synthesis.py`; a "
+            "same restored epoch after the window is another training. Comparisons of p12c against p12 in the counts (higher, "
+            "lower, equal) use the exact values, not the four decimals printed: \"equal\" best val_loss means the same value. "
+            "Verdicts of the comparisons: %s, p4 against p12; %s, p12 against p12c.\n\n"
+            "## Train and dev, per model (p4, then p12, then p12c)\n\n"
+            % (sa["runs"]["parent"]["models"], three_legend(doc), c["run_id"], SOURCES["patver_comparison"], SOURCES["patver_curves"],
+               cc["run_id"], SOURCES["lrctrl_comparison"], SOURCES["lrctrl_curves"], c["criteria"][0], c["criteria"][1],
+               cc["recorded_recipe_lr"], c["verdict"], cc["verdict"])
+            + plain_table(["arm", "fold", "seed", "in the ten"] + tr("p4") + tr("p12") + tr("p12c")
+                          + ["first reduced epoch (p12)", "shared epochs p12/p12c", "restored epoch changed p4→p12",
+                             "restored epoch changed p12→p12c", "same checkpoint (window) p12/p12c"], a["train_dev"])
+            + three_blocks(a)
+            + "\n## Test, per model (%s; p4, then p12, then p12c)\n\n"
+              "From the public `aggregate.json` of the three runs (`%s`, `%s`, `%s`): every count and rate checked against the fold "
+              "schema and summed into the pooled rows of `session_ablation_table.md` and `session_ablation_table_constant_lr.md`. "
+              "Strata 03 and all of the held-out subjects of the fold; 0.5 = the fixed threshold, dev = the EER threshold of the "
+              "common dev of the model.\n\n"
+            % (cc["test_section_label"], SOURCES["sessabl_aggregate"], SOURCES["patience_aggregate"], SOURCES["constlr_aggregate"])
+            + plain_table(["arm", "fold", "seed", "in the ten", "restored epoch changed p4→p12", "restored epoch changed p12→p12c",
+                           "same checkpoint (window) p12/p12c"]
+                          + ["%s %s (%s)" % (st, h, reg) for reg, _ in REGIMES for st in ("03", "all") for h in ("ACER 0.5", "ACER dev", "AUROC")],
+                          a["test"])
+            + "\n" + "".join("- %s\n" % l for l in a["test_lines"]))
+
+
+THREE_COMPACT_HEAD = ["model", "in the ten", "restored epoch p4 → p12 → p12c", "first recovery p4 → p12 → p12c",
+                      "holds at last epoch p4 → p12 → p12c", "dev acc at ckpt p4 → p12 → p12c", "restored epoch changed p4→p12 / p12→p12c"]
+
+
+def three_compact_md(doc: dict) -> str:
+    """Tabella compatta delle tre condizioni (per SYNTHESIS.md): celle prese dalle righe di three_regimes_table.md, poi le
+    stesse righe di riepilogo nei tre blocchi."""
+    a = doc["session_ablation"]["constant_lr"]["annex"]
+    return ("# The three regimes, the %d models in compact form (all columns, sources, checks and the test in "
+            "`three_regimes_table.md`)\n\n" % len(a["compact"])
+            + plain_table(THREE_COMPACT_HEAD, a["compact"])
+            + "\nLegend. %s; in the ten = one of the ten degenerate trainings of the p4 run (— = not among the ten); first "
+              "recovery = first epoch meeting the recovery criterion (— when none); holds at last epoch = that criterion met at "
+              "the last epoch run; dev acc at ckpt = dev accuracy at the restored epoch; restored epoch changed = the two restored "
+              "epochs differ (— when equal). Train and dev only.\n" % three_legend(doc)
+            + three_blocks(a))
+
+
+def constlr_md(doc: dict) -> str:
+    """Annesso della run a lr costante: aggregati per braccio, seed e strato, mediane, verdetti delle tre run affiancati."""
+    sa, cl = doc["session_ablation"], doc["session_ablation"]["constant_lr"]
+    a, b, rc = cl["annex"], sa["bootstrap"], cl["run"]
+    summary = ["ACER 05: median (min-max)", "ACER dev: median (min-max)", "AUROC: median (min-max)"]
+    return ("# Annex: session ablation run with early-stopping patience %d and a constant learning rate %s, arms B, A* and B' "
+            "pooled over the 4 subject folds (run `%s`), and the verdicts of the three runs\n\n"
+            "Copied from the public aggregate of the run (`%s`; every count and rate checked by `nuaa_synthesis.py` as for the "
+            "other two runs: denominators against the fold schema, stratum all against the sum of the sessions, pooled rows "
+            "against the sum of the folds, medians against the per-seed values, differences against the pooled rows, every "
+            "verdict against the reading rule applied to the per-seed differences and intervals). The same 36 models, cell "
+            "counts and seeds as the runs of `session_ablation_table.md`; per the amendment, only `%s` changes with respect to "
+            "the patience-%d run. %s. Test values: %s. %s; `05` = the fixed threshold 0.5, `dev` = the EER threshold of the "
+            "common dev, one per model (pooled rows: each frame at the threshold of its fold model). Bootstrap: %d resamples "
+            "with replacement of the held-out subjects of the stratum, seed %d, percentiles %s-%s, no interval with fewer than "
+            "%d subjects. Frames of one subject and session are correlated: n counts frames, not independent units.\n\n"
+            "## Pooled over the 4 folds, per arm, seed and stratum (p12c)\n\n"
+            % (rc["early_stopping_patience"], fmt_lr(rc["learning_rate"]), rc["run_id"], SOURCES["constlr_aggregate"],
+               rc["amendment"]["changed_field"], rc["early_stopping_patience"], three_legend(doc),
+               cl["comparison_run"]["test_section_label"], doc["decision"], b["resamples"], b["seed"], b["percentiles"][0],
+               b["percentiles"][1], b["min_subjects"])
+            + plain_table(["arm", "seed", "stratum", "n bona fide", "n attack", "subjects", "rejected bf / accepted att. (05)",
+                           "BPCER 05", "APCER 05", "ACER 05 [bootstrap]", "rejected bf / accepted att. (dev)", "BPCER dev", "APCER dev",
+                           "ACER dev [bootstrap]", "AUROC [bootstrap]"], a["pooled"])
+            + "\n## Pooled: median and range over the seeds (p12c)\n\n"
+            + plain_table(["arm", "stratum"] + summary, a["pooled_summary"])
+            + "\n## Verdicts of the reading rule, p4, p12 and p12c\n\n"
+              "Reading rule (copied from the aggregates, the same in the three runs): %s. Per seed (%s) for p12c: the pooled "
+              "difference (minuend - subtrahend) with its paired bootstrap interval [2.5, 97.5]; median over the seeds; differs = "
+              "verdict or direction not the same in the two runs (p4 and p12 per seed in `session_ablation_table.md`).\n\n"
+            % (sa["reading_rule"], ", ".join(doc["folds_run"]["seeds"]))
+            + plain_table(["comparison", "stratum", "metric", "label", "verdict (p4)", "verdict (p12)", "verdict (p12c)",
+                           "per seed (p12c)", "median (p12c)", "differs p4/p12", "differs p12/p12c"], a["verdicts"])
+            + "\n" + "".join("- %s\n" % l for l in a["verdict_lines"]))
+
+
 def synthesis_lines(doc: dict) -> dict:
-    """Le righe che SYNTHESIS.md deve contenere alla lettera: la tabella compatta unica (righe di tabella) e la tabella
-    compatta della pazienza (righe di tabella e righe di riepilogo)."""
+    """Le righe che SYNTHESIS.md deve contenere alla lettera: la tabella compatta unica (righe di tabella), la tabella
+    compatta della pazienza e quella delle tre condizioni (righe di tabella e righe di riepilogo)."""
     return {"compact table": [l for l in compact_md(doc).splitlines() if l.startswith("|")],
-            "patience compact table": [l for l in patience_compact_md(doc).splitlines() if l.startswith("|") or l.startswith("- ")]}
+            "patience compact table": [l for l in patience_compact_md(doc).splitlines() if l.startswith("|") or l.startswith("- ")],
+            "three regimes compact table": [l for l in three_compact_md(doc).splitlines() if l.startswith("|") or l.startswith("- ")]}
 
 
 def ablation_md(doc: dict) -> str:
@@ -2633,6 +3422,9 @@ def outputs(doc: dict) -> dict:
         "patience_table.md": patience_md(doc),
         "session_ablation_table.md": ablation_md(doc),
         "patience_table_compact.md": patience_compact_md(doc),
+        "three_regimes_table.md": three_md(doc),
+        "three_regimes_table_compact.md": three_compact_md(doc),
+        "session_ablation_table_constant_lr.md": constlr_md(doc),
     }
 
 
@@ -2654,10 +3446,13 @@ def cmd_build(a) -> int:
         with open(out / name, "w", encoding="utf-8", newline="\n") as fh:
             fh.write(text)
     print("BUILD: %d rows, %d cross-dataset rows, %d context rows, %d subject rows, %d folds-run stratum rows, %d patience model rows, "
-          "%d session-ablation pooled rows, %d verdict rows -> %s" %
+          "%d session-ablation pooled rows, %d verdict rows, %d three-regime model rows, %d constant-lr pooled rows, "
+          "%d three-run verdict rows -> %s" %
           (len(doc["rows"]), len(doc["cross_dataset_rows"]), len(doc["context_rows"]), len(doc["subject_sensitivity"]),
            len(doc["folds_run"]["annex"]["per_fold_seed"]), len(doc["session_ablation"]["annex"]["patience_train_dev"]),
-           len(doc["session_ablation"]["annex"]["pooled"]), len(doc["session_ablation"]["annex"]["verdicts"]), out))
+           len(doc["session_ablation"]["annex"]["pooled"]), len(doc["session_ablation"]["annex"]["verdicts"]),
+           len(doc["session_ablation"]["constant_lr"]["annex"]["train_dev"]), len(doc["session_ablation"]["constant_lr"]["annex"]["pooled"]),
+           len(doc["session_ablation"]["constant_lr"]["annex"]["verdicts"]), out))
     print("RESULT: PASS")
     return 0
 
