@@ -1,0 +1,535 @@
+{
+ "run_id": "20261114-BNRECAL-a10a082",
+ "commit": "a10a082",
+ "dirty": false,
+ "config_sha256": "d97e2e7497fb038708f09613bab6b8602ddac53976a31d84f8771c87c3d52865",
+ "note_sha256": "55ddd83901503286c31e7c5d352b9fcd3b62cc69f12872a0700663fc7f644af7",
+ "parent_run_id": "20261106-SESSABLRUN-d999458",
+ "command": "run",
+ "status": "PASS",
+ "finished": "2026-11-14T14:47:54+0100",
+ "timings": {
+  "wall_seconds": 1748.6,
+  "phases": {
+   "phase 0 inputs": 2.8,
+   "phase 1 baseline": 342.0,
+   "phase 2 recalibration and evaluation": 1400.9,
+   "final checks and writes": 0.6
+  },
+  "estimate_central_minutes": 32,
+  "estimate_upper_minutes": 140,
+  "cap_minutes": 240,
+  "per_model": {
+   "arm_b_fold1_seed42": {
+    "baseline": 12.3,
+    "recalibration": 28.7,
+    "evaluation": 15.5
+   },
+   "arm_a_star_fold1_seed42": {
+    "baseline": 9.2,
+    "recalibration": 27.0,
+    "evaluation": 16.4
+   },
+   "arm_b_fold1_seed43": {
+    "baseline": 10.1,
+    "recalibration": 27.0,
+    "evaluation": 15.2
+   },
+   "arm_a_star_fold1_seed43": {
+    "baseline": 10.0,
+    "recalibration": 27.3,
+    "evaluation": 16.4
+   },
+   "arm_b_fold1_seed44": {
+    "baseline": 9.2,
+    "recalibration": 27.4,
+    "evaluation": 16.1
+   },
+   "arm_a_star_fold1_seed44": {
+    "baseline": 9.4,
+    "recalibration": 30.7,
+    "evaluation": 17.8
+   },
+   "arm_b_fold2_seed42": {
+    "baseline": 9.7,
+    "recalibration": 28.5,
+    "evaluation": 16.1
+   },
+   "arm_a_star_fold2_seed42": {
+    "baseline": 10.3,
+    "recalibration": 27.5,
+    "evaluation": 15.7
+   },
+   "arm_b_fold2_seed43": {
+    "baseline": 10.5,
+    "recalibration": 28.0,
+    "evaluation": 16.2
+   },
+   "arm_a_star_fold2_seed43": {
+    "baseline": 10.0,
+    "recalibration": 29.8,
+    "evaluation": 16.8
+   },
+   "arm_b_fold2_seed44": {
+    "baseline": 9.6,
+    "recalibration": 29.8,
+    "evaluation": 16.6
+   },
+   "arm_a_star_fold2_seed44": {
+    "baseline": 10.1,
+    "recalibration": 31.2,
+    "evaluation": 15.4
+   },
+   "arm_b_fold3_seed42": {
+    "baseline": 10.0,
+    "recalibration": 32.2,
+    "evaluation": 15.8
+   },
+   "arm_a_star_fold3_seed42": {
+    "baseline": 9.7,
+    "recalibration": 28.2,
+    "evaluation": 15.6
+   },
+   "arm_b_fold3_seed43": {
+    "baseline": 11.3,
+    "recalibration": 27.8,
+    "evaluation": 16.1
+   },
+   "arm_a_star_fold3_seed43": {
+    "baseline": 9.9,
+    "recalibration": 26.8,
+    "evaluation": 15.4
+   },
+   "arm_b_fold3_seed44": {
+    "baseline": 10.1,
+    "recalibration": 26.7,
+    "evaluation": 15.4
+   },
+   "arm_a_star_fold3_seed44": {
+    "baseline": 9.9,
+    "recalibration": 26.8,
+    "evaluation": 15.2
+   },
+   "arm_b_fold4_seed42": {
+    "baseline": 9.9,
+    "recalibration": 27.1,
+    "evaluation": 15.0
+   },
+   "arm_a_star_fold4_seed42": {
+    "baseline": 9.7,
+    "recalibration": 26.9,
+    "evaluation": 15.1
+   },
+   "arm_b_fold4_seed43": {
+    "baseline": 9.8,
+    "recalibration": 26.9,
+    "evaluation": 14.9
+   },
+   "arm_a_star_fold4_seed43": {
+    "baseline": 9.8,
+    "recalibration": 27.1,
+    "evaluation": 14.8
+   },
+   "arm_b_fold4_seed44": {
+    "baseline": 9.9,
+    "recalibration": 27.0,
+    "evaluation": 15.0
+   },
+   "arm_a_star_fold4_seed44": {
+    "baseline": 9.6,
+    "recalibration": 26.8,
+    "evaluation": 15.3
+   },
+   "arm_b_prime_fold1_seed42": {
+    "baseline": 7.8,
+    "recalibration": 18.0,
+    "evaluation": 10.5
+   },
+   "arm_b_prime_fold1_seed43": {
+    "baseline": 7.8,
+    "recalibration": 18.2,
+    "evaluation": 10.7
+   },
+   "arm_b_prime_fold1_seed44": {
+    "baseline": 7.8,
+    "recalibration": 18.3,
+    "evaluation": 10.4
+   },
+   "arm_b_prime_fold2_seed42": {
+    "baseline": 8.4,
+    "recalibration": 18.3,
+    "evaluation": 10.5
+   },
+   "arm_b_prime_fold2_seed43": {
+    "baseline": 7.8,
+    "recalibration": 19.0,
+    "evaluation": 10.4
+   },
+   "arm_b_prime_fold2_seed44": {
+    "baseline": 8.1,
+    "recalibration": 18.2,
+    "evaluation": 10.5
+   },
+   "arm_b_prime_fold3_seed42": {
+    "baseline": 8.2,
+    "recalibration": 18.3,
+    "evaluation": 10.5
+   },
+   "arm_b_prime_fold3_seed43": {
+    "baseline": 8.1,
+    "recalibration": 18.3,
+    "evaluation": 10.5
+   },
+   "arm_b_prime_fold3_seed44": {
+    "baseline": 8.7,
+    "recalibration": 18.3,
+    "evaluation": 10.3
+   },
+   "arm_b_prime_fold4_seed42": {
+    "baseline": 10.3,
+    "recalibration": 18.5,
+    "evaluation": 10.4
+   },
+   "arm_b_prime_fold4_seed43": {
+    "baseline": 8.6,
+    "recalibration": 19.1,
+    "evaluation": 10.4
+   },
+   "arm_b_prime_fold4_seed44": {
+    "baseline": 8.2,
+    "recalibration": 18.7,
+    "evaluation": 10.5
+   }
+  }
+ },
+ "stopped": null,
+ "models": 36,
+ "baseline_failed": [],
+ "completed": [
+  "arm_b_fold1_seed42",
+  "arm_a_star_fold1_seed42",
+  "arm_b_fold1_seed43",
+  "arm_a_star_fold1_seed43",
+  "arm_b_fold1_seed44",
+  "arm_a_star_fold1_seed44",
+  "arm_b_fold2_seed42",
+  "arm_a_star_fold2_seed42",
+  "arm_b_fold2_seed43",
+  "arm_a_star_fold2_seed43",
+  "arm_b_fold2_seed44",
+  "arm_a_star_fold2_seed44",
+  "arm_b_fold3_seed42",
+  "arm_a_star_fold3_seed42",
+  "arm_b_fold3_seed43",
+  "arm_a_star_fold3_seed43",
+  "arm_b_fold3_seed44",
+  "arm_a_star_fold3_seed44",
+  "arm_b_fold4_seed42",
+  "arm_a_star_fold4_seed42",
+  "arm_b_fold4_seed43",
+  "arm_a_star_fold4_seed43",
+  "arm_b_fold4_seed44",
+  "arm_a_star_fold4_seed44",
+  "arm_b_prime_fold1_seed42",
+  "arm_b_prime_fold1_seed43",
+  "arm_b_prime_fold1_seed44",
+  "arm_b_prime_fold2_seed42",
+  "arm_b_prime_fold2_seed43",
+  "arm_b_prime_fold2_seed44",
+  "arm_b_prime_fold3_seed42",
+  "arm_b_prime_fold3_seed43",
+  "arm_b_prime_fold3_seed44",
+  "arm_b_prime_fold4_seed42",
+  "arm_b_prime_fold4_seed43",
+  "arm_b_prime_fold4_seed44"
+ ],
+ "tolerances": {
+  "dev_probability_max_abs_diff": {
+   "value": 1e-05,
+   "source": "the tolerance of the coordinator's R2 replication package (1e-5 absolute, no discordant decision), used in the C1 crop check (research/c1-crop-check/README.md): there scores stored on the GPU one image at a time were reproduced within 8.9e-8 in those conditions and within 2.9e-6 on the CPU in batches of 16; here stored scores and baseline share file, CPU and batch 16; not measured before the run, since no inference precedes it; applied to the parent's scorer and to the evaluator of this script, frame by frame against the stored dev scores"
+  },
+  "dev_decisions_discordant_at_0_5": {
+   "value": 0,
+   "source": "same R2 criterion: no decision at 0.5 may change; measured on the stored files without inference: no stored dev score of the 36 models lies within 1e-3 of 0.5 (closest 1.03e-3)"
+  },
+  "val_loss_abs": {
+   "value": 0.001,
+   "source": "the absolute part of the parent runner's check (nuaa_folds_run.VAL_LOSS_TOL); its alternative 1 % branch is not used, since 1 % of the largest recorded value, 60.9868, is 0.61; measured on the stored cards without inference, the val_loss recomputed by the parent runner at run time differs from best_val_loss by at most 2.9e-6 absolute (arm_a_star_fold2_seed44, recorded 18.0934) and 2.5e-5 relative (arm_a_star_fold2_seed42, absolute 2.7e-9), two different models; the difference from val_loss_recomputed is reported, not binding"
+  },
+  "dev_accuracy_abs": {
+   "value": 1e-06,
+   "source": "the same number of correct dev frames (one frame = 0.0025 of 400; val_acc_at_best is the float32 of k/400); measured on the stored files without inference: the accuracy of the stored dev scores at the 0.5 decision equals val_acc_at_best for 36 of 36 models (difference 0 in float32)"
+  },
+  "softmax_of_logits_max_abs_diff": {
+   "value": 0.0001,
+   "source": "PROB_TOL of the parent runner (softmax of the float64 logits against the float32 probabilities); the same bound holds after the recalibration, on the dev and on the fitting, where a failure stops the run (FAIL)"
+  },
+  "consistency_rel": {
+   "value": 0.0001,
+   "source": "implementation check, not a baseline: the moments of the input of a layer depend only on the earlier layers, which are not changed after it, so the recomputed moments differ from the installed ones only by the float32 cast (relative 6e-8) and by the order of the float32 operations of the forward pass; 1e-4 relative is about 1,700 times the cast error and far below any change that would matter after normalisation"
+  },
+  "consistency_abs": {
+   "value": 1e-06,
+   "source": "absolute floor for channels whose mean or variance is zero or near zero (dead ReLU channels): 1e-6 is one thousandth of epsilon (0.001), which bounds the normalising denominator from below"
+  }
+ },
+ "stop_rule": "if any baseline check fails for at least one model, the run stops before any recalibration (status BASELINE_FAILED) and the discrepancy is documented without interpretation (public/baseline.csv, per model and per check: value, reference, difference, tolerance); no re-estimated statistic is computed and nothing is read from the recalibration. An error that prevents the evaluation itself (unexpected architecture, non-finite output, SHA-256 mismatch) is a FAIL with its reason in status.json and no table",
+ "recovery_criterion": {
+  "accuracy_min": 0.75,
+  "accuracy_min_inclusive": true,
+  "val_loss_max": 1.0,
+  "val_loss_max_inclusive": false,
+  "text": "dev accuracy >= 0.75 and val_loss < 1.0 (val_loss from the logits); the same thresholds read on the fitting set in inference mode (accuracy and unweighted loss)",
+  "source": "recovery criterion of the degenerate study (research/nuaa-degenerate-trainings/NOTE.md)"
+ },
+ "estimator": {
+  "statistics": "for each BatchNormalization layer, the per-channel global mean and variance of the layer INPUT over the whole fitting set of the model's arm and fold (1,400 frames for B and A*, 934 for B')",
+  "order": "layer by layer in network order (bn1_1, bn1_2, bn2_1, bn2_2, bn_dense): the input of a layer is computed with the earlier layers already carrying their re-estimated statistics (one pass over the fitting set per layer)",
+  "mode": "inference mode (training=False): dropout inactive, BatchNormalization layers with their moving statistics; no augmentation (frames / 255 as in scoring)",
+  "counts": "values per channel: frames x H x W for the four convolutional layers (256 x 256 for bn1_1 and bn1_2, 128 x 128 for bn2_1 and bn2_2), frames for bn_dense; batches of 16, the last one shorter (1,400 = 87 x 16 + 8; 934 = 58 x 16 + 6) and weighted by its own count; the accumulated count is checked against frames x H x W",
+  "variance": "population variance (divisor N) from the exact union of the batches in float64 (Chan et al.: per batch count, mean and sum of squared deviations), equal to sum of squares / N - mean^2 and to sum_b n_b (var_b + (mean_b - mean)^2) / N over the concatenated values, without the cancellation of the first form; not the mean of the batch variances, not the unweighted mean of the batch means",
+  "cast": "float32, round to nearest (numpy astype) of the float64 result; the float64 values are kept in the restricted statistics file",
+  "changed_tensors": [
+   "moving_mean",
+   "moving_variance"
+  ],
+  "copy": "an in-memory copy (clone_model and set_weights) of the checkpoint loaded from the parent file, SHA-256 verified just before loading; the file is never opened for writing and no recalibrated .keras is saved (the copy is reproducible from the statistics file); after the five layers every weight tensor of the copy is compared byte for byte with the original: exactly the 10 moving tensors differ, each equal to the installed float32 statistic, and every other tensor (kernels, biases, gamma, beta) is bit-identical; otherwise FAIL",
+  "consistency": "one multi-output pass over the fitting set with the final copy: the per-channel moments of the input of each BatchNormalization layer, recomputed with all five layers re-estimated, must equal the installed moving_mean and moving_variance within consistency_rel x |recomputed| + consistency_abs; a channel outside is an implementation failure (FAIL, no reading); the same pass gives the fitting accuracy and loss after"
+ },
+ "evaluation": {
+  "device": "CPU",
+  "batch": 16,
+  "input": "frames / 255 in float32, assembled in key order as in the parent run",
+  "mode": "inference (training=False), checkpoint loaded with compile=False as in the parent scorer",
+  "probability": "softmax output of the layer output, column 1 (attack); in the baseline also with the parent's own scorer (nuaa_folds_run.tf_scorer on the file)",
+  "logits": "z = h @ W + b in float64 from the input of the layer output (as tf_logits of the parent runner)",
+  "val_loss": "mean categorical cross-entropy from the logits as Keras 2.15 (logsumexp(z) - z[y], no clipping: nuaa_session_ablation_run.val_loss_logits); the same unweighted formula for the fitting loss",
+  "accuracy": "argmax of the probabilities against the label (Keras CategoricalAccuracy, tie = index 0), correct / n in float32; the accuracy at the 0.5 decision is also reported",
+  "auroc": "Mann-Whitney AUROC of the attack score, attack positive, ties 0.5 (nuaa_folds_run.auroc)",
+  "decision": "attack if score_attack > 0.5, tie = bona fide (for the discordant-decision check)"
+ },
+ "batchnorm": {
+  "layers": [
+   "bn1_1",
+   "bn1_2",
+   "bn2_1",
+   "bn2_2",
+   "bn_dense"
+  ],
+  "kinds": {
+   "bn1_1": "conv",
+   "bn1_2": "conv",
+   "bn2_1": "conv",
+   "bn2_2": "conv",
+   "bn_dense": "dense"
+  },
+  "momentum": 0.99,
+  "epsilon": 0.001,
+  "inference": "y = gamma (x - moving_mean) / sqrt(moving_variance + epsilon) + beta, per channel (Keras 2.15, training=False)",
+  "running_variance_in_training": "recorded fact, not used: during training Keras 2.15 updated the moving variance with the Bessel-corrected batch variance for the four convolutional layers (fused kernel, factor n/(n-1), n = 16 x H x W) and with the biased batch variance for bn_dense; the population variance chosen here differs from an N/(N-1) version by the relative factor 1/(N-1): at most 1/933 for bn_dense (934 frames) and less than 1e-7 for the convolutional layers (N >= 934 x 128 x 128)"
+ },
+ "checks": {
+  "manifests": {
+   "official_train": {
+    "sha256": "2a7e8906f98b8e3cf0c42cd0a2cf10e15868750b1ac82e85b62a9e0b59aad648",
+    "rows": 3491,
+    "n_bona_fide": 1743,
+    "n_attack": 1748,
+    "n_subjects": 9
+   },
+   "official_test": {
+    "sha256": "2fad23ff295cb2c1d3d0be238deef02faad252aa717933c30588bd5a9c4106c7",
+    "rows": 9123,
+    "n_bona_fide": 3362,
+    "n_attack": 5761,
+    "n_subjects": 16
+   },
+   "cnn_train": {
+    "sha256": "6d46ec7da7bfc32b1cce9ed3e331f8ed4377e5fc2df31e1b77ac7f6a0c2bc33c",
+    "rows": 2507,
+    "n_bona_fide": 1345,
+    "n_attack": 1162,
+    "n_subjects": 7
+   },
+   "cnn_es": {
+    "sha256": "17282be8ef300e5e178ae87cd137ffd875786f1b353924e7cfb6eb14db1584c1",
+    "rows": 493,
+    "n_bona_fide": 155,
+    "n_attack": 338,
+    "n_subjects": 2
+   },
+   "cnn_test": {
+    "sha256": "ce9669dccae37041e778ff7bcba5f4cef08fa79f50d65be84806b084c5d95748",
+    "rows": 3000,
+    "n_bona_fide": 1500,
+    "n_attack": 1500,
+    "n_subjects": 16
+   }
+  },
+  "cache": {
+   "sha256": "dc286dc371e61d638da1842c062a38c5368a9ec4da07ccbc36b7fff6f3177920",
+   "frames": 6000,
+   "members": {
+    "X_test": {
+     "dtype": "|u1",
+     "shape": [
+      3000,
+      256,
+      256,
+      3
+     ]
+    },
+    "X_train": {
+     "dtype": "|u1",
+     "shape": [
+      3000,
+      256,
+      256,
+      3
+     ]
+    },
+    "s_test": {
+     "dtype": "<U4",
+     "shape": [
+      3000
+     ]
+    },
+    "s_train": {
+     "dtype": "<U4",
+     "shape": [
+      3000
+     ]
+    },
+    "y_test": {
+     "dtype": "<i8",
+     "shape": [
+      3000
+     ]
+    },
+    "y_train": {
+     "dtype": "<i8",
+     "shape": [
+      3000
+     ]
+    }
+   },
+   "linkage": "y/s equal to label and subject of the manifest rows in sampling order (spread per class)"
+  },
+  "cells_run": {
+   "run_id": "20261104-SESSABL-5d89888",
+   "config_sha256": "2b86ef8e8cab3e9fac4ae9ca34471977c773bba34cc4990347f03b0ab38db015",
+   "restricted_sha256sums_sha256": "0904ee72546160eadb493a94d8489a8fb21687006cd8fe1970b26007c567723c",
+   "public_sha256sums_sha256": "45d125754a74e3cde5f5441fb1e02081630fb8e788032ed29f27dee787d5d77b",
+   "files": 16,
+   "not_read": "devmix_fold<k>.csv (dev-mix excluded by the coordinator)"
+  },
+  "folds_run": {
+   "run_id": "20261103-FOLDSRUN-e174812",
+   "restricted_sha256sums_sha256": "1204039d7391109caaf52aea28fbfda50c635e56521b0cc3170043aacac19d63",
+   "extracted_frames_csv_sha256": "380cab45a8ee379f1f86b9d466fef58d01b62bbde14c06ccbc2e9948eebdc5ff",
+   "public_files": "not opened (its aggregate holds test metrics)"
+  },
+  "frames_file": {
+   "file": "nuaa_folds_frames.20261103-FOLDSRUN-e174812.npz",
+   "sha256": "c3fd9903589b7b074c46880870ba87924763f244846c744b657f9aaa3ebeee77",
+   "frames": 6614,
+   "frame_hashes": "every frame equal to extracted_frames.csv"
+  },
+  "sources": {
+   "rule": "every manifest row found exactly once, in the cache or in the extracted frames file",
+   "rows_from_cache": 13206,
+   "rows_from_extracted": 3330
+  },
+  "groups": {
+   "ten": [
+    "arm_b_fold1_seed42",
+    "arm_a_star_fold2_seed43",
+    "arm_a_star_fold2_seed44",
+    "arm_a_star_fold3_seed42",
+    "arm_a_star_fold3_seed44",
+    "arm_b_fold4_seed44",
+    "arm_a_star_fold4_seed44",
+    "arm_b_prime_fold1_seed44",
+    "arm_b_prime_fold2_seed44",
+    "arm_b_prime_fold4_seed44"
+   ],
+   "control": 25,
+   "apart": [
+    "arm_b_fold3_seed44"
+   ]
+  },
+  "parent_run": {
+   "run_id": "20261106-SESSABLRUN-d999458",
+   "config_sha256": "4c2d29d13dede8a48c3a8e74e1ca48379c5c7e7721eb0a1f55fececbc684e23b",
+   "public_sha256sums_sha256": "89cb13854a8c8133684da3e3b4b6d9931ecddd6ec08d4ac6ec14aa08ce31e04a",
+   "restricted_sha256sums_sha256": "4ca502e0b07e556615c5042bb072770435c062d030e6d2a36d290c1481090fc2",
+   "models": 36,
+   "per_model_files_checked": [
+    "card.json",
+    "dev_scores.csv",
+    "threshold.json",
+    "LivenessNet.keras"
+   ],
+   "not_opened": "<model>_test_scores.csv",
+   "aggregate_json": "read as bytes and compared with its SHA256SUMS line; never parsed (it holds test metrics)",
+   "keys": "fitting_keys_sha256 and dev_keys_sha256 of every card equal to the manifests"
+  },
+  "environment": {
+   "python": "3.11.16",
+   "numpy": "1.26.4",
+   "platform": "darwin",
+   "tensorflow": "2.15.0",
+   "tensorflow-metal": "1.1.0",
+   "keras": "2.15.0",
+   "opencv": "4.11.0",
+   "tensorflow_installed": "2.15.0",
+   "tensorflow_state": "not imported"
+  },
+  "test": "the fold schema (fold<k>_test.csv, the test role of our folds) is never opened and no <model>_test_scores.csv is opened; the M2 manifests official_test and cnn_test (NUAA's official image lists, not the test role of our folds) are read only to index the cache; as in the parent run the frame files (cache and extracted frames) are hashed and loaded whole, but only fitting and dev frames are assembled; the public aggregate of the parent run, which holds test metrics, is read only as bytes for its SHA-256 and never parsed; no public file of the folds run is opened; no test frame is assembled or evaluated and no test score or metric is read, computed or written",
+  "final": {
+   "parent_checkpoints_unchanged": 36,
+   "parent_restricted_sha256sums_unchanged": true
+  }
+ },
+ "environment": {
+  "python": "3.11.16",
+  "numpy": "1.26.4",
+  "platform": "darwin",
+  "tensorflow": "2.15.0",
+  "tensorflow-metal": "1.1.0",
+  "keras": "2.15.0",
+  "opencv": "4.11.0",
+  "tensorflow_installed": "2.15.0"
+ },
+ "device": "CPU (GPU hidden)",
+ "code_sha256": {
+  "architecture": "a83c02b0788bd6f98262abf00f5fe970abed501f231edba348820482aea64d30",
+  "scripts/nuaa_bn_recalibration.py": "8c228ef400f5ef4337612477b23113fb6b8cac5364a5ff026e2c0ac8096734f5",
+  "scripts/nuaa_session_ablation_run.py": "9c45255199b87a41126b77867d5bbcf0da6f6ecf1684bf8fdd89185f463a276e",
+  "scripts/nuaa_folds_run.py": "82fed566cfa8ac0b280b55edbf430e7051dff1ae83d17a902d78157f2c72ffb2",
+  "scripts/m2_writers.py": "22760abc368dede3aa0a690a241f6622afe1ba586940422497db8a33994ee34a",
+  "scripts/path_guard.py": "e5fa9c835c23745ff932e157a44d3104eb9713d86bbdecc9cdbbd3caa7a7ee34",
+  "scripts/package_rules.py": "96ec7ffab4b089bac71fd18918fcd32af72d15980cdfa1361cc84bb43e0e4c11"
+ },
+ "cells_manifests_sha256": {
+  "armB_fitting_fold1.csv": "cd5bb7dc6381937c9cff00c1061fd2d8c963ae42fa0f63da24ebd764fd154ad6",
+  "armAstar_fitting_fold1.csv": "3d304da160c293efd2d448dbdef1b992203ffa5ce960e8f2935e055fbb1ae993",
+  "armBprime_fitting_fold1.csv": "1e340f409b8f132e2378475b76ef2e881f2928b73ded1f489be78d7baf75a462",
+  "dev_fold1.csv": "7d2d436b97c9ded24feffe507e2d61165f08fd671433768e059f810f9ec4a750",
+  "armB_fitting_fold2.csv": "ed52ae46250fa042c40305264f02cede0b6023d33481ebf109c48dc19fd29d93",
+  "armAstar_fitting_fold2.csv": "310b95ea64db50d61d2d99aef517bd68c2d64b8d088a7fb8dd0491a6136a4013",
+  "armBprime_fitting_fold2.csv": "84b54f594862756eccc4bde5ef424b662601010219b0cde5ad42cf79b01a4e80",
+  "dev_fold2.csv": "a37ad7868b6303e37cd6bd2842917eaf4f8df2368a40509cf817e3bd12406919",
+  "armB_fitting_fold3.csv": "5c73a0ea0cfc821caaff036b499e7a33346a2aaf0bf2c6ea94bc55516ab1d680",
+  "armAstar_fitting_fold3.csv": "57d035d9c7f5ac1547f57849ebcb4e7aae7c9ab45bcd8a852c31a52efea2db12",
+  "armBprime_fitting_fold3.csv": "72725068e24868ccac18517d05e3139b6e83e4c671fd91d9d543ec9645ee1da5",
+  "dev_fold3.csv": "19358de48a2c1e791c7643b15cd912af4304528ebaa5a7b2a2f2d0738d601f97",
+  "armB_fitting_fold4.csv": "f64570929bd3968bd20b14d77dd3d65ac72a2699caa760b3e3fb4cc52cd54026",
+  "armAstar_fitting_fold4.csv": "9b117ec6552b0685e5f14bfa4bde27de2ab71d7b4536033d0fbfe0725bdfb1fe",
+  "armBprime_fitting_fold4.csv": "70276ef31d0f07728e5cc639265a3cd5fecb9410076d14e8cdba9cf952ebf04a",
+  "dev_fold4.csv": "00a7fec6d7931dbc58f0527e30137cae4830dad382eaae08d00f0584c5285e43"
+ },
+ "test": "the fold schema (fold<k>_test.csv, the test role of our folds) is never opened and no <model>_test_scores.csv is opened; the M2 manifests official_test and cnn_test (NUAA's official image lists, not the test role of our folds) are read only to index the cache; as in the parent run the frame files (cache and extracted frames) are hashed and loaded whole, but only fitting and dev frames are assembled; the public aggregate of the parent run, which holds test metrics, is read only as bytes for its SHA-256 and never parsed; no public file of the folds run is opened; no test frame is assembled or evaluated and no test score or metric is read, computed or written",
+ "test_read": "the fold schema (fold<k>_test.csv, the test role of our folds) is never opened and no <model>_test_scores.csv is opened; the M2 manifests official_test and cnn_test (NUAA's official image lists, not the test role of our folds) are read only to index the cache; as in the parent run the frame files (cache and extracted frames) are hashed and loaded whole, but only fitting and dev frames are assembled; the public aggregate of the parent run, which holds test metrics, is read only as bytes for its SHA-256 and never parsed; no public file of the folds run is opened; no test frame is assembled or evaluated and no test score or metric is read, computed or written",
+ "parent_public_aggregate_sha256": "ccfffc7dea951cdc228d59fc727b3807f57548863de3bcbdd450e545bd5f6418"
+}

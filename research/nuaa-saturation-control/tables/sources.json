@@ -1,0 +1,17 @@
+{
+ "note": "SHA-256 of every source read at build time",
+ "sha256": {
+  "nuaa-constant-lr-control/comparison/curves.csv": "e188b3d09d49bafcaf53dbf761aa9f17900f41d1664e702f172d9ab64533815c",
+  "nuaa-constant-lr-control/livenesslab/delivery/constlr/nuaa_session_ablation_run_constant_lr.json": "60b38e094da8c2243f3f9386f69d216bf8b853a3511b73538feec39e09b0d58f",
+  "nuaa-constant-lr-control/tables/run_record.json": "dd1628171328972ec5ef95184146dccab84fa55f99e0f801296ea38b4eef6c68",
+  "nuaa-degenerate-trainings/tables/aggregate.json": "7902a523f9677f4eea14b206b51960e49edd1535ab318d67ed16e2092dc0698b",
+  "nuaa-degenerate-trainings/tables/curves.csv": "234d8b92f6de0bada7d5d8efff917916c776e10794fbbba7a4d7bbef7cbf7f60",
+  "nuaa-degenerate-trainings/tables/models.csv": "50f19b53d1e955313998a8881fadbd328298e065cc6eb5feec9a88a60948f5cf",
+  "nuaa-patience-verification/comparison/comparison.csv": "b300a440665cd336b9c6be7c7c197472111c7ccd6f728206e8d9b4cec93e4dd2",
+  "nuaa-patience-verification/comparison/curves.csv": "a97c3af06ed016e42a4939d0e94a1259535153e53127ab315f92ac5e1cb951ec",
+  "nuaa-patience-verification/tables/run_record.json": "3435441fe5430eccfd11d961f0a4ed9f98d780497869cf291733a9771e475553",
+  "nuaa-session-ablation-run/tables/aggregate.json": "ccfffc7dea951cdc228d59fc727b3807f57548863de3bcbdd450e545bd5f6418",
+  "nuaa-session-ablation-run/tables/run_record.json": "76cd5b5a195247a9c526f32a2c6e63b046a81379244b922233041632cf4b789a",
+  "src/architectures.py": "a83c02b0788bd6f98262abf00f5fe970abed501f231edba348820482aea64d30"
+ }
+}

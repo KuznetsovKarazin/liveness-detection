@@ -1,0 +1,689 @@
+{
+ "run_id": "20261114-BNRECAL-a10a082",
+ "commit": "a10a082",
+ "dirty": false,
+ "config_sha256": "d97e2e7497fb038708f09613bab6b8602ddac53976a31d84f8771c87c3d52865",
+ "note_sha256": "55ddd83901503286c31e7c5d352b9fcd3b62cc69f12872a0700663fc7f644af7",
+ "parent_run_id": "20261106-SESSABLRUN-d999458",
+ "command": "run",
+ "status": "PASS",
+ "models": 36,
+ "completed": 36,
+ "timings": {
+  "wall_seconds": 1748.6,
+  "phases": {
+   "phase 0 inputs": 2.8,
+   "phase 1 baseline": 342.0,
+   "phase 2 recalibration and evaluation": 1400.9,
+   "final checks and writes": 0.6
+  },
+  "estimate_central_minutes": 32,
+  "estimate_upper_minutes": 140,
+  "cap_minutes": 240,
+  "per_model": {
+   "arm_b_fold1_seed42": {
+    "baseline": 12.3,
+    "recalibration": 28.7,
+    "evaluation": 15.5
+   },
+   "arm_a_star_fold1_seed42": {
+    "baseline": 9.2,
+    "recalibration": 27.0,
+    "evaluation": 16.4
+   },
+   "arm_b_fold1_seed43": {
+    "baseline": 10.1,
+    "recalibration": 27.0,
+    "evaluation": 15.2
+   },
+   "arm_a_star_fold1_seed43": {
+    "baseline": 10.0,
+    "recalibration": 27.3,
+    "evaluation": 16.4
+   },
+   "arm_b_fold1_seed44": {
+    "baseline": 9.2,
+    "recalibration": 27.4,
+    "evaluation": 16.1
+   },
+   "arm_a_star_fold1_seed44": {
+    "baseline": 9.4,
+    "recalibration": 30.7,
+    "evaluation": 17.8
+   },
+   "arm_b_fold2_seed42": {
+    "baseline": 9.7,
+    "recalibration": 28.5,
+    "evaluation": 16.1
+   },
+   "arm_a_star_fold2_seed42": {
+    "baseline": 10.3,
+    "recalibration": 27.5,
+    "evaluation": 15.7
+   },
+   "arm_b_fold2_seed43": {
+    "baseline": 10.5,
+    "recalibration": 28.0,
+    "evaluation": 16.2
+   },
+   "arm_a_star_fold2_seed43": {
+    "baseline": 10.0,
+    "recalibration": 29.8,
+    "evaluation": 16.8
+   },
+   "arm_b_fold2_seed44": {
+    "baseline": 9.6,
+    "recalibration": 29.8,
+    "evaluation": 16.6
+   },
+   "arm_a_star_fold2_seed44": {
+    "baseline": 10.1,
+    "recalibration": 31.2,
+    "evaluation": 15.4
+   },
+   "arm_b_fold3_seed42": {
+    "baseline": 10.0,
+    "recalibration": 32.2,
+    "evaluation": 15.8
+   },
+   "arm_a_star_fold3_seed42": {
+    "baseline": 9.7,
+    "recalibration": 28.2,
+    "evaluation": 15.6
+   },
+   "arm_b_fold3_seed43": {
+    "baseline": 11.3,
+    "recalibration": 27.8,
+    "evaluation": 16.1
+   },
+   "arm_a_star_fold3_seed43": {
+    "baseline": 9.9,
+    "recalibration": 26.8,
+    "evaluation": 15.4
+   },
+   "arm_b_fold3_seed44": {
+    "baseline": 10.1,
+    "recalibration": 26.7,
+    "evaluation": 15.4
+   },
+   "arm_a_star_fold3_seed44": {
+    "baseline": 9.9,
+    "recalibration": 26.8,
+    "evaluation": 15.2
+   },
+   "arm_b_fold4_seed42": {
+    "baseline": 9.9,
+    "recalibration": 27.1,
+    "evaluation": 15.0
+   },
+   "arm_a_star_fold4_seed42": {
+    "baseline": 9.7,
+    "recalibration": 26.9,
+    "evaluation": 15.1
+   },
+   "arm_b_fold4_seed43": {
+    "baseline": 9.8,
+    "recalibration": 26.9,
+    "evaluation": 14.9
+   },
+   "arm_a_star_fold4_seed43": {
+    "baseline": 9.8,
+    "recalibration": 27.1,
+    "evaluation": 14.8
+   },
+   "arm_b_fold4_seed44": {
+    "baseline": 9.9,
+    "recalibration": 27.0,
+    "evaluation": 15.0
+   },
+   "arm_a_star_fold4_seed44": {
+    "baseline": 9.6,
+    "recalibration": 26.8,
+    "evaluation": 15.3
+   },
+   "arm_b_prime_fold1_seed42": {
+    "baseline": 7.8,
+    "recalibration": 18.0,
+    "evaluation": 10.5
+   },
+   "arm_b_prime_fold1_seed43": {
+    "baseline": 7.8,
+    "recalibration": 18.2,
+    "evaluation": 10.7
+   },
+   "arm_b_prime_fold1_seed44": {
+    "baseline": 7.8,
+    "recalibration": 18.3,
+    "evaluation": 10.4
+   },
+   "arm_b_prime_fold2_seed42": {
+    "baseline": 8.4,
+    "recalibration": 18.3,
+    "evaluation": 10.5
+   },
+   "arm_b_prime_fold2_seed43": {
+    "baseline": 7.8,
+    "recalibration": 19.0,
+    "evaluation": 10.4
+   },
+   "arm_b_prime_fold2_seed44": {
+    "baseline": 8.1,
+    "recalibration": 18.2,
+    "evaluation": 10.5
+   },
+   "arm_b_prime_fold3_seed42": {
+    "baseline": 8.2,
+    "recalibration": 18.3,
+    "evaluation": 10.5
+   },
+   "arm_b_prime_fold3_seed43": {
+    "baseline": 8.1,
+    "recalibration": 18.3,
+    "evaluation": 10.5
+   },
+   "arm_b_prime_fold3_seed44": {
+    "baseline": 8.7,
+    "recalibration": 18.3,
+    "evaluation": 10.3
+   },
+   "arm_b_prime_fold4_seed42": {
+    "baseline": 10.3,
+    "recalibration": 18.5,
+    "evaluation": 10.4
+   },
+   "arm_b_prime_fold4_seed43": {
+    "baseline": 8.6,
+    "recalibration": 19.1,
+    "evaluation": 10.4
+   },
+   "arm_b_prime_fold4_seed44": {
+    "baseline": 8.2,
+    "recalibration": 18.7,
+    "evaluation": 10.5
+   }
+  }
+ },
+ "groups": {
+  "ten": [
+   "arm_b_fold1_seed42",
+   "arm_a_star_fold2_seed43",
+   "arm_a_star_fold2_seed44",
+   "arm_a_star_fold3_seed42",
+   "arm_a_star_fold3_seed44",
+   "arm_b_fold4_seed44",
+   "arm_a_star_fold4_seed44",
+   "arm_b_prime_fold1_seed44",
+   "arm_b_prime_fold2_seed44",
+   "arm_b_prime_fold4_seed44"
+  ],
+  "control": 25,
+  "apart": [
+   "arm_b_fold3_seed44"
+  ]
+ },
+ "recovery_criterion": "dev accuracy >= 0.75 and val_loss < 1.0 (val_loss from the logits); the same thresholds read on the fitting set in inference mode (accuracy and unweighted loss)",
+ "reading": {
+  "primary": {
+   "rule": "primary: the number of the ten degenerate checkpoints that meet the recovery criterion on the dev after the re-estimation (dev accuracy >= 0.75 and val_loss < 1.0); applied mechanically by the script",
+   "positives": 10,
+   "of": 10,
+   "case": "all",
+   "statement": "all ten (10 of 10) meet the recovery criterion on the dev after the re-estimation: on these checkpoints, re-estimating the statistics on the fitting set, every trained parameter unchanged, is sufficient to meet the criterion (the moving statistics, dropout and the augmentation of the fitting set, hypotheses 1-3, are not separated); the later saturated epochs, at residual <= 0.0704, are not examined. A recovery shows the effect of this recalibration on the examined checkpoints, not a single cause of the saturation",
+   "recovered": [
+    "arm_b_fold1_seed42",
+    "arm_a_star_fold2_seed43",
+    "arm_a_star_fold2_seed44",
+    "arm_a_star_fold3_seed42",
+    "arm_a_star_fold3_seed44",
+    "arm_b_fold4_seed44",
+    "arm_a_star_fold4_seed44",
+    "arm_b_prime_fold1_seed44",
+    "arm_b_prime_fold2_seed44",
+    "arm_b_prime_fold4_seed44"
+   ],
+   "not_recovered": []
+  },
+  "controls": {
+   "rule": "secondary, not deciding: the controls (the 25 of the 26 meeting the criterion at their checkpoint); each one that no longer meets the criterion on the dev after the re-estimation is listed as a worsening",
+   "n": 25,
+   "meeting_before": 25,
+   "keep": 25,
+   "lose": 0,
+   "lost": [],
+   "not_meeting_before": []
+  },
+  "apart": {
+   "rule": "reported apart, not deciding: arm B fold 3 seed 44 (restored epoch 3, dev accuracy 0.2375, not degenerate, outside the criterion at its checkpoint), its dev values before and after",
+   "models": [
+    {
+     "model": "arm_b_fold3_seed44",
+     "dev_accuracy_before": 0.23749999701976776,
+     "dev_accuracy_after": 0.9950000047683716,
+     "dev_val_loss_before": 3.2730567480128805,
+     "dev_val_loss_after": 0.04166035238749463,
+     "dev_auroc_before": 0.095025,
+     "dev_auroc_after": 0.99855,
+     "dev_criterion_after": true
+    }
+   ]
+  },
+  "cells": {
+   "counts": {
+    "ten": {
+     "fitting_met_dev_met": 0,
+     "fitting_met_dev_not_met": 0,
+     "fitting_not_met_dev_met": 10,
+     "fitting_not_met_dev_not_met": 0
+    },
+    "all": {
+     "fitting_met_dev_met": 22,
+     "fitting_met_dev_not_met": 0,
+     "fitting_not_met_dev_met": 14,
+     "fitting_not_met_dev_not_met": 0
+    }
+   },
+   "statements": {
+    "fitting_met_dev_met": "both",
+    "fitting_met_dev_not_met": "fitting only",
+    "fitting_not_met_dev_met": "dev after only",
+    "fitting_not_met_dev_not_met": "neither"
+   },
+   "header": "fitting before (original statistics, inference mode) x dev after: each cell counts checkpoints, no cell names a cause"
+  },
+  "worsening": {
+   "rule": "every worsening of every model is reported: criterion lost on the dev, fewer correct dev frames, higher dev val_loss, lower dev AUROC, fewer correct fitting frames, higher fitting loss; any change in that direction counts, however small, and aggregate.md gives its size (before -> after, difference) so that numerical noise can be recognised",
+   "models": [
+    {
+     "model": "arm_a_star_fold1_seed42",
+     "group": "control",
+     "flags": [
+      "val_loss_higher"
+     ],
+     "sizes": {
+      "val_loss_higher": {
+       "before": 0.010433279900524742,
+       "after": 0.013432096652720844,
+       "difference": 0.002998816752196102
+      }
+     }
+    },
+    {
+     "model": "arm_b_fold1_seed43",
+     "group": "control",
+     "flags": [
+      "dev_accuracy_lower",
+      "val_loss_higher",
+      "dev_auroc_lower"
+     ],
+     "sizes": {
+      "dev_accuracy_lower": {
+       "before": 399,
+       "after": 397,
+       "difference": -2
+      },
+      "val_loss_higher": {
+       "before": 0.005580413002250353,
+       "after": 0.18296513191183142,
+       "difference": 0.17738471890958107
+      },
+      "dev_auroc_lower": {
+       "before": 0.999975,
+       "after": 0.995,
+       "difference": -0.004974999999999952
+      }
+     }
+    },
+    {
+     "model": "arm_a_star_fold1_seed43",
+     "group": "control",
+     "flags": [
+      "dev_accuracy_lower"
+     ],
+     "sizes": {
+      "dev_accuracy_lower": {
+       "before": 399,
+       "after": 398,
+       "difference": -1
+      }
+     }
+    },
+    {
+     "model": "arm_b_fold1_seed44",
+     "group": "control",
+     "flags": [
+      "val_loss_higher",
+      "dev_auroc_lower",
+      "fitting_accuracy_lower",
+      "fitting_loss_higher"
+     ],
+     "sizes": {
+      "val_loss_higher": {
+       "before": 0.029843045279213654,
+       "after": 0.344459370279677,
+       "difference": 0.3146163250004633
+      },
+      "dev_auroc_lower": {
+       "before": 0.998475,
+       "after": 0.9946875,
+       "difference": -0.0037875000000000547
+      },
+      "fitting_accuracy_lower": {
+       "before": 1.0,
+       "after": 0.9992856979370117,
+       "difference": -0.0007143020629882812
+      },
+      "fitting_loss_higher": {
+       "before": 0.001262515955430435,
+       "after": 0.001443487167437883,
+       "difference": 0.0001809712120074481
+      }
+     }
+    },
+    {
+     "model": "arm_a_star_fold1_seed44",
+     "group": "control",
+     "flags": [
+      "val_loss_higher",
+      "dev_auroc_lower",
+      "fitting_accuracy_lower",
+      "fitting_loss_higher"
+     ],
+     "sizes": {
+      "val_loss_higher": {
+       "before": 0.03451446697615622,
+       "after": 0.5326530232835343,
+       "difference": 0.498138556307378
+      },
+      "dev_auroc_lower": {
+       "before": 0.99915,
+       "after": 0.98945,
+       "difference": -0.009699999999999931
+      },
+      "fitting_accuracy_lower": {
+       "before": 1.0,
+       "after": 0.9985714554786682,
+       "difference": -0.0014285445213317871
+      },
+      "fitting_loss_higher": {
+       "before": 0.0006945006799988198,
+       "after": 0.00280055428410716,
+       "difference": 0.0021060536041083403
+      }
+     }
+    },
+    {
+     "model": "arm_a_star_fold2_seed42",
+     "group": "control",
+     "flags": [
+      "val_loss_higher",
+      "fitting_loss_higher"
+     ],
+     "sizes": {
+      "val_loss_higher": {
+       "before": 0.00010711141784007394,
+       "after": 0.00031722696431471964,
+       "difference": 0.0002101155464746457
+      },
+      "fitting_loss_higher": {
+       "before": 3.772050337652948e-05,
+       "after": 0.0003414813855233762,
+       "difference": 0.00030376088214684676
+      }
+     }
+    },
+    {
+     "model": "arm_b_fold3_seed43",
+     "group": "control",
+     "flags": [
+      "dev_accuracy_lower",
+      "val_loss_higher"
+     ],
+     "sizes": {
+      "dev_accuracy_lower": {
+       "before": 397,
+       "after": 387,
+       "difference": -10
+      },
+      "val_loss_higher": {
+       "before": 0.05305457065534444,
+       "after": 0.06395480307896122,
+       "difference": 0.010900232423616776
+      }
+     }
+    },
+    {
+     "model": "arm_a_star_fold3_seed43",
+     "group": "control",
+     "flags": [
+      "dev_accuracy_lower",
+      "val_loss_higher"
+     ],
+     "sizes": {
+      "dev_accuracy_lower": {
+       "before": 399,
+       "after": 367,
+       "difference": -32
+      },
+      "val_loss_higher": {
+       "before": 0.00883640697043726,
+       "after": 0.16696796589038765,
+       "difference": 0.1581315589199504
+      }
+     }
+    },
+    {
+     "model": "arm_b_fold4_seed42",
+     "group": "control",
+     "flags": [
+      "dev_accuracy_lower",
+      "val_loss_higher",
+      "dev_auroc_lower"
+     ],
+     "sizes": {
+      "dev_accuracy_lower": {
+       "before": 400,
+       "after": 399,
+       "difference": -1
+      },
+      "val_loss_higher": {
+       "before": 0.0005423201912359079,
+       "after": 0.16221907964446014,
+       "difference": 0.16167675945322424
+      },
+      "dev_auroc_lower": {
+       "before": 1.0,
+       "after": 0.995,
+       "difference": -0.0050000000000000044
+      }
+     }
+    },
+    {
+     "model": "arm_a_star_fold4_seed42",
+     "group": "control",
+     "flags": [
+      "dev_accuracy_lower",
+      "dev_auroc_lower",
+      "fitting_accuracy_lower"
+     ],
+     "sizes": {
+      "dev_accuracy_lower": {
+       "before": 319,
+       "after": 315,
+       "difference": -4
+      },
+      "dev_auroc_lower": {
+       "before": 0.999,
+       "after": 0.991625,
+       "difference": -0.00737500000000002
+      },
+      "fitting_accuracy_lower": {
+       "before": 0.9985714554786682,
+       "after": 0.9971428513526917,
+       "difference": -0.0014286041259765625
+      }
+     }
+    },
+    {
+     "model": "arm_b_fold4_seed43",
+     "group": "control",
+     "flags": [
+      "dev_accuracy_lower",
+      "val_loss_higher"
+     ],
+     "sizes": {
+      "dev_accuracy_lower": {
+       "before": 400,
+       "after": 399,
+       "difference": -1
+      },
+      "val_loss_higher": {
+       "before": 0.0012892336118172285,
+       "after": 0.004664817263350682,
+       "difference": 0.0033755836515334536
+      }
+     }
+    },
+    {
+     "model": "arm_a_star_fold4_seed43",
+     "group": "control",
+     "flags": [
+      "dev_accuracy_lower",
+      "val_loss_higher",
+      "dev_auroc_lower"
+     ],
+     "sizes": {
+      "dev_accuracy_lower": {
+       "before": 398,
+       "after": 367,
+       "difference": -31
+      },
+      "val_loss_higher": {
+       "before": 0.027190568322572838,
+       "after": 0.15160308769806816,
+       "difference": 0.12441251937549531
+      },
+      "dev_auroc_lower": {
+       "before": 0.9993,
+       "after": 0.99915,
+       "difference": -0.00014999999999998348
+      }
+     }
+    },
+    {
+     "model": "arm_b_prime_fold2_seed43",
+     "group": "control",
+     "flags": [
+      "dev_accuracy_lower",
+      "val_loss_higher"
+     ],
+     "sizes": {
+      "dev_accuracy_lower": {
+       "before": 400,
+       "after": 399,
+       "difference": -1
+      },
+      "val_loss_higher": {
+       "before": 0.004232854600428663,
+       "after": 0.009312947567815763,
+       "difference": 0.005080092967387101
+      }
+     }
+    },
+    {
+     "model": "arm_b_prime_fold3_seed42",
+     "group": "control",
+     "flags": [
+      "val_loss_higher"
+     ],
+     "sizes": {
+      "val_loss_higher": {
+       "before": 0.3211211247383734,
+       "after": 0.3448558385635115,
+       "difference": 0.023734713825138087
+      }
+     }
+    },
+    {
+     "model": "arm_b_prime_fold3_seed43",
+     "group": "control",
+     "flags": [
+      "dev_accuracy_lower",
+      "val_loss_higher"
+     ],
+     "sizes": {
+      "dev_accuracy_lower": {
+       "before": 400,
+       "after": 399,
+       "difference": -1
+      },
+      "val_loss_higher": {
+       "before": 0.0011376127652906506,
+       "after": 0.027935783414595655,
+       "difference": 0.026798170649305005
+      }
+     }
+    },
+    {
+     "model": "arm_b_prime_fold3_seed44",
+     "group": "control",
+     "flags": [
+      "dev_accuracy_lower",
+      "val_loss_higher"
+     ],
+     "sizes": {
+      "dev_accuracy_lower": {
+       "before": 399,
+       "after": 367,
+       "difference": -32
+      },
+      "val_loss_higher": {
+       "before": 0.03409572764175309,
+       "after": 0.12177026391232434,
+       "difference": 0.08767453627057126
+      }
+     }
+    },
+    {
+     "model": "arm_b_prime_fold4_seed42",
+     "group": "control",
+     "flags": [
+      "val_loss_higher",
+      "dev_auroc_lower",
+      "fitting_loss_higher"
+     ],
+     "sizes": {
+      "val_loss_higher": {
+       "before": 0.1375407526014314,
+       "after": 0.3614380823387411,
+       "difference": 0.2238973297373097
+      },
+      "dev_auroc_lower": {
+       "before": 0.99655,
+       "after": 0.948475,
+       "difference": -0.04807500000000009
+      },
+      "fitting_loss_higher": {
+       "before": 0.025991270945100425,
+       "after": 0.060395204077060706,
+       "difference": 0.03440393313196028
+      }
+     }
+    }
+   ],
+   "counts": {
+    "gained_criterion": 11,
+    "lost_criterion": 0,
+    "dev_accuracy_lower": 11,
+    "val_loss_higher": 15,
+    "dev_auroc_lower": 7,
+    "fitting_accuracy_lower": 3,
+    "fitting_loss_higher": 4
+   }
+  },
+  "limits": "each cell and each case states what is observed with these statistics on these checkpoints and names no cause; a recovery shows the effect of this recalibration on the examined checkpoints, not a single cause of the saturation; a missing recovery does not, in general, exclude a role of BatchNormalization or dropout; only the restored checkpoint of each training is examined, and it was selected on the same dev; small dev (2-3 subjects per fold); one estimator; the criteria were defined after the patience-4 run",
+  "report": "the report gives all 36 models, every worsening included, the fitting and dev values before and after, and the actual time against the estimate"
+ },
+ "reading_not_applied": null,
+ "test": "the fold schema (fold<k>_test.csv, the test role of our folds) is never opened and no <model>_test_scores.csv is opened; the M2 manifests official_test and cnn_test (NUAA's official image lists, not the test role of our folds) are read only to index the cache; as in the parent run the frame files (cache and extracted frames) are hashed and loaded whole, but only fitting and dev frames are assembled; the public aggregate of the parent run, which holds test metrics, is read only as bytes for its SHA-256 and never parsed; no public file of the folds run is opened; no test frame is assembled or evaluated and no test score or metric is read, computed or written",
+ "test_read": "The fold schema (fold<k>_test.csv, the test role of our folds) is never opened and no <model>_test_scores.csv is opened; the M2 manifests official_test and cnn_test (NUAA's official image lists, not the test role of our folds) are read only to index the cache; as in the parent run the frame files (cache and extracted frames) are hashed and loaded whole, but only fitting and dev frames are assembled; the public aggregate of the parent run, which holds test metrics, is read only as bytes for its SHA-256 and never parsed; no public file of the folds run is opened; no test frame is assembled or evaluated and no test score or metric is read, computed or written"
+}

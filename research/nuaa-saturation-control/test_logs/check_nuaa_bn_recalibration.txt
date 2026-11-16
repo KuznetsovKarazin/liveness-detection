@@ -1,0 +1,13 @@
+# macOS, Python 3.11.16, NumPy 1.26.4, TensorFlow 2.15.0, 2026-11-14 13:52 CET; synthetic suite only (tiny Keras models, 8x8 frames in a temporary folder; no real checkpoint or frame); files of commit 49698fc
+# SHA-256 8c228ef400f5ef4337612477b23113fb6b8cac5364a5ff026e2c0ac8096734f5  scripts/nuaa_bn_recalibration.py
+# SHA-256 c93c3b8c7376d86e7653f4e5a4bc8797ec371ba7e7f16c69943cf8a5d730176f  scripts/check_nuaa_bn_recalibration.py
+# SHA-256 cac1d94dcfdc8e57e2689aad26fbc2857a8c7a782f8bd720047ab11572907ce7  scripts/check_nuaa_bn_recalibration_mutations.py
+# SHA-256 d97e2e7497fb038708f09613bab6b8602ddac53976a31d84f8771c87c3d52865  delivery/bnrecal/nuaa_bn_recalibration.json
+...............................................................
+----------------------------------------------------------------------
+Ran 63 tests in 84.678s
+
+OK
+tests run: 63, failures: 0, errors: 0, skipped: 0
+RESULT: PASS
+exit 0

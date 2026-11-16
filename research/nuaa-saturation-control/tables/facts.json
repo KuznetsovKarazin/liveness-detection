@@ -1,0 +1,267 @@
+{
+ "bn": {
+  "momentum": 0.99,
+  "residual_after_epoch": {
+   "A*": [
+    0.41295,
+    0.170527,
+    0.070419
+   ],
+   "B": [
+    0.41295,
+    0.170527,
+    0.070419
+   ],
+   "B'": [
+    0.552683,
+    0.305459,
+    0.168822
+   ]
+  },
+  "residual_restored_degenerate": {
+   "max": 0.552683,
+   "median": 0.41295,
+   "min": 0.170527,
+   "n": 10
+  }
+ },
+ "cost": {
+  "derived_not_measured": true,
+  "dev_passes": 2,
+  "fitting_evaluation_passes": 2,
+  "models_per_arm": {
+   "A*": 12,
+   "B": 12,
+   "B'": 12
+  },
+  "passes_on_fitting": 5,
+  "per_arm": {
+   "A*": {
+    "central_seconds_per_model": 58.425,
+    "frames_per_model": 10600,
+    "upper_seconds_per_model": 263.26
+   },
+   "B": {
+    "central_seconds_per_model": 58.425,
+    "frames_per_model": 10600,
+    "upper_seconds_per_model": 265.99
+   },
+   "B'": {
+    "central_seconds_per_model": 41.70725,
+    "frames_per_model": 7338,
+    "upper_seconds_per_model": 168.83
+   }
+  },
+  "slowest_per_epoch_mean": {
+   "A*": 36.48,
+   "B": 36.87,
+   "B'": 22.99
+  },
+  "threshold_step_seconds": {
+   "dev_passes_in_step": 2,
+   "max": 7.9,
+   "median": 4.1
+  },
+  "total_central_minutes": 31.71145,
+  "total_upper_minutes": 139.616
+ },
+ "criteria": {
+  "degenerate": "restored epoch 1 or 2 with dev accuracy 0.5 (within 1e-06)",
+  "recovery": "dev accuracy >= 0.75 and val_loss < 1"
+ },
+ "criteria_values": {
+  "tolerance": 1e-06,
+  "val_accuracy_min": 0.75,
+  "val_loss_max": 1.0
+ },
+ "dev_auroc_checkpoint_degenerate": {
+  "above_0.9": 2,
+  "below_0.5": 3,
+  "equal_0.5": 5,
+  "values": [
+   0.21135,
+   0.468975,
+   0.4975,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.965175,
+   0.9975
+  ]
+ },
+ "dev_saturation": {
+  "degenerate_at_epoch1": 10,
+  "non_degenerate_at_epoch1": 24,
+  "non_degenerate_at_epoch3_or_later": 24
+ },
+ "dev_subjects_per_fold": {
+  "max": 3,
+  "min": 2
+ },
+ "later_runs": {
+  "p12": {
+   "epochs": 12,
+   "others_with_half_epoch": 26,
+   "residual_at_last_half_epoch": 0.015752,
+   "run_id": "20261109-SESSABLRUN-6a50265",
+   "ten_epoch1_half": 10,
+   "ten_half_epochs": {
+    "max": 7,
+    "median": 4.0,
+    "min": 2,
+    "n": 10
+   },
+   "ten_last_half_arms": [
+    "B'"
+   ],
+   "ten_last_half_epoch": 7,
+   "ten_with_half_epoch": 10
+  },
+  "p12c": {
+   "epochs": 12,
+   "others_with_half_epoch": 26,
+   "residual_at_last_half_epoch": 0.028501,
+   "run_id": "20261111-SESSABLRUN-8568ffa",
+   "ten_epoch1_half": 10,
+   "ten_half_epochs": {
+    "max": 5,
+    "median": 4.0,
+    "min": 2,
+    "n": 10
+   },
+   "ten_last_half_arms": [
+    "B'"
+   ],
+   "ten_last_half_epoch": 6,
+   "ten_with_half_epoch": 10
+  }
+ },
+ "layers": {
+  "batch_normalization": [
+   {
+    "first_after_dropout": false,
+    "name": "bn1_1",
+    "position": 4,
+    "preceded_by_dropout": null
+   },
+   {
+    "first_after_dropout": false,
+    "name": "bn1_2",
+    "position": 7,
+    "preceded_by_dropout": null
+   },
+   {
+    "first_after_dropout": true,
+    "name": "bn2_1",
+    "position": 12,
+    "preceded_by_dropout": "dropout1"
+   },
+   {
+    "first_after_dropout": false,
+    "name": "bn2_2",
+    "position": 15,
+    "preceded_by_dropout": "dropout1"
+   },
+   {
+    "first_after_dropout": true,
+    "name": "bn_dense",
+    "position": 20,
+    "preceded_by_dropout": "dropout2"
+   }
+  ],
+  "dropout": [
+   {
+    "name": "dropout1",
+    "position": 9
+   },
+   {
+    "name": "dropout2",
+    "position": 17
+   },
+   {
+    "name": "dropout_dense",
+    "position": 21
+   }
+  ],
+  "layers": 22
+ },
+ "models": {
+  "degenerate": 10,
+  "degenerate_best_val_loss": {
+   "max": 60.986767,
+   "median": 14.71782,
+   "min": 2.360512,
+   "n": 10
+  },
+  "degenerate_by_arm": {
+   "A*": 5,
+   "B": 2,
+   "B'": 3
+  },
+  "degenerate_dev_accuracy_half_at_restored": 10,
+  "degenerate_restored_epochs": {
+   "1": 8,
+   "2": 2
+  },
+  "non_degenerate": 26,
+  "non_degenerate_at_criterion_at_checkpoint": 25,
+  "total": 36,
+  "weights_sha256_listed": 36,
+  "weights_sha256_source": "nuaa-session-ablation-run/tables/aggregate.json (block training, key weights_sha256)"
+ },
+ "non_degenerate_outside_criterion": [
+  {
+   "arm": "B",
+   "best_val_loss": 3.273058,
+   "dev_accuracy": 0.2375,
+   "dev_auroc": 0.095025,
+   "fold": 3,
+   "restored_epoch": 3,
+   "seed": 44
+  }
+ ],
+ "runs": {
+  "degenerate_study": "20261107-DEGEN-a3b4dc0",
+  "patience_12": "20261109-SESSABLRUN-6a50265",
+  "patience_12_constant_lr": "20261111-SESSABLRUN-8568ffa",
+  "patience_4": "20261106-SESSABLRUN-d999458"
+ },
+ "sizes": {
+  "batch": 16,
+  "dev": 400,
+  "device": "CPU",
+  "fitting": {
+   "A*": 1400,
+   "B": 1400,
+   "B'": 934
+  },
+  "scoring_batch": 16,
+  "steps_per_epoch": {
+   "A*": 88,
+   "B": 88,
+   "B'": 59
+  }
+ },
+ "train_accuracy_epoch1": {
+  "degenerate": {
+   "max": 0.980714,
+   "median": 0.949481,
+   "min": 0.914286,
+   "n": 10
+  },
+  "non_degenerate": {
+   "max": 0.988571,
+   "median": 0.969119,
+   "min": 0.902143,
+   "n": 26
+  }
+ },
+ "train_accuracy_restored_degenerate": {
+  "max": 0.994286,
+  "median": 0.954834,
+  "min": 0.914286,
+  "n": 10
+ }
+}

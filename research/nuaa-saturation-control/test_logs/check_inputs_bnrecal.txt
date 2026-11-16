@@ -1,0 +1,9 @@
+# macOS, Python 3.11.16, NumPy 1.26.4, TensorFlow 2.15.0 (installed, not imported), 2026-11-14 13:20 CET; check-inputs of the runner on the real inputs (read only, no model loaded, nothing written); code of commit 49698fc
+# SHA-256 8c228ef400f5ef4337612477b23113fb6b8cac5364a5ff026e2c0ac8096734f5  scripts/nuaa_bn_recalibration.py
+# SHA-256 d97e2e7497fb038708f09613bab6b8602ddac53976a31d84f8771c87c3d52865  delivery/bnrecal/nuaa_bn_recalibration.json
+# SHA-256 55ddd83901503286c31e7c5d352b9fcd3b62cc69f12872a0700663fc7f644af7  delivery/saturation-control/NOTE.md
+# SHA-256 4c2d29d13dede8a48c3a8e74e1ca48379c5c7e7721eb0a1f55fececbc684e23b  delivery/sessionablationrun/nuaa_session_ablation_run.json
+$ python -I -B scripts/nuaa_bn_recalibration.py check-inputs
+CHECK-INPUTS: configuration d97e2e7497fb, revised note 55ddd8390150, parent run 20261106-SESSABLRUN-d999458 PASS (36 models: card, dev scores, threshold and weights equal to its restricted SHA256SUMS; public aggregate hashed only, never parsed; fitting and dev keys equal to every card), 5 M2 manifests, 16 cell manifests (devmix not read), cache 6000 frames, extracted frames 6614 with every frame SHA-256 verified, groups: 10 degenerate, 25 controls, 1 apart; fold schema and test manifests not opened; TensorFlow 2.15.0 installed and not imported; nothing written
+RESULT: PASS (check-inputs)
+exit 0

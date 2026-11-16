@@ -1,0 +1,79 @@
+===== 2026-11-14T14:18:46+0100 run =====
+== NUAA BatchNormalization recalibration 20261114-BNRECAL-a10a082: configuration d97e2e7497fb, note 55ddd8390150, parent 20261106-SESSABLRUN-d999458, cap 240 min, pid 50557
+   phase 0 PASS: 36 models, 16 cell manifests, peak RSS 1317 MB
+   baseline arm_b_fold1_seed42: pass (probability 0.0e+00/0.0e+00, val_loss diff 1.9e-06, correct 200/200), 12.3 s
+   baseline arm_a_star_fold1_seed42: pass (probability 0.0e+00/0.0e+00, val_loss diff 9.2e-10, correct 398/398), 9.2 s
+   baseline arm_b_fold1_seed43: pass (probability 0.0e+00/0.0e+00, val_loss diff 2.6e-09, correct 399/399), 10.1 s
+   baseline arm_a_star_fold1_seed43: pass (probability 0.0e+00/0.0e+00, val_loss diff 7.3e-10, correct 399/399), 10.0 s
+   baseline arm_b_fold1_seed44: pass (probability 0.0e+00/0.0e+00, val_loss diff 2.0e-09, correct 398/398), 9.2 s
+   baseline arm_a_star_fold1_seed44: pass (probability 0.0e+00/0.0e+00, val_loss diff 1.2e-09, correct 395/395), 9.4 s
+   baseline arm_b_fold2_seed42: pass (probability 0.0e+00/0.0e+00, val_loss diff 1.2e-09, correct 379/379), 9.7 s
+   baseline arm_a_star_fold2_seed42: pass (probability 0.0e+00/0.0e+00, val_loss diff 2.7e-09, correct 400/400), 10.3 s
+   baseline arm_b_fold2_seed43: pass (probability 0.0e+00/0.0e+00, val_loss diff 1.5e-09, correct 400/400), 10.5 s
+   baseline arm_a_star_fold2_seed43: pass (probability 0.0e+00/0.0e+00, val_loss diff 1.8e-06, correct 200/200), 10.0 s
+   baseline arm_b_fold2_seed44: pass (probability 0.0e+00/0.0e+00, val_loss diff 1.6e-09, correct 399/399), 9.6 s
+   baseline arm_a_star_fold2_seed44: pass (probability 0.0e+00/0.0e+00, val_loss diff 2.9e-06, correct 200/200), 10.1 s
+   baseline arm_b_fold3_seed42: pass (probability 0.0e+00/0.0e+00, val_loss diff 5.0e-10, correct 400/400), 10.0 s
+   baseline arm_a_star_fold3_seed42: pass (probability 0.0e+00/0.0e+00, val_loss diff 2.6e-06, correct 200/200), 9.7 s
+   baseline arm_b_fold3_seed43: pass (probability 0.0e+00/0.0e+00, val_loss diff 5.0e-10, correct 397/397), 11.3 s
+   baseline arm_a_star_fold3_seed43: pass (probability 0.0e+00/0.0e+00, val_loss diff 1.2e-09, correct 399/399), 9.9 s
+   baseline arm_b_fold3_seed44: pass (probability 0.0e+00/0.0e+00, val_loss diff 1.2e-06, correct 95/95), 10.1 s
+   baseline arm_a_star_fold3_seed44: pass (probability 0.0e+00/0.0e+00, val_loss diff 5.5e-07, correct 200/200), 9.9 s
+   baseline arm_b_fold4_seed42: pass (probability 0.0e+00/0.0e+00, val_loss diff 2.1e-09, correct 400/400), 9.9 s
+   baseline arm_a_star_fold4_seed42: pass (probability 0.0e+00/0.0e+00, val_loss diff 2.0e-08, correct 319/319), 9.7 s
+   baseline arm_b_fold4_seed43: pass (probability 0.0e+00/0.0e+00, val_loss diff 1.8e-09, correct 400/400), 9.8 s
+   baseline arm_a_star_fold4_seed43: pass (probability 0.0e+00/0.0e+00, val_loss diff 3.3e-09, correct 398/398), 9.8 s
+   baseline arm_b_fold4_seed44: pass (probability 0.0e+00/0.0e+00, val_loss diff 2.6e-07, correct 200/200), 9.9 s
+   baseline arm_a_star_fold4_seed44: pass (probability 0.0e+00/0.0e+00, val_loss diff 9.6e-07, correct 200/200), 9.6 s
+   baseline arm_b_prime_fold1_seed42: pass (probability 0.0e+00/0.0e+00, val_loss diff 5.6e-07, correct 309/309), 7.8 s
+   baseline arm_b_prime_fold1_seed43: pass (probability 0.0e+00/0.0e+00, val_loss diff 6.7e-08, correct 376/376), 7.8 s
+   baseline arm_b_prime_fold1_seed44: pass (probability 0.0e+00/0.0e+00, val_loss diff 2.8e-07, correct 200/200), 7.8 s
+   baseline arm_b_prime_fold2_seed42: pass (probability 0.0e+00/0.0e+00, val_loss diff 2.8e-07, correct 351/351), 8.4 s
+   baseline arm_b_prime_fold2_seed43: pass (probability 0.0e+00/0.0e+00, val_loss diff 1.8e-11, correct 400/400), 7.8 s
+   baseline arm_b_prime_fold2_seed44: pass (probability 0.0e+00/0.0e+00, val_loss diff 1.4e-06, correct 200/200), 8.1 s
+   baseline arm_b_prime_fold3_seed42: pass (probability 0.0e+00/0.0e+00, val_loss diff 2.1e-07, correct 333/333), 8.2 s
+   baseline arm_b_prime_fold3_seed43: pass (probability 0.0e+00/0.0e+00, val_loss diff 1.4e-10, correct 400/400), 8.1 s
+   baseline arm_b_prime_fold3_seed44: pass (probability 0.0e+00/0.0e+00, val_loss diff 7.3e-10, correct 399/399), 8.7 s
+   baseline arm_b_prime_fold4_seed42: pass (probability 0.0e+00/0.0e+00, val_loss diff 3.5e-08, correct 367/367), 10.3 s
+   baseline arm_b_prime_fold4_seed43: pass (probability 0.0e+00/0.0e+00, val_loss diff 1.3e-08, correct 400/400), 8.6 s
+   baseline arm_b_prime_fold4_seed44: pass (probability 0.0e+00/0.0e+00, val_loss diff 4.9e-07, correct 200/200), 8.2 s
+== arm_b_fold1_seed42 (ten): dev accuracy 0.5000 -> 0.9950, val_loss 7.0611 -> 0.0244, fitting accuracy 0.5000 -> 0.9993, criterion 0 -> 1, 44.2 s
+== arm_a_star_fold1_seed42 (control): dev accuracy 0.9950 -> 0.9975, val_loss 0.0104 -> 0.0134, fitting accuracy 0.9986 -> 1.0000, criterion 1 -> 1, 43.4 s
+== arm_b_fold1_seed43 (control): dev accuracy 0.9975 -> 0.9925, val_loss 0.0056 -> 0.1830, fitting accuracy 1.0000 -> 1.0000, criterion 1 -> 1, 42.2 s
+== arm_a_star_fold1_seed43 (control): dev accuracy 0.9975 -> 0.9950, val_loss 0.0165 -> 0.0128, fitting accuracy 0.9943 -> 1.0000, criterion 1 -> 1, 43.7 s
+== arm_b_fold1_seed44 (control): dev accuracy 0.9950 -> 0.9950, val_loss 0.0298 -> 0.3445, fitting accuracy 1.0000 -> 0.9993, criterion 1 -> 1, 43.5 s
+== arm_a_star_fold1_seed44 (control): dev accuracy 0.9875 -> 0.9875, val_loss 0.0345 -> 0.5327, fitting accuracy 1.0000 -> 0.9986, criterion 1 -> 1, 48.5 s
+== arm_b_fold2_seed42 (control): dev accuracy 0.9475 -> 1.0000, val_loss 0.2308 -> 0.0087, fitting accuracy 0.9857 -> 0.9971, criterion 1 -> 1, 44.6 s
+== arm_a_star_fold2_seed42 (control): dev accuracy 1.0000 -> 1.0000, val_loss 0.0001 -> 0.0003, fitting accuracy 1.0000 -> 1.0000, criterion 1 -> 1, 43.2 s
+== arm_b_fold2_seed43 (control): dev accuracy 1.0000 -> 1.0000, val_loss 0.0011 -> 0.0004, fitting accuracy 0.9950 -> 0.9993, criterion 1 -> 1, 44.3 s
+== arm_a_star_fold2_seed43 (ten): dev accuracy 0.5000 -> 1.0000, val_loss 60.9868 -> 0.0031, fitting accuracy 0.5000 -> 0.9886, criterion 0 -> 1, 46.6 s
+== arm_b_fold2_seed44 (control): dev accuracy 0.9975 -> 1.0000, val_loss 0.0030 -> 0.0029, fitting accuracy 0.9893 -> 0.9986, criterion 1 -> 1, 46.4 s
+== arm_a_star_fold2_seed44 (ten): dev accuracy 0.5000 -> 0.9800, val_loss 18.0934 -> 0.3553, fitting accuracy 0.5000 -> 0.9957, criterion 0 -> 1, 46.6 s
+== arm_b_fold3_seed42 (control): dev accuracy 1.0000 -> 1.0000, val_loss 0.0168 -> 0.0075, fitting accuracy 0.9993 -> 1.0000, criterion 1 -> 1, 47.9 s
+== arm_a_star_fold3_seed42 (ten): dev accuracy 0.5000 -> 1.0000, val_loss 3.1296 -> 0.0137, fitting accuracy 0.5000 -> 0.9986, criterion 0 -> 1, 43.8 s
+== arm_b_fold3_seed43 (control): dev accuracy 0.9925 -> 0.9675, val_loss 0.0531 -> 0.0640, fitting accuracy 1.0000 -> 1.0000, criterion 1 -> 1, 43.9 s
+== arm_a_star_fold3_seed43 (control): dev accuracy 0.9975 -> 0.9175, val_loss 0.0088 -> 0.1670, fitting accuracy 1.0000 -> 1.0000, criterion 1 -> 1, 42.1 s
+== arm_b_fold3_seed44 (apart): dev accuracy 0.2375 -> 0.9950, val_loss 3.2731 -> 0.0417, fitting accuracy 0.2343 -> 0.9979, criterion 0 -> 1, 42.1 s
+== arm_a_star_fold3_seed44 (ten): dev accuracy 0.5000 -> 0.8275, val_loss 33.4090 -> 0.2594, fitting accuracy 0.5000 -> 0.9971, criterion 0 -> 1, 41.9 s
+== arm_b_fold4_seed42 (control): dev accuracy 1.0000 -> 0.9975, val_loss 0.0005 -> 0.1622, fitting accuracy 1.0000 -> 1.0000, criterion 1 -> 1, 42.1 s
+== arm_a_star_fold4_seed42 (control): dev accuracy 0.7975 -> 0.7875, val_loss 0.8106 -> 0.7175, fitting accuracy 0.9986 -> 0.9971, criterion 1 -> 1, 42.0 s
+== arm_b_fold4_seed43 (control): dev accuracy 1.0000 -> 0.9975, val_loss 0.0013 -> 0.0047, fitting accuracy 0.9993 -> 1.0000, criterion 1 -> 1, 41.8 s
+== arm_a_star_fold4_seed43 (control): dev accuracy 0.9950 -> 0.9175, val_loss 0.0272 -> 0.1516, fitting accuracy 0.9993 -> 0.9993, criterion 1 -> 1, 41.8 s
+== arm_b_fold4_seed44 (ten): dev accuracy 0.5000 -> 1.0000, val_loss 2.3605 -> 0.0013, fitting accuracy 0.5000 -> 0.9971, criterion 0 -> 1, 41.9 s
+== arm_a_star_fold4_seed44 (ten): dev accuracy 0.5000 -> 0.8100, val_loss 22.8274 -> 0.6411, fitting accuracy 0.5000 -> 0.9986, criterion 0 -> 1, 42.1 s
+== arm_b_prime_fold1_seed42 (control): dev accuracy 0.7725 -> 0.9950, val_loss 0.6101 -> 0.3244, fitting accuracy 0.7976 -> 0.9979, criterion 1 -> 1, 28.6 s
+== arm_b_prime_fold1_seed43 (control): dev accuracy 0.9400 -> 0.9975, val_loss 0.8647 -> 0.0096, fitting accuracy 0.8126 -> 0.9989, criterion 1 -> 1, 28.9 s
+== arm_b_prime_fold1_seed44 (ten): dev accuracy 0.5000 -> 0.9950, val_loss 12.1449 -> 0.0146, fitting accuracy 0.5000 -> 0.9989, criterion 0 -> 1, 28.7 s
+== arm_b_prime_fold2_seed42 (control): dev accuracy 0.8775 -> 0.9875, val_loss 0.8750 -> 0.0215, fitting accuracy 0.7784 -> 0.9989, criterion 1 -> 1, 28.8 s
+== arm_b_prime_fold2_seed43 (control): dev accuracy 1.0000 -> 0.9975, val_loss 0.0042 -> 0.0093, fitting accuracy 1.0000 -> 1.0000, criterion 1 -> 1, 29.5 s
+== arm_b_prime_fold2_seed44 (ten): dev accuracy 0.5000 -> 0.9975, val_loss 11.4259 -> 0.0065, fitting accuracy 0.5000 -> 1.0000, criterion 0 -> 1, 28.8 s
+== arm_b_prime_fold3_seed42 (control): dev accuracy 0.8325 -> 0.8800, val_loss 0.3211 -> 0.3449, fitting accuracy 0.7216 -> 1.0000, criterion 1 -> 1, 28.8 s
+== arm_b_prime_fold3_seed43 (control): dev accuracy 1.0000 -> 0.9975, val_loss 0.0011 -> 0.0279, fitting accuracy 0.9925 -> 1.0000, criterion 1 -> 1, 28.8 s
+== arm_b_prime_fold3_seed44 (control): dev accuracy 0.9975 -> 0.9175, val_loss 0.0341 -> 0.1218, fitting accuracy 0.9968 -> 1.0000, criterion 1 -> 1, 28.6 s
+== arm_b_prime_fold4_seed42 (control): dev accuracy 0.9175 -> 0.9500, val_loss 0.1375 -> 0.3614, fitting accuracy 0.9968 -> 0.9968, criterion 1 -> 1, 28.9 s
+== arm_b_prime_fold4_seed43 (control): dev accuracy 1.0000 -> 1.0000, val_loss 0.0142 -> 0.0037, fitting accuracy 0.9722 -> 0.9989, criterion 1 -> 1, 29.5 s
+== arm_b_prime_fold4_seed44 (ten): dev accuracy 0.5000 -> 1.0000, val_loss 17.2907 -> 0.0281, fitting accuracy 0.5000 -> 0.9979, criterion 0 -> 1, 29.1 s
+primary: all ten (10 of 10) meet the recovery criterion on the dev after the re-estimation: on these checkpoints, re-estimating the statistics on the fitting set, every trained parameter unchanged, is sufficient to meet the criterion (the moving statistics, dropout and the augmentation of the fitting set, hypotheses 1-3, are not separated); the later saturated epochs, at residual <= 0.0704, are not examined. A recovery shows the effect of this recalibration on the examined checkpoints, not a single cause of the saturation
+controls: 25 of 25 keep the criterion, 0 lose it
+run folder: 20261114-BNRECAL-a10a082, wall 1749 s (29.1 min; estimate about 32, upper about 140), peak RSS 2029 MB
+RESULT: PASS (run)
