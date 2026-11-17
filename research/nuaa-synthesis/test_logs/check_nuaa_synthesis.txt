@@ -1,4 +1,4 @@
-# macOS, Python 3.14.7, 2026-11-17 10:09 CET; run from the repository root, standard library only
+# macOS, Python 3.14.7, 2026-11-17 19:53 CET; run from the repository root, standard library only
 $ python3 -I -B research/nuaa-synthesis/livenesslab/scripts/check_nuaa_synthesis.py -v
 test_amendment_of_the_patience_run (__main__.TestAblationChecks.test_amendment_of_the_patience_run) ... ok
 test_cells_and_cards (__main__.TestAblationChecks.test_cells_and_cards) ... ok
@@ -165,7 +165,7 @@ test_section_e_train_seconds_tolerance (__main__.TestReviewFaults.test_section_e
 test_verification_status_of_the_comparison (__main__.TestReviewFaults.test_verification_status_of_the_comparison) ... ok
 
 ----------------------------------------------------------------------
-Ran 155 tests in 62.089s
+Ran 155 tests in 39.705s
 
 OK
 

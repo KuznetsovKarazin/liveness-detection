@@ -78,6 +78,11 @@ with no new training and no other model:
 - §1 extended; §4 rewritten as two lists, what the results show (each item with its scope) and the hypotheses still
   open, every unfavourable result kept; §5 rewritten as the state on 17 November; a new §6, "Towards the article".
 
+Corrected on 17 November after the coordinator's review of the same day (C2 card): in §6 (c) the state of the M2
+manifests (the 21 restricted CSV are received and verified; the canonical deposit and the final approval of M2 and the
+CASIA-FASD agreement with decision D-4 stay open), and in §5 the two deviations of the test run recorded as such. No
+number, table or reading changed.
+
 ## 1. Question
 
 Restricted to NUAA, the group's question reads: how reliably do detectors trained on NUAA (and one trained elsewhere)
@@ -1262,6 +1267,12 @@ already analysed, not an independent validation, was published before the run in
 update runs no training and no inference and adds no seed and no model. The extension to the other session directions
 stays left out (coordinator, 3 November).
 
+**Recorded deviations of the test run (PR #28).** The process CPU time over all threads was 18,438.4 s (5.12 hours)
+against the limit of four CPU hours, which the note had applied as elapsed time (cap 240 minutes; the run took 50.5
+minutes); the final `status.json` has no `started` field, so the start time is read from the run log. After the
+coordinator's review of 17 November the run is neither altered nor repeated for these two points; the protocols that
+follow state the unit of every time limit (elapsed or CPU time) and record the start in the final status.
+
 **Not started.** The independent verification proposed in §6 is a proposal only, to be agreed before any data are
 prepared or any model is trained; no other control is proposed. Of the possible next steps listed on 11 November (from
 `CONCLUSION.md` of the constant learning-rate control): the check of another candidate cause of the saturation was
@@ -1320,12 +1331,13 @@ CASIA-FASD. Declared differences from NUAA, seed variant and cost derivation: pa
   no training, but its provenance is weak; it is not the proposal.
 - Access. In our local data: an unofficial mirror copy, frames only, 4,063 colour frames (995 bona fide, 3,068 attacks),
   50 subject numbers local to the two splits (20 + 30), 12 videos per subject; manifests merged with PR #5
-  (`research/m2-rgb-manifests/`, README and aggregate). Open: the independent check of the 21 restricted manifest CSV
-  and the approval of the splits; that the two splits hold different persons (documented, not verified); use for a new
-  run, since the agreement of 9 October 2026 is "to be signed through the University" and decision D-4 is open (pilot
-  README): the coordinator's. Rejected: CelebA-Spoof (identity overlap not measurable in our copy); 3DMAD, CSMAD,
-  MSSpoof, Replay-Attack (not in our local copies; access would depend on the coordinator); a mechanism control on NUAA
-  (not independent).
+  (`research/m2-rgb-manifests/`, README and aggregate); the 21 restricted manifest CSV are received and verified (21
+  hashes, 12 splits reconstructed, 57 tests: C2 card description, read on 17 November 2026; the pilot README, written
+  earlier, still marks that check as pending). Open: the canonical deposit and the final approval of M2; that the two
+  splits hold different persons (documented, not verified); use for a new run, since the agreement of 9 October 2026
+  is "to be signed through the University" and decision D-4 is open (pilot README): the coordinator's. Rejected:
+  CelebA-Spoof (identity overlap not measurable in our copy); 3DMAD, CSMAD, MSSpoof, Replay-Attack (not in our local
+  copies; access would depend on the coordinator); a mechanism control on NUAA (not independent).
 - Protocol. Four subject-disjoint folds of 12–13 subjects with the fold rule of §2; test = every frame of the held-out
   fold; fitting and dev balanced by class with the spread rule, the attack frames of each subject spread over its nine
   attack videos, because the criteria of PR #22 read a constant prediction as dev accuracy 0.5 (the dev of the 12
@@ -1342,6 +1354,6 @@ CASIA-FASD. Declared differences from NUAA, seed variant and cost derivation: pa
   and is not estimated; PR #28 alone used 18,438.4 s (5.1 CPU hours, 6.1 times its elapsed time), above the four CPU
   hours set for it. The cap and its unit are for the coordinator to set.
 
-Remaining activities, in order, if (A) or (C) is chosen: the CASIA-FASD agreement and decision D-4 (the coordinator's);
-the pending independent check of the manifests; the pre-registration of (c), after the first two; the verification and
+Remaining activities, in order, if (A) or (C) is chosen: the CASIA-FASD agreement and decision D-4, and the canonical
+deposit and final approval of M2 (the coordinator's); the pre-registration of (c), after these; the verification and
 its report; figures and tables; writing.
