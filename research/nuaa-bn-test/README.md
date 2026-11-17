@@ -1,4 +1,4 @@
-# NUAA: BatchNormalization re-estimation of PR #27 on the test, before/after (pre-run: note, configuration, code)
+# NUAA: BatchNormalization re-estimation of PR #27 on the test, before/after (note, configuration, code; run and report)
 
 Assigned by the coordinator on the C2 card on 16 November 2026, after the merge of PR #27 (`c234064`): before/after
 comparison, on the NUAA test of the same 36 patience-4 checkpoints of run `20261106-SESSABLRUN-d999458` and without new
@@ -7,18 +7,35 @@ run. In the coordinator's terms, a **post hoc diagnostic extension on a test alr
 validation**: the "before" test metrics are already published (parent run), and the re-estimation was chosen and first
 measured on the dev of the same folds.
 
-**Status at this commit.** Pre-run: note, configuration, runner, tests and their logs. No checkpoint has been loaded
-as a model, no test frame assembled or scored, no `<model>_test_scores.csv` of the parent run parsed. The only command
-run on the private inputs is `check-inputs` (PASS, `test_logs/check_inputs_bntest.txt`): configuration and pinned code
-against PR #27; the parent run's cards, dev scores, thresholds, `.keras` files and `<model>_test_scores.csv` against
-its restricted SHA256SUMS (test score files hashed only); the fold schema with its test manifests (12,614 test rows);
-the frame files (cache and extracted frames) by SHA-256, the extracted frames loaded whole and each frame checked
-against its recorded SHA-256, no frame assembled; the BNRECAL run of PR #27; the groups (10 degenerate, 25 controls,
-1 apart; 17 with a worsened dev indicator in PR #27). No model loaded, TensorFlow not imported, nothing written. The
-run starts after this commit is pushed, from the published code, without a further approval, as the coordinator
-wrote; if every check passes, the report (before/after table, figure of the differences, conclusion) and the public
-outputs follow in a later commit of this pull request, otherwise the stop and its table (`baseline.csv` or
+**Status at commit `9aca72b` (before the run).** Pre-run: note, configuration, runner, tests and their logs. No
+checkpoint has been loaded as a model, no test frame assembled or scored, no `<model>_test_scores.csv` of the parent run
+parsed. The only command run on the private inputs is `check-inputs` (PASS, `test_logs/check_inputs_bntest.txt`):
+configuration and pinned code against PR #27; the parent run's cards, dev scores, thresholds, `.keras` files and
+`<model>_test_scores.csv` against its restricted SHA256SUMS (test score files hashed only); the fold schema with its
+test manifests (12,614 test rows); the frame files (cache and extracted frames) by SHA-256, the extracted frames loaded
+whole and each frame checked against its recorded SHA-256, no frame assembled; the BNRECAL run of PR #27; the groups (10
+degenerate, 25 controls, 1 apart; 17 with a worsened dev indicator in PR #27). No model loaded, TensorFlow not imported,
+nothing written. The run starts after this commit is pushed, from the published code, without a further approval, as the
+coordinator wrote; if every check passes, the report (before/after table, figure of the differences, conclusion) and the
+public outputs follow in a later commit of this pull request, otherwise the stop and its table (`baseline.csv` or
 `recalibration_check.csv`).
+
+**The run.** Run `20261117-BNTEST-6245b10`: status PASS, 36 of 36 models, finished 08:46:19+0100, wall time 3,027.4 s
+(50.5 minutes); baseline and re-estimation checks passed for all 36 (`comparison/baseline.csv`,
+`comparison/recalibration_check.csv`). The note asks to compare the push time with `started` in `status.json`, but the
+final `run/status.json` has no `started` field (written only in the RUNNING status, a runner defect); the start,
+2026-11-17T07:55:51+0100, is read from the first line of `run/run.log.txt` and agrees with `finished` − `wall_seconds`.
+The only external timestamp is GitHub's `createdAt` of pull request #28, 07:55:14 CET, with head `9aca72b` (committed
+07:53:57+0100); start, `finished`, `wall_seconds` and commit `6245b10` are our own records; the configuration, note and
+code hashes recorded by the run equal those of `9aca72b` (`REPORT.md`, header). Report: `REPORT.md` (before/after table
+of all 36 models, paired summaries, figure, worsenings, conclusion, limits). Primary reading, applied by the script: for
+the ten degenerate checkpoints, on the whole test, the mean ACER at the fixed threshold 0.5 is lower after the
+re-estimation (-0.2987, subject-bootstrap interval [-0.4033, -0.2147] entirely below zero), with 9 lower and 1 higher;
+in session 03, 8 lower and 2 higher; among the ten, APCER is higher after for 8 of 10, with intervals containing zero; a
+post hoc diagnostic reading on these checkpoints on this test, not an independent validation, and no statement on the
+cause of the saturation. The process CPU time over all threads was 18,438.4 s, more than four hours, while the four-hour
+limit was applied as 240 minutes of elapsed time (`NOTE.md`, section 7): a point left to the coordinator's judgement
+(`REPORT.md`, "Time and CPU").
 
 ## What the runner reads of the test
 
@@ -85,6 +102,9 @@ time.
 | `livenesslab/delivery/bnrecal/nuaa_bn_recalibration.json`, `livenesslab/delivery/sessionablationrun/nuaa_session_ablation_run.json`, `livenesslab/delivery/foldsrun/nuaa_folds_run.json` | configurations of PR #27, of the parent run and of the folds run; unchanged copies |
 | `test_logs/check_nuaa_bn_test.txt`, `test_logs/check_nuaa_bn_test_mutations.txt` | output of the suite and of the mutation check on macOS (Python 3.11, TensorFlow 2.15.0, NumPy 1.26.4), with the SHA-256 of the files tested |
 | `test_logs/check_inputs_bntest.txt` | output of `check-inputs` on the private inputs, before the run |
+| `REPORT.md` | report of run `20261117-BNTEST-6245b10`: controls, before/after table, paired summaries, figure, worsenings, conclusion, limits, time and CPU |
+| `comparison/results.csv`, `baseline.csv`, `recalibration_check.csv`, `summary.csv`, `aggregate.json`, `aggregate.md`, `differences.png`, `run_record.json`, `SHA256SUMS` | the public outputs of the run, byte for byte (`comparison/SHA256SUMS` is the run's own) |
+| `run/status.json`, `run/run.log.txt` | status and log of the run (`run.log` renamed) |
 | `SHA256SUMS` | SHA-256 of every other file of this folder |
 
 Unchanged copies: byte for byte the files of `research/nuaa-saturation-control/livenesslab` (PR #27).
