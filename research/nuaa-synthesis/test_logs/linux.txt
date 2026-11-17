@@ -1,5 +1,29 @@
-# Linux container python:3.12 (aarch64), Python 3.12.16, 2026-11-11T21:26Z; run from the repository root, standard library only
-$ python -I research/nuaa-synthesis/livenesslab/scripts/check_nuaa_synthesis.py -v
+# EARLIER REVISION, NOT THE FINAL FILES. This log was produced on 2026-11-17T08:31Z on an earlier revision of this
+# update; the Linux run was not repeated on the final files (README, "Dependencies"). Files it tested, with their
+# SHA-256 at that time (README.md left out):
+#   6f7df1458cbdd2a8dc5a5c1e1976fff88c3103eb76b08f38bf21c1fada061a62  SYNTHESIS.md
+#   7179a0f38fa9cbbd1a3580d60c7a13abfd26b185e97f1e10884336616183f1f9  livenesslab/scripts/check_nuaa_synthesis.py
+#   f5b2f632ed26fc6dff6527fff973ccc04aa5faf7d23b185a1878f95dcccead3b  livenesslab/scripts/nuaa_synthesis.py
+#   10b92382bdcf5a7019f77f6a27ddd5be989e9b437c7b514a596c8c5cac1d6248  tables/bn_recalibration_table.md
+#   ccb319f1b4f04ca2918fd7a455dbcb4393a96236b6e584067e68715cc8c9b451  tables/bn_recalibration_table_compact.md
+#   952cfcfb3c37c85d86a18244d49840d8b5ff53ee04ca681b8a9268e889a1ec66  tables/context_rows_table.md
+#   ae4ee6f910051b192ed3ef94076e76a65b8df9011fa22d6e33b9a96094e64c63  tables/cross_dataset_table.md
+#   382d217eb4cbc3f0ba1deeb2866cb48de193c499839d71285af5c018af1a8f90  tables/folds_run_table.md
+#   0078b872e16478ee7a474513ff2e1ca588d54d115053b87e316ba0e23977b7a4  tables/n1_same_ids_table.md
+#   1dfe25d83549bb7c601bfe9d2f484ed74185b85cb9be192ae2d9c1e026680dd1  tables/patience_table.md
+#   ed193d0e6e5f2ec0b88a83b96582ae138e035cde2e55818301cf982b2f0b45b6  tables/patience_table_compact.md
+#   8ad703095acd10217b8a9c22885c44160ff18c06e5dfbe493fc1f441d7b27012  tables/session_ablation_table.md
+#   d1ec6b3a3f9d54587744be471b529187aa44d9878ead355aeca877fee6fe3ec0  tables/session_ablation_table_constant_lr.md
+#   2906f88ae36ad87721ec2b45cf91ac5c8293bb68a4b5c9d3d0f881e54f49c4bf  tables/subject_sensitivity_table.md
+#   3372c8efd5cbd7a61d3cddb7b215b4fcd76840021483e6e934e76f4e01f4e4f4  tables/summary_table.csv
+#   69ca6c2ef9763eb20ba83005c1ef2c002b537bccfe24b8d43d84f995c29a7d6d  tables/summary_table.json
+#   5df67c04b32aab438a43446e599e39e0f6e9742388e418f615be5d0bd49da789  tables/summary_table.md
+#   0a04df77b4b0895802ad5335d00d0262c93a277ca42b12aa6bd41419993e1256  tables/summary_table_compact.md
+#   7c4b5712990be6fe75ea94ac4c9df786bc3d9dbbdf78b12b0e1e5473fa1be4bb  tables/three_regimes_table.md
+#   9ed4777d225f8f53fd85de2e249bc6083a4670811a3bf2ea4bfab43d059c3e74  tables/three_regimes_table_compact.md
+#
+# Linux container python:3.12 (aarch64), Python 3.12.16, 2026-11-17T08:31Z; run from the repository root, standard library only
+$ python -I -B research/nuaa-synthesis/livenesslab/scripts/check_nuaa_synthesis.py -v
 test_amendment_of_the_patience_run (__main__.TestAblationChecks.test_amendment_of_the_patience_run) ... ok
 test_cells_and_cards (__main__.TestAblationChecks.test_cells_and_cards) ... ok
 test_clean_tree_status_and_run_ids (__main__.TestAblationChecks.test_clean_tree_status_and_run_ids) ... ok
@@ -20,6 +44,16 @@ test_patience_summary_lines (__main__.TestAblationRows.test_patience_summary_lin
 Ogni riga di riepilogo, per intero, contro i valori della fixture (casi limite compresi). ... ok
 test_patience_table_cell_by_cell (__main__.TestAblationRows.test_patience_table_cell_by_cell) ... ok
 test_rows_cell_by_cell (__main__.TestAblationRows.test_rows_cell_by_cell) ... ok
+test_compact_rows_and_lines (__main__.TestBnControls.test_compact_rows_and_lines) ... ok
+test_dev_aggregate_checks (__main__.TestBnControls.test_dev_aggregate_checks) ... ok
+test_dev_rows_checks (__main__.TestBnControls.test_dev_rows_checks) ... ok
+test_identity_and_anchors (__main__.TestBnControls.test_identity_and_anchors) ... ok
+test_missing_source_and_command (__main__.TestBnControls.test_missing_source_and_command) ... ok
+test_reading_rule_boundaries (__main__.TestBnControls.test_reading_rule_boundaries)
+Un limite esattamente a zero vuol dire «contains»; senza intervallo o con un modello senza metrica, not_available. ... ok
+test_rows_groups_and_existing_tables (__main__.TestBnControls.test_rows_groups_and_existing_tables) ... ok
+test_summaries_checks (__main__.TestBnControls.test_summaries_checks) ... ok
+test_test_rows_checks (__main__.TestBnControls.test_test_rows_checks) ... ok
 test_annexes_cell_by_cell (__main__.TestBuild.test_annexes_cell_by_cell) ... ok
 test_c1_and_m1_rows_cell_by_cell (__main__.TestBuild.test_c1_and_m1_rows_cell_by_cell) ... ok
 test_combined_and_crop_rows_cell_by_cell (__main__.TestBuild.test_combined_and_crop_rows_cell_by_cell) ... ok
@@ -151,14 +185,14 @@ test_section_e_train_seconds_tolerance (__main__.TestReviewFaults.test_section_e
 test_verification_status_of_the_comparison (__main__.TestReviewFaults.test_verification_status_of_the_comparison) ... ok
 
 ----------------------------------------------------------------------
-Ran 144 tests in 31.111s
+Ran 153 tests in 96.183s
 
 OK
 
-$ python -I research/nuaa-synthesis/livenesslab/scripts/nuaa_synthesis.py check --research research --out research/nuaa-synthesis/tables --synthesis research/nuaa-synthesis/SYNTHESIS.md
-CHECK: 15 files + synthesis, 0 problems
+$ python -I -B research/nuaa-synthesis/livenesslab/scripts/nuaa_synthesis.py check --research research --out research/nuaa-synthesis/tables --synthesis research/nuaa-synthesis/SYNTHESIS.md
+CHECK: 17 files + synthesis, 0 problems
 RESULT: PASS
 
 $ cd research/nuaa-synthesis && sha256sum -c SHA256SUMS | grep -vc ": OK$" ; echo lines: $(wc -l < SHA256SUMS)
 0
-lines: 21
+lines: 23

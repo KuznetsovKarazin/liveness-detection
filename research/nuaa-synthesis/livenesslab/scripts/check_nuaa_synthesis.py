@@ -6,7 +6,9 @@ coerenti fra loro; ogni test di coerenza guasta una sorgente per volta e verific
 giusto; i test di costruzione confrontano ogni riga e ogni annesso con la fixture. La fixture comprende anche la run a
 lr costante (36 modelli, curve identiche a quelle della pazienza 12 nella finestra al lr della ricetta, poi diverse: le
 dieci riprendono, una ripresa persa fuori dalle dieci, stessi pesi, stessa epoca dopo la finestra, una ricaduta) e il
-suo confronto con la run con pazienza 12 nello schema 2 (CSV, curve, aggregato con le sezioni a-e, status).
+suo confronto con la run con pazienza 12 nello schema 2 (CSV, curve, aggregato con le sezioni a-e, status) e le
+quattordici sorgenti dei controlli BN (dev e test), ricavate dalla run con pazienza 4 e dal confronto delle pazienze
+della fixture: gruppi, valori «prima», strati senza una classe (NA), controlli invariati e peggiorati, riepiloghi.
 
 Uso (dalla radice del repository del gruppo): python3 -I research/nuaa-synthesis/livenesslab/scripts/check_nuaa_synthesis.py [-v]
 """
@@ -465,6 +467,7 @@ class Fixture:
             sv["half_after"] = 0 if sv["first_recovery"] is None else sum(abs(a - 0.5) <= TOL for a in hc["va"][sv["first_recovery"]:])
             self.sides_c[key] = sv
         self.abl = [self.abl_run(0), self.abl_run(1), self.abl_run(2)]
+        self.bn_hooks = []  # funzioni applicate alle sorgenti BN prima della scrittura (prima delle ancore)
         self.patver_init()
         self.lrctrl_init()
 
@@ -864,6 +867,219 @@ class Fixture:
         out[S.SOURCES["lrctrl_status"]] = json.dumps(lst, indent=1)
         return out
 
+    def bn_sources(self, out) -> dict:
+        """Le quattordici sorgenti dei controlli BN, coerenti con il run con pazienza 4 e il confronto delle pazienze scritti in
+        out: gruppi dal confronto (le dieci; controlli = gli altri al criterio di ripresa; a parte = i restanti), valori
+        «prima» del dev dal confronto, valori «prima» del test dall'aggregato del run padre (NA compresi), valori «dopo»
+        inventati e conteggi, letture e riepiloghi calcolati come li calcola lo script."""
+        agg0 = json.loads(out[S.SOURCES["sessabl_aggregate"]])
+        pvr = {(r["arm"], r["fold"], r["seed"]): r for r in self.pv_rows}
+        folds = sorted(agg0["per_arm_fold_seed"]["arm_b"])
+        keys = [(a, k, s) for a in ARMS for k in folds for s in SEEDS]
+        names = ["%s_fold%s_seed%s" % key for key in keys]
+        par = agg0["run_id"]
+        crit = lambda acc, vl: acc >= 0.75 and vl < 1.0
+        dev_rows, dev_base, M = [], [], {}
+        ci = 0
+        for key, name in zip(keys, names):
+            a, k, s = key
+            pr, tr = pvr[key], agg0["training"][name]
+            n_dev = tr["n_dev"]
+            grp = "ten" if pr["in_ten"] else "control" if crit(pr["parent_dev_acc_at_checkpoint"], pr["parent_best_val_loss"]) else "apart"
+            cb = round(pr["parent_dev_acc_at_checkpoint"] * n_dev)
+            acc_b, vl_b, au_b = pr["parent_dev_acc_at_checkpoint"], pr["parent_best_val_loss"], pr["parent_dev_auroc_at_checkpoint"]
+            if grp == "control":
+                i, ci = ci, ci + 1
+                ca = cb - 1 if i % 3 == 0 and (cb - 1) / n_dev >= 0.75 else cb
+                vl_a = vl_b if i % 7 == 3 else min(vl_b + 0.01, (vl_b + 1) / 2) if i % 2 == 0 else vl_b / 2  # uguale: nessun indicatore
+                au_a = au_b - 0.001 if i % 5 == 0 else au_b
+                fit_b = (0.7, 0.4) if i == 1 else (0.99, 0.05)
+                fit_a = fit_b if i % 6 == 5 else (0.985, 0.06) if i % 4 == 0 else (0.995, 0.02)
+            else:
+                ca, vl_a, au_a = round(0.995 * n_dev), 0.03, 0.999
+                fit_b = (0.5, 5.0) if grp == "ten" else (0.6, 1.5)
+                fit_a = (0.995, 0.02)
+            acc_a = ca / n_dev
+            d = {"arm": a, "fold": k, "seed": s, "group": grp, "restored_epoch": tr["restored_epoch"], "n_fitting": tr["n_fitting"],
+                 "n_dev": n_dev, "dev_accuracy_before": acc_b, "dev_accuracy_after": acc_a, "dev_correct_before": cb, "dev_correct_after": ca,
+                 "dev_val_loss_before": vl_b, "dev_val_loss_after": vl_a, "dev_auroc_before": au_b, "dev_auroc_after": au_a,
+                 "fitting_accuracy_before": fit_b[0], "fitting_accuracy_after": fit_a[0], "fitting_loss_before": fit_b[1],
+                 "fitting_loss_after": fit_a[1]}
+            for q, (x, y) in (("dev_criterion", ((acc_b, vl_b), (acc_a, vl_a))), ("fitting_criterion", (fit_b, fit_a))):
+                d[q + "_before"], d[q + "_after"] = crit(*x), crit(*y)
+            d["cell"] = S.BN_CELLS[(d["fitting_criterion_before"], d["dev_criterion_after"])]
+            d.update({"gained_criterion": not d["dev_criterion_before"] and d["dev_criterion_after"],
+                      "lost_criterion": d["dev_criterion_before"] and not d["dev_criterion_after"],
+                      "dev_accuracy_lower": ca < cb, "val_loss_higher": vl_a > vl_b, "dev_auroc_lower": au_a < au_b,
+                      "fitting_accuracy_lower": fit_a[0] < fit_b[0], "fitting_loss_higher": fit_a[1] > fit_b[1]})
+            for c in S.BN_DEV_RESULTS_COLUMNS[31:]:
+                d[c] = 0.5
+            dev_rows.append(d)
+            b = {c: 1 for c in S.BN_DEV_BASELINE_COLUMNS}
+            b.update({"arm": a, "fold": k, "seed": s, "n_dev": n_dev, "prob_parent_max_abs_diff": 0.0, "prob_eval_max_abs_diff": 1e-07,
+                      "prob_parent_discordant_05": 0, "prob_eval_discordant_05": 0, "softmax_gap": 2e-06, "val_loss": vl_b,
+                      "val_loss_diff": 1e-06, "accuracy": acc_b, "accuracy_diff": 0.0, "correct": cb, "correct_card": cb,
+                      "fitting_accuracy": fit_b[0], "fitting_loss": fit_b[1], "fitting_reference": "none", "val_loss_tolerance": "abs 0.001"})
+            dev_base.append(b)
+            M[key] = d
+        flags = ("lost_criterion", "dev_accuracy_lower", "val_loss_higher", "dev_auroc_lower", "fitting_accuracy_lower", "fitting_loss_higher")
+        worsened = {key for key, d in M.items() if any(d[f] for f in flags)}
+        groups = {g: [n for key, n in zip(keys, names) if M[key]["group"] == g] for g in S.BN_GROUPS}
+        ten = [M[key] for key in keys if M[key]["group"] == "ten"]
+        ctl = [M[key] for key in keys if M[key]["group"] == "control"]
+        pos = [n for key, n in zip(keys, names) if M[key]["group"] == "ten" and M[key]["dev_criterion_after"]]
+        ident = lambda run, commit, cfg: {"run_id": run, "commit": commit, "dirty": False, "config_sha256": cfg, "note_sha256": "e" * 64,
+                                          "parent_run_id": par, "command": "run", "status": "PASS"}
+        dev_id = ident("20261114-BNRECAL-a10a082", "a10a082", "d" * 64)
+        dtim = {"wall_seconds": 1748.6, "phases": {}, "estimate_central_minutes": 32, "estimate_upper_minutes": 140, "cap_minutes": 240}
+        dev_agg = dict(dev_id, models=36, completed=36, timings=dict(dtim),
+                       groups={"ten": list(groups["ten"]), "control": len(groups["control"]), "apart": list(groups["apart"])},
+                       reading={"primary": {"positives": len(pos), "of": len(ten), "case": "all" if len(pos) == len(ten) else "none" if not pos else "some",
+                                            "recovered": pos},
+                                "controls": {"n": len(ctl), "meeting_before": sum(1 for d in ctl if d["dev_criterion_before"]),
+                                             "keep": sum(1 for d in ctl if d["dev_criterion_after"]),
+                                             "lose": sum(1 for d in ctl if not d["dev_criterion_after"])},
+                                "cells": {"counts": {sc: {v: sum(1 for d in rs if d["cell"] == v) for v in S.BN_CELLS.values()}
+                                                     for sc, rs in (("ten", ten), ("all", list(M.values())))}},
+                                "worsening": {"counts": {f: sum(1 for d in M.values() if d[f]) for f in ("gained_criterion",) + flags},
+                                              "models": [{"model": n} for key, n in zip(keys, names) if key in worsened]}})
+        dev_rec = dict(dev_id, models=36, completed=list(names), stopped=None, timings=dict(dtim),
+                       tolerances={"dev_accuracy_abs": {"value": 1e-06}, "val_loss_abs": {"value": 0.001},
+                                   "dev_probability_max_abs_diff": {"value": 1e-05}, "dev_decisions_discordant_at_0_5": {"value": 0},
+                                   "softmax_of_logits_max_abs_diff": {"value": 0.0001}},
+                       parent_public_aggregate_sha256=sha_text(out[S.SOURCES["sessabl_aggregate"]]),
+                       checks={"groups": {"ten": 10}, "parent_run": {"run_id": par, "public_sha256sums_sha256": sha_text(out[S.SOURCES["sessabl_sums"]])}})
+        dev_status = dict(dev_id, passed=True, wall_seconds=1748.6, stopped=None, completed=list(names), public_sums_sha256=None)
+        # test: ambiti test (strato all) e session_03 (strato 03)
+        test_rows, test_base, test_recal, T = [], [], [], {}
+        for key, name in zip(keys, names):
+            a, k, s = key
+            g = M[key]["group"]
+            for sc, st in (("test", "all"), ("session_03", "03")):
+                b = agg0["per_arm_fold_seed"][a][k][s][st]
+                nb, na = b["n_bona_fide"], b["n_attack"]
+                rej, acc = b["rejected_bona_fide_05"], b["accepted_attacks_05"]
+                if g == "ten":
+                    rej2, acc2, au2 = nb // 10, na // 10, 0.95
+                elif g == "apart":
+                    rej2, acc2, au2 = nb // 5, na // 5, 0.9
+                elif (int(k) + int(s)) % 3 == 0:  # controlli invariati: nessun indicatore, «equal» nei conteggi
+                    rej2, acc2, au2 = rej, acc, b["auroc"]
+                else:
+                    rej2, acc2 = max(rej - 2, 0), min(acc + 3, na)
+                    au2 = None if b["auroc"] is None else min(1.0, b["auroc"] + (0.01 if (int(k) + int(s)) % 2 else -0.01))
+                ap2 = acc2 / na if na else None
+                bp2 = rej2 / nb if nb else None
+                after = {"apcer_05": ap2, "bpcer_05": bp2, "acer_05": (ap2 + bp2) / 2 if None not in (ap2, bp2) else None,
+                         "auroc": None if b["auroc"] is None else au2}
+                r = {"arm": a, "fold": k, "seed": s, "group": g, "dev_worsened": key in worsened, "scope": sc, "n_subjects": b["n_subjects"],
+                     "n_bona_fide": nb, "n_attack": na}
+                for q in S.BN_METRICS:
+                    x, y = b[q], after[q]
+                    r[q + "_before"], r[q + "_after"] = x, y
+                    r[q + "_difference"] = None if None in (x, y) else y - x
+                for f, q in S.BN_TEST_FLAGS.items():
+                    x, y = r[q + "_before"], r[q + "_after"]
+                    r[f] = None not in (x, y) and ((y < x) if q == "auroc" else (y > x))
+                test_rows.append(r)
+                T[key + (sc,)] = r
+            nt = agg0["per_arm_fold_seed"][a][k][s]["all"]
+            bb = {c: 1 for c in S.BN_TEST_BASELINE_COLUMNS}
+            bb.update({"arm": a, "fold": k, "seed": s, "n_dev": 400, "n_test": nt["n_bona_fide"] + nt["n_attack"], "test_frames_problem": "none",
+                       "test_prob_max_abs_diff": 0.0, "test_discordant_05": 0, "test_softmax_gap": 3e-06, "val_loss_tolerance": "abs 0.001"})
+            test_base.append(bb)
+            rr = {c: 1 for c in S.BN_RECAL_COLUMNS}
+            rr.update({"arm": a, "fold": k, "seed": s, "group": g, "statistics_max_abs_diff_mean": 0.0, "statistics_max_abs_diff_variance": 0.0,
+                       "statistics_outside_tolerance": 0, "dev_prob_max_abs_diff": 0.0, "dev_discordant_05": 0, "consistency_channels_outside": 0})
+            test_recal.append(rr)
+        subj = {k: agg0["per_arm_fold_seed"]["arm_b"][k][SEEDS[0]]["all"]["n_subjects"] for k in folds}
+        boot = copy.deepcopy(self.abl[0]["agg"]["bootstrap"])
+        summ = []
+        for kd, nm in S.BN_SUMMARIES:
+            for sc in S.BN_SCOPES:
+                for q in S.BN_METRICS:
+                    ms = [T[key + (sc,)] for key in keys if (T[key + (sc,)]["group"] == nm or nm == "all" if kd == "group" else key[0] == nm)]
+                    dfn = [m for m in ms if m[q + "_difference"] is not None]
+                    fl = sorted({m["fold"] for m in ms})
+                    n_sub = sum(subj[k] for k in fl)
+                    mean = lambda w: sum(m["%s_%s" % (q, w)] for m in dfn) / len(dfn) if len(dfn) == len(ms) and dfn else None
+                    md = mean("difference")
+                    na_ = len(dfn) < len(ms) or n_sub < 5
+                    lo, hi = (None, None) if na_ else (md - 0.02, md + 0.02)
+                    reading = "not_available" if na_ else "below" if hi < 0 else "above" if lo > 0 else "contains"
+                    diffs = [m[q + "_difference"] for m in dfn]
+                    summ.append({"summary_kind": kd, "summary": nm, "scope": sc, "metric": q,
+                                 "label": "primary" if (kd, nm, sc, q) == S.BN_PRIMARY else "secondary", "n_models": len(ms), "n_folds": len(fl),
+                                 "n_subjects": n_sub, "n_subjects_bona_fide": n_sub, "n_subjects_attack": n_sub, "mean_before": mean("before"),
+                                 "mean_after": mean("after"), "mean_difference": md, "low": lo, "high": hi, "valid_resamples": 0 if na_ else 900,
+                                 "resamples": 1000, "reading": reading, "models_lower": sum(1 for v in diffs if v < 0),
+                                 "models_equal": sum(1 for v in diffs if v == 0), "models_higher": sum(1 for v in diffs if v > 0),
+                                 "models_undefined": len(ms) - len(dfn), "note": "none",
+                                 "higher": [n for key, n in zip(keys, names) if T[key + (sc,)] in dfn and T[key + (sc,)][q + "_difference"] > 0]})
+        prim = next(x for x in summ if (x["summary_kind"], x["summary"], x["scope"], x["metric"]) == S.BN_PRIMARY)
+        test_id = ident("20261117-BNTEST-6245b10", "6245b10", "c" * 64)
+        ttim = {"wall_seconds": 3027.4, "cpu_seconds": 18438.4, "phases": {}, "estimate_central_minutes": 42, "estimate_upper_minutes": 112,
+                "cap_minutes": 240}
+        test_agg = dict(test_id, bnrecal_run_id=dev_id["run_id"], models=36, completed=36, timings=dict(ttim), bootstrap=boot,
+                        groups={"ten": list(groups["ten"]), "control": len(groups["control"]), "apart": list(groups["apart"])},
+                        declarations={"post_hoc": "post hoc diagnostic extension on a test already analysed; this is not an independent validation"},
+                        summaries=[{k: v for k, v in x.items() if k != "higher"} for x in summ],
+                        reading={"primary": {"case": prim["reading"], "mean_difference": prim["mean_difference"], "low": prim["low"], "high": prim["high"],
+                                             "count": {"lower": prim["models_lower"], "equal": prim["models_equal"], "higher": prim["models_higher"],
+                                                       "n": prim["n_models"]}, "models_higher": prim["higher"]},
+                                 "worsening": {"counts": {"%s (%s)" % (f, sc): sum(1 for r in test_rows if r["scope"] == sc and r[f])
+                                                          for sc in S.BN_SCOPES for f in S.BN_TEST_FLAGS}}})
+        test_rec = dict(test_id, bnrecal_run_id=dev_id["run_id"], models=36, completed=list(names), stopped=None, wall_seconds=3027.4,
+                        tolerances={"test_probability_max_abs_diff": {"value": 1e-05}, "test_decisions_discordant_at_0_5": {"value": 0},
+                                    "softmax_of_logits_max_abs_diff": {"value": 0.0001}},
+                        process_cpu_seconds=18438.4, timings=dict(ttim), statistics_identical_to_pr27=36,
+                        parent_public_aggregate_sha256=sha_text(out[S.SOURCES["sessabl_aggregate"]]),
+                        checks={"parent_run": {"run_id": par, "public_sha256sums_sha256": sha_text(out[S.SOURCES["sessabl_sums"]])},
+                                "bnrecal_run": {"run_id": dev_id["run_id"], "config_sha256": dev_id["config_sha256"], "public_sha256sums_sha256": None,
+                                                "dev_worsened": len(worsened)},
+                                "before_metrics_against_stored_scores": {"metrics_05_equal": len(test_rows), "of": len(test_rows)}})
+        test_status = dict(test_id, bnrecal_run_id=dev_id["run_id"], passed=True, wall_seconds=3027.4, stopped=None, completed=list(names),
+                           public_sums_sha256=None)
+        return {"dev_rows": dev_rows, "dev_base": dev_base, "dev_agg": dev_agg, "dev_rec": dev_rec, "dev_status": dev_status,
+                "test_rows": test_rows, "test_base": test_base, "test_recal": test_recal, "test_summary": [{k: v for k, v in x.items() if k != "higher"}
+                                                                                                           for x in summ],
+                "test_agg": test_agg, "test_rec": test_rec, "test_status": test_status}
+
+    def bn_files(self, out):
+        try:
+            B = self.bn_sources(out)
+        except (KeyError, StopIteration):
+            return out  # fixture guastata da un test precedente al controllo BN: build si ferma prima di leggerlo
+        for fn in self.bn_hooks:
+            fn(B)
+        na = lambda rows, cols: csv_dump([{c: ("NA" if r.get(c, "") is None and c not in ("note",) else r.get(c, "")) for c in cols} for r in rows], cols)
+        texts = {"bnrecal_results": na(B["dev_rows"], S.BN_DEV_RESULTS_COLUMNS), "bnrecal_baseline": na(B["dev_base"], S.BN_DEV_BASELINE_COLUMNS),
+                 "bnrecal_aggregate": json.dumps(B["dev_agg"], indent=1), "bnrecal_record": json.dumps(B["dev_rec"], indent=1)}
+        dsums = "".join("%s  %s\n" % (h, n) for n, h in sorted({"aggregate.json": sha_text(texts["bnrecal_aggregate"]), "aggregate.md": "0" * 64,
+                                                              "baseline.csv": sha_text(texts["bnrecal_baseline"]),
+                                                              "results.csv": sha_text(texts["bnrecal_results"]),
+                                                              "run_record.json": sha_text(texts["bnrecal_record"])}.items()))
+        if B["dev_status"].get("public_sums_sha256") is None:
+            B["dev_status"]["public_sums_sha256"] = sha_text(dsums)
+        texts.update({"bnrecal_sums": dsums, "bnrecal_status": json.dumps(B["dev_status"], indent=1)})
+        if B["test_rec"]["checks"]["bnrecal_run"].get("public_sha256sums_sha256") is None:
+            B["test_rec"]["checks"]["bnrecal_run"]["public_sha256sums_sha256"] = sha_text(dsums)
+        texts.update({"bntest_results": na(B["test_rows"], S.BN_TEST_RESULTS_COLUMNS), "bntest_baseline": na(B["test_base"], S.BN_TEST_BASELINE_COLUMNS),
+                      "bntest_recalibration": na(B["test_recal"], S.BN_RECAL_COLUMNS), "bntest_summary": na(B["test_summary"], S.BN_SUMMARY_COLUMNS),
+                      "bntest_aggregate": json.dumps(B["test_agg"], indent=1), "bntest_record": json.dumps(B["test_rec"], indent=1)})
+        tsums = "".join("%s  %s\n" % (h, n) for n, h in sorted({"aggregate.json": sha_text(texts["bntest_aggregate"]), "aggregate.md": "0" * 64,
+                                                              "baseline.csv": sha_text(texts["bntest_baseline"]), "differences.png": "0" * 64,
+                                                              "recalibration_check.csv": sha_text(texts["bntest_recalibration"]),
+                                                              "results.csv": sha_text(texts["bntest_results"]),
+                                                              "run_record.json": sha_text(texts["bntest_record"]),
+                                                              "summary.csv": sha_text(texts["bntest_summary"])}.items()))
+        if B["test_status"].get("public_sums_sha256") is None:
+            B["test_status"]["public_sums_sha256"] = sha_text(tsums)
+        texts.update({"bntest_sums": tsums, "bntest_status": json.dumps(B["test_status"], indent=1)})
+        for k, t in texts.items():
+            out[S.BN_SOURCES[k]] = t
+        return out
+
     def compare_json(self) -> dict:
         """Confronto con N1 sugli stessi 3.000 frame, nello schema dell'aggregato pubblico del pacchetto di confronto."""
         per, boot, cv = {}, {}, {"acer_05": [], "acer_dev": [], "auroc": []}
@@ -1039,7 +1255,15 @@ class Fixture:
             S.SOURCES["folds_record"]: json.dumps(self.frec, indent=1),
         }
         out[S.SOURCES["folds_n1_compare"]] = json.dumps(self.compare if self.compare is not None else self.compare_json(), indent=1)
-        return self.ablation_files(out)
+        return self.bn_files(self.ablation_files(out))
+
+    def bn_view(self) -> dict:
+        """Le strutture delle sorgenti BN che la fixture scriverebbe (ganci compresi), per i confronti dei test."""
+        out = self.files()
+        B = self.bn_sources(out)
+        for fn in self.bn_hooks:
+            fn(B)
+        return B
 
     def write(self, root: Path) -> Path:
         research = root / "research"
@@ -1239,7 +1463,7 @@ class TestBuild(Base):
                                   "cross_dataset_table.md", "context_rows_table.md", "subject_sensitivity_table.md",
                                   "folds_run_table.md", "n1_same_ids_table.md", "patience_table.md", "session_ablation_table.md",
                                   "patience_table_compact.md", "three_regimes_table.md", "three_regimes_table_compact.md",
-                                  "session_ablation_table_constant_lr.md"})
+                                  "session_ablation_table_constant_lr.md", "bn_recalibration_table.md", "bn_recalibration_table_compact.md"})
         compact = [l for l in a["summary_table_compact.md"].splitlines() if l.startswith("| ") and not l.startswith("| block")]
         self.assertEqual(len(compact), 66)
         text = a["summary_table_compact.md"]
@@ -3068,6 +3292,270 @@ class TestConstantLrChecks(ConstBase):
             self.assertIn(needle, out.getvalue())
 
 
+class TestBnControls(AblBase):
+    """Controlli BN (dev, PR #27; test, PR #28): righe e tabelle contro la fixture, ogni controllo contro una sorgente guasta,
+    la regola di lettura ai suoi limiti, le tabelle esistenti non toccate."""
+
+    def bn_fault(self, hook, needle):
+        fx = Fixture()
+        fx.bn_hooks.append(hook)
+        self.build_fails(fx, needle)
+
+    def control(self):
+        """Il primo controllo (fuori dalle dieci, al criterio di ripresa al checkpoint) nell'ordine del confronto."""
+        return next((r["arm"], r["fold"], r["seed"]) for r in self.fx.pv_rows if not r["in_ten"]
+                    and r["parent_dev_acc_at_checkpoint"] >= 0.75 and r["parent_best_val_loss"] < 1.0)
+
+    @staticmethod
+    def row(rows, a, k, s, scope=None):
+        return next(r for r in rows if (r["arm"], r["fold"], r["seed"]) == (a, k, s) and (scope is None or r["scope"] == scope))
+
+    @staticmethod
+    def summ(B, kd, nm, sc, q):
+        """La riga di summary.csv e la voce dell'aggregato dello stesso riepilogo."""
+        r = next(x for x in B["test_summary"] if (x["summary_kind"], x["summary"], x["scope"], x["metric"]) == (kd, nm, sc, q))
+        e = next(x for x in B["test_agg"]["summaries"] if (x["summary_kind"], x["summary"], x["scope"], x["metric"]) == (kd, nm, sc, q))
+        return r, e
+
+    def test_rows_groups_and_existing_tables(self):
+        doc = S.build(self.research())
+        B = self.fx.bn_view()
+        dev = doc["bn"]["dev"]["models"]
+        self.assertEqual(len(dev), 36)
+        self.assertEqual(len(doc["bn"]["test"]["models"]), 72)
+        self.assertEqual(len(doc["bn"]["test"]["summaries"]), 56)
+        for d in B["dev_rows"]:
+            m = dev[(d["arm"], d["fold"], d["seed"])]
+            self.assertEqual((m["group"], m["dev_correct"], m["dev_val_loss"], m["fitting_accuracy"]),
+                             (d["group"], (d["dev_correct_before"], d["dev_correct_after"]), (d["dev_val_loss_before"], d["dev_val_loss_after"]),
+                              (d["fitting_accuracy_before"], d["fitting_accuracy_after"])))
+        self.assertEqual(sorted(doc["bn"]["dev"]["groups"]["ten"]), sorted(self.name(i) for i in TEN))
+        self.assertEqual(len(doc["bn"]["dev"]["groups"]["apart"]), 7)
+        self.assertEqual(len(doc["bn"]["dev"]["groups"]["control"]), 19)
+        out = S.outputs(doc)
+        self.assertNotIn('"bn"', out["summary_table.json"])
+        self.assertNotIn("nuaa-bn-test", out["summary_table.json"])
+        self.assertNotIn("nuaa-saturation-control", out["summary_table.json"])
+        self.assertEqual(len(json.loads(out["summary_table.json"])["sources"]), 34)
+        self.assertEqual(len(S.BN_SOURCES), 14)
+        for k, v in S.BN_SOURCES.items():
+            self.assertIn("| %s | `%s` | %s |" % (k, v, doc["bn"]["sources"][k]["sha256"]), out["bn_recalibration_table.md"])
+
+    def test_compact_rows_and_lines(self):
+        doc = S.build(self.research())
+        text = S.bn_compact_md(doc)
+        a_rows, b_rows = S.bn_compact_rows(doc)
+        self.assertEqual((len(a_rows), len(b_rows)), (36, 14))
+        # ogni riga non tabellare a capo entro 120 caratteri; le voci d'elenco, ricomposte, sono le righe di riepilogo
+        self.assertTrue(all(len(l) <= 120 for l in text.splitlines() if not l.startswith("|")))
+        lines = [l for l in text.replace("\n  ", " ").splitlines() if l.startswith("|") or l.startswith("- ")]
+        L = S.bn_lines(doc)
+        self.assertEqual((len(L["dev"]), len(L["test"]), len(L["time"])), (9 + 7 - 1, 7, 3))
+        self.assertEqual(len(lines), 38 + 16 + 15 + 7 + 3)
+        self.assertIn("- The ten meeting the recovery criterion on the dev: before 0 of 10, after 10 of 10 (primary reading of the run: all).", lines)
+        self.assertIn("- Control checkpoints meeting the criterion on the dev: before 19 of 19, after 19 of 19 (lost: 0).", lines)
+        self.assertIn("- Dev control: wall 1,748.6 s (29.1 minutes); estimate 32 minutes (upper 140); cap 240 minutes.", lines)
+        self.assertIn("- Test control: wall 3,027.4 s (50.5 minutes), process CPU time over all threads 18,438.4 s; estimate 42 minutes "
+                      "(upper 112); cap 240 minutes of elapsed time.", lines)
+        self.assertIn("control = the 19 control checkpoints", text.replace("\n", " "))
+        self.assertIn("apart = the 7 that do not", text.replace("\n", " "))
+        row = next(r for r in a_rows if r[0] == self.label(TEN[0]))
+        self.assertEqual(row[1:3], ["ten", self.fx.abl[0]["agg"]["training"][self.name(TEN[0])]["restored_epoch"]])
+        self.assertEqual(row[5], "no → yes")
+        # le righe richieste in SYNTHESIS.md sono tutte le righe non vuote del blocco incorporato, legende comprese
+        self.assertEqual(S.synthesis_lines(doc)["BN compact table"], [l for l in S.bn_compact_body(doc).splitlines() if l])
+        self.assertTrue(text.endswith(S.bn_compact_body(doc)))
+
+    def test_identity_and_anchors(self):
+        for pre in ("dev", "test"):
+            w = "BN control (%s)" % pre
+            self.bn_fault(lambda B, p=pre: B[p + "_status"].__setitem__("dirty", True), "%s status: dirty is not false" % w)
+            self.bn_fault(lambda B, p=pre: B[p + "_agg"].__setitem__("run_id", B[p + "_agg"]["run_id"] + "-dev"), "ends with -dev")
+            self.bn_fault(lambda B, p=pre: B[p + "_status"].__setitem__("passed", False), "%s status: passed is not true" % w)
+            self.bn_fault(lambda B, p=pre: B[p + "_rec"].__setitem__("status", "FAIL"), "%s run record: command 'run', status 'FAIL'" % w)
+            self.bn_fault(lambda B, p=pre: B[p + "_rec"].__setitem__("note_sha256", "0" * 64), "%s run record: note_sha256" % w)
+            self.bn_fault(lambda B, p=pre: [B[p + x].__setitem__("parent_run_id", "20261109-SESSABLRUN-6a50265") for x in ("_agg", "_rec", "_status")],
+                          "%s: parent run '20261109-SESSABLRUN-6a50265' is not the session ablation run" % w)
+            self.bn_fault(lambda B, p=pre: B[p + "_rec"].__setitem__("parent_public_aggregate_sha256", "1" * 64), "%s run record: parent run" % w)
+            self.bn_fault(lambda B, p=pre: B[p + "_rec"]["checks"]["parent_run"].__setitem__("public_sha256sums_sha256", "1" * 64),
+                          "%s run record: parent run" % w)
+            self.bn_fault(lambda B, p=pre: B[p + "_status"].__setitem__("public_sums_sha256", "1" * 64), "public_sums_sha256 is not the SHA-256")
+            self.bn_fault(lambda B, p=pre: B[p + "_status"].__setitem__("wall_seconds", 1.0), "%s: wall_seconds of status" % w)
+            self.bn_fault(lambda B, p=pre: [B[p + "_agg"]["timings"].__setitem__("cap_minutes", 1), B[p + "_rec"]["timings"].__setitem__("cap_minutes", 1)],
+                          "not within the cap of 1 minutes")
+            self.bn_fault(lambda B, p=pre: B[p + "_status"]["completed"].pop(), "%s status: completed models" % w)
+            self.bn_fault(lambda B, p=pre: B[p + "_agg"].__setitem__("completed", 35), "%s: models / completed" % w)
+            self.bn_fault(lambda B, p=pre: B[p + "_status"].__setitem__("stopped", "cap"), "%s: the run was stopped" % w)
+
+    def test_dev_rows_checks(self):
+        w = "BN control (dev) "
+        ctl = self.control()
+        lab = "%s fold %s seed %s" % (ARM_L[ctl[0]], ctl[1], ctl[2])
+        R = lambda B, key=ctl: self.row(B["dev_rows"], *key)
+        self.bn_fault(lambda B: R(B).__setitem__("group", "apart"), "%s%s: group 'apart', the patience comparison gives 'control'" % (w, lab))
+        self.bn_fault(lambda B: R(B).__setitem__("restored_epoch", R(B)["restored_epoch"] + 1), "%s: restored epoch or frame counts" % lab)
+        self.bn_fault(lambda B: R(B).__setitem__("n_fitting", 1), "%s: restored epoch or frame counts" % lab)
+        self.bn_fault(lambda B: R(B).__setitem__("dev_accuracy_before", R(B)["dev_accuracy_before"] + 2e-6), "%s: dev accuracy before" % lab)
+        self.bn_fault(lambda B: R(B).__setitem__("dev_val_loss_before", R(B)["dev_val_loss_before"] + 0.0011), "%s: dev val_loss before" % lab)
+        self.bn_fault(lambda B: R(B).__setitem__("dev_auroc_before", R(B)["dev_auroc_before"] - 1e-9), "%s: dev AUROC before" % lab)
+        self.bn_fault(lambda B: R(B).__setitem__("dev_correct_after", R(B)["dev_correct_after"] - 1), "%s: correct dev frames" % lab)
+        self.bn_fault(lambda B: R(B).__setitem__("dev_criterion_after", False), "%s: criterion after is not the recovery criterion" % lab)
+        self.bn_fault(lambda B: R(B).__setitem__("fitting_criterion_before", not R(B)["fitting_criterion_before"]), "%s: criterion before" % lab)
+        self.bn_fault(lambda B: R(B).__setitem__("cell", "fitting_met_dev_not_met"), "%s: cell 'fitting_met_dev_not_met'" % lab)
+        self.bn_fault(lambda B: R(B).__setitem__("val_loss_higher", not R(B)["val_loss_higher"]), "%s: indicators val_loss_higher" % lab)
+        self.bn_fault(lambda B: R(B).__setitem__("gained_criterion", True), "%s: indicators gained_criterion" % lab)
+        self.bn_fault(lambda B: R(B).__setitem__("fitting_loss_higher", not R(B)["fitting_loss_higher"]), "%s: indicators fitting_loss_higher" % lab)
+        self.bn_fault(lambda B: self.row(B["dev_base"], *ctl).__setitem__("baseline_pass", 0), "%s: baseline not passed" % lab)
+        self.bn_fault(lambda B: self.row(B["dev_base"], *ctl).__setitem__("val_loss_pass", 0), "%s: baseline not passed" % lab)
+        self.bn_fault(lambda B: self.row(B["dev_base"], *ctl).__setitem__("correct", 1), "%s: baseline.csv (correct" % lab)
+        self.bn_fault(lambda B: B["dev_rows"].append(dict(B["dev_rows"][0])), "results.csv: row arm_b 1 42 repeated")
+        self.bn_fault(lambda B: B["dev_rows"].pop(), "results.csv: 35 rows, expected exactly the 36")
+        self.bn_fault(lambda B: B["dev_base"].pop(0), "baseline.csv: 35 rows, expected exactly the 36")
+
+    def test_dev_aggregate_checks(self):
+        w = "BN control (dev) aggregate: "
+        A = lambda B: B["dev_agg"]
+        self.bn_fault(lambda B: A(B)["reading"]["primary"].__setitem__("positives", 9), w + "primary reading")
+        self.bn_fault(lambda B: A(B)["reading"]["primary"].__setitem__("case", "some"), w + "primary reading")
+        self.bn_fault(lambda B: A(B)["reading"]["primary"]["recovered"].pop(), w + "primary reading")
+        self.bn_fault(lambda B: A(B)["reading"]["controls"].__setitem__("keep", 18), w + "controls reading")
+        self.bn_fault(lambda B: A(B)["reading"]["cells"]["counts"]["all"].__setitem__("fitting_met_dev_met", 0), w + "2x2 counts (all)")
+        self.bn_fault(lambda B: A(B)["reading"]["cells"]["counts"]["ten"].__setitem__("neither" if False else "fitting_not_met_dev_not_met", 1),
+                      w + "2x2 counts (ten)")
+        self.bn_fault(lambda B: A(B)["reading"]["worsening"]["counts"].__setitem__("val_loss_higher", 0), w + "worsening counts")
+        self.bn_fault(lambda B: A(B)["reading"]["worsening"]["models"].pop(), w + "the models listed as worsened")
+        self.bn_fault(lambda B: A(B)["groups"]["apart"].pop(), w + "groups differ")
+        self.bn_fault(lambda B: A(B)["groups"].__setitem__("control", 18), w + "groups differ")
+        self.bn_fault(lambda B: B["dev_rec"]["tolerances"].pop("val_loss_abs"), "tolerances dev_accuracy_abs and val_loss_abs missing")
+        self.bn_fault(lambda B: B["dev_rec"]["checks"].pop("groups"), "run record: groups check missing")
+
+    def test_test_rows_checks(self):
+        ctl = self.control()
+        lab = "BN control (test) %s fold %s seed %s test" % (ARM_L[ctl[0]], ctl[1], ctl[2])
+        R = lambda B: self.row(B["test_rows"], *ctl, scope="test")
+
+        def bump(B, q, d):
+            r = R(B)
+            r[q + "_after"] += d
+            r[q + "_difference"] = r[q + "_after"] - r[q + "_before"]
+        self.bn_fault(lambda B: R(B).__setitem__("apcer_05_before", R(B)["apcer_05_before"] + 1e-9), lab + ": before values apcer_05")
+        self.bn_fault(lambda B: R(B).__setitem__("auroc_before", 0.123), lab + ": before values auroc")
+        self.bn_fault(lambda B: R(B).__setitem__("n_attack", R(B)["n_attack"] + 1), lab + ": denominators")
+        self.bn_fault(lambda B: R(B).__setitem__("n_subjects", 9), lab + ": subjects or frames differ from the fold schema")
+        self.bn_fault(lambda B: bump(B, "apcer_05", 1e-4), lab + ": rates after are not counts")
+        self.bn_fault(lambda B: bump(B, "acer_05", 1e-9), lab + ": rates after are not counts")
+        self.bn_fault(lambda B: R(B).__setitem__("bpcer_05_difference", R(B)["bpcer_05_difference"] + 1e-9), lab + ": differences bpcer_05")
+        self.bn_fault(lambda B: R(B).__setitem__("auroc_lower", not R(B)["auroc_lower"]), lab + ": indicators auroc_lower")
+        self.bn_fault(lambda B: R(B).__setitem__("acer_higher", not R(B)["acer_higher"]), lab + ": indicators acer_higher")
+        self.bn_fault(lambda B: R(B).__setitem__("dev_worsened", not R(B)["dev_worsened"]), lab + ": group or dev_worsened")
+        self.bn_fault(lambda B: R(B).__setitem__("group", "ten"), lab + ": group or dev_worsened")
+        self.bn_fault(lambda B: R(B).__setitem__("scope", "session_04"), "results.csv: 72 rows, expected exactly the 72")
+        mlab = "BN control (test) %s fold %s seed %s" % (ARM_L[ctl[0]], ctl[1], ctl[2])
+        self.bn_fault(lambda B: self.row(B["test_base"], *ctl).__setitem__("test_pass", 0), mlab + ": baseline not passed")
+        self.bn_fault(lambda B: self.row(B["test_base"], *ctl).__setitem__("n_test", 1), mlab + ": baseline n_test")
+        self.bn_fault(lambda B: self.row(B["test_recal"], *ctl).__setitem__("statistics_identical", 0), mlab + ": re-estimated statistics")
+        self.bn_fault(lambda B: self.row(B["test_recal"], *ctl).__setitem__("group", "ten"), mlab + ": re-estimated statistics")
+        self.bn_fault(lambda B: B["test_rec"].__setitem__("statistics_identical_to_pr27", 35), "statistics_identical_to_pr27 35, expected 36")
+        self.bn_fault(lambda B: B["test_rec"]["checks"]["before_metrics_against_stored_scores"].__setitem__("metrics_05_equal", 71),
+                      "before metrics against the stored scores")
+        self.bn_fault(lambda B: [B[x].__setitem__("bnrecal_run_id", "20261114-BNRECAL-0000000") for x in ("test_agg", "test_rec", "test_status")],
+                      "the BNRECAL run named is not the dev control read here")
+        self.bn_fault(lambda B: B["test_rec"]["checks"]["bnrecal_run"].__setitem__("dev_worsened", 1), "run record: the BNRECAL run")
+        self.bn_fault(lambda B: B["test_rec"]["checks"]["bnrecal_run"].__setitem__("public_sha256sums_sha256", "1" * 64), "run record: the BNRECAL run")
+        self.bn_fault(lambda B: B["test_rec"].__setitem__("process_cpu_seconds", 1.0), "process CPU or wall time")
+        self.bn_fault(lambda B: B["test_agg"]["declarations"].__setitem__("post_hoc", "a validation"), "the post hoc declaration is missing")
+        self.bn_fault(lambda B: B["test_agg"]["groups"]["ten"].pop(), "BN control (test) aggregate: groups differ")
+        self.bn_fault(lambda B: B["test_agg"]["bootstrap"].__setitem__("seed", 1), "bootstrap parameters differ from the folds run")
+
+    def test_summaries_checks(self):
+        w = "BN control (test) summary "
+        self.bn_fault(lambda B: self.summ(B, "group", "ten", "test", "acer_05")[0].__setitem__("mean_before", 0.1), w + "group ten test acer_05: means")
+        self.bn_fault(lambda B: self.summ(B, "arm", "arm_b", "test", "auroc")[0].__setitem__("models_higher", 0), w + "arm arm_b test auroc: lower / equal")
+        self.bn_fault(lambda B: self.summ(B, "group", "all", "test", "bpcer_05")[0].__setitem__("n_subjects", 15), w + "group all test bpcer_05: models, folds, subjects")
+        self.bn_fault(lambda B: self.summ(B, "group", "all", "test", "bpcer_05")[0].__setitem__("n_models", 35), w + "group all test bpcer_05: models, folds")
+        self.bn_fault(lambda B: self.summ(B, "group", "all", "test", "bpcer_05")[0].__setitem__("n_subjects_attack", 99), "more subjects with a class")
+        self.bn_fault(lambda B: self.summ(B, "group", "ten", "test", "apcer_05")[0].__setitem__("label", "primary"), w + "group ten test apcer_05: label")
+        self.bn_fault(lambda B: self.summ(B, "group", "ten", "test", "apcer_05")[0].__setitem__("reading", "not_available"), w + "group ten test apcer_05: reading")
+        self.bn_fault(lambda B: B["test_summary"].pop(), "summary.csv: 55 rows, expected the 56")
+        self.bn_fault(lambda B: B["test_summary"].append(dict(B["test_summary"][0])), "summary.csv: row")
+        self.bn_fault(lambda B: self.summ(B, "arm", "arm_b", "test", "acer_05")[1].__setitem__("low", -9.0), "summary ('arm', 'arm_b', 'test', 'acer_05') differs from summary.csv")
+        self.bn_fault(lambda B: B["test_agg"]["summaries"].pop(), "summaries missing or not 56")
+        self.bn_fault(lambda B: B["test_agg"]["reading"]["primary"].__setitem__("case", "contains"), "primary reading differs from the summary of the ten")
+        self.bn_fault(lambda B: B["test_agg"]["reading"]["primary"]["count"].__setitem__("higher", 3), "primary reading differs from the summary of the ten")
+        self.bn_fault(lambda B: B["test_agg"]["reading"]["worsening"]["counts"].__setitem__("acer_higher (test)", 0), "aggregate: worsening counts")
+
+    def test_reading_rule_boundaries(self):
+        """Un limite esattamente a zero vuol dire «contains»; senza intervallo o con un modello senza metrica, not_available."""
+        def set_iv(B, low, high, reading, key=("group", "all", "test", "acer_05")):
+            for x in self.summ(B, *key):
+                x.update({"low": low, "high": high, "reading": reading})
+        for low, high, ok, bad in ((-0.1, 0.0, "contains", "below"), (0.0, 0.1, "contains", "above"), (-0.2, -1e-12, "below", "contains"),
+                                   (1e-12, 0.2, "above", "contains")):
+            fx = Fixture()
+            fx.bn_hooks.append(lambda B, l=low, h=high, r=ok: set_iv(B, l, h, r))
+            doc = S.build(fx.write(self.root))
+            self.assertEqual(doc["bn"]["test"]["summaries"][("group", "all", "test", "acer_05")]["reading"], ok)
+            self.bn_fault(lambda B, l=low, h=high, r=bad: set_iv(B, l, h, r), "reading %r, the interval gives %r" % (bad, ok))
+        self.bn_fault(lambda B: set_iv(B, 0.2, 0.1, "contains"), "the interval gives 'contains'")
+        self.bn_fault(lambda B: set_iv(B, None, None, "contains"), "reading 'contains', the interval gives 'contains'")
+        # un riepilogo con un modello senza metrica (classe assente nello strato 03 della fixture): not_available
+        doc = S.build(self.research())
+        na = [k for k, x in doc["bn"]["test"]["summaries"].items() if x["models_undefined"]]
+        self.assertTrue(na)
+        self.assertTrue(all(doc["bn"]["test"]["summaries"][k]["reading"] == "not_available" for k in na))
+        self.assertTrue(all(k[2] == "session_03" for k in na))
+        k = na[0]
+        self.bn_fault(lambda B: [x.update({"low": -0.1, "high": 0.1, "reading": "contains", "valid_resamples": 900}) for x in self.summ(B, *k)],
+                      "reading 'contains', the interval gives 'not_available'")
+        self.bn_fault(lambda B: [x.__setitem__("models_undefined", 0) for x in self.summ(B, *k)], "lower / equal / higher / undefined")
+
+    def test_baseline_maxima_against_tolerances(self):
+        """Un massimo oltre la tolleranza del run fa fallire anche se la riga dichiara il controllo superato."""
+        self.bn_fault(lambda B: B["dev_base"][3].__setitem__("prob_eval_max_abs_diff", 2e-05),
+                      "BN control (dev): baseline maximum prob_eval_max_abs_diff 2e-05 above the tolerance dev_probability_max_abs_diff")
+        self.bn_fault(lambda B: B["dev_base"][5].__setitem__("val_loss_diff", 0.0011), "baseline maximum val_loss_diff 0.0011 above")
+        self.bn_fault(lambda B: B["dev_base"][0].__setitem__("prob_parent_discordant_05", 1), "baseline maximum discordant 1 above")
+        self.bn_fault(lambda B: B["test_base"][7].__setitem__("test_prob_max_abs_diff", 1.5e-05),
+                      "BN control (test): baseline maximum test_prob_max_abs_diff 1.5e-05 above the tolerance test_probability_max_abs_diff")
+        self.bn_fault(lambda B: B["test_base"][2].__setitem__("test_softmax_gap", 0.001), "baseline maximum test_softmax_gap 0.001 above")
+        self.bn_fault(lambda B: B["test_rec"]["tolerances"].pop("test_decisions_discordant_at_0_5"),
+                      "BN control (test) run record: tolerance test_decisions_discordant_at_0_5 missing")
+
+    def test_every_source_anchored_and_required(self):
+        """Ogni file di dati BN con byte diversi dalla sua riga di SHA256SUMS è rifiutato; ogni sorgente mancante ferma build."""
+        for key in [k for k in S.BN_SOURCES if not k.endswith(("_sums", "_status"))]:
+            research = self.research()
+            p = research / S.BN_SOURCES[key]
+            p.write_text(p.read_text(encoding="utf-8") + "\n", encoding="utf-8")
+            with self.assertRaises(S.SynthesisError, msg=key) as cm:
+                S.build(research)
+            self.assertIn("%s in SHA256SUMS is not the SHA-256 of %s" % (Path(S.BN_SOURCES[key]).name, S.BN_SOURCES[key]), str(cm.exception))
+        for key in S.BN_SOURCES:
+            research = self.research()
+            (research / S.BN_SOURCES[key]).unlink()
+            with self.assertRaises(S.SynthesisError, msg=key) as cm:
+                S.build(research)
+            self.assertIn("source %s missing" % key, str(cm.exception))
+
+    def test_missing_source_and_command(self):
+        research = self.research()
+        (research / S.BN_SOURCES["bntest_summary"]).unlink()
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            code = S.main(["build", "--research", str(research), "--out", str(self.root / "t")])
+        self.assertEqual(code, 1)
+        self.assertIn("ERROR: source bntest_summary missing", out.getvalue())
+        self.assertFalse((self.root / "t").exists())
+        research = self.research()
+        (research / S.BN_SOURCES["bnrecal_results"]).write_text("arm,fold\n1,2\n", encoding="utf-8")
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            code = S.main(["build", "--research", str(research), "--out", str(self.root / "t")])
+        self.assertEqual(code, 1)
+        self.assertIn("results.csv: columns", out.getvalue())
+        self.assertNotIn("Traceback", out.getvalue())
+
+
 class TestAblationCommands(AblBase):
     def run_main(self, *argv):
         out = io.StringIO()
@@ -3168,11 +3656,13 @@ class TestCommands(Base):
         self.run_main("build", "--research", str(research), "--out", str(out))
         doc = self.root / "SYNTHESIS.md"
         doc.write_text("# Doc\n\n" + (out / "summary_table_compact.md").read_text() + "\n" + (out / "patience_table_compact.md").read_text()
-                       + "\n" + (out / "three_regimes_table_compact.md").read_text(), encoding="utf-8")
+                       + "\n" + (out / "bn_recalibration_table_compact.md").read_text() + "\n" + (out / "three_regimes_table_compact.md").read_text(),
+                       encoding="utf-8")
         code, text = self.run_main("check", "--research", str(research), "--out", str(out), "--synthesis", str(doc))
         self.assertEqual(code, 0, text)
         self.assertIn("+ synthesis", text)
         full = doc.read_text()
+        nbn = "1 of %d lines of the BN compact table" % len(S.synthesis_lines(S.build(research))["BN compact table"])
         # la prima occorrenza è nella compatta della pazienza, l'ultima in quella delle tre condizioni
         for victim, last, what in (("| B fold 2 seed 43 |", False, "1 of 59 lines of the patience compact table"),
                                    ("- Restored epoch changed:", False, "1 of 59 lines of the patience compact table"),
@@ -3180,7 +3670,13 @@ class TestCommands(Base):
                                    ("| B fold 2 seed 43 |", True, "1 of 67 lines of the three regimes compact table"),
                                    ("- Restored epoch changed:", True, "1 of 67 lines of the three regimes compact table"),
                                    ("- Recovery lost (outside the ten):", True, "1 of 67 lines of the three regimes compact table"),
-                                   ("| model | in the ten | restored epoch p4 → p12 → p12c |", True, "1 of 67 lines of the three regimes compact table")):
+                                   ("| model | in the ten | restored epoch p4 → p12 → p12c |", True, "1 of 67 lines of the three regimes compact table"),
+                                   ("| A* fold 3 seed 42 | ten |", False, nbn),
+                                   ("| group ten | test |", False, nbn),
+                                   ("- Primary reading (fixed before the run):", False, nbn),
+                                   ("- Control checkpoints with at least one worsened indicator:", False, nbn),
+                                   ("Legend. Paired summaries of the test control", False, nbn),
+                                   ("- Test control: wall", False, nbn)):
             lines = full.splitlines(keepends=True)
             hits = [i for i, l in enumerate(lines) if l.startswith(victim)]
             idx = hits[-1] if last else hits[0]
@@ -3189,6 +3685,20 @@ class TestCommands(Base):
                 code, text = self.run_main("check", "--research", str(research), "--out", str(out), "--synthesis", str(doc))
                 self.assertEqual(code, 1, victim)
                 self.assertIn(what + " are not in the document verbatim", text)
+        # forma compatta BN: una riga in più dentro il blocco, o due righe scambiate, fanno fallire il controllo del blocco
+        lines = full.splitlines(keepends=True)
+        idx = next(i for i, l in enumerate(lines) if l.startswith("| A* fold 3 seed 42 | ten |"))
+        for altered in ("".join(lines[:idx + 1] + ["| A* fold 3 seed 42 | ten | x |\n"] + lines[idx + 1:]),
+                        "".join(lines[:idx] + [lines[idx + 1], lines[idx]] + lines[idx + 2:])):
+            doc.write_text(altered, encoding="utf-8")
+            code, text = self.run_main("check", "--research", str(research), "--out", str(out), "--synthesis", str(doc))
+            self.assertEqual(code, 1)
+            self.assertIn("the BN compact table is not in the document as one block", text)
+            self.assertNotIn("lines of the BN compact table are not in the document verbatim", text)
+        doc.write_text(full.replace("seed 0, the same resamples", "seed 1, the same resamples"), encoding="utf-8")
+        code, text = self.run_main("check", "--research", str(research), "--out", str(out), "--synthesis", str(doc))
+        self.assertEqual(code, 1)
+        self.assertIn("the BN compact table is not in the document as one block", text)
         # le due compatte hanno la stessa riga di separazione (sette colonne): basta una delle due; tolte entrambe, mancano in tutte e due
         doc.write_text(full.replace("|---|---|---|---|---|---|---|\n", ""), encoding="utf-8")
         code, text = self.run_main("check", "--research", str(research), "--out", str(out), "--synthesis", str(doc))

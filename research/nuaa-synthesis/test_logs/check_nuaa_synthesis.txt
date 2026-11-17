@@ -1,5 +1,5 @@
-# macOS, Python 3.14.7, 2026-11-11 22:25 CET; run from the repository root, standard library only
-$ python3 -I research/nuaa-synthesis/livenesslab/scripts/check_nuaa_synthesis.py -v
+# macOS, Python 3.14.7, 2026-11-17 19:53 CET; run from the repository root, standard library only
+$ python3 -I -B research/nuaa-synthesis/livenesslab/scripts/check_nuaa_synthesis.py -v
 test_amendment_of_the_patience_run (__main__.TestAblationChecks.test_amendment_of_the_patience_run) ... ok
 test_cells_and_cards (__main__.TestAblationChecks.test_cells_and_cards) ... ok
 test_clean_tree_status_and_run_ids (__main__.TestAblationChecks.test_clean_tree_status_and_run_ids) ... ok
@@ -20,6 +20,20 @@ test_patience_summary_lines (__main__.TestAblationRows.test_patience_summary_lin
 Ogni riga di riepilogo, per intero, contro i valori della fixture (casi limite compresi). ... ok
 test_patience_table_cell_by_cell (__main__.TestAblationRows.test_patience_table_cell_by_cell) ... ok
 test_rows_cell_by_cell (__main__.TestAblationRows.test_rows_cell_by_cell) ... ok
+test_baseline_maxima_against_tolerances (__main__.TestBnControls.test_baseline_maxima_against_tolerances)
+Un massimo oltre la tolleranza del run fa fallire anche se la riga dichiara il controllo superato. ... ok
+test_compact_rows_and_lines (__main__.TestBnControls.test_compact_rows_and_lines) ... ok
+test_dev_aggregate_checks (__main__.TestBnControls.test_dev_aggregate_checks) ... ok
+test_dev_rows_checks (__main__.TestBnControls.test_dev_rows_checks) ... ok
+test_every_source_anchored_and_required (__main__.TestBnControls.test_every_source_anchored_and_required)
+Ogni file di dati BN con byte diversi dalla sua riga di SHA256SUMS è rifiutato; ogni sorgente mancante ferma build. ... ok
+test_identity_and_anchors (__main__.TestBnControls.test_identity_and_anchors) ... ok
+test_missing_source_and_command (__main__.TestBnControls.test_missing_source_and_command) ... ok
+test_reading_rule_boundaries (__main__.TestBnControls.test_reading_rule_boundaries)
+Un limite esattamente a zero vuol dire «contains»; senza intervallo o con un modello senza metrica, not_available. ... ok
+test_rows_groups_and_existing_tables (__main__.TestBnControls.test_rows_groups_and_existing_tables) ... ok
+test_summaries_checks (__main__.TestBnControls.test_summaries_checks) ... ok
+test_test_rows_checks (__main__.TestBnControls.test_test_rows_checks) ... ok
 test_annexes_cell_by_cell (__main__.TestBuild.test_annexes_cell_by_cell) ... ok
 test_c1_and_m1_rows_cell_by_cell (__main__.TestBuild.test_c1_and_m1_rows_cell_by_cell) ... ok
 test_combined_and_crop_rows_cell_by_cell (__main__.TestBuild.test_combined_and_crop_rows_cell_by_cell) ... ok
@@ -151,10 +165,10 @@ test_section_e_train_seconds_tolerance (__main__.TestReviewFaults.test_section_e
 test_verification_status_of_the_comparison (__main__.TestReviewFaults.test_verification_status_of_the_comparison) ... ok
 
 ----------------------------------------------------------------------
-Ran 144 tests in 22.640s
+Ran 155 tests in 39.705s
 
 OK
 
-$ python3 -I research/nuaa-synthesis/livenesslab/scripts/nuaa_synthesis.py check --research research --out research/nuaa-synthesis/tables --synthesis research/nuaa-synthesis/SYNTHESIS.md
-CHECK: 15 files + synthesis, 0 problems
+$ python3 -I -B research/nuaa-synthesis/livenesslab/scripts/nuaa_synthesis.py check --research research --out research/nuaa-synthesis/tables --synthesis research/nuaa-synthesis/SYNTHESIS.md
+CHECK: 17 files + synthesis, 0 problems
 RESULT: PASS

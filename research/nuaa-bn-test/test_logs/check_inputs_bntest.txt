@@ -1,0 +1,9 @@
+# macOS, Python 3.11.16, NumPy 1.26.4, TensorFlow 2.15.0 (installed, not imported), 2026-11-16 22:16 CET; check-inputs of the runner on the real inputs (read only: no model loaded, no test score parsed, the parent's test score files only hashed; nothing written); uncommitted working files
+# SHA-256 909869a8b127ae96d0a184f6294ac1017bd28fbcec20c2d83355b9b370b7dfbb  scripts/nuaa_bn_test.py
+# SHA-256 6e323493fc447fbbcbf1635d6dc81352cb75e4ad977b1fd0352dd8c50466bf68  scripts/check_nuaa_bn_test.py
+# SHA-256 04710d5add1e349b5a14b907925e83d3fd4c51a19af3e2a64061279aa681c8fe  scripts/check_nuaa_bn_test_mutations.py
+# SHA-256 1d72956997fdab1f59ff472b98bd45b84b62b80096d9bee64433ebe163487bf1  delivery/bntest/nuaa_bn_test.json
+# SHA-256 574c06c1735b2890df47cdade81a08e1a22f89df718d6f4db58e3f91e4fb0926  delivery/bntest/NOTE.md
+CHECK-INPUTS: configuration 1d72956997fd, note 574c06c1735b, PR #27 configuration d97e2e7497fb with every shared section equal except the rewritten descriptive keys parent_run.used, evaluation.probability, code pinned (6 files, estimator 8c228ef400f5), parent run 20261106-SESSABLRUN-d999458 PASS (36 models: card, dev scores, threshold, weights and test scores equal to its restricted SHA256SUMS; test scores hashed only, not parsed), fold schema with 12614 test rows, BNRECAL run 20261114-BNRECAL-a10a082 PASS (statistics and dev scores of 36 models), groups: 10 degenerate, 25 controls, 1 apart; 17 models with a worsened dev indicator in PR #27; TensorFlow 2.15.0 installed and not imported; nothing written
+RESULT: PASS (check-inputs)
+exit 0
