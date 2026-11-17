@@ -1,17 +1,20 @@
-# NUAA 2026 — Methods/Results synthesis (C1, M1, N1, N2, crop check, folds run, session ablation, patience, constant lr)
+# NUAA 2026 — Methods/Results synthesis, from C1 to the BatchNormalization control, and towards the article
 
-Synthesis of the NUAA results run between 28 September and 11 November 2026 and accepted in `research/pad-2026` (29
+Synthesis of the NUAA results run between 28 September and 17 November 2026 and accepted in `research/pad-2026` (29
 September – 4 November) or in the later packages of this repository (folds run, PR #18; comparison with N1, delivered
 with the update of 4 November; session ablation run, PR #21; degenerate trainings, PR #22; patience verification, PR
-#23; constant learning-rate control, PR #25), written on the coordinator's request of 2 November. Every number comes
-from the public aggregate, comparison table, per-epoch table or run record of the run named next to it, or from the note
-of PR #22 (`research/nuaa-degenerate-trainings/NOTE.md`) where the text says so (§3.7 also quotes, with their source,
-values computed read-only from the restricted files of the folds run); the unified table (`tables/summary_table.md`;
-compact form below) and the annexes are rebuilt by `nuaa_synthesis.py` from those files and `check` fails if a cell
-differs. No inference and no training; §3.7 also reports read-only descriptive calculations on the existing restricted
-scores, which `check` does not verify. Revised on 3 November after the coordinator's review (three precisions: the
-subject × session cell already measured by N2, the dev threshold, the provenance of the external models; labels of the
-generated tables; checksums).
+#23; constant learning-rate control, PR #25; BatchNormalization statistics on the dev, PR #27) or delivered in PR #28
+(the same statistics on the test), written on the coordinator's request of 2 November. Every number comes from the
+public aggregate, comparison table, per-epoch table, summary table or run record of the run named next to it, or from
+the note of PR #22 (`research/nuaa-degenerate-trainings/NOTE.md`) where the text says so (§3.7 also quotes, with their
+source, values computed read-only from the restricted files of the folds run; §6 also cites the public READMEs of the
+CASIA-FASD manifests (`research/m2-rgb-manifests/`) and of the C2 pilot protocol (`research/m2-c2-pilot-protocol/`),
+the manifest aggregate, and the publications it names); the unified table
+(`tables/summary_table.md`; compact form below) and the annexes are rebuilt by `nuaa_synthesis.py` from those files and
+`check` fails if a cell differs. No inference and no training; §3.7 also reports read-only descriptive calculations on
+the existing restricted scores, which `check` does not verify. Revised on 3 November after the coordinator's review
+(three precisions: the subject × session cell already measured by N2, the dev threshold, the provenance of the external
+models; labels of the generated tables; checksums).
 
 Revised on 4 November on the coordinator's request of the same day, after the merge of the subject-held-out run (PR
 #18), with no new training and no other model:
@@ -63,6 +66,18 @@ control (PR #25, merge `a1ca91f`), with no new training, no inference, no new se
   short conclusion;
 - §1 and §4, the question and the fifth reading extended to the three regimes; §5 rewritten as the state on 11 November.
 
+Revised on 17 November on the coordinator's request of 16 November, after the merge of the BatchNormalization control
+on the dev (PR #27, merge `c234064`) and the run of the same re-estimation on the test (PR #28, run
+`20261117-BNTEST-6245b10`, a post hoc diagnostic extension on a test already analysed, not an independent validation),
+with no new training and no other model:
+
+- the two runs in Methods (§2, "BatchNormalization statistics, dev and test") and in Results (§3.11), with the compact
+  table `tables/bn_recalibration_table_compact.md` (the 36 checkpoints, dev and test side by side, and the paired
+  summaries of the test) and the annex `tables/bn_recalibration_table.md` (every checkpoint, scope and summary, with the
+  sources and their SHA-256); the unified table gets no row (§3.11 says why) and the 15 earlier tables are unchanged;
+- §1 extended; §4 rewritten as two lists, what the results show (each item with its scope) and the hypotheses still
+  open, every unfavourable result kept; §5 rewritten as the state on 17 November; a new §6, "Towards the article".
+
 ## 1. Question
 
 Restricted to NUAA, the group's question reads: how reliably do detectors trained on NUAA (and one trained elsewhere)
@@ -73,8 +88,10 @@ and subject sensitivity, N2 the session check and the historical combined model,
 preprocessing difference, the subject-held-out run the cell no earlier run measured: subjects never seen, with every
 session represented in training; the session ablation run whether representing session 03 in training changes that error
 at fixed fitting subjects and total count, the patience verification whether the recipe trains stably on those 36
-models, and the constant learning-rate control whether the recovery seen with the longer patience still occurs without
-the learning-rate reduction.
+models, the constant learning-rate control whether the recovery seen with the longer patience still occurs without
+the learning-rate reduction, and the BatchNormalization control what the ten degenerate patience-4 checkpoints hold:
+whether re-estimating their stored normalisation statistics on the fitting set, every trained parameter unchanged, lets
+them meet the recovery criterion on the dev (PR #27), and what the same re-estimation does on the test (PR #28).
 
 ## 2. Methods
 
@@ -237,6 +254,47 @@ rows, and that the checkpoints with the same restored epoch inside the shared wi
 threshold in both runs (the hashes of their weight and threshold files differ, as different archives); the counts in the
 summary lines of `tables/three_regimes_table.md` are counts of models derived from the public rows and curves, not new
 metrics.
+
+**BatchNormalization statistics, dev and test.** One control on the early dev saturation, proposed on 12 November and
+approved by the coordinator on 13 November with three precisions written into the note before the run
+(`research/nuaa-saturation-control/NOTE.md`), accepted with PR #27 (merge `c234064`); its extension to the test,
+assigned on 16 November, in PR #28 (`research/nuaa-bn-test/NOTE.md`). No training. Both runs use the 36 checkpoints of
+the patience-4 run `20261106-SESSABLRUN-d999458` as saved (the ten degenerate trainings; 25 control checkpoints, the
+other models meeting the recovery criterion of §2 at their checkpoint; B fold 3 seed 44, which does not, reported
+apart), on in-memory copies. Estimator, fixed before the dev run: per channel, the global mean and population variance
+(divisor N; frames × height × width for the convolutional layers) of the input of each of the five BatchNormalization
+layers over the whole fitting set of the model's arm and fold (1,400 frames for B and A\*, 934 for B'), layer by layer
+in network order, in inference mode (dropout off), on frames / 255 without the augmentation of the trainer, accumulated
+in float64 over batches of 16 weighted by their size; only `moving_mean` and `moving_variance` are replaced, every other
+tensor (kernels, biases, gamma, beta) is compared byte for byte with the original, and one more pass over the fitting
+set recomputes the moments of the five inputs. Dev run `20261114-BNRECAL-a10a082` (clean commit `a10a082`): a baseline
+of all 36 checkpoints on the dev with their original statistics, against tolerances and a stop rule fixed before the run
+(attack probability within 1e-5 of the stored dev scores and no decision changed at 0.5, val_loss within 1e-3, dev
+accuracy within 1e-6, softmax of the logits within 1e-4); primary reading, fixed before the run: how many of the ten
+meet the recovery criterion on the dev after the re-estimation, with a pre-written statement for all, some or none, each
+limited to the effect of this re-estimation on these checkpoints; secondary: the control checkpoints, every worsening
+indicator (any change in that direction, however small), the model apart and a 2×2 count, fitting before × dev after,
+that names no cause. Test run `20261117-BNTEST-6245b10` (clean commit `6245b10`): the estimator of PR #27 imported
+unchanged, its statistics required to agree with those of PR #27 within 1e-4 relative plus 1e-6 absolute, with the dev
+probabilities within 1e-5 and no decision changed (observed: identical in 36 of 36); note, configuration and code were
+published before the run (pull request #28 opened at 07:55:14 CET on 17 November with head `9aca72b`; the run started at
+07:55:51 CET, first line of its `run/run.log.txt`; the final `run/status.json` lacks the `started` field, a defect of
+the runner, so the start time rests on that log). Phases: a baseline on the dev (the checks of PR #27) and on the test
+(the same frames as the stored test scores of the parent run, attack probability within 1e-5, no decision changed at
+0.5), then the re-estimation, then the scoring with the re-estimated statistics; metrics on the same test frames before
+and after, for every model, on the whole test fold (scope "test": every frame of the held-out subjects) and on session
+03: APCER, BPCER and ACER at the fixed threshold 0.5 (no threshold selected), AUROC. Reading rule fixed in the note:
+primary, the ten, scope test, ACER at 0.5, the mean over the ten of the paired difference after − before with a
+bootstrap over subjects (the project's recipe unchanged: 1,000 resamples of the held-out subjects pooled over the folds,
+seed 0, percentiles 2.5–97.5, no interval below 5 subjects, the same resamples before and after; new and declared: the
+statistic of a resample is the mean over the models of their paired differences), read as entirely below zero,
+containing zero (a bound at zero included) or entirely above zero, plus the count of the ten lower, equal or higher;
+secondary and descriptive, with the same statements: session 03, the control checkpoints, the model apart, all 36, the
+three arms, APCER, BPCER and AUROC; every worsening listed. Declared before the run, in the run's own words: "post hoc
+diagnostic extension on a test already analysed", not an independent validation (the values before were published with
+the parent run, and the re-estimation was chosen and first measured on the dev of the same folds); no statement on the
+cause of the saturation. The synthesis script reads the public outputs of both runs and checks them against the parent
+run and the patience comparison (§3.11; the checks are listed in `tables/bn_recalibration_table.md`).
 
 **Verification practice.** Configuration hashed before each run; inputs, checkpoints and code bound by SHA-256;
 per-image scores restricted, aggregates public; synthetic tests and declared mutations; a reproduction check where a
@@ -895,78 +953,395 @@ runs; the constant rate tests the absence of the reduction, not the level of the
 is small (2–3 subjects, 400 frames per fold) and chooses the checkpoint among 12 epochs; one dataset, one attack type
 (print), three seeds per fold, folds not independent; the cause of the early dev saturation is not tested.
 
+**3.11 BatchNormalization statistics re-estimated on the fitting set, dev and test (runs 20261114-BNRECAL-a10a082 and
+20261117-BNTEST-6245b10).** The 36 checkpoints of the patience-4 run, before and after the re-estimation of §2; no
+training. All 36 are in the compact table below (`tables/bn_recalibration_table_compact.md`), with the paired summaries
+of the test and summary lines; the annex `tables/bn_recalibration_table.md` has every column of the dev, every
+checkpoint and scope of the test, the 56 paired summaries, and the 14 sources with their SHA-256. The script checks, for
+both runs, identity and anchors (clean tree, `PASS`, run id ending with the commit, `status.json` → `SHA256SUMS` →
+every file read, 36 models within the cap, the parent run read here by run id and by the SHA-256 of its public
+aggregate); on the dev, each group against the patience comparison, the values before against the checkpoint (dev
+accuracy within 1e-6, val_loss within 1e-3, AUROC equal), and the criterion, the 2×2 cell, every worsening indicator,
+the readings and the counts recomputed from the values; on the test, every denominator and every value before equal to
+the published per-model value of the parent run (72 of 72 model and scope rows), APCER and BPCER consistent with whole
+counts over the denominators and ACER their mean, differences equal to after − before, the indicators, and in every
+paired summary the models, folds, subjects, means, lower / equal / higher counts and the reading recomputed from the
+rows (the subjects with each class and the valid resamples are copied); for both runs the largest baseline differences
+against the tolerances of the run. The bootstrap intervals are copied, since they need the per-subject results, which
+are restricted. The unified table gets no row: its rows of the 36-model design (SESSABL) are pooled per arm and seed
+over the four folds, at 0.5 and at the dev threshold, with a bootstrap per seed; the dev control has no test metric, and
+the test control publishes per-model rows and paired means over models at 0.5 only, so a pooled or bootstrapped BN row
+would be a new number. The unified table does hold per-model rows (the folds run), but the per-model rows of the BN
+controls are kept, by choice, in the BN annex.
+
+| model | group | restored epoch | dev accuracy before → after | dev val_loss before → after | dev criterion before → after | worsened on the dev | test ACER 0.5 before → after | session 03 ACER 0.5 before → after | test AUROC before → after |
+|---|---|---|---|---|---|---|---|---|---|
+| B fold 1 seed 42 | ten | 1 | 0.5000 → 0.9950 | 7.0611 → 0.0244 | no → yes | — | 0.5000 → 0.1988 | 0.5000 → 0.2919 | 0.7389 → 0.9217 |
+| B fold 1 seed 43 | control | 11 | 0.9975 → 0.9925 | 0.0056 → 0.1830 | yes → yes | dev acc, dev val_loss, dev AUROC | 0.3234 → 0.3538 | 0.4715 → 0.5009 | 0.8948 → 0.7598 |
+| B fold 1 seed 44 | control | 6 | 0.9950 → 0.9950 | 0.0298 → 0.3445 | yes → yes | dev val_loss, dev AUROC, fitting acc, fitting loss | 0.3565 → 0.3135 | 0.4970 → 0.4633 | 0.6400 → 0.7759 |
+| B fold 2 seed 42 | control | 9 | 0.9475 → 1.0000 | 0.2308 → 0.0087 | yes → yes | — | 0.2757 → 0.2103 | 0.3643 → 0.2686 | 0.8368 → 0.9406 |
+| B fold 2 seed 43 | control | 7 | 1.0000 → 1.0000 | 0.0011 → 0.0004 | yes → yes | — | 0.3479 → 0.3706 | 0.4650 → 0.4916 | 0.6701 → 0.6939 |
+| B fold 2 seed 44 | control | 10 | 0.9975 → 1.0000 | 0.0030 → 0.0029 | yes → yes | — | 0.1659 → 0.0789 | 0.2219 → 0.1015 | 0.9865 → 0.9706 |
+| B fold 3 seed 42 | control | 12 | 1.0000 → 1.0000 | 0.0168 → 0.0075 | yes → yes | — | 0.2091 → 0.2456 | 0.3154 → 0.3617 | 0.8298 → 0.6852 |
+| B fold 3 seed 43 | control | 10 | 0.9925 → 0.9675 | 0.0531 → 0.0640 | yes → yes | dev acc, dev val_loss | 0.2555 → 0.2584 | 0.3726 → 0.3762 | 0.7776 → 0.7653 |
+| B fold 3 seed 44 | apart | 3 | 0.2375 → 0.9950 | 3.2731 → 0.0417 | no → yes | — | 0.7265 → 0.1891 | 0.6554 → 0.2968 | 0.2781 → 0.8301 |
+| B fold 4 seed 42 | control | 11 | 1.0000 → 0.9975 | 0.0005 → 0.1622 | yes → yes | dev acc, dev val_loss, dev AUROC | 0.3936 → 0.4227 | 0.5710 → 0.6140 | 0.7502 → 0.6143 |
+| B fold 4 seed 43 | control | 6 | 1.0000 → 0.9975 | 0.0013 → 0.0047 | yes → yes | dev acc, dev val_loss | 0.4276 → 0.4677 | 0.6316 → 0.6810 | 0.5968 → 0.6553 |
+| B fold 4 seed 44 | ten | 2 | 0.5000 → 1.0000 | 2.3605 → 0.0013 | no → yes | — | 0.5000 → 0.5236 | 0.5000 → 0.7424 | 0.4672 → 0.6272 |
+| A* fold 1 seed 42 | control | 10 | 0.9950 → 0.9975 | 0.0104 → 0.0134 | yes → yes | dev val_loss | 0.0839 → 0.1317 | 0.1243 → 0.1571 | 0.9828 → 0.9555 |
+| A* fold 1 seed 43 | control | 9 | 0.9975 → 0.9950 | 0.0165 → 0.0128 | yes → yes | dev acc | 0.0513 → 0.1560 | 0.0281 → 0.1795 | 0.9921 → 0.9934 |
+| A* fold 1 seed 44 | control | 11 | 0.9875 → 0.9875 | 0.0345 → 0.5327 | yes → yes | dev val_loss, dev AUROC, fitting acc, fitting loss | 0.1428 → 0.1731 | 0.1972 → 0.1986 | 0.8963 → 0.9165 |
+| A* fold 2 seed 42 | control | 11 | 1.0000 → 1.0000 | 0.0001 → 0.0003 | yes → yes | dev val_loss, fitting loss | 0.0937 → 0.0964 | 0.1216 → 0.1259 | 0.9701 → 0.9607 |
+| A* fold 2 seed 43 | ten | 1 | 0.5000 → 1.0000 | 60.9868 → 0.0031 | no → yes | — | 0.5000 → 0.0616 | 0.5000 → 0.0697 | 0.5000 → 0.9972 |
+| A* fold 2 seed 44 | ten | 1 | 0.5000 → 0.9800 | 18.0934 → 0.3553 | no → yes | — | 0.5000 → 0.0542 | 0.5000 → 0.0677 | 0.2782 → 0.9981 |
+| A* fold 3 seed 42 | ten | 1 | 0.5000 → 1.0000 | 3.1296 → 0.0137 | no → yes | — | 0.5000 → 0.1109 | 0.5000 → 0.1433 | 0.5255 → 0.9727 |
+| A* fold 3 seed 43 | control | 12 | 0.9975 → 0.9175 | 0.0088 → 0.1670 | yes → yes | dev acc, dev val_loss | 0.1836 → 0.0720 | 0.2333 → 0.0930 | 0.9534 → 0.9727 |
+| A* fold 3 seed 44 | ten | 1 | 0.5000 → 0.8275 | 33.4090 → 0.2594 | no → yes | — | 0.5000 → 0.1731 | 0.5000 → 0.2552 | 0.5000 → 0.9023 |
+| A* fold 4 seed 42 | control | 10 | 0.7975 → 0.7875 | 0.8106 → 0.7175 | yes → yes | dev acc, dev AUROC, fitting acc | 0.1763 → 0.1576 | 0.1270 → 0.1013 | 0.9271 → 0.9416 |
+| A* fold 4 seed 43 | control | 9 | 0.9950 → 0.9175 | 0.0272 → 0.1516 | yes → yes | dev acc, dev val_loss, dev AUROC | 0.1777 → 0.2148 | 0.2251 → 0.3152 | 0.9227 → 0.7956 |
+| A* fold 4 seed 44 | ten | 1 | 0.5000 → 0.8100 | 22.8274 → 0.6411 | no → yes | — | 0.5000 → 0.1052 | 0.5000 → 0.0224 | 0.5000 → 0.9799 |
+| B' fold 1 seed 42 | control | 2 | 0.7725 → 0.9950 | 0.6101 → 0.3244 | yes → yes | — | 0.4933 → 0.2127 | 0.7216 → 0.2768 | 0.5029 → 0.9156 |
+| B' fold 1 seed 43 | control | 4 | 0.9400 → 0.9975 | 0.8647 → 0.0096 | yes → yes | — | 0.4131 → 0.3557 | 0.5057 → 0.5154 | 0.5857 → 0.6022 |
+| B' fold 1 seed 44 | ten | 1 | 0.5000 → 0.9950 | 12.1449 → 0.0146 | no → yes | — | 0.5000 → 0.3271 | 0.5000 → 0.4751 | 0.5000 → 0.8025 |
+| B' fold 2 seed 42 | control | 11 | 0.8775 → 0.9875 | 0.8750 → 0.0215 | yes → yes | — | 0.1241 → 0.1813 | 0.0994 → 0.2314 | 0.9281 → 0.9271 |
+| B' fold 2 seed 43 | control | 10 | 1.0000 → 0.9975 | 0.0042 → 0.0093 | yes → yes | dev acc, dev val_loss | 0.3759 → 0.4343 | 0.4986 → 0.5721 | 0.6391 → 0.6623 |
+| B' fold 2 seed 44 | ten | 2 | 0.5000 → 0.9975 | 11.4259 → 0.0065 | no → yes | — | 0.5000 → 0.1386 | 0.5000 → 0.1769 | 0.5000 → 0.9845 |
+| B' fold 3 seed 42 | control | 1 | 0.8325 → 0.8800 | 0.3211 → 0.3449 | yes → yes | dev val_loss | 0.3314 → 0.4369 | 0.4593 → 0.5795 | 0.7411 → 0.7787 |
+| B' fold 3 seed 43 | control | 9 | 1.0000 → 0.9975 | 0.0011 → 0.0279 | yes → yes | dev acc, dev val_loss | 0.2715 → 0.2860 | 0.3984 → 0.4160 | 0.6528 → 0.7142 |
+| B' fold 3 seed 44 | control | 9 | 0.9975 → 0.9175 | 0.0341 → 0.1218 | yes → yes | dev acc, dev val_loss | 0.2031 → 0.2052 | 0.3228 → 0.2742 | 0.7675 → 0.9255 |
+| B' fold 4 seed 42 | control | 2 | 0.9175 → 0.9500 | 0.1375 → 0.3614 | yes → yes | dev val_loss, dev AUROC, fitting loss | 0.1606 → 0.3692 | 0.2207 → 0.5701 | 0.8717 → 0.7445 |
+| B' fold 4 seed 43 | control | 3 | 1.0000 → 1.0000 | 0.0142 → 0.0037 | yes → yes | — | 0.3959 → 0.4333 | 0.5756 → 0.6500 | 0.4826 → 0.7240 |
+| B' fold 4 seed 44 | ten | 1 | 0.5000 → 1.0000 | 17.2907 → 0.0281 | no → yes | — | 0.5000 → 0.3201 | 0.5000 → 0.5096 | 0.5000 → 0.6134 |
+
+Legend. Dev = run `20261114-BNRECAL-a10a082` (PR #27), test = run `20261117-BNTEST-6245b10` (PR #28), both on the 36
+checkpoints of run `20261106-SESSABLRUN-d999458` (early-stopping patience 4); before = original statistics, after =
+moving mean and variance of the five BatchNormalization layers re-estimated on the fitting set of the model's arm and
+fold, every trained parameter unchanged; group: ten = the ten degenerate trainings, control = the 25 control checkpoints
+(the other models meeting the recovery criterion at their checkpoint), apart = the 1 that do not; dev criterion =
+recovery criterion (dev accuracy >= 0.75 and val_loss < 1.0); worsened on the dev = indicators set in PR #27 (any change
+in the worsening direction, however small; — none); test = every frame of the held-out subjects of the fold; ACER at the
+fixed threshold 0.5; AUROC threshold-free. The test reading is a post hoc diagnostic extension on a test already
+analysed, not an independent validation.
+
+**Dev (PR #27)**
+
+- Models: 36 (the ten degenerate trainings 10, control checkpoints 25, reported apart 1: B fold 3 seed 44); dev 400
+  frames per model; fitting 1,400 frames (B, A*) or 934 (B').
+- Baseline with the original statistics, before any re-estimation: 36 of 36 within every tolerance (largest
+  attack-probability difference 0, changed decisions at 0.5 0, largest dev val_loss difference 2.876e-06, largest dev
+  accuracy difference 0, largest softmax gap 3.329e-06).
+- The ten meeting the recovery criterion on the dev: before 0 of 10, after 10 of 10 (primary reading of the run: all).
+- The ten after the re-estimation: dev accuracy 0.8100-1.0000, dev val_loss 0.0013-0.6411, dev AUROC 0.9814-1.0000;
+  fitting accuracy before 0.5000-0.5000, after 0.9886-1.0000.
+- Control checkpoints meeting the criterion on the dev: before 25 of 25, after 25 of 25 (lost: 0).
+- Control checkpoints with at least one worsened indicator: 17 of 25 (dev accuracy lower 11, dev val_loss higher 15, dev
+  AUROC lower 7, fitting accuracy lower 3, fitting loss higher 4); with none: 8. The ten and the model apart with a
+  worsened indicator: 0.
+- Control checkpoints, correct dev frames after against before: higher 8, equal 6, lower 11; largest loss 32 of 400 (A*
+  fold 3 seed 43, B' fold 3 seed 44); dev accuracy after 0.7875-1.0000.
+- Model reported apart, B fold 3 seed 44: dev accuracy 0.2375 → 0.9950, dev val_loss 3.2731 → 0.0417, criterion no →
+  yes.
+- Fitting before x dev after (checkpoints counted, no cause named): both 22, dev after only 14 (the ten 10, apart 1,
+  control checkpoints 3), fitting only 0, neither 0.
+
+| summary | scope | models | subjects (bona fide / attack) | ACER 0.5 | APCER 0.5 | BPCER 0.5 | AUROC | valid resamples (ACER / APCER / BPCER / AUROC) |
+|---|---|---|---|---|---|---|---|---|
+| group ten | test | 10 | 16 (15 / 15) | -0.2987 [-0.4033, -0.2147] below; 9/0/1 | -0.0406 [-0.0948, 0.0279] contains; 2/0/8 | -0.5568 [-0.7246, -0.4507] below; 8/0/2 | 0.3790 [0.2635, 0.4344] above; 0/0/10 | 926 / 950 / 940 / 926 |
+| group ten | session 03 | 10 | 16 (9 / 15) | -0.2246 [-0.3759, -0.1425] below; 8/0/2 | -0.0033 [-0.0734, 0.0651] contains; 2/0/8 | -0.4459 [-0.6941, -0.3185] below; 8/0/2 | 0.3153 [0.2027, 0.4447] above; 1/0/9 | 650 / 950 / 661 / 650 |
+| group control | test | 25 | 16 (15 / 15) | 0.0082 [-0.0220, 0.0316] contains; 7/0/18 | 0.0409 [0.0026, 0.0714] above; 8/1/16 | -0.0246 [-0.0600, 0.0130] contains; 13/1/11 | 0.0237 [0.0039, 0.0396] above; 10/0/15 | 926 / 950 / 940 / 926 |
+| group control | session 03 | 25 | 16 (9 / 15) | 0.0138 [-0.0295, 0.0424] contains; 7/0/18 | 0.0490 [-0.0004, 0.0973] contains; 8/1/16 | -0.0214 [-0.0794, 0.0195] contains; 13/3/9 | 0.0228 [0.0018, 0.0448] above; 12/0/13 | 650 / 950 / 661 / 650 |
+| group apart | test | 1 | 4 (3 / 4) | -0.5373 no interval, not_available; 1/0/0 | -0.6067 no interval, not_available; 1/0/0 | -0.4679 no interval, not_available; 1/0/0 | 0.5520 no interval, not_available; 0/0/1 | 0 / 0 / 0 / 0 |
+| group apart | session 03 | 1 | 4 (2 / 4) | -0.3586 no interval, not_available; 1/0/0 | -0.5219 no interval, not_available; 1/0/0 | -0.1954 no interval, not_available; 1/0/0 | 0.2815 no interval, not_available; 0/0/1 | 0 / 0 / 0 / 0 |
+| group all | test | 36 | 16 (15 / 15) | -0.0922 [-0.1399, -0.0533] below; 17/0/19 | 0.0003 [-0.0334, 0.0383] contains; 11/1/24 | -0.1848 [-0.2502, -0.1359] below; 22/1/13 | 0.1370 [0.0863, 0.1598] above; 10/0/26 | 926 / 950 / 940 / 926 |
+| group all | session 03 | 36 | 16 (9 / 15) | -0.0627 [-0.1322, -0.0232] below; 16/0/20 | 0.0186 [-0.0219, 0.0661] contains; 11/1/24 | -0.1441 [-0.2525, -0.0928] below; 22/3/11 | 0.1113 [0.0645, 0.1586] above; 13/0/23 | 650 / 950 / 661 / 650 |
+| arm B | test | 12 | 16 (15 / 15) | -0.0707 [-0.1333, -0.0041] below; 5/0/7 | 0.0541 [0.0087, 0.1012] above; 3/0/9 | -0.1956 [-0.2880, -0.1083] below; 8/1/3 | 0.0644 [-0.0282, 0.1224] contains; 5/0/7 | 926 / 950 / 940 / 926 |
+| arm B | session 03 | 12 | 16 (9 / 15) | -0.0313 [-0.1071, 0.0292] contains; 5/0/7 | 0.0850 [0.0305, 0.1442] above; 3/0/9 | -0.1477 [-0.2818, -0.0457] below; 8/1/3 | 0.0449 [-0.0333, 0.1262] contains; 5/0/7 | 650 / 950 / 661 / 650 |
+| arm A* | test | 12 | 16 (15 / 15) | -0.1586 [-0.1937, -0.1160] below; 7/0/5 | -0.1554 [-0.1919, -0.1112] below; 7/1/4 | -0.1618 [-0.2083, -0.1069] below; 4/0/8 | 0.2032 [0.1418, 0.2394] above; 3/0/9 | 926 / 950 / 940 / 926 |
+| arm A* | session 03 | 12 | 16 (9 / 15) | -0.1523 [-0.1981, -0.1179] below; 7/0/5 | -0.1541 [-0.1903, -0.1117] below; 7/1/4 | -0.1506 [-0.2170, -0.1101] below; 5/1/6 | 0.1943 [0.1364, 0.2574] above; 4/0/8 | 650 / 950 / 661 / 650 |
+| arm B' | test | 12 | 16 (15 / 15) | -0.0474 [-0.1223, 0.0072] contains; 5/0/7 | 0.1022 [0.0414, 0.1643] above; 1/0/11 | -0.1969 [-0.3181, -0.1204] below; 10/0/2 | 0.1436 [0.0811, 0.1895] above; 2/0/10 | 926 / 950 / 940 / 926 |
+| arm B' | session 03 | 12 | 16 (9 / 15) | -0.0046 [-0.1064, 0.0427] contains; 4/0/8 | 0.1250 [0.0473, 0.2090] above; 1/0/11 | -0.1341 [-0.2746, -0.0995] below; 9/1/2 | 0.0945 [0.0063, 0.2002] above; 4/0/8 | 650 / 950 / 661 / 650 |
+
+Legend. Paired summaries of the test control, copied from `summary.csv` (means, model counts, folds, subjects and
+readings recomputed from its rows; subjects with each class, valid resamples and intervals copied): per metric, mean
+over the models of the difference after - before, with the subject-bootstrap interval [2.5, 97.5] (1,000 resamples of
+the held-out subjects pooled over the folds, seed 0, the same resamples before and after; no interval with fewer than 5
+subjects) and the reading fixed before the run (below / contains / above zero, not_available without an interval), then
+the models lower / equal / higher after (for AUROC, higher = AUROC higher); for APCER, BPCER and ACER a negative value
+is a lower error rate. The summaries share models and subjects and are not independent.
+
+**Test (PR #28)**
+
+- Baseline on the test with the original statistics: 36 of 36 within every tolerance (largest attack-probability
+  difference 0, changed decisions at 0.5 0); the values before equal the published per-model values of the parent run in
+  72 of 72 model and scope rows (checked here); re-estimated statistics identical to those of PR #27 in 36 of 36.
+- Primary reading (fixed before the run): the ten, scope test, ACER at 0.5, mean difference after - before -0.2987
+  [-0.4033, -0.2147] below; lower 9, equal 0, higher 1 (higher: B fold 4 seed 44 0.5000 → 0.5236).
+- The ten, session 03, ACER at 0.5: mean difference -0.2246 [-0.3759, -0.1425] below; lower 8, equal 0, higher 2
+  (higher: B fold 4 seed 44 0.5000 → 0.7424, B' fold 4 seed 44 0.5000 → 0.5096).
+- Control checkpoints, models higher after: ACER at 0.5 18 of 25 on the test and 18 in session 03; APCER at 0.5 16 and
+  16; BPCER at 0.5 11 and 9; AUROC lower 10 and 12.
+- Control checkpoints with a worsened indicator on the dev in PR #27 (17): ACER at 0.5 higher on the test in 14 of them,
+  in session 03 in 13.
+- Indicators set, models (test / session 03): ACER higher 19 / 20, APCER higher 24 / 24, BPCER higher 13 / 11, AUROC
+  lower 10 / 13.
+- Subjects behind the intervals: 16 held-out subjects, 15 with bona fide and 15 with attack frames on the test, 9 and 15
+  in session 03; valid resamples for ACER 926 of 1,000 on the test and 650 in session 03; the model apart (1 fold, 4
+  subjects) has no interval.
+
+**Time**
+
+- Dev control: wall 1,748.6 s (29.1 minutes); estimate 32 minutes (upper 140); cap 240 minutes.
+- Test control: wall 3,027.4 s (50.5 minutes), process CPU time over all threads 18,438.4 s; estimate 42 minutes (upper
+  112); cap 240 minutes of elapsed time.
+- Parent run (patience 4): 36 trainings, 326 epochs, 9,437.7 s of training (wall 10,209.2 s); seconds per epoch B
+  32.4537, A* 31.8532, B' 21.2375 (fitting + dev frames 1,800, 1,800, 1,334).
+
+*(i) Dev (PR #27).* The baseline passed for all 36 checkpoints, so the stop rule did not apply. With their original
+statistics, in inference mode, the ten have accuracy 0.5000 on the dev and on the fitting set (both balanced by class).
+After the re-estimation, every trained parameter unchanged, all ten meet the recovery criterion (primary reading "all";
+dev accuracy 0.8100–1.0000, val_loss 0.0013–0.6411, fitting accuracy 0.9886–1.0000); they do not reach the same level:
+A\* fold 3 seed 44 stays at 0.8275 and A\* fold 4 seed 44 at 0.8100. The 25 control checkpoints keep the criterion, and
+17 of them have at least one worsened indicator: three lose 31–32 of 400 correct dev frames and end at dev accuracy
+0.9175 (A\* fold 3 seed 43, A\* fold 4 seed 43, B' fold 3 seed 44), B fold 3 seed 43 loses 10, A\* fold 4 seed 42 keeps
+the criterion at 0.7875, and the dev AUROC of B' fold 4 seed 42 falls from 0.9966 to 0.9485 (annex). B fold 3 seed 44,
+reported apart, goes from dev accuracy 0.2375 to 0.9950. In the 2×2 count (fitting before × dev after), 14 checkpoints
+do not meet the criterion on the fitting set before the re-estimation and meet it on the dev after: the ten, the model
+apart and three control checkpoints of arm B' (B' fold 1 seed 43, fold 2 seed 42, fold 3 seed 42); the other 22 meet it
+in both. The run reads this as its pre-written case "all": "on these checkpoints, re-estimating the statistics on the
+fitting set, every trained parameter unchanged, is sufficient to meet the criterion"; the moving statistics, dropout and
+the augmentation of the fitting set (hypotheses 1–3 of the note) are not separated, the later saturated epochs are not
+examined, and a recovery shows the effect of this re-estimation on these checkpoints, not a single cause of the
+saturation (`REPORT.md` of PR #27).
+
+*(ii) Test (PR #28), a post hoc diagnostic extension on a test already analysed, not an independent validation;
+threshold fixed at 0.5.* The baseline passed for all 36, and the values before equal those published with the parent
+run. Primary reading: for the ten, on the whole test, the mean ACER goes from 0.5000 to 0.2013, a paired difference of
+−0.2987 with subject-bootstrap interval [−0.4033, −0.2147], entirely below zero; in the run's pre-written words, "on
+this test, the effect of this re-estimation on these checkpoints is a lower mean value". It is lower for 9 of the ten
+and higher for one, B fold 4 seed 44 (0.5000 → 0.5236; its APCER goes from 0.0000 to 0.5370, its BPCER from 1.0000 to
+0.5103). In session 03 the difference for the ten is −0.2246 [−0.3759, −0.1425], with 8 lower and 2 higher (B fold 4
+seed 44, 0.5000 → 0.7424; B' fold 4 seed 44, 0.5000 → 0.5096, whose session-03 AUROC falls from 0.5000 to 0.2328). For
+the ten, the BPCER falls (−0.5568 [−0.7246, −0.4507]), the APCER is higher for 8 of them with an interval containing
+zero, and the AUROC is higher for all ten (+0.3790 [0.2635, 0.4344]). Unfavourable results: for the 25 control
+checkpoints the ACER interval contains zero (+0.0082 [−0.0220, 0.0316]) and the ACER is higher for 18 of 25; their APCER
+is higher (+0.0409 [0.0026, 0.0714], an interval above zero); of the 17 control checkpoints with a worsened indicator on
+the dev, 14 have a higher ACER on the test. By arm, A\* has every interval on the favourable side, on the test and in
+session 03; for B the ACER interval is below zero on the test and contains zero in session 03; for B' it contains zero
+in both; in B and B' the APCER is higher, with intervals above zero in both scopes. Over all 36, ACER −0.0922 [−0.1399,
+−0.0533], lower for 17 and higher for 19. The session-03 intervals rest on 9 held-out subjects with bona fide frames and
+on 650 valid resamples of 1,000 for ACER (926 on the whole test); with so few clusters a percentile interval may be too
+narrow (limits of the run). The model apart has no interval (one fold, four subjects): ACER 0.7265 → 0.1891. Every model
+and scope whose ACER, APCER or BPCER is higher, or whose AUROC is lower, is listed with its size in the run's
+`aggregate.md`. Time: 3,027.4 s of elapsed time (estimate 42 minutes, cap 240); the process CPU time over all threads
+was 18,438.4 s, more than the four hours of CPU time set by the coordinator, which the note had applied as elapsed time
+(`REPORT.md` of PR #28); the final `status.json` lacks the `started` field (a defect of the runner), so the start time
+rests on `run/run.log.txt`.
+
+*Conclusion.* Dev: on these 36 checkpoints, with this estimator, the ten have accuracy 0.5000 on dev and fitting set
+with their stored statistics, and all ten meet the recovery criterion once the statistics are re-estimated on the
+fitting set, every trained parameter unchanged; the control checkpoints keep the criterion, and 17 of the 25 have at
+least one worsened indicator. Test (post hoc, at 0.5): the mean ACER of the ten is lower after the re-estimation, with
+one of the ten higher; the control checkpoints show no direction on ACER (interval containing zero, 18 of 25 higher) and
+a higher APCER; arms B and B' also have a higher APCER. Neither run separates the lag of the moving averages, dropout
+before BatchNormalization and the augmentation of the fitting pipeline, and neither says anything about other
+checkpoints, thresholds or data.
+
 ## 4. Reading and limits
 
-- Within the training sessions the recipe makes no error on the frames it never used, including the 2 subjects it never
-  fitted; across the session change it collapses, for the subjects it was trained on as well as for new ones. The design
-  difference between the two readings is the session shift. The result is consistent with a session-shift explanation
-  and does not prove it; the weak validation (2 subjects, sessions 01–02, near-zero loss) remains an untested
-  alternative explanation (N1, N2); no causal test has been run. - Not explained by (accepted runs): the training seed
-  (N1 range), the composition of the 300 (N1 part 1), the threshold choice (M1: the dev does not identify a unique
-  threshold, dev EER 0, dev AUROC 1), the 1 px box (crop check), the numerical path (CPU/GPU parity within 1e-5,
-  decisions unchanged). Not tested: the effect of the GPU defect on the training of the 12 September LivenessNet
+Two lists: what the accepted runs show, each item with its scope, and the hypotheses and questions they leave open.
+Nothing in the second list has been tested by any of our runs.
+
+**(i) What the results show**
+
+- Same sessions and session change (C1, M1, N1, N2, crop check; NUAA, the official session split, these NUAA-trained
+  checkpoints and recipe, thresholds 0.5 and the M1 dev threshold). Within the training sessions the recipe makes no
+  error on the frames it never used, including the 2 subjects it never fitted; across the session change it fails, for
+  the subjects it was trained on as well as for new ones (N1 on the 3,000 test frames: ACER 0.4010–0.5143, AUROC
+  0.3485–0.4582; §3.1–§3.2). The design difference between the two readings is
+  the session shift. The failure is not explained by (accepted runs): the training seed (N1 range), the composition of
+  the 300 (N1 part 1), the threshold choice (M1: the dev does not identify a unique threshold, dev EER 0, dev AUROC 1),
+  the 1 px box (crop check), the numerical path (CPU/GPU parity within 1e-5, decisions unchanged). Scope and limits:
+  image-level counts with correlated frames; three seeds give a range, not a confidence interval; one dataset and one
+  attack type (print); NUAA is not subject-disjoint by design; the 12 September checkpoints come from a script that
+  predates the repository; the historical preparation of the combined model is not documented (the two variants bracket
+  it); the C1 subset is one session; the source-dev threshold is not uniquely identified (every threshold between the
+  two dev classes gives EER 0) and the dev gives no guarantee of transfer to session 03.
+- Subjects never seen, sessions represented (§3.5–§3.6; four subject folds, three seeds, the N1 recipe). With the three
+  sessions represented in training, the recipe reaches on the held-out subjects a pooled AUROC of 0.9377–0.9998 over
+  strata and seeds; session 03 remains the stratum with the highest error (pooled ACER 0.0975–0.1515 at 0.5), and the
+  results vary across folds and seeds (fold 1 seed 43, fold 4, §3.7). On the same 3,000 session-03 frames as N1 the
+  difference from N1 remains for every seed (ACER at 0.5 −0.3643 to −0.3010, AUROC +0.5088 to +0.5900, paired bootstrap
+  intervals not containing zero), with different training roles, so it is associated with the whole design, not with one
+  factor, and is indicative only. Scope and limits: the pooled AUROC is computed on the scores of four models, not of
+  one detector; three seeds give a range, and the bootstrap over subjects is the only interval; the dev of a held-out
+  fold is the test fold of the next one, so the four fold results are not independent (no leakage); session 03 is
+  under-sampled in fitting (about 18–25 % of its bona fide and 11–13 % of its attacks); data and roles differ from N1
+  (sessions 01–03 against 01–02 in training, 2,100 against 2,507 fitting frames, a dev fold of 4 subjects against 2
+  early-stopping subjects, every frame of the held-out subjects against the 3,000 sampled session-03 frames).
+- Recipe stability (§3.8–§3.10; the 36 trainings of the session ablation design, three seeds per fold). With patience 4,
+  10 of 36 trainings were degenerate; with patience 12, with or without the learning-rate reduction, the ten recover and
+  none of the 36 is degenerate; the two 12-epoch regimes support the longer patience for these 36 trainings on
+  train/dev, and none of the regimes identifies why the dev saturates; the primary comparison A\* − B is inconclusive in
+  all three regimes. The result of the constant-rate control is mixed (the ten recover at a constant rate, earlier in 8
+  of them, but B' fold 2 seed 42 loses its marginal recovery), with no overall verdict. The recovery holds at the last
+  epoch in 28 (p12) and 26 (p12c) of 36 models only; B' fold 4 seed 42 relapses in all three regimes; the restored epoch
+  changed in 15 of 36 models from p4 to p12 and in 23 of 36 from p12 to p12c, with 31 of 36 different checkpoints, so
+  the test differences between the runs come from those models, not from the recovery of the ten alone, and are not
+  evidence for or against any regime. Scope and limits: the criteria (degenerate, saturated epoch, recovery) were
+  defined after the patience-4 run, from its cards, and the degenerate criterion misses at least one failure of the same
+  family (B fold 3 seed 44 with patience 4); the recovery criterion is a threshold on one dev epoch (B' fold 2 seed 42
+  fails it at the constant rate by its `val_loss` alone); the dev of 2–3 subjects (400 frames per fold) drives early
+  stopping, the learning-rate reduction where present, the checkpoint and the threshold, and with patience 12 it chooses
+  the checkpoint among 12 epochs instead of 5–12, a more optimistic selection on the dev; the constant rate tests the
+  absence of the reduction, not the level of the rate; with patience 12 the recipe is no longer the one of the folds run
+  (patience 4), which stays a reference, not a paired control; one dataset, one attack type (print), three seeds per
+  fold, folds not independent.
+- BatchNormalization statistics, dev (§3.11, PR #27; these 36 checkpoints, this estimator, the dev of each fold). With
+  their stored statistics the ten have accuracy 0.5000 on dev and fitting set; with the moving mean and variance
+  re-estimated on the fitting set, every trained parameter unchanged, all ten meet the recovery criterion on the dev
+  (dev accuracy 0.8100–1.0000). The 25 control checkpoints keep the criterion, and 17 of them have at least one worsened
+  dev or fitting indicator (three lose 31–32 of 400 correct dev frames). Scope and limits: only the restored checkpoint
+  of each training is saved, so the later saturated epochs are not examined; the checkpoints were selected on the same
+  dev; small dev (2–3 subjects per fold); one estimator; criteria defined after the patience-4 run.
+- BatchNormalization statistics, test (§3.11, PR #28; a post hoc diagnostic extension on a test already analysed, not an
+  independent validation; these 36 checkpoints, this test, the fixed threshold 0.5). The mean ACER of the ten is lower
+  after the re-estimation (0.5000 → 0.2013, −0.2987 [−0.4033, −0.2147]), lower for 9 of them and higher for B fold 4
+  seed 44 (0.5000 → 0.5236; in session 03 also B' fold 4 seed 44); the APCER of 8 of the ten is higher (interval
+  containing zero). For the 25 control checkpoints the ACER interval contains zero and the ACER is higher for 18 of 25,
+  and their APCER is higher (interval above zero); in arms B and B' the APCER is higher (intervals above zero, on the
+  test and in session 03). Scope and limits: the values before were published and the re-estimation was chosen on the
+  dev of the same folds; one estimator, one threshold, the restored checkpoints only; the intervals rest on 16 held-out
+  subjects (in session 03, 9 with bona fide frames, and 650 valid resamples of 1,000 for ACER) and may be too narrow;
+  the summaries share models and subjects; the model apart has no interval. Process: the CPU time over all threads
+  (18,438.4 s) exceeded the four CPU hours set, which the note had applied as elapsed time; the final `status.json`
+  lacks `started`, so the start time rests on `run.log.txt`.
+
+**(ii) Hypotheses and questions still open**
+
+- Why the recipe fails on session 03. The result is consistent with a session-shift explanation and does not prove it;
+  the weak validation (2 subjects, sessions 01–02, near-zero loss) remains an untested alternative explanation (N1, N2).
+  The folds run is consistent, as declared before it, with a failure due to "session not represented, or training data
+  too narrow" rather than to the session alone: adding session 03 to training also adds variety, and that design does
+  not separate the two. Not tested: the effect of the GPU defect on the training of the 12 September LivenessNet
   checkpoint (its C1 scores are not affected: eager scoring, and the CPU rescoring agrees, N1; N1 retrained on the CPU
   and found the same picture), the enhancement chain, the recipe itself (the folds run, §3.5, used the same recipe with
-  every session represented; see the fourth reading). - Limits: image-level counts with correlated frames; three seeds
-  give a range, not a confidence interval; one dataset and one attack type (print); NUAA is not subject-disjoint by
-  design; the 12 September checkpoints come from a script that predates the repository; the historical preparation of
-  the combined model is not documented (the two variants bracket it); the C1 subset is one session; the source-dev
-  threshold is not uniquely identified (dev EER 0, dev AUROC 1: every threshold between the two dev classes gives EER 0)
-  and the dev gives no guarantee of transfer to session 03.
-- Subjects never seen, sessions represented (§3.5): with the three sessions represented in training, the N1 recipe
-  reaches on the held-out subjects a pooled AUROC of 0.9377–0.9998 over strata and seeds; session 03 remains the stratum
-  with the highest error (pooled ACER 0.0975–0.1515 at 0.5), and the results vary across folds and seeds (fold 1 seed
-  43, fold 4, §3.7). As declared in the protocol before the run, a low error on the held-out subjects is consistent with
-  an N1/C1 failure due to "session not represented, or training data too narrow" rather than to the session alone:
-  adding session 03 to training also adds variety, and this design does not separate the two; it does not prove either,
-  and no causal isolation has been run. The pooled AUROC is computed on the scores of four different models (one per
-  held-out fold), not of one detector; three seeds give a range and the bootstrap over subjects is the only interval;
-  the dev of a held-out fold is the test fold of the next one, so the four fold results are not independent (no
-  leakage); session 03 is under-sampled in fitting (about 18–25 % of its bona fide and 11–13 % of its attacks). The
-  difference from N1 (ACER 0.4010–0.5143 and AUROC 0.3485–0.4582 on the 3,000 session-03 frames, §3.2) is indicative
-  only, because data and roles differ (sessions 01–03 against 01–02 in training, 2,100 against 2,507 fitting frames, a
-  dev fold of 4 subjects against 2 early-stopping subjects, every frame of the held-out subjects against the 3,000
-  sampled session-03 frames); on the same 3,000 frames (§3.6) the difference remains for every seed (ACER at 0.5 −0.3643
-  to −0.3010, AUROC +0.5088 to +0.5900, paired bootstrap intervals not containing zero), still with different training
-  roles, so it is associated with the whole design, not with one factor.
-- Recipe stability (session ablation run, patience verification and constant learning-rate control, §3.8–§3.10): with
-  patience 4, 10 of 36 trainings were degenerate; with patience 12, with or without the learning-rate reduction, the ten
-  recover and none of the 36 is degenerate; the primary comparison A\* − B is inconclusive in all three regimes. The two
-  12-epoch regimes support the longer patience for these 36 trainings on train/dev; whether the learning-rate reduction
-  contributes stays open: the result of the control is mixed (the ten recover at a constant rate, earlier in 8 of them,
-  but B' fold 2 seed 42 loses its marginal recovery), with no overall verdict. None of the regimes identifies why the
-  dev saturates, and none says anything new about session 03. Limits: the criteria (degenerate, saturated epoch,
-  recovery) were defined after the patience-4 run, from its cards, and the degenerate criterion misses at least one
-  failure of the same family (B fold 3 seed 44 with patience 4); the recovery criterion is a threshold on one dev epoch
-  (B' fold 2 seed 42 fails it at the constant rate by its `val_loss` alone); the dev of 2–3 subjects (400 frames per
-  fold) drives early stopping, the learning-rate reduction where present, the checkpoint and the threshold, and with
-  patience 12 it chooses the checkpoint among 12 epochs instead of 5–12, a more optimistic selection on the dev; the
-  constant rate tests the absence of the reduction, not the level of the rate; the recovery holds at the last epoch in
-  28 (p12) and 26 (p12c) of 36 models only; the restored epoch changed in 15 of 36 models from p4 to p12 and in 23 of 36
-  from p12 to p12c, with 31 of 36 different checkpoints, so the test differences between the runs come from those
-  models, not from the recovery of the ten alone, and are not evidence for or against any regime; one dataset, one
-  attack type (print), three seeds per fold, folds not independent; the cause of the early dev saturation is not tested
-  (seven hypotheses in the note of PR #22); with patience 12 the recipe is no longer the one of the folds run (patience
-  4), which stays a reference, not a paired control.
+  every session represented).
+- Whether representing session 03 in training changes the error on held-out subjects at fixed fitting subjects: the
+  primary comparison is inconclusive in every regime, and the BatchNormalization control says nothing new about it.
+- Which mechanism produces stored statistics with which the ten reach only accuracy 0.5000 (the note of PR #22 lists
+  seven possible explanations of the early dev saturation, none tested as a cause). Three candidates, each consistent
+  with §3.11 and none separated by our controls, because the re-estimation changes all three at once: the moving
+  averages lagging the weights at an epoch-1 or epoch-2 checkpoint (momentum 0.99); the variance of the inputs of the
+  two BatchNormalization layers that follow a dropout layer, estimated with dropout active and used without it; the
+  augmentation of the fitting pipeline, absent from the re-estimation (hypotheses 1–3 of the note of PR #27). The
+  momentum, the learning rate and the initialisation are named there as possible later controls, none agreed.
+- Why the dev is at 0.5 in later epochs too (the note of PR #27 counts 24 of the other 26 models at 0.5 at epoch 3 or
+  later): only the restored checkpoint of each training is saved, so the re-estimation could not be tried there.
+- Why the same re-estimation worsens 17 of the 25 control checkpoints on the dev, raises their APCER and that of arms B
+  and B' on the test, and raises the ACER of one of the ten (B fold 4 seed 44); whether a statistic other than the
+  global moments of the fitting set would avoid it.
+- Whether the learning-rate reduction contributes to the recovery with patience 12 (mixed result, no overall verdict).
+- Whether any of this, the degenerate trainings or the effect of the re-estimation, occurs with other data, other
+  subjects, other architectures or other recipes (a longer patience, another momentum, dropout placed after the last
+  BatchNormalization), and whether a recipe change prevents it rather than repairing it afterwards.
 
-## 5. State on 11 November
+## 5. State on 17 November
 
 **Done.** The subject-held-out folds run and the step zero were accepted by 4 November (PR #16 to #18; §2, §3.5). The
 session ablation was proposed on 4 November (PR #20, merge `3f682a4`), authorised on 5 November and run with patience 4
 (PR #21, merge `67f641c`; §2, §3.8). Its ten degenerate trainings were studied from the train/dev curves, with one
 change proposed and agreed on 7 November (PR #22, merge `12dc78a`). The change was verified on the same 36 models and
 the comparison accepted on 10 November (PR #23, merge `ec6c023`; §3.9); the update of the synthesis of that day (PR #24,
-merge `1e340fc`) proposed one control, which the coordinator agreed on 10 November. The control, patience 12 at a
-constant learning rate on the same 36 models, was run on 11 November and accepted the same day (PR #25, merge `a1ca91f`;
-§2, §3.10): comparison valid (shared histories identical in 36 of 36, rate 0.001 at every epoch), outcome mixed with no
-overall verdict (the ten recover, none of the 36 is degenerate, the recovery of B' fold 2 seed 42 is lost), primary test
-verdicts inconclusive. This update (11 November) adds the control to Methods, Results, the unified table, two annexes
-and the compact three-regime table, and the fifth reading; it runs no training and no inference and adds no seed and no
-model. No new control is proposed and nothing has been started. The extension to the other session directions stays left
-out (coordinator, 3 November).
+merge `1e340fc`) proposed one control, run and accepted on 11 November (PR #25, merge `a1ca91f`; §3.10), and the
+synthesis was updated with the three regimes (PR #26, merge `5a2087b`). One control on the early dev saturation, the
+re-estimation of the BatchNormalization statistics of the 36 patience-4 checkpoints, was proposed on 12 November,
+approved with three precisions on 13 November, run on 14 November and merged on 16 November (PR #27, merge `c234064`;
+§2, §3.11). The same re-estimation on the test, assigned on 16 November as a post hoc diagnostic extension on a test
+already analysed, not an independent validation, was published before the run in PR #28 and run on 17 November (run
+`20261117-BNTEST-6245b10`, PASS; §3.11); PR #28 is open, and this update of the synthesis is a later commit of it. This
+update runs no training and no inference and adds no seed and no model. The extension to the other session directions
+stays left out (coordinator, 3 November).
 
-**Possible next steps, none started** (from `CONCLUSION.md` of the control; possibilities only, each would need the
-coordinator's agreement): more seeds per fold, so that a single training such as B' fold 2 seed 42 weighs less; a rule
-for the trainings whose recovery does not hold at the last epoch, fixed before any further run; a check of the other
-candidate causes of the saturation (BatchNormalization or the level of the rate), as already stated in the earlier
-notes.
+**Not started.** The independent verification proposed in §6 is a proposal only, to be agreed before any data are
+prepared or any model is trained; no other control is proposed. Of the possible next steps listed on 11 November (from
+`CONCLUSION.md` of the constant learning-rate control): the check of another candidate cause of the saturation was
+taken up for BatchNormalization (PR #27 and PR #28), not for the level of the rate; more seeds per fold were not
+taken up for NUAA (the proposal of §6 uses 36 trainings on another dataset); the rule, fixed before any run, for the
+trainings whose recovery does not hold at the last epoch is carried into the proposal of §6.
+
+## 6. Towards the article
+
+**(a) Question and contribution.** Question: in a small CNN with BatchNormalization and dropout, early-stopped on a
+small subject-disjoint dev, how often does face PAD training end at a checkpoint at chance in inference mode, and do its
+trained weights separate the classes once the stored moving statistics are replaced? Supported, on NUAA, LivenessNet,
+this recipe and these 36 trainings only: (1) with patience 4, 10 of 36 trainings met the degenerate criterion (defined
+after that run; it misses at least one failure of the same family, §3.8), each at accuracy 0.5000 on its dev and its
+fitting set with the stored statistics; (2) with only the moving mean and variance re-estimated on the fitting set,
+every trained parameter unchanged, all ten met the recovery criterion on the dev that had selected them (accuracy
+0.8100–1.0000); (3) the re-estimation is not neutral: 17 of the 25 control checkpoints had a worsened dev or fitting
+indicator, and on the test (a post hoc diagnostic extension on a test already analysed, not an independent validation)
+their ACER was higher for 18 of 25 (interval containing zero) and their APCER higher (interval above zero), as in arms B
+and B', and among the ten the APCER was higher for 8 (interval containing zero) and the ACER for one (two in session 03)
+(§3.11). The session-shift results (§3.1–§3.10) are not part of this claim. Not claimable: the mechanism (§4 (ii)); the
+operation, or recomputing the statistics before evaluating a non-converged model, as new (Wu and Johnson, Sec. 3.3); any
+frequency beyond these 36 trainings; any benefit for other checkpoints, thresholds or data; the test results as a
+validation.
+
+The question of the article is the coordinator's choice. (A) The case above: it has §3.8–§3.11 on NUAA; it still needs
+the same count and check on a second dataset, with every reading fixed before any result. (B) The session-shift results
+(§3.1–§3.10), with the BatchNormalization finding as a methodological caution: it has C1 to N2, the folds run and the
+session ablation; it still needs to separate the session from the weak validation and from the variety of the training
+data (§4 (ii)), and its primary comparison is inconclusive in every regime. (C) Both, as one case study on evaluation
+validity for small PAD datasets: it has all of §3 and needs what (A) needs and a framing that keeps the two questions
+apart. The verification in (c) serves (A) and (C); none is proposed for (B).
+
+**(b) Directly pertinent works** (re-read at the primary source; numbering of the version named). Dataset reference:
+Tan, Li, Liu, Jiang, ECCV 2010, pp. 504–517, DOI 10.1007/978-3-642-15567-3_37.
+
+| work | what it shows (where) | relation to §3.11 | what we add; what we cannot claim |
+|---|---|---|---|
+| Ioffe, Szegedy, ICML 2015, PMLR 37:448–456 (arXiv:1502.03167) | at inference, normalisation with population statistics averaged over training mini-batches, parameters frozen; moving averages named as a way to track accuracy during training (Sec. 3.1, Algorithm 2) | our re-estimation is such a population estimate (divisor N; Algorithm 2 uses m/(m−1) times the mean batch variance) | nothing on the operation, which is the original definition |
+| Li, Chen, Hu, Yang, CVPR 2019, pp. 2677–2685, DOI 10.1109/CVPR.2019.00279 (arXiv:1801.05134 v1) | dropout before BatchNormalization shifts the variance between train and test mode (Sec. 3); with all parameters fixed, an accuracy gap on the training data between train and evaluation mode (Sec. 4, Fig. 5: PreResNet and DenseNet, CIFAR-10/100); re-running the moving-average estimate on the training data in test mode, all other parameters fixed, lowers the test error of every dropout-0.5 model (Table 3, CIFAR-10/100, 5 runs) | a related, much milder symptom and the same remedy; in LivenessNet the two BatchNormalization layers that follow a dropout layer do so through a convolution or dense layer and a ReLU, and the last dropout is followed by no BatchNormalization | a count under early stopping in face PAD, the harm on control checkpoints; not the symptom, not the remedy, not dropout as our cause |
+| Wu, Johnson, 2021, arXiv:2105.07576 (technical report) | moving-average statistics fall outside the distribution of batch statistics, mostly early in training, and lag the current weights (Sec. 3.1, Fig. 2; their momentum 0.9, ours 0.99); statistics from one fixed model state with equally weighted samples are the original formulation, to be used when a non-converged model is evaluated (Sec. 3.2–3.3); ResNet-50 on ImageNet | the ten were restored at epoch 1 or 2; our estimator is of this kind | a small-data PAD case; not the lag as our cause, not the advice to recompute before evaluating a non-converged model (Sec. 3.3); recomputing on the evaluation inputs with inference preprocessing instead of training augmentation made their error slightly worse (Sec. 5.1, Table 4), which bears on the worsened control checkpoints |
+| Izmailov, Podoprikhin, Garipov, Vetrov, Wilson, UAI 2018 (arXiv:1803.05407) | after the weights are averaged, one additional pass over the data computes the BatchNormalization statistics for the averaged weights, which training does not collect (Sec. 3.2, Algorithm 1) | the same kind of operation (one more pass over the data to recompute the statistics, in training mode in their description; ours in inference mode, layer by layer), used when weights and stored statistics do not match | another occasion for it; not the operation |
+| Kuznetsov et al., Multimedia Tools and Applications 85(3), 2026, article 222, DOI 10.1007/s11042-026-21445-w (arXiv:2508.09094 v1) | LivenessNet, the architecture as described there (originally Rosebrock, 2019): convolutional blocks with BatchNormalization after each ReLU, each block ending in dropout, then dense, ReLU, BatchNormalization, dropout (Sec. 3.2.1); 3DMAD, CSMAD, MSSpoof, Replay-Attack and an own dataset, not NUAA (Sec. 3.1); average accuracy 99 % within and 52 % across datasets, ACER 0.6 % and 47.7 % (Sec. 4.4, item 2) | source of the architecture; their recipe: patience 15–20 within 20 epochs, rates 5e-9 to 1e-6, batch 8 (Sec. 3.4) | a failure observed with our recipe (patience 4 within 12 epochs, Adam 1e-3, batch 16), which differs from theirs; nothing about their models or datasets; their averages are not NUAA results |
+| Chingovska, Anjos, Marcel, BIOSIG 2012 (Idiap publication) | the NUAA protocol has training and test data but no development data; 15 identities; CASIA-FASD inherits the lack of a complete protocol (Sec. II); for NUAA, folds of the training data serve as development set (Sec. V) | our dev is carved from 2–3 subjects per fold and drives stopping, checkpoint and criteria | nothing on the protocol; their 15 identities against the 16 subjects of our copy (M2) is not resolved here |
+
+**(c) What is missing, and one independent verification.** Missing: the same count and check on other data, with every
+reading fixed before any result (the test reading of §3.11 is post hoc); the mechanism, not proposed now. A proposal
+only, to be pre-registered (note, configuration, code) before any data preparation and agreed before any training:
+CASIA-FASD. Declared differences from NUAA, seed variant and cost derivation: package README.
+
+- Already known, not used for any choice (pilot README, `research/m2-c2-pilot-protocol/README.md`): the 12 September
+  CASIA-FASD LivenessNet checkpoint of C1, from a script older than the repository, "stopped after 5 epochs with
+  patience 4"; the dev accuracies of the LivenessNet and AttackNet V2.2 CASIA-FASD checkpoints equal one class share
+  (71/316, 245/316), "consistent with, not proof of, a constant decision at 0.5"; the LivenessNet card gives APCER
+  1.000, BPCER 0.000 on the CASIA-FASD test. The count below is therefore not blind. Re-estimating that checkpoint needs
+  no training, but its provenance is weak; it is not the proposal.
+- Access. In our local data: an unofficial mirror copy, frames only, 4,063 colour frames (995 bona fide, 3,068 attacks),
+  50 subject numbers local to the two splits (20 + 30), 12 videos per subject; manifests merged with PR #5
+  (`research/m2-rgb-manifests/`, README and aggregate). Open: the independent check of the 21 restricted manifest CSV
+  and the approval of the splits; that the two splits hold different persons (documented, not verified); use for a new
+  run, since the agreement of 9 October 2026 is "to be signed through the University" and decision D-4 is open (pilot
+  README): the coordinator's. Rejected: CelebA-Spoof (identity overlap not measurable in our copy); 3DMAD, CSMAD,
+  MSSpoof, Replay-Attack (not in our local copies; access would depend on the coordinator); a mechanism control on NUAA
+  (not independent).
+- Protocol. Four subject-disjoint folds of 12–13 subjects with the fold rule of §2; test = every frame of the held-out
+  fold; fitting and dev balanced by class with the spread rule, the attack frames of each subject spread over its nine
+  attack videos, because the criteria of PR #22 read a constant prediction as dev accuracy 0.5 (the dev of the 12
+  September checkpoints was unbalanced, 71 and 245 of 316). LivenessNet, patience-4 recipe unchanged; 36 trainings,
+  seeds 42–50. Readings: the number of degenerate checkpoints over 36, by fold and seed, as a frequency; the estimator
+  and reading of PR #27 on every checkpoint (confirming: all degenerate checkpoints meet the recovery criterion after
+  the re-estimation; not confirming: some or none; none degenerate: nothing said on the re-estimation); a rule fixed
+  before any run for trainings recovering at some epoch but not at the last one (reported apart, with both epochs); the
+  test reading of PR #28 and the effects on the control checkpoints descriptive; persons shared across the two splits,
+  if found, reported as such. A confirmation would show the effect on a second dataset, not a mechanism; a
+  non-confirmation would not exclude BatchNormalization or dropout in general.
+- Cost (elapsed time, from our measured runs): about 11,400 s (3.2 hours), up to about 20,000 s (5.6 hours), with all
+  432 epochs at the slowest training rate measured. Process CPU time over all threads is not recorded for our trainings
+  and is not estimated; PR #28 alone used 18,438.4 s (5.1 CPU hours, 6.1 times its elapsed time), above the four CPU
+  hours set for it. The cap and its unit are for the coordinator to set.
+
+Remaining activities, in order, if (A) or (C) is chosen: the CASIA-FASD agreement and decision D-4 (the coordinator's);
+the pending independent check of the manifests; the pre-registration of (c), after the first two; the verification and
+its report; figures and tables; writing.

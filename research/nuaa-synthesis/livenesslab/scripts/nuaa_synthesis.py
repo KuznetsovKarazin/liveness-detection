@@ -1,7 +1,9 @@
 """
 Sintesi NUAA (C1, M1, N1, N2, confronto del ritaglio, run a fold di soggetti, run di ablazione delle sessioni con pazienza
-4 e 12 e loro confronto, controllo con pazienza 12 a learning rate costante e suo confronto): ricostruisce la tabella unica dei risultati accettati leggendo
-soltanto gli aggregati pubblici già uniti in research/pad-2026 (nessun dato riservato, nessuna inferenza, nessun numero
+4 e 12 e loro confronto, controllo con pazienza 12 a learning rate costante e suo confronto, controllo delle statistiche
+BatchNormalization ristimate sul fitting, sul dev e sul test): ricostruisce la tabella unica dei risultati accettati leggendo
+soltanto gli aggregati pubblici già uniti in research/pad-2026 e, per il controllo BN sul test, i file pubblici della
+PR #28, ancora aperta (nessun dato riservato, nessuna inferenza, nessun numero
 nuovo). Ogni cella della tabella viene da un file accettato, citato riga per riga con il suo SHA-256 al momento della
 costruzione; i testi descrittivi (conteggi dei manifest, soggetti) vengono dall'aggregato pubblico dei manifest M2.
 
@@ -42,7 +44,15 @@ Sorgenti (percorsi relativi alla cartella research/ del repository del gruppo):
   nuaa-constant-lr-control/comparison/aggregate.json, comparison.csv, curves.csv, SHA256SUMS e
   nuaa-constant-lr-control/comparison_run/status.json     confronto del controllo con la run con pazienza 12 (schema 2:
                                                            finestra delle storie comuni, lr per epoca, sezioni a-e)
-In tutto 34 sorgenti, ciascuna con il suo SHA-256 in summary_table.json.
+In tutto 34 sorgenti, ciascuna con il suo SHA-256 in summary_table.json. In più le 14 sorgenti dei controlli BN
+(BN_SOURCES), con il loro SHA-256 nell'annesso bn_recalibration_table.md:
+  nuaa-saturation-control/recalibration/aggregate.json, results.csv, baseline.csv, run_record.json, SHA256SUMS e
+  nuaa-saturation-control/run/status.json                 ristima sul dev (PR #27, run 20261114-BNRECAL-a10a082)
+  nuaa-bn-test/comparison/aggregate.json, results.csv, summary.csv, baseline.csv, recalibration_check.csv,
+  run_record.json, SHA256SUMS e nuaa-bn-test/run/status.json
+                                                           stessa ristima sul test (PR #28, run 20261117-BNTEST-6245b10)
+I controlli BN non aggiungono righe alla tabella unica (vedi bn_build) e restano fuori da summary_table.json, che resta
+byte per byte quello dell'11/11 insieme alle altre 14 tabelle.
 
 Sottocomandi:
   build --research <research/> --out <cartella>   scrive summary_table.{md,csv,json}, summary_table_compact.md,
@@ -51,12 +61,14 @@ Sottocomandi:
                                                   n1_same_ids_table.md, patience_table.md,
                                                   session_ablation_table.md, patience_table_compact.md,
                                                   three_regimes_table.md, three_regimes_table_compact.md,
-                                                  session_ablation_table_constant_lr.md (UTF-8, fine riga LF)
+                                                  session_ablation_table_constant_lr.md, bn_recalibration_table.md,
+                                                  bn_recalibration_table_compact.md (UTF-8, fine riga LF)
   check --research <research/> --out <cartella>   ricostruisce in memoria e confronta byte per byte con i file di --out;
                                                   esce con 1 se un file manca o differisce; con --synthesis <SYNTHESIS.md>
                                                   esige anche che ogni riga della tabella compatta e ogni riga
                                                   (tabella e righe di riepilogo) della tabella compatta della
-                                                  pazienza e di quella delle tre condizioni stiano nel documento
+                                                  pazienza, di quella delle tre condizioni e di quella dei controlli
+                                                  BN stiano nel documento
 Entrambi eseguono i controlli di coerenza fra le sorgenti e si fermano con errore se uno non regge: ogni aggregato con
 passed vero e albero pulito (il file dei soggetti N1, che non ha passed: albero pulito e tabella M1 riprodotta); il
 suffisso di ogni run id uguale al commit registrato; nessuna riga duplicata nelle tabelle Markdown; in ogni riga,
@@ -115,7 +127,22 @@ epoca, epoca ripristinata cambiata, riportati a parte e flag delle curve coerent
 lettura ricalcolato: «contribution» se uno dei dieci non riprende, «sufficient» senza degeneri e senza riprese perse,
 altrimenti «mixed»), c, d (verdetti delle due run, verdetti cambiati contati come nel confronto, solo il verdetto), e
 (tempi, tetto, secondi per braccio arrotondati al decimo); stessi pesi (stessa epoca ripristinata dentro la finestra) ->
-stessi valori di test e stessa soglia dev. Annessi delle tre condizioni: three_regimes_table.md (36 modelli, train/dev
+stessi valori di test e stessa soglia dev. Controlli BN: per ciascun run albero pulito, PASS, run id con il commit e senza
+-dev, run id, commit, configurazione, nota e run padre uguali nei tre file, status.json -> SHA256SUMS -> ogni file letto,
+36 modelli completi, nessun arresto, tempo entro il tetto, run padre = run con pazienza 4 letto qui (run id e SHA-256 del
+suo aggregato pubblico e del suo SHA256SUMS). Dev: gruppi (le dieci del confronto delle pazienze; controlli = gli altri al
+criterio di ripresa al checkpoint; a parte = i restanti), epoca ripristinata e dimensioni del run padre, accuratezza dev
+prima entro la tolleranza della linea di base (1e-6), val_loss prima entro 1e-3 dalla migliore registrata, AUROC dev prima
+uguale, frame corretti coerenti con l'accuratezza, criterio, cella 2x2 e indicatori di peggioramento ricalcolati dai
+valori, letture, celle e conteggi dell'aggregato ricalcolati, linea di base superata e uguale a results.csv. Test:
+denominatori e valori «prima» uguali a quelli pubblicati per modello e strato dal run padre (test = all, session_03 = 03),
+soggetti e frame del test dallo schema dei fold, tassi = conteggi sui denominatori, ACER = media, differenze = dopo -
+prima, indicatori, gruppi e peggioramenti sul dev uguali al controllo sul dev, linea di base e statistiche ristimate
+identiche a quelle della PR #27 per i 36, run BNRECAL nominato = quello letto qui; ogni riepilogo di summary.csv ricalcolato
+dalle righe (modelli, fold, soggetti, medie, più basso / uguale / più alto, lettura dall'intervallo: sotto, contiene - un
+limite a zero compreso - sopra, not_available senza intervallo o con un modello senza metrica), uguale all'aggregato;
+lettura primaria; conteggi degli indicatori; tempi; dichiarazione post hoc. Gli intervalli bootstrap sono copiati (servono
+i risultati per soggetto, riservati). Annessi delle tre condizioni: three_regimes_table.md (36 modelli, train/dev
 delle tre run affiancati, righe di riepilogo in tre blocchi: ripresa, stabilità, checkpoint selezionato; poi il test per
 modello e le sue righe) e la sua forma compatta per SYNTHESIS.md; i verdetti delle tre run stanno in un annesso separato,
 session_ablation_table_constant_lr.md (aggregati della run a lr costante e 84 verdetti delle tre run affiancati), perché
@@ -175,6 +202,26 @@ SOURCES = {
     "lrctrl_curves": "nuaa-constant-lr-control/comparison/curves.csv",
     "lrctrl_sums": "nuaa-constant-lr-control/comparison/SHA256SUMS",
     "lrctrl_status": "nuaa-constant-lr-control/comparison_run/status.json",
+}
+
+# Controllo delle statistiche BatchNormalization (ristima sul fitting): sul dev (PR #27) e sul test (PR #28). Sorgenti
+# lette a parte: i loro SHA-256 stanno nelle tabelle BN, non in summary_table.json, che resta byte per byte quello
+# dell'11/11 (la tabella unica non riceve righe BN: vedi bn_build).
+BN_SOURCES = {
+    "bnrecal_aggregate": "nuaa-saturation-control/recalibration/aggregate.json",
+    "bnrecal_results": "nuaa-saturation-control/recalibration/results.csv",
+    "bnrecal_baseline": "nuaa-saturation-control/recalibration/baseline.csv",
+    "bnrecal_record": "nuaa-saturation-control/recalibration/run_record.json",
+    "bnrecal_sums": "nuaa-saturation-control/recalibration/SHA256SUMS",
+    "bnrecal_status": "nuaa-saturation-control/run/status.json",
+    "bntest_aggregate": "nuaa-bn-test/comparison/aggregate.json",
+    "bntest_results": "nuaa-bn-test/comparison/results.csv",
+    "bntest_summary": "nuaa-bn-test/comparison/summary.csv",
+    "bntest_baseline": "nuaa-bn-test/comparison/baseline.csv",
+    "bntest_recalibration": "nuaa-bn-test/comparison/recalibration_check.csv",
+    "bntest_record": "nuaa-bn-test/comparison/run_record.json",
+    "bntest_sums": "nuaa-bn-test/comparison/SHA256SUMS",
+    "bntest_status": "nuaa-bn-test/run/status.json",
 }
 
 NUAA_CNNS = ("livenessnet__nuaa", "attacknet_v1__nuaa", "attacknet_v2_1__nuaa", "attacknet_v2_2__nuaa")
@@ -2787,6 +2834,8 @@ def build(research: Path) -> dict:
         fail("consistency problems:\n  - " + "\n  - ".join(problems))
     abl_annex = ablation_annex(runs, pc, folds)
     three_annex = three_regimes_annex(runs, pc, lc, folds)
+    # Controllo BN (dev, PR #27; test, PR #28): sorgenti proprie, tabelle proprie, nessuna riga nella tabella unica
+    bn = bn_build(research, hashes, runs, pc, folds)
     sources = {k: {"path": SOURCES[k], "sha256": hashes[k]} for k in SOURCES}
 
     if problems:
@@ -2847,7 +2896,471 @@ def build(research: Path) -> dict:
             },
         },
     }
+    doc["bn"] = bn  # fuori da summary_table.json (vedi outputs)
     return doc
+
+
+# --- controllo BN: ristima delle statistiche BatchNormalization sul dev (PR #27) e sul test (PR #28) ---------------
+
+BN_DEV_RESULTS_COLUMNS = (
+    ["arm", "fold", "seed", "group", "restored_epoch", "n_fitting", "n_dev", "dev_accuracy_before", "dev_accuracy_after",
+     "dev_correct_before", "dev_correct_after", "dev_val_loss_before", "dev_val_loss_after", "dev_auroc_before", "dev_auroc_after",
+     "fitting_accuracy_before", "fitting_accuracy_after", "fitting_loss_before", "fitting_loss_after", "dev_criterion_before",
+     "dev_criterion_after", "fitting_criterion_before", "fitting_criterion_after", "cell", "gained_criterion", "lost_criterion",
+     "dev_accuracy_lower", "val_loss_higher", "dev_auroc_lower", "fitting_accuracy_lower", "fitting_loss_higher"]
+    + ["%s_%s_%s" % (layer, q, s) for layer in ("bn1_1", "bn1_2", "bn2_1", "bn2_2", "bn_dense") for q in ("var_ratio", "mean_shift")
+       for s in ("min", "median", "max")]
+    + ["baseline_seconds", "recalibration_seconds", "evaluation_seconds"])
+BN_BASELINE_DEV_COLUMNS = ["arm", "fold", "seed", "n_dev", "prob_parent_max_abs_diff", "prob_parent_discordant_05", "prob_eval_max_abs_diff",
+                           "prob_eval_discordant_05", "prob_tolerance", "discordant_tolerance", "prob_pass", "softmax_gap",
+                           "softmax_tolerance", "softmax_pass", "val_loss", "val_loss_card_best", "val_loss_diff", "val_loss_tolerance",
+                           "val_loss_pass", "val_loss_card_recomputed", "val_loss_diff_recomputed", "accuracy", "accuracy_card",
+                           "accuracy_diff", "accuracy_tolerance", "correct", "correct_card", "accuracy_pass", "accuracy_05"]
+BN_DEV_BASELINE_COLUMNS = BN_BASELINE_DEV_COLUMNS + ["fitting_accuracy", "fitting_loss", "fitting_reference", "baseline_pass"]
+BN_TEST_BASELINE_COLUMNS = BN_BASELINE_DEV_COLUMNS + ["dev_pass", "n_test", "test_frames_pass", "test_frames_problem",
+                                                      "test_prob_max_abs_diff", "test_discordant_05", "test_prob_tolerance",
+                                                      "test_discordant_tolerance", "test_prob_pass", "test_softmax_gap",
+                                                      "test_softmax_pass", "test_pass", "baseline_pass"]
+BN_TEST_RESULTS_COLUMNS = (["arm", "fold", "seed", "group", "dev_worsened", "scope", "n_subjects", "n_bona_fide", "n_attack"]
+                           + ["%s_%s" % (m, w) for m in ("apcer_05", "bpcer_05", "acer_05", "auroc") for w in ("before", "after", "difference")]
+                           + ["acer_higher", "apcer_higher", "bpcer_higher", "auroc_lower"])
+BN_RECAL_COLUMNS = ["arm", "fold", "seed", "group", "statistics_max_abs_diff_mean", "statistics_max_abs_diff_variance",
+                    "statistics_outside_tolerance", "statistics_identical", "statistics_rel_tolerance", "statistics_abs_tolerance",
+                    "statistics_pass", "dev_prob_max_abs_diff", "dev_discordant_05", "dev_prob_tolerance", "dev_discordant_tolerance",
+                    "dev_pass", "consistency_channels_outside", "recalibration_pass"]
+BN_SUMMARY_COLUMNS = ["summary_kind", "summary", "scope", "metric", "label", "n_models", "n_folds", "n_subjects", "n_subjects_bona_fide",
+                      "n_subjects_attack", "mean_before", "mean_after", "mean_difference", "low", "high", "valid_resamples", "resamples",
+                      "reading", "models_lower", "models_equal", "models_higher", "models_undefined", "note"]
+BN_GROUPS = ("ten", "control", "apart")
+BN_DEV_FLAGS = ("dev_accuracy_lower", "val_loss_higher", "dev_auroc_lower", "fitting_accuracy_lower", "fitting_loss_higher")
+BN_DEV_FLAG_TEXT = {"dev_accuracy_lower": "dev accuracy lower", "val_loss_higher": "dev val_loss higher",
+                    "dev_auroc_lower": "dev AUROC lower", "fitting_accuracy_lower": "fitting accuracy lower",
+                    "fitting_loss_higher": "fitting loss higher"}
+BN_DEV_FLAG_SHORT = {"dev_accuracy_lower": "dev acc", "val_loss_higher": "dev val_loss", "dev_auroc_lower": "dev AUROC",
+                     "fitting_accuracy_lower": "fitting acc", "fitting_loss_higher": "fitting loss"}
+BN_CELLS = {(True, True): "fitting_met_dev_met", (True, False): "fitting_met_dev_not_met",
+            (False, True): "fitting_not_met_dev_met", (False, False): "fitting_not_met_dev_not_met"}
+BN_SCOPES = {"test": "all", "session_03": "03"}  # ambito del controllo sul test -> strato del run padre
+BN_METRICS = ("acer_05", "apcer_05", "bpcer_05", "auroc")
+BN_METRIC_TEXT = {"acer_05": "ACER 0.5", "apcer_05": "APCER 0.5", "bpcer_05": "BPCER 0.5", "auroc": "AUROC"}
+BN_TEST_FLAGS = {"acer_higher": "acer_05", "apcer_higher": "apcer_05", "bpcer_higher": "bpcer_05", "auroc_lower": "auroc"}
+BN_TEST_FLAG_TEXT = {"acer_higher": "ACER higher", "apcer_higher": "APCER higher", "bpcer_higher": "BPCER higher", "auroc_lower": "AUROC lower"}
+BN_SUMMARIES = (("group", "ten"), ("group", "control"), ("group", "apart"), ("group", "all"), ("arm", "arm_b"), ("arm", "arm_a_star"),
+                ("arm", "arm_b_prime"))
+BN_PRIMARY = ("group", "ten", "test", "acer_05")
+BN_FLOAT_TOL = 1e-12  # medie ricalcolate dalle righe: stessa somma in un altro ordine
+
+
+def bn_identity(where: str, agg: dict, rec: dict, status: dict, sums: dict, H: dict, pre: str, files: dict, names: list,
+                parent: dict, problems: list) -> None:
+    """Identità e ancore di un run del controllo BN: albero pulito, PASS, run id con il commit e senza -dev, gli stessi run
+    id, commit, configurazione, nota e run padre nei tre file, status.json -> SHA256SUMS -> file letti, 36 modelli completi,
+    nessun arresto, tempo entro il tetto, run padre = run di ablazione con pazienza 4 letto qui (run id, SHA-256
+    dell'aggregato pubblico e del suo SHA256SUMS)."""
+    for d, w in ((agg, "aggregate"), (rec, "run record"), (status, "status")):
+        if d.get("dirty") is not False:
+            fail("%s %s: dirty is not false" % (where, w))
+        if str(d.get("run_id", "")).endswith("-dev"):
+            fail("%s %s: run id %r ends with -dev (trial run)" % (where, w, d.get("run_id")))
+        run_id_check(d, "%s %s" % (where, w))
+        if d.get("command") != "run" or d.get("status") != "PASS":
+            fail("%s %s: command %r, status %r (expected run, PASS)" % (where, w, d.get("command"), d.get("status")))
+    if status.get("passed") is not True:
+        fail("%s status: passed is not true" % where)
+    for k in ("run_id", "commit", "config_sha256", "note_sha256", "parent_run_id"):
+        for d, w in ((rec, "run record"), (status, "status")):
+            if d.get(k) != agg.get(k):
+                problems.append("%s %s: %s %r differs from the aggregate %r" % (where, w, k, d.get(k), agg.get(k)))
+    if agg.get("parent_run_id") != parent["agg"]["run_id"]:
+        problems.append("%s: parent run %r is not the session ablation run read here %r" % (where, agg.get("parent_run_id"), parent["agg"]["run_id"]))
+    if rec.get("parent_public_aggregate_sha256") != H["sessabl_aggregate"] or \
+            (dig(rec, "checks", "parent_run", "run_id"), dig(rec, "checks", "parent_run", "public_sha256sums_sha256")) != \
+            (parent["agg"]["run_id"], H["sessabl_sums"]):
+        problems.append("%s run record: parent run (run id, SHA-256 of its public aggregate and SHA256SUMS) differs from the files read here" % where)
+    wall = dig(agg, "timings", "wall_seconds")
+    if status.get("wall_seconds") != wall or dig(rec, "timings", "wall_seconds") != wall:
+        problems.append("%s: wall_seconds of status, run record and aggregate differ" % where)
+    cap = dig(agg, "timings", "cap_minutes")
+    if not isinstance(wall, (int, float)) or not isinstance(cap, (int, float)) or not wall <= cap * 60:
+        problems.append("%s: wall time %r s not within the cap of %r minutes" % (where, wall, cap))
+    if status.get("stopped") is not None or rec.get("stopped") is not None:
+        problems.append("%s: the run was stopped (%r)" % (where, status.get("stopped")))
+    for d, w in ((status, "status"), (rec, "run record")):
+        if not isinstance(d.get("completed"), list) or sorted(d["completed"]) != sorted(names):
+            problems.append("%s %s: completed models are not the %d of the session ablation design" % (where, w, len(names)))
+    if (agg.get("models"), agg.get("completed"), rec.get("models")) != (len(names), len(names), len(names)):
+        problems.append("%s: models / completed %r / %r, expected %d" % (where, agg.get("models"), agg.get("completed"), len(names)))
+    if status.get("public_sums_sha256") != H[pre + "_sums"]:
+        problems.append("%s status: public_sums_sha256 is not the SHA-256 of %s" % (where, BN_SOURCES[pre + "_sums"]))
+    for name, key in files.items():
+        if sums.get(name) != H[key]:
+            problems.append("%s: %s in SHA256SUMS is not the SHA-256 of %s" % (where, name, BN_SOURCES[key]))
+
+
+def bn_rows(p: Path, columns: list, key_fields: tuple, where: str, expected: list) -> dict:
+    """Le righe di un CSV del controllo BN indicizzate per chiave: chiavi uniche, esattamente quelle attese."""
+    rows = read_csv_rows(p, columns, where)
+    out = {}
+    for r in rows:
+        k = tuple(r[f] for f in key_fields)
+        if k in out:
+            fail("%s: row %s repeated" % (where, " ".join(k)))
+        out[k] = r
+    if sorted(out) != sorted(expected):
+        fail("%s: %d rows, expected exactly the %d of the design" % (where, len(out), len(expected)))
+    return out
+
+
+def bn_within(where: str, maxima: dict, rec: dict, pairs: tuple, problems: list) -> None:
+    """Ogni massimo della linea di base (su tutti i modelli) entro la tolleranza registrata dal run per quel controllo."""
+    for m, t in pairs:
+        tol = dig(rec, "tolerances", t, "value")
+        if not isinstance(tol, (int, float)) or isinstance(tol, bool):
+            fail("%s run record: tolerance %s missing" % (where, t))
+        if maxima[m] > tol:
+            problems.append("%s: baseline maximum %s %r above the tolerance %s %r" % (where, m, maxima[m], t, tol))
+
+
+def bn_crit(acc: float, loss: float, rc: tuple) -> bool:
+    """Criterio di ripresa del pacchetto dei degeneri: accuratezza >= soglia e val_loss < soglia."""
+    return acc >= rc[0] and loss < rc[1]
+
+
+def bn_dev(src: dict, H: dict, parent: dict, pc: dict, folds: dict, problems: list) -> dict:
+    """Controllo sul dev (PR #27, run 20261114-BNRECAL-...): ogni riga di results.csv contro il run padre e il confronto
+    delle pazienze (gruppo, epoca ripristinata, dimensioni, accuratezza, val_loss e AUROC del dev prima), criterio, cella
+    e indicatori di peggioramento ricalcolati dai valori prima/dopo; letture e conteggi dell'aggregato ricalcolati; linea
+    di base 36/36 entro le tolleranze."""
+    where = "BN control (dev)"
+    agg, rec, status = src["bnrecal_aggregate"], src["bnrecal_record"], src["bnrecal_status"]
+    names = list(parent["names"])
+    bn_identity(where, agg, rec, status, src["bnrecal_sums"], H, "bnrecal",
+                {"aggregate.json": "bnrecal_aggregate", "results.csv": "bnrecal_results", "baseline.csv": "bnrecal_baseline",
+                 "run_record.json": "bnrecal_record"}, names, parent, problems)
+    keys = [(a, str(k), str(s)) for a in ABL_ARMS for k in folds["folds"] for s in folds["seeds"]]
+    res = bn_rows(src["bnrecal_results"], BN_DEV_RESULTS_COLUMNS, ("arm", "fold", "seed"), BN_SOURCES["bnrecal_results"], keys)
+    base = bn_rows(src["bnrecal_baseline"], BN_DEV_BASELINE_COLUMNS, ("arm", "fold", "seed"), BN_SOURCES["bnrecal_baseline"], keys)
+    rc = pc["rec_criterion"]
+    pcm = {(r["arm"], r["fold"], r["seed"]): r for r in pc["models"]}
+    acc_tol, vl_tol = dig(rec, "tolerances", "dev_accuracy_abs", "value"), dig(rec, "tolerances", "val_loss_abs", "value")
+    if not isinstance(acc_tol, float) or not isinstance(vl_tol, float):
+        fail("%s run record: tolerances dev_accuracy_abs and val_loss_abs missing" % where)
+    M = {}
+    for (a, k, s), r in res.items():
+        lab = "%s %s" % (where, model_label(a, k, s))
+        x, tr = pcm[(a, k, s)]["parent"], parent["training"][model_name(a, k, s)]
+        F = lambda c: csv_float(r[c], "%s %s" % (lab, c))
+        I = lambda c: csv_int(r[c], "%s %s" % (lab, c))
+        B = lambda c: csv_flag(r[c], "%s %s" % (lab, c))
+        m = {"arm": a, "fold": k, "seed": s, "group": r["group"], "restored_epoch": I("restored_epoch"), "n_fitting": I("n_fitting"),
+             "n_dev": I("n_dev")}
+        for q in ("dev_accuracy", "dev_val_loss", "dev_auroc", "fitting_accuracy", "fitting_loss"):
+            m[q] = (F(q + "_before"), F(q + "_after"))
+        m["dev_correct"] = (I("dev_correct_before"), I("dev_correct_after"))
+        for q in ("dev_criterion", "fitting_criterion"):
+            m[q] = (B(q + "_before"), B(q + "_after"))
+        for q in ("gained_criterion", "lost_criterion") + BN_DEV_FLAGS:
+            m[q] = B(q)
+        m["cell"] = r["cell"]
+        # gruppo: le dieci del confronto delle pazienze; gli altri, controlli se al checkpoint soddisfano il criterio
+        want = "ten" if pcm[(a, k, s)]["in_ten"] else "control" if bn_crit(x["dev_acc_at_checkpoint"], x["best_val_loss"], rc) else "apart"
+        if m["group"] != want:
+            problems.append("%s: group %r, the patience comparison gives %r" % (lab, m["group"], want))
+        if (m["restored_epoch"], m["n_fitting"], m["n_dev"]) != (tr["restored_epoch"], parent["n_fit"][a], parent["n_dev"]):
+            problems.append("%s: restored epoch or frame counts differ from the parent run" % lab)
+        if abs(m["dev_accuracy"][0] - x["dev_acc_at_checkpoint"]) > acc_tol:
+            problems.append("%s: dev accuracy before %r differs from the checkpoint %r" % (lab, m["dev_accuracy"][0], x["dev_acc_at_checkpoint"]))
+        if abs(m["dev_val_loss"][0] - x["best_val_loss"]) > vl_tol:
+            problems.append("%s: dev val_loss before %r differs from the best val_loss %r beyond %r" % (lab, m["dev_val_loss"][0], x["best_val_loss"], vl_tol))
+        if m["dev_auroc"][0] != x["dev_auroc_at_checkpoint"]:
+            problems.append("%s: dev AUROC before %r differs from the checkpoint %r" % (lab, m["dev_auroc"][0], x["dev_auroc_at_checkpoint"]))
+        for i in (0, 1):
+            if not 0 <= m["dev_correct"][i] <= m["n_dev"] or abs(m["dev_correct"][i] / m["n_dev"] - m["dev_accuracy"][i]) > acc_tol:
+                problems.append("%s: correct dev frames %r do not give the dev accuracy %r" % (lab, m["dev_correct"][i], m["dev_accuracy"][i]))
+            if m["dev_criterion"][i] != bn_crit(m["dev_accuracy"][i], m["dev_val_loss"][i], rc) or \
+                    m["fitting_criterion"][i] != bn_crit(m["fitting_accuracy"][i], m["fitting_loss"][i], rc):
+                problems.append("%s: criterion %s is not the recovery criterion applied to the values" % (lab, ("before", "after")[i]))
+        if m["cell"] != BN_CELLS[(m["fitting_criterion"][0], m["dev_criterion"][1])]:
+            problems.append("%s: cell %r is not fitting before x dev after" % (lab, m["cell"]))
+        want_f = {"gained_criterion": not m["dev_criterion"][0] and m["dev_criterion"][1],
+                  "lost_criterion": m["dev_criterion"][0] and not m["dev_criterion"][1],
+                  "dev_accuracy_lower": m["dev_correct"][1] < m["dev_correct"][0], "val_loss_higher": m["dev_val_loss"][1] > m["dev_val_loss"][0],
+                  "dev_auroc_lower": m["dev_auroc"][1] < m["dev_auroc"][0], "fitting_accuracy_lower": m["fitting_accuracy"][1] < m["fitting_accuracy"][0],
+                  "fitting_loss_higher": m["fitting_loss"][1] > m["fitting_loss"][0]}
+        bad = [f for f, v in want_f.items() if m[f] != v]
+        if bad:
+            problems.append("%s: indicators %s differ from the values before and after" % (lab, ", ".join(bad)))
+        m["worsened"] = [f for f in ("lost_criterion",) + BN_DEV_FLAGS if m[f]]
+        b = base[(a, k, s)]
+        if b["baseline_pass"] != "1" or any(b[c] != "1" for c in ("prob_pass", "softmax_pass", "val_loss_pass", "accuracy_pass")):
+            problems.append("%s: baseline not passed" % lab)
+        if (csv_int(b["correct"], lab), csv_float(b["val_loss"], lab), csv_float(b["fitting_accuracy"], lab)) != \
+                (m["dev_correct"][0], m["dev_val_loss"][0], m["fitting_accuracy"][0]):
+            problems.append("%s: baseline.csv (correct, val_loss, fitting accuracy) differs from results.csv" % lab)
+        M[(a, k, s)] = m
+    groups = {g: [model_name(*key) for key, m in M.items() if m["group"] == g] for g in BN_GROUPS}
+    ag = agg.get("groups")
+    if not isinstance(ag, dict) or sorted(ag.get("ten", [])) != sorted(groups["ten"]) or sorted(ag.get("apart", [])) != sorted(groups["apart"]) \
+            or ag.get("control") != len(groups["control"]):
+        problems.append("%s aggregate: groups differ from the groups of results.csv" % where)
+    if (rec.get("checks") or {}).get("groups") is None:
+        problems.append("%s run record: groups check missing" % where)
+    ten = [m for m in M.values() if m["group"] == "ten"]
+    ctl = [m for m in M.values() if m["group"] == "control"]
+    pos = [m for m in ten if m["dev_criterion"][1]]
+    case = "all" if len(pos) == len(ten) else "none" if not pos else "some"
+    p = dig(agg, "reading", "primary")
+    if not isinstance(p, dict) or (p.get("positives"), p.get("of"), p.get("case")) != (len(pos), len(ten), case) or \
+            sorted(p.get("recovered") or []) != sorted(model_name(m["arm"], m["fold"], m["seed"]) for m in pos):
+        problems.append("%s aggregate: primary reading %r is not the rule applied to the rows (%d of %d, %s)"
+                        % (where, None if not isinstance(p, dict) else (p.get("positives"), p.get("of"), p.get("case")), len(pos), len(ten), case))
+    c = dig(agg, "reading", "controls")
+    keep = sum(1 for m in ctl if m["dev_criterion"][1])
+    if not isinstance(c, dict) or (c.get("n"), c.get("meeting_before"), c.get("keep"), c.get("lose")) != \
+            (len(ctl), sum(1 for m in ctl if m["dev_criterion"][0]), keep, len(ctl) - keep):
+        problems.append("%s aggregate: controls reading differs from the rows" % where)
+    for scope, rs in (("ten", ten), ("all", list(M.values()))):
+        want = {v: sum(1 for m in rs if m["cell"] == v) for v in BN_CELLS.values()}
+        if dig(agg, "reading", "cells", "counts", scope) != want:
+            problems.append("%s aggregate: 2x2 counts (%s) differ from the rows" % (where, scope))
+    wc = {f: sum(1 for m in M.values() if m[f]) for f in ("gained_criterion", "lost_criterion") + BN_DEV_FLAGS}
+    wa = dig(agg, "reading", "worsening")
+    if not isinstance(wa, dict) or wa.get("counts") != wc:
+        problems.append("%s aggregate: worsening counts differ from the rows" % where)
+    worsened = sorted(model_name(m["arm"], m["fold"], m["seed"]) for m in M.values() if m["worsened"])
+    if not isinstance(wa, dict) or not isinstance(wa.get("models"), list) or sorted(x.get("model") for x in wa["models"]) != worsened:
+        problems.append("%s aggregate: the models listed as worsened differ from the rows" % where)
+    bl = [base[key] for key in keys]
+    maxima = {c: max(csv_float(b[c], where) for b in bl) for c in ("prob_parent_max_abs_diff", "prob_eval_max_abs_diff", "val_loss_diff",
+                                                                    "softmax_gap", "accuracy_diff")}
+    maxima["discordant"] = max(csv_int(b[c], where) for b in bl for c in ("prob_parent_discordant_05", "prob_eval_discordant_05"))
+    # i massimi della linea di base contro le tolleranze del run (non solo i flag di superamento delle righe)
+    bn_within(where, maxima, rec, (("prob_parent_max_abs_diff", "dev_probability_max_abs_diff"), ("prob_eval_max_abs_diff", "dev_probability_max_abs_diff"),
+                                   ("discordant", "dev_decisions_discordant_at_0_5"), ("val_loss_diff", "val_loss_abs"),
+                                   ("accuracy_diff", "dev_accuracy_abs"), ("softmax_gap", "softmax_of_logits_max_abs_diff")), problems)
+    return {"run_id": agg["run_id"], "commit": agg["commit"], "config_sha256": agg["config_sha256"], "note_sha256": agg["note_sha256"],
+            "models": M, "groups": groups, "case": case, "positives": len(pos), "keep": keep, "counts": wc, "worsened": worsened,
+            "baseline_pass": sum(1 for b in bl if b["baseline_pass"] == "1"), "baseline_max": maxima,
+            "timings": agg["timings"], "tolerances": {"accuracy": acc_tol, "val_loss": vl_tol}, "rec_criterion": rc}
+
+
+def bn_value(v: str, where: str):
+    """Un valore di results.csv o summary.csv: NA (metrica non definita, classe assente) -> None."""
+    return None if v == "NA" else csv_float(v, where)
+
+
+def bn_mean(vals: list) -> float:
+    return sum(vals) / len(vals)
+
+
+def bn_test(src: dict, H: dict, parent: dict, dev: dict, folds: dict, problems: list) -> dict:
+    """Controllo sul test (PR #28, run 20261117-BNTEST-...): ogni riga di results.csv contro il run padre (denominatori e
+    metriche «prima» uguali a quelle pubblicate per modello e strato), differenze e indicatori ricalcolati, gruppi e
+    modelli peggiorati sul dev uguali al controllo sul dev; ogni riga di summary.csv ricalcolata dalle righe (medie,
+    conteggi, lettura dall'intervallo), uguale all'aggregato; lettura primaria; linea di base e controllo della ristima
+    36/36; tempi."""
+    where = "BN control (test)"
+    agg, rec, status = src["bntest_aggregate"], src["bntest_record"], src["bntest_status"]
+    names = list(parent["names"])
+    bn_identity(where, agg, rec, status, src["bntest_sums"], H, "bntest",
+                {"aggregate.json": "bntest_aggregate", "results.csv": "bntest_results", "summary.csv": "bntest_summary",
+                 "baseline.csv": "bntest_baseline", "recalibration_check.csv": "bntest_recalibration", "run_record.json": "bntest_record"},
+                names, parent, problems)
+    if (agg.get("bnrecal_run_id"), status.get("bnrecal_run_id"), rec.get("bnrecal_run_id")) != (dev["run_id"],) * 3:
+        problems.append("%s: the BNRECAL run named is not the dev control read here %r" % (where, dev["run_id"]))
+    br = dig(rec, "checks", "bnrecal_run")
+    if not isinstance(br, dict) or (br.get("run_id"), br.get("config_sha256"), br.get("public_sha256sums_sha256"), br.get("dev_worsened")) != \
+            (dev["run_id"], dev["config_sha256"], H["bnrecal_sums"], len(dev["worsened"])):
+        problems.append("%s run record: the BNRECAL run (run id, configuration, SHA256SUMS, models worsened) differs from the dev control read here" % where)
+    keys = [(a, str(k), str(s)) for a in ABL_ARMS for k in folds["folds"] for s in folds["seeds"]]
+    res = bn_rows(src["bntest_results"], BN_TEST_RESULTS_COLUMNS, ("arm", "fold", "seed", "scope"), BN_SOURCES["bntest_results"],
+                  [key + (sc,) for key in keys for sc in BN_SCOPES])
+    base = bn_rows(src["bntest_baseline"], BN_TEST_BASELINE_COLUMNS, ("arm", "fold", "seed"), BN_SOURCES["bntest_baseline"], keys)
+    recal = bn_rows(src["bntest_recalibration"], BN_RECAL_COLUMNS, ("arm", "fold", "seed"), BN_SOURCES["bntest_recalibration"], keys)
+    tpf = folds["info"]["test_frames_per_fold"]
+    M = {}
+    for (a, k, s, sc), r in res.items():
+        lab = "%s %s %s" % (where, model_label(a, k, s), sc)
+        st = BN_SCOPES[sc]
+        d = dev["models"][(a, k, s)]
+        m = {"arm": a, "fold": k, "seed": s, "scope": sc, "group": r["group"], "dev_worsened": csv_flag(r["dev_worsened"], lab),
+             "n_subjects": csv_int(r["n_subjects"], lab), "n_bona_fide": csv_int(r["n_bona_fide"], lab), "n_attack": csv_int(r["n_attack"], lab)}
+        for q in BN_METRICS:
+            m[q] = tuple(bn_value(r["%s_%s" % (q, w)], lab) for w in ("before", "after", "difference"))
+        for f in BN_TEST_FLAGS:
+            m[f] = csv_flag(r[f], lab)
+        if m["group"] != d["group"] or m["dev_worsened"] != bool(d["worsened"]):
+            problems.append("%s: group or dev_worsened differ from the dev control" % lab)
+        pm, praw = parent["per"][(a, k, s)][st]["05"], parent["raw"][(a, k, s)][st]
+        if (m["n_bona_fide"], m["n_attack"]) != (pm["n_bona_fide"], pm["n_attack"]):
+            problems.append("%s: denominators %d/%d differ from the parent run %d/%d" % (lab, m["n_bona_fide"], m["n_attack"], pm["n_bona_fide"], pm["n_attack"]))
+        if sc == "test" and (m["n_subjects"], m["n_bona_fide"] + m["n_attack"]) != (folds["test_subjects"][k], tpf[int(k) - 1]):
+            problems.append("%s: subjects or frames differ from the fold schema" % lab)
+        bad = [q for q in BN_METRICS if m[q][0] != praw[q]]
+        if bad:
+            problems.append("%s: before values %s differ from the published values of the parent run" % (lab, ", ".join(bad)))
+        for i in (0, 1):
+            ap, bp, ac = m["apcer_05"][i], m["bpcer_05"][i], m["acer_05"][i]
+            if None in (ap, bp, ac):
+                if ac is not None or (ap is None) != (m["n_attack"] == 0) or (bp is None) != (m["n_bona_fide"] == 0):
+                    problems.append("%s: an NA rate %s without an absent class" % (lab, ("before", "after")[i]))
+            elif abs((ap + bp) / 2 - ac) > BN_FLOAT_TOL or abs(ap * m["n_attack"] - round(ap * m["n_attack"])) > 1e-6 or \
+                    abs(bp * m["n_bona_fide"] - round(bp * m["n_bona_fide"])) > 1e-6:
+                problems.append("%s: rates %s are not counts over the denominators (or ACER is not their mean)" % (lab, ("before", "after")[i]))
+        bad = [q for q in BN_METRICS if (m[q][2] is not None if None in m[q][:2] else m[q][2] is None or abs(m[q][1] - m[q][0] - m[q][2]) > BN_FLOAT_TOL)]
+        if bad:
+            problems.append("%s: differences %s are not after minus before" % (lab, ", ".join(bad)))
+        bad = [f for f, q in BN_TEST_FLAGS.items() if m[f] != (None not in m[q][:2] and ((m[q][1] < m[q][0]) if q == "auroc" else (m[q][1] > m[q][0])))]
+        if bad:
+            problems.append("%s: indicators %s differ from the values" % (lab, ", ".join(bad)))
+        M[(a, k, s, sc)] = m
+    for key in keys:
+        b, rr = base[key], recal[key]
+        lab = "%s %s" % (where, model_label(*key))
+        if b["baseline_pass"] != "1" or b["dev_pass"] != "1" or b["test_pass"] != "1" or b["test_frames_pass"] != "1":
+            problems.append("%s: baseline not passed" % lab)
+        if csv_int(b["n_test"], lab) != tpf[int(key[1]) - 1]:
+            problems.append("%s: baseline n_test differs from the fold schema" % lab)
+        if rr["recalibration_pass"] != "1" or rr["statistics_pass"] != "1" or rr["statistics_identical"] != "1" or rr["group"] != dev["models"][key]["group"]:
+            problems.append("%s: re-estimated statistics not identical to PR #27 or check not passed" % lab)
+    if rec.get("statistics_identical_to_pr27") != len(keys):
+        problems.append("%s run record: statistics_identical_to_pr27 %r, expected %d" % (where, rec.get("statistics_identical_to_pr27"), len(keys)))
+    bm = dig(rec, "checks", "before_metrics_against_stored_scores")
+    if not isinstance(bm, dict) or (bm.get("metrics_05_equal"), bm.get("of")) != (len(res), len(res)):
+        problems.append("%s run record: before metrics against the stored scores not equal for every model and scope" % where)
+
+    # Riepiloghi appaiati: medie, conteggi e lettura ricalcolati dalle righe; intervalli copiati
+    srows = read_csv_rows(src["bntest_summary"], BN_SUMMARY_COLUMNS, BN_SOURCES["bntest_summary"])
+    want_keys = [(kd, nm, sc, q) for kd, nm in BN_SUMMARIES for sc in BN_SCOPES for q in BN_METRICS]
+    S = {}
+    for r in srows:
+        key = (r["summary_kind"], r["summary"], r["scope"], r["metric"])
+        if key in S:
+            fail("%s summary.csv: row %s repeated" % (where, key))
+        S[key] = r
+    if sorted(S) != sorted(want_keys):
+        fail("%s summary.csv: %d rows, expected the %d of the summaries, scopes and metrics" % (where, len(S), len(want_keys)))
+    bs = agg.get("bootstrap") or {}
+    if {k: bs.get(k) for k in ("resamples", "seed", "percentiles", "min_subjects")} != \
+            {k: folds["info"]["bootstrap"].get(k) for k in ("resamples", "seed", "percentiles", "min_subjects")}:
+        problems.append("%s aggregate: bootstrap parameters differ from the folds run" % where)
+    out = {}
+    for key in want_keys:
+        kd, nm, sc, q = key
+        r = S[key]
+        lab = "%s summary %s %s %s %s" % (where, kd, nm, sc, q)
+        ms = [m for (a, k, s, sc2), m in M.items() if sc2 == sc and (m["group"] == nm or nm == "all" if kd == "group" else a == nm)]
+        fl = sorted({m["fold"] for m in ms})
+        n_sub = sum(folds["test_subjects"][k] for k in fl)
+        defined = [m for m in ms if None not in m[q][:2]]
+        before, after, diff = [m[q][0] for m in defined], [m[q][1] for m in defined], [m[q][2] for m in defined]
+        x = {"n_models": csv_int(r["n_models"], lab), "n_folds": csv_int(r["n_folds"], lab), "n_subjects": csv_int(r["n_subjects"], lab),
+             "n_subjects_bona_fide": csv_int(r["n_subjects_bona_fide"], lab), "n_subjects_attack": csv_int(r["n_subjects_attack"], lab),
+             "valid_resamples": csv_int(r["valid_resamples"], lab), "resamples": csv_int(r["resamples"], lab)}
+        for c in ("mean_before", "mean_after", "mean_difference"):
+            x[c] = bn_value(r[c], lab)
+        for c in ("models_lower", "models_equal", "models_higher", "models_undefined"):
+            x[c] = csv_int(r[c], lab)
+        x["low"] = None if r["low"] == "NA" else csv_float(r["low"], lab)  # NA: nessun intervallo
+        x["high"] = None if r["high"] == "NA" else csv_float(r["high"], lab)
+        x["reading"], x["label"] = r["reading"], r["label"]
+        if (x["n_models"], x["n_folds"], x["n_subjects"], x["resamples"]) != (len(ms), len(fl), n_sub, bs.get("resamples")):
+            problems.append("%s: models, folds, subjects or resamples differ from the rows (%d, %d, %d)" % (lab, len(ms), len(fl), n_sub))
+        if not x["n_subjects_bona_fide"] <= x["n_subjects"] or not x["n_subjects_attack"] <= x["n_subjects"]:
+            problems.append("%s: more subjects with a class than subjects" % lab)
+        # con un modello senza metrica (classe assente) la nota del run prescrive not_available; le medie restano copiate
+        if len(defined) == len(ms) and any(x[c] is None or abs(x[c] - bn_mean(v)) > BN_FLOAT_TOL
+                                           for c, v in (("mean_before", before), ("mean_after", after), ("mean_difference", diff))):
+            problems.append("%s: means differ from the rows" % lab)
+        cnt = (sum(1 for v in diff if v < 0), sum(1 for v in diff if v == 0), sum(1 for v in diff if v > 0), len(ms) - len(defined))
+        if (x["models_lower"], x["models_equal"], x["models_higher"], x["models_undefined"]) != cnt:
+            problems.append("%s: lower / equal / higher / undefined %s differ from the rows %s"
+                            % (lab, (x["models_lower"], x["models_equal"], x["models_higher"], x["models_undefined"]), cnt))
+        if x["valid_resamples"] == 0 or x["n_subjects"] < bs.get("min_subjects", 0) or len(defined) < len(ms):
+            want = "not_available"
+            ok = x["low"] is None and x["high"] is None
+        else:
+            ok = x["low"] is not None and x["high"] is not None and x["low"] <= x["high"] and x["valid_resamples"] <= x["resamples"]
+            want = "below" if ok and x["high"] < 0 else "above" if ok and x["low"] > 0 else "contains"
+        if not ok or x["reading"] != want:
+            problems.append("%s: reading %r, the interval gives %r" % (lab, x["reading"], want))
+        if x["label"] != ("primary" if key == BN_PRIMARY else "secondary"):
+            problems.append("%s: label %r" % (lab, x["label"]))
+        x["higher_models"] = [model_name(m["arm"], m["fold"], m["seed"]) for m in defined if m[q][2] > 0]
+        out[key] = x
+    al = agg.get("summaries")
+    if not isinstance(al, list) or len(al) != len(want_keys):
+        problems.append("%s aggregate: summaries missing or not %d" % (where, len(want_keys)))
+    else:
+        for e in al:
+            key = (e.get("summary_kind"), e.get("summary"), e.get("scope"), e.get("metric"))
+            x = out.get(key)
+            if x is None or any(e.get(c) != x[c] for c in ("n_models", "n_subjects", "valid_resamples", "mean_difference", "low", "high",
+                                                             "reading", "models_lower", "models_equal", "models_higher")):
+                problems.append("%s aggregate: summary %s differs from summary.csv" % (where, key))
+    p, x = dig(agg, "reading", "primary"), out[BN_PRIMARY]
+    if not isinstance(p, dict) or (p.get("case"), p.get("mean_difference"), p.get("low"), p.get("high")) != (x["reading"], x["mean_difference"], x["low"], x["high"]) \
+            or p.get("count") != {"lower": x["models_lower"], "equal": x["models_equal"], "higher": x["models_higher"], "n": x["n_models"]} \
+            or sorted(p.get("models_higher") or []) != sorted(x["higher_models"]):
+        problems.append("%s aggregate: primary reading differs from the summary of the ten" % where)
+    wc = {"%s (%s)" % (f, sc): sum(1 for m in M.values() if m["scope"] == sc and m[f]) for sc in BN_SCOPES for f in BN_TEST_FLAGS}
+    if dig(agg, "reading", "worsening", "counts") != wc:
+        problems.append("%s aggregate: worsening counts differ from the rows" % where)
+    g = agg.get("groups") or {}
+    if (sorted(g.get("ten") or []), g.get("control"), g.get("apart")) != (sorted(dev["groups"]["ten"]), len(dev["groups"]["control"]), dev["groups"]["apart"]):
+        problems.append("%s aggregate: groups differ from the dev control" % where)
+    t = agg.get("timings") or {}
+    if (rec.get("process_cpu_seconds"), rec.get("wall_seconds")) != (t.get("cpu_seconds"), t.get("wall_seconds")):
+        problems.append("%s: process CPU or wall time of the run record differs from the aggregate" % where)
+    declared = (agg.get("declarations") or {}).get("post_hoc")
+    if not isinstance(declared, str) or "not an independent validation" not in declared:
+        problems.append("%s aggregate: the post hoc declaration is missing" % where)
+    bl = [base[key] for key in keys]
+    maxima = {"test_prob_max_abs_diff": max(csv_float(b["test_prob_max_abs_diff"], where) for b in bl),
+              "test_discordant_05": max(csv_int(b["test_discordant_05"], where) for b in bl),
+              "test_softmax_gap": max(csv_float(b["test_softmax_gap"], where) for b in bl)}
+    bn_within(where, maxima, rec, (("test_prob_max_abs_diff", "test_probability_max_abs_diff"),
+                                   ("test_discordant_05", "test_decisions_discordant_at_0_5"),
+                                   ("test_softmax_gap", "softmax_of_logits_max_abs_diff")), problems)
+    return {"run_id": agg["run_id"], "commit": agg["commit"], "config_sha256": agg["config_sha256"], "models": M, "summaries": out,
+            "counts": wc, "timings": t, "baseline_pass": sum(1 for b in bl if b["baseline_pass"] == "1"), "baseline_max": maxima,
+            "recal_identical": rec.get("statistics_identical_to_pr27"), "before_equal": len(res), "bootstrap": bs,
+            "post_hoc": declared}
+
+
+def bn_build(research: Path, H: dict, runs: dict, pc: dict, folds: dict) -> dict:
+    """I due controlli BN sugli stessi 36 checkpoint del run con pazienza 4. Non aggiungono righe alla tabella unica: le
+    righe del disegno a 36 modelli (SESSABL) sono aggregate per braccio e seed sui quattro fold, alle soglie 0,5 e dev,
+    con il bootstrap per seed; il controllo sul dev non ha metriche di test e quello sul test pubblica righe per modello e
+    medie appaiate sui modelli alla sola soglia 0,5, quindi una riga aggregata o con bootstrap sarebbe un numero nuovo.
+    Righe per modello esistono nella tabella unica (run a fold), ma per scelta le righe per modello dei controlli BN
+    stanno nei due annessi BN."""
+    paths = {k: research / v for k, v in BN_SOURCES.items()}
+    for k, p in paths.items():
+        if not p.is_file():
+            fail("source %s missing: %s" % (k, p))
+    bh = {k: sha256_file(p) for k, p in paths.items()}
+    HH = dict(H, **bh)
+    src = {}
+    for k, p in paths.items():
+        if k.endswith("_sums"):
+            src[k] = read_sums(p, BN_SOURCES[k])
+        elif p.suffix == ".json":
+            src[k] = read_json(p, ["run_id", "commit", "dirty", "status"], clean=False)
+        else:
+            src[k] = p
+    problems = []
+    dev = bn_dev(src, HH, runs["parent"], pc, folds, problems)
+    if problems:  # il controllo sul test legge gruppi e indicatori del dev: fermarsi prima
+        fail("consistency problems:\n  - " + "\n  - ".join(problems))
+    test = bn_test(src, HH, runs["parent"], dev, folds, problems)
+    if problems:
+        fail("consistency problems:\n  - " + "\n  - ".join(problems))
+    order = [(r["arm"], r["fold"], r["seed"]) for r in pc["models"]]
+    return {"sources": {k: {"path": BN_SOURCES[k], "sha256": bh[k]} for k in BN_SOURCES}, "dev": dev, "test": test, "order": order,
+            "parent": {"run_id": runs["parent"]["agg"]["run_id"], "wall_seconds": runs["parent"]["rec"]["wall_seconds"],
+                       "training": runs["parent"]["training"], "n_fit": runs["parent"]["n_fit"], "n_dev": runs["parent"]["n_dev"]}}
+
 
 
 # --- scrittura ----------------------------------------------------------------------------------------------------
@@ -3341,10 +3854,12 @@ def constlr_md(doc: dict) -> str:
 
 def synthesis_lines(doc: dict) -> dict:
     """Le righe che SYNTHESIS.md deve contenere alla lettera: la tabella compatta unica (righe di tabella), la tabella
-    compatta della pazienza e quella delle tre condizioni (righe di tabella e righe di riepilogo)."""
+    compatta della pazienza e quella delle tre condizioni (righe di tabella e righe di riepilogo), la forma compatta BN
+    (ogni riga non vuota, legende comprese; cmd_check esige anche il blocco intero)."""
     return {"compact table": [l for l in compact_md(doc).splitlines() if l.startswith("|")],
             "patience compact table": [l for l in patience_compact_md(doc).splitlines() if l.startswith("|") or l.startswith("- ")],
-            "three regimes compact table": [l for l in three_compact_md(doc).splitlines() if l.startswith("|") or l.startswith("- ")]}
+            "three regimes compact table": [l for l in three_compact_md(doc).splitlines() if l.startswith("|") or l.startswith("- ")],
+            "BN compact table": [l for l in bn_compact_body(doc).splitlines() if l]}
 
 
 def ablation_md(doc: dict) -> str:
@@ -3382,6 +3897,277 @@ def ablation_md(doc: dict) -> str:
             + "\n" + "".join("- %s\n" % l for l in a["verdict_lines"]))
 
 
+def wrap120(text: str, bullet: bool = False) -> str:
+    """Un paragrafo (o una voce d'elenco, con «- » e rientro di due spazi) a capo a 120 caratteri."""
+    import textwrap
+    return "\n".join(textwrap.wrap(("- " if bullet else "") + text, 120, subsequent_indent="  " if bullet else "",
+                                    break_long_words=False, break_on_hyphens=False)) + "\n"
+
+
+def bullets(lines: list) -> str:
+    return "".join(wrap120(l, bullet=True) for l in lines)
+
+
+def fmtx(v) -> str:
+    """Numero con il separatore delle migliaia, decimali conservati (1748.6 -> 1,748.6)."""
+    return "{:,}".format(v)
+
+
+def g4(v: float) -> str:
+    """Scarti piccoli della linea di base: quattro cifre significative («2.876e-06», «0»)."""
+    return "%.4g" % v
+
+
+def ba(pair, f=f4) -> str:
+    return "%s → %s" % (f(pair[0]), f(pair[1]))
+
+
+def yesno(v: bool) -> str:
+    return "yes" if v else "no"
+
+
+def mm4(vals: list) -> str:
+    return "%s-%s" % (f4(min(vals)), f4(max(vals)))
+
+
+def bn_interval(x: dict) -> str:
+    if x["low"] is None:
+        return "%s no interval, %s" % (f4(x["mean_difference"]), x["reading"])
+    return "%s [%s, %s] %s" % (f4(x["mean_difference"]), f4(x["low"]), f4(x["high"]), x["reading"])
+
+
+def bn_lines(doc: dict) -> dict:
+    """Righe di riepilogo dei due controlli BN, calcolate dalle righe lette e controllate (conteggi di modelli, minimi e
+    massimi, valori copiati); stesse righe nell'annesso e nella forma compatta."""
+    bn = doc["bn"]
+    dev, test, par = bn["dev"], bn["test"], bn["parent"]
+    D = [dev["models"][k] for k in bn["order"]]
+    lab = lambda m: model_label(m["arm"], m["fold"], m["seed"])
+    ten = [m for m in D if m["group"] == "ten"]
+    ctl = [m for m in D if m["group"] == "control"]
+    apart = [m for m in D if m["group"] == "apart"]
+    nf = par["n_fit"]
+    bm = dev["baseline_max"]
+    worse = [m for m in ctl if m["worsened"]]
+    lost = [m["dev_correct"][0] - m["dev_correct"][1] for m in ctl]
+    big = max(lost)
+    cells = {v: [m for m in D if m["cell"] == v] for v in BN_CELLS.values()}
+    only = cells["fitting_not_met_dev_met"]
+    dl = [
+        "Models: %d (the ten degenerate trainings %d, control checkpoints %d, reported apart %d: %s); dev %d frames per model; fitting %s frames "
+        "(B, A*) or %s (B')." % (len(D), len(ten), len(ctl), len(apart), ", ".join(lab(m) for m in apart) or "none", par["n_dev"], fmt(nf["arm_b"]), fmt(nf["arm_b_prime"])),
+        "Baseline with the original statistics, before any re-estimation: %d of %d within every tolerance (largest attack-probability "
+        "difference %s, changed decisions at 0.5 %d, largest dev val_loss difference %s, largest dev accuracy difference %s, largest "
+        "softmax gap %s)." % (dev["baseline_pass"], len(D), g4(max(bm["prob_parent_max_abs_diff"], bm["prob_eval_max_abs_diff"])),
+                              bm["discordant"], g4(bm["val_loss_diff"]), g4(bm["accuracy_diff"]), g4(bm["softmax_gap"])),
+        "The ten meeting the recovery criterion on the dev: before %d of %d, after %d of %d (primary reading of the run: %s)."
+        % (sum(1 for m in ten if m["dev_criterion"][0]), len(ten), dev["positives"], len(ten), dev["case"]),
+        "The ten after the re-estimation: dev accuracy %s, dev val_loss %s, dev AUROC %s; fitting accuracy before %s, after %s."
+        % (mm4([m["dev_accuracy"][1] for m in ten]), mm4([m["dev_val_loss"][1] for m in ten]), mm4([m["dev_auroc"][1] for m in ten]),
+           mm4([m["fitting_accuracy"][0] for m in ten]), mm4([m["fitting_accuracy"][1] for m in ten])),
+        "Control checkpoints meeting the criterion on the dev: before %d of %d, after %d of %d (lost: %d)."
+        % (sum(1 for m in ctl if m["dev_criterion"][0]), len(ctl), dev["keep"], len(ctl), len(ctl) - dev["keep"]),
+        "Control checkpoints with at least one worsened indicator: %d of %d (%s); with none: %d. The ten and the model apart with a worsened "
+        "indicator: %d." % (len(worse), len(ctl), ", ".join("%s %d" % (BN_DEV_FLAG_TEXT[f], sum(1 for m in ctl if m[f])) for f in BN_DEV_FLAGS),
+                            len(ctl) - len(worse), sum(1 for m in ten + apart if m["worsened"])),
+        "Control checkpoints, correct dev frames after against before: higher %d, equal %d, lower %d; largest loss %d of %d (%s); dev accuracy "
+        "after %s." % (sum(1 for x in lost if x < 0), sum(1 for x in lost if x == 0), sum(1 for x in lost if x > 0), big, par["n_dev"],
+                       ", ".join(lab(m) for m, x in zip(ctl, lost) if x == big), mm4([m["dev_accuracy"][1] for m in ctl])),
+    ]
+    dl += ["Model reported apart, %s: dev accuracy %s, dev val_loss %s, criterion %s." % (lab(m), ba(m["dev_accuracy"]), ba(m["dev_val_loss"]),
+                                                                                          ba(m["dev_criterion"], yesno)) for m in apart]
+    dl.append("Fitting before x dev after (checkpoints counted, no cause named): both %d, dev after only %d (the ten %d, apart %d, "
+              "control checkpoints %d), fitting only %d, neither %d." % (len(cells["fitting_met_dev_met"]), len(only), sum(1 for m in only if m["group"] == "ten"),
+                                                              sum(1 for m in only if m["group"] == "apart"), sum(1 for m in only if m["group"] == "control"),
+                                                              len(cells["fitting_met_dev_not_met"]), len(cells["fitting_not_met_dev_not_met"])))
+    t, S = test["models"], test["summaries"]
+    bt = test["baseline_max"]
+    x = S[BN_PRIMARY]
+    up = lambda sc: [m for k in bn["order"] for m in (t[k + (sc,)],) if m["group"] == "ten" and (m["acer_05"][2] or 0) > 0]
+    s03 = S[("group", "ten", "session_03", "acer_05")]
+    worse_dev = [k for k in bn["order"] if dev["models"][k]["group"] == "control" and dev["models"][k]["worsened"]]
+    tl = [
+        "Baseline on the test with the original statistics: %d of %d within every tolerance (largest attack-probability difference %s, "
+        "changed decisions at 0.5 %d); the values before equal the published per-model values of the parent run in %d of %d model and "
+        "scope rows (checked here); re-estimated statistics identical to those of PR #27 in %d of %d."
+        % (test["baseline_pass"], len(D), g4(bt["test_prob_max_abs_diff"]), bt["test_discordant_05"], test["before_equal"], len(t),
+           test["recal_identical"], len(D)),
+        "Primary reading (fixed before the run): the ten, scope test, ACER at 0.5, mean difference after - before %s; lower %d, equal %d, "
+        "higher %d (higher: %s)." % (bn_interval(x), x["models_lower"], x["models_equal"], x["models_higher"],
+                                      ", ".join("%s %s" % (lab(m), ba(m["acer_05"])) for m in up("test")) or "none"),
+        "The ten, session 03, ACER at 0.5: mean difference %s; lower %d, equal %d, higher %d (higher: %s)."
+        % (bn_interval(s03), s03["models_lower"], s03["models_equal"], s03["models_higher"],
+           ", ".join("%s %s" % (lab(m), ba(m["acer_05"])) for m in up("session_03")) or "none"),
+        "Control checkpoints, models higher after: ACER at 0.5 %d of %d on the test and %d in session 03; APCER at 0.5 %d and %d; BPCER at 0.5 "
+        "%d and %d; AUROC lower %d and %d." % (
+            S[("group", "control", "test", "acer_05")]["models_higher"], S[("group", "control", "test", "acer_05")]["n_models"],
+            S[("group", "control", "session_03", "acer_05")]["models_higher"], S[("group", "control", "test", "apcer_05")]["models_higher"],
+            S[("group", "control", "session_03", "apcer_05")]["models_higher"], S[("group", "control", "test", "bpcer_05")]["models_higher"],
+            S[("group", "control", "session_03", "bpcer_05")]["models_higher"], S[("group", "control", "test", "auroc")]["models_lower"],
+            S[("group", "control", "session_03", "auroc")]["models_lower"]),
+        "Control checkpoints with a worsened indicator on the dev in PR #27 (%d): ACER at 0.5 higher on the test in %d of them, in session 03 in %d."
+        % (len(worse_dev), sum(1 for k in worse_dev if (t[k + ("test",)]["acer_05"][2] or 0) > 0),
+           sum(1 for k in worse_dev if (t[k + ("session_03",)]["acer_05"][2] or 0) > 0)),
+        "Indicators set, models (test / session 03): %s." % ", ".join(
+            "%s %d / %d" % (BN_TEST_FLAG_TEXT[f], test["counts"]["%s (test)" % f], test["counts"]["%s (session_03)" % f]) for f in BN_TEST_FLAGS),
+        "Subjects behind the intervals: %d held-out subjects, %d with bona fide and %d with attack frames on the test, %d and %d in "
+        "session 03; valid resamples for ACER %s of %s on the test and %s in session 03; the model apart (%d fold, %d subjects) has no "
+        "interval." % (x["n_subjects"], x["n_subjects_bona_fide"], x["n_subjects_attack"], s03["n_subjects_bona_fide"], s03["n_subjects_attack"],
+                       fmt(x["valid_resamples"]), fmt(x["resamples"]), fmt(s03["valid_resamples"]),
+                       S[("group", "apart", "test", "acer_05")]["n_folds"], S[("group", "apart", "test", "acer_05")]["n_subjects"]),
+    ]
+    dt, tt = dev["timings"], test["timings"]
+    tr = par["training"]
+    ep = {a: sum(v["epochs_run"] for v in tr.values() if v["arm"] == a) for a in ABL_ARMS}
+    sec = {a: sum(v["train_seconds"] for v in tr.values() if v["arm"] == a) for a in ABL_ARMS}
+    timel = [
+        "Dev control: wall %s s (%.1f minutes); estimate %d minutes (upper %d); cap %d minutes."
+        % (fmtx(dt["wall_seconds"]), dt["wall_seconds"] / 60, dt["estimate_central_minutes"], dt["estimate_upper_minutes"], dt["cap_minutes"]),
+        "Test control: wall %s s (%.1f minutes), process CPU time over all threads %s s; estimate %d minutes (upper %d); cap %d "
+        "minutes of elapsed time." % (fmtx(tt["wall_seconds"]), tt["wall_seconds"] / 60, fmtx(tt["cpu_seconds"]), tt["estimate_central_minutes"],
+                                      tt["estimate_upper_minutes"], tt["cap_minutes"]),
+        "Parent run (patience 4): %d trainings, %d epochs, %s s of training (wall %s s); seconds per epoch %s (fitting + dev frames %s)."
+        % (len(tr), sum(ep.values()), fmtx(round(sum(sec.values()), 1)), fmtx(par["wall_seconds"]),
+           ", ".join("%s %.4f" % (ARM_LABELS[a], sec[a] / ep[a]) for a in ABL_ARMS),
+           ", ".join(fmt(nf[a] + par["n_dev"]) for a in ABL_ARMS)),
+    ]
+    return {"dev": dl, "test": tl, "time": timel}
+
+
+def bn_compact_rows(doc: dict) -> tuple:
+    bn = doc["bn"]
+    dev, t, S = bn["dev"]["models"], bn["test"]["models"], bn["test"]["summaries"]
+    a_rows = []
+    for k in bn["order"]:
+        m = dev[k]
+        a_rows.append([model_label(*k), m["group"], m["restored_epoch"], ba(m["dev_accuracy"]), ba(m["dev_val_loss"]),
+                       ba(m["dev_criterion"], yesno), ", ".join(BN_DEV_FLAG_SHORT[f] for f in BN_DEV_FLAGS if m[f]) or "—",
+                       ba(t[k + ("test",)]["acer_05"]), ba(t[k + ("session_03",)]["acer_05"]), ba(t[k + ("test",)]["auroc"])])
+    b_rows = []
+    for kd, nm in BN_SUMMARIES:
+        for sc in BN_SCOPES:
+            xs = [S[(kd, nm, sc, q)] for q in BN_METRICS]
+            b_rows.append(["%s %s" % (kd, ARM_LABELS.get(nm, nm)), sc.replace("_", " "), xs[0]["n_models"],
+                           "%d (%d / %d)" % (xs[0]["n_subjects"], xs[0]["n_subjects_bona_fide"], xs[0]["n_subjects_attack"])]
+                          + ["%s; %d/%d/%d" % (bn_interval(x), x["models_lower"], x["models_equal"], x["models_higher"]) for x in xs]
+                          + [" / ".join(str(x["valid_resamples"]) for x in xs)])
+    return a_rows, b_rows
+
+
+BN_A_HEAD = ["model", "group", "restored epoch", "dev accuracy before → after", "dev val_loss before → after",
+             "dev criterion before → after", "worsened on the dev", "test ACER 0.5 before → after",
+             "session 03 ACER 0.5 before → after", "test AUROC before → after"]
+BN_B_HEAD = ["summary", "scope", "models", "subjects (bona fide / attack)", "ACER 0.5", "APCER 0.5", "BPCER 0.5", "AUROC",
+             "valid resamples (ACER / APCER / BPCER / AUROC)"]
+
+
+def bn_legends(doc: dict) -> tuple:
+    bn = doc["bn"]
+    a = ("Legend. Dev = run `%s` (PR #27), test = run `%s` (PR #28), both on the 36 checkpoints of run `%s` (early-stopping patience 4); "
+         "before = original statistics, after = moving mean and variance of the five BatchNormalization layers re-estimated on the fitting "
+         "set of the model's arm and fold, every trained parameter unchanged; group: ten = the ten degenerate trainings, control = the %d "
+         "control checkpoints (the other models meeting the recovery criterion at their checkpoint), apart = the %d that do not; dev "
+         "criterion = recovery "
+         "criterion (dev accuracy >= %s and val_loss < %s); worsened on the dev = indicators set in PR #27 (any change in the worsening "
+         "direction, however small; — none); test = every frame of the held-out subjects of the fold; ACER at the fixed threshold 0.5; "
+         "AUROC threshold-free. The test reading is a post hoc diagnostic extension on a test already analysed, not an independent "
+         "validation." % (bn["dev"]["run_id"], bn["test"]["run_id"], bn["parent"]["run_id"], len(bn["dev"]["groups"]["control"]),
+                          len(bn["dev"]["groups"]["apart"]), bn["dev"]["rec_criterion"][0], bn["dev"]["rec_criterion"][1]))
+    b = ("Legend. Paired summaries of the test control, copied from `summary.csv` (means, model counts, folds, subjects and readings "
+         "recomputed from its rows; subjects with each class, valid resamples and intervals copied): per metric, mean over the "
+         "models of the difference after - before, with the subject-bootstrap interval [2.5, 97.5] (%s resamples of the held-out subjects "
+         "pooled over the folds, seed %d, the same resamples before and after; no interval with fewer than %d subjects) and the reading "
+         "fixed before the run (below / contains / above zero, not_available without an interval), then the models lower / equal / higher "
+         "after (for AUROC, higher = AUROC higher); for APCER, BPCER and ACER a negative value is a lower error rate. The summaries share "
+         "models and subjects and are not independent."
+         % (fmt(bn["test"]["bootstrap"]["resamples"]), bn["test"]["bootstrap"]["seed"], bn["test"]["bootstrap"]["min_subjects"]))
+    return wrap120(a), wrap120(b)
+
+
+def bn_compact_md(doc: dict) -> str:
+    """Forma compatta dei due controlli BN (per SYNTHESIS.md): i 36 checkpoint, dev e test affiancati; i riepiloghi appaiati
+    per gruppo e braccio; le righe di riepilogo e dei tempi."""
+    bn = doc["bn"]
+    return ("# BatchNormalization statistics, dev (`%s`) and test (`%s`), compact form\n\n"
+            "The 36 checkpoints of the patience-4 run; all columns, sources and checks in `bn_recalibration_table.md`.\n\n"
+            % (bn["dev"]["run_id"], bn["test"]["run_id"])
+            + bn_compact_body(doc))
+
+
+def bn_compact_body(doc: dict) -> str:
+    """Il blocco della forma compatta che SYNTHESIS.md incorpora per intero: tabelle, legende e righe di riepilogo."""
+    a_rows, b_rows = bn_compact_rows(doc)
+    la, lb = bn_legends(doc)
+    L = bn_lines(doc)
+    return (plain_table(BN_A_HEAD, a_rows) + "\n" + la + "\n**Dev (PR #27)**\n\n" + bullets(L["dev"])
+            + "\n" + plain_table(BN_B_HEAD, b_rows) + "\n" + lb + "\n**Test (PR #28)**\n\n" + bullets(L["test"])
+            + "\n**Time**\n\n" + bullets(L["time"]))
+
+
+def bn_md(doc: dict) -> str:
+    """Annesso dei due controlli BN: sorgenti con SHA-256, ogni checkpoint sul dev e sul test (ogni ambito), ogni
+    riepilogo appaiato, righe di riepilogo e tempi."""
+    bn = doc["bn"]
+    dev, t, S = bn["dev"]["models"], bn["test"]["models"], bn["test"]["summaries"]
+    L = bn_lines(doc)
+    la, lb = bn_legends(doc)
+    src = [[k, "`%s`" % v["path"], v["sha256"]] for k, v in bn["sources"].items()]
+    d_rows, t_rows = [], []
+    for k in bn["order"]:
+        m = dev[k]
+        d_rows.append([model_label(*k), m["group"], m["restored_epoch"], ba(m["dev_accuracy"]), "%d → %d" % m["dev_correct"],
+                       ba(m["dev_val_loss"]), ba(m["dev_auroc"]), ba(m["fitting_accuracy"]), ba(m["fitting_loss"]),
+                       ba(m["dev_criterion"], yesno), ba(m["fitting_criterion"], yesno), m["cell"],
+                       ", ".join(BN_DEV_FLAG_SHORT[f] for f in BN_DEV_FLAGS if m[f]) or "—"])
+        for sc in BN_SCOPES:
+            x = t[k + (sc,)]
+            t_rows.append([model_label(*k), x["group"], yesno(x["dev_worsened"]), sc.replace("_", " "), "%d / %d" % (x["n_bona_fide"], x["n_attack"])]
+                          + ["%s (%s)" % (ba(x[q]), f4(x[q][2])) for q in ("apcer_05", "bpcer_05", "acer_05", "auroc")]
+                          + [", ".join(BN_TEST_FLAG_TEXT[f] for f in BN_TEST_FLAGS if x[f]) or "—"])
+    s_rows = []
+    for kd, nm in BN_SUMMARIES:
+        for sc in BN_SCOPES:
+            for q in BN_METRICS:
+                x = S[(kd, nm, sc, q)]
+                s_rows.append(["%s %s" % (kd, ARM_LABELS.get(nm, nm)), sc.replace("_", " "), BN_METRIC_TEXT[q], x["label"], x["n_models"],
+                               "%d (%d / %d)" % (x["n_subjects"], x["n_subjects_bona_fide"], x["n_subjects_attack"]), f4(x["mean_before"]),
+                               f4(x["mean_after"]), bn_interval(x), "%d of %d" % (x["valid_resamples"], x["resamples"]),
+                               "%d / %d / %d" % (x["models_lower"], x["models_equal"], x["models_higher"])])
+    intro = ("Copied from the public outputs of the two runs and checked by `nuaa_synthesis.py`: identity and anchors (clean "
+             "tree, status `PASS`, run id ending with the commit, `status.json` -> `SHA256SUMS` -> every file read, 36 models "
+             "complete within the cap, parent run = run `%s` read here, by run id and by the SHA-256 of its public aggregate and "
+             "`SHA256SUMS`); dev: group of every checkpoint from the comparison of the patience runs, restored epoch and frame "
+             "counts from the parent run, dev accuracy before within %s and val_loss before within %s of the values at the "
+             "checkpoint (the baseline tolerances of the run), dev AUROC before equal, criterion, 2x2 cell and every worsening "
+             "indicator recomputed from the values before and after, the readings and counts of the aggregate recomputed, the "
+             "largest baseline differences within the tolerances of the run; test: denominators equal to the parent run, every "
+             "value before equal to the published per-model value of the parent run (APCER, BPCER, ACER at 0.5 and AUROC, test "
+             "= stratum all, session 03 = stratum 03), APCER and BPCER consistent with whole counts over the denominators "
+             "(rate x denominator an integer within 1e-6) and ACER their mean, differences = after - before, indicators, groups "
+             "and the dev worsening equal to the dev control, in every paired summary the models, folds, subjects, means, "
+             "lower / equal / higher counts and the reading from the interval recomputed from the rows (the subjects with each "
+             "class and the valid resamples copied), equal to the aggregate, primary reading, baseline and re-estimation checks "
+             "36 of 36 with the largest baseline differences within the tolerances of the run. The bootstrap intervals are "
+             "copied (they need the per-subject results, which are restricted). Declared by the test run: %s. %s."
+             % (bn["parent"]["run_id"], bn["dev"]["tolerances"]["accuracy"], bn["dev"]["tolerances"]["val_loss"],
+                bn["test"]["post_hoc"], doc["decision"]))
+    return ("# Annex: BatchNormalization statistics, dev (`%s`) and test (`%s`)\n\n" % (bn["dev"]["run_id"], bn["test"]["run_id"])
+            + wrap120("The 36 checkpoints of the patience-4 run, re-estimated on the fitting set. " + intro) + "\n## Sources\n\n"
+            + plain_table(["key", "file (in research/)", "SHA-256"], src)
+            + "\n## Dev, per checkpoint, before → after (run `%s`)\n\n" % bn["dev"]["run_id"]
+            + plain_table(["model", "group", "restored epoch", "dev accuracy", "dev correct", "dev val_loss", "dev AUROC", "fitting accuracy",
+                           "fitting loss", "dev criterion", "fitting criterion", "cell (fitting before x dev after)", "worsened"], d_rows)
+            + "\n" + la + "\n" + bullets(L["dev"])
+            + "\n## Test, per checkpoint and scope, before → after (difference) (run `%s`)\n\n" % bn["test"]["run_id"]
+            + plain_table(["model", "group", "worsened on the dev", "scope", "n bona fide / attack", "APCER 0.5", "BPCER 0.5", "ACER 0.5",
+                           "AUROC", "indicators set"], t_rows)
+            + "\n## Test, paired summaries\n\n"
+            + plain_table(["summary", "scope", "metric", "label", "models", "subjects (bona fide / attack)", "mean before", "mean after",
+                           "mean difference [interval] reading", "valid resamples", "lower / equal / higher"], s_rows)
+            + "\n" + lb + "\n" + bullets(L["test"])
+            + "\n## Time\n\n" + bullets(L["time"]))
+
+
 def duplicate_rows(files: dict) -> list:
     """Righe duplicate dentro una stessa tabella Markdown di un file generato (ogni riga di una tabella deve essere unica)."""
     out = []
@@ -3412,7 +4198,9 @@ def outputs(doc: dict) -> dict:
     return {
         "summary_table.md": summary_md(doc),
         "summary_table.csv": csv_text(doc),
-        "summary_table.json": json.dumps(doc, indent=1, ensure_ascii=False) + "\n",
+        # il blocco BN resta fuori: summary_table.json resta quello dell'11/11; le sorgenti BN e i loro SHA-256 sono
+        # nell'annesso bn_recalibration_table.md
+        "summary_table.json": json.dumps({k: v for k, v in doc.items() if k != "bn"}, indent=1, ensure_ascii=False) + "\n",
         "summary_table_compact.md": compact_md(doc),
         "cross_dataset_table.md": cross_md(doc),
         "context_rows_table.md": context_md(doc),
@@ -3425,6 +4213,8 @@ def outputs(doc: dict) -> dict:
         "three_regimes_table.md": three_md(doc),
         "three_regimes_table_compact.md": three_compact_md(doc),
         "session_ablation_table_constant_lr.md": constlr_md(doc),
+        "bn_recalibration_table.md": bn_md(doc),
+        "bn_recalibration_table_compact.md": bn_compact_md(doc),
     }
 
 
@@ -3447,12 +4237,13 @@ def cmd_build(a) -> int:
             fh.write(text)
     print("BUILD: %d rows, %d cross-dataset rows, %d context rows, %d subject rows, %d folds-run stratum rows, %d patience model rows, "
           "%d session-ablation pooled rows, %d verdict rows, %d three-regime model rows, %d constant-lr pooled rows, "
-          "%d three-run verdict rows -> %s" %
+          "%d three-run verdict rows, %d BN dev rows, %d BN test rows, %d BN summary rows -> %s" %
           (len(doc["rows"]), len(doc["cross_dataset_rows"]), len(doc["context_rows"]), len(doc["subject_sensitivity"]),
            len(doc["folds_run"]["annex"]["per_fold_seed"]), len(doc["session_ablation"]["annex"]["patience_train_dev"]),
            len(doc["session_ablation"]["annex"]["pooled"]), len(doc["session_ablation"]["annex"]["verdicts"]),
            len(doc["session_ablation"]["constant_lr"]["annex"]["train_dev"]), len(doc["session_ablation"]["constant_lr"]["annex"]["pooled"]),
-           len(doc["session_ablation"]["constant_lr"]["annex"]["verdicts"]), out))
+           len(doc["session_ablation"]["constant_lr"]["annex"]["verdicts"]), len(doc["bn"]["dev"]["models"]),
+           len(doc["bn"]["test"]["models"]), len(doc["bn"]["test"]["summaries"]), out))
     print("RESULT: PASS")
     return 0
 
@@ -3475,6 +4266,12 @@ def cmd_check(a) -> int:
             if missing:
                 bad.append("%s: %d of %d lines of the %s are not in the document verbatim (first: %s)"
                            % (Path(a.synthesis).name, len(missing), len(lines), what, missing[0][:60]))
+        # la forma compatta BN (tabelle, legende, righe di riepilogo) deve stare nel documento come un blocco unico: una
+        # riga in più, tolta o spostata dentro il blocco lo fa fallire
+        body = bn_compact_body(doc).rstrip("\n")
+        if body not in Path(a.synthesis).read_text(encoding="utf-8"):
+            bad.append("%s: the BN compact table is not in the document as one block, every line in order with nothing added"
+                       % Path(a.synthesis).name)
     for b in bad:
         print("PROBLEM: " + b)
     print("CHECK: %d files%s, %d problems" % (len(files), " + synthesis" if a.synthesis else "", len(bad)))
