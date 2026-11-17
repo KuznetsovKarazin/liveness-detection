@@ -1,0 +1,11 @@
+# macOS, Python 3.11.16, NumPy 1.26.4, TensorFlow 2.15.0, 2026-11-16 22:12 CET; synthetic suite only (tiny Keras models, 8x8 frames, a synthetic BNRECAL run produced by nuaa_bn_recalibration in a temporary folder; no real checkpoint, frame or score); uncommitted working files
+# SHA-256 909869a8b127ae96d0a184f6294ac1017bd28fbcec20c2d83355b9b370b7dfbb  scripts/nuaa_bn_test.py
+# SHA-256 6e323493fc447fbbcbf1635d6dc81352cb75e4ad977b1fd0352dd8c50466bf68  scripts/check_nuaa_bn_test.py
+# SHA-256 04710d5add1e349b5a14b907925e83d3fd4c51a19af3e2a64061279aa681c8fe  scripts/check_nuaa_bn_test_mutations.py
+# SHA-256 1d72956997fdab1f59ff472b98bd45b84b62b80096d9bee64433ebe163487bf1  delivery/bntest/nuaa_bn_test.json
+# SHA-256 574c06c1735b2890df47cdade81a08e1a22f89df718d6f4db58e3f91e4fb0926  delivery/bntest/NOTE.md
+OK
+tests run: 64, failures: 0, errors: 0, skipped: 0
+RESULT: PASS
+exit 0
+# wall 268 s
