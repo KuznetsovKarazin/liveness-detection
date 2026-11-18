@@ -1,0 +1,13 @@
+dataset,access,network,patience,units,existing_trainings,new_trainings,reference_run,epochs_min,epochs_max,fitting_frames_per_unit,dev_frames_per_unit,test_frames_per_split,evaluation_cells,training_wall_hours_min,training_wall_hours_max,evaluation_wall_hours,wall_hours_min,wall_hours_max,cpu_hours_min,cpu_hours_max
+NUAA,available,LivenessNet,4,12,0,12,20261106-SESSABLRUN-d999458,5,12,1400,400,3242 3114 3439 2819,4,0.46,1.10,0.27,0.73,1.37,5.06,9.44
+NUAA,available,LivenessNet,12,12,0,12,20261109-SESSABLRUN-6a50265,12,12,1400,400,3242 3114 3439 2819,4,1.10,1.10,0.27,1.37,1.37,9.44,9.44
+NUAA,available,ResNet-18,4,12,0,12,none,5,12,1400,400,3242 3114 3439 2819,4,1.16,2.78,1.66,2.82,4.44,22.86,35.98
+NUAA,available,ResNet-18,12,12,0,12,none,12,12,1400,400,3242 3114 3439 2819,4,2.78,2.78,1.66,4.44,4.44,35.98,35.98
+CelebA-Spoof,access missing,LivenessNet,4,3,0,3,none,5,12,1400,400,to be fixed in the pre-registration,4,0.12,0.27,,,,,
+CelebA-Spoof,access missing,LivenessNet,12,3,0,3,none,12,12,1400,400,to be fixed in the pre-registration,4,0.27,0.27,,,,,
+CelebA-Spoof,access missing,ResNet-18,4,3,0,3,none,5,12,1400,400,to be fixed in the pre-registration,4,0.29,0.70,,,,,
+CelebA-Spoof,access missing,ResNet-18,12,3,0,3,none,12,12,1400,400,to be fixed in the pre-registration,4,0.70,0.70,,,,,
+Replay-Attack,access missing,LivenessNet,4,3,0,3,none,5,12,1400,400,to be fixed in the pre-registration,4,0.12,0.27,,,,,
+Replay-Attack,access missing,LivenessNet,12,3,0,3,none,12,12,1400,400,to be fixed in the pre-registration,4,0.27,0.27,,,,,
+Replay-Attack,access missing,ResNet-18,4,3,0,3,none,5,12,1400,400,to be fixed in the pre-registration,4,0.29,0.70,,,,,
+Replay-Attack,access missing,ResNet-18,12,3,0,3,none,12,12,1400,400,to be fixed in the pre-registration,4,0.70,0.70,,,,,

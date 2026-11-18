@@ -1,0 +1,188 @@
+{
+ "schema": "pad-arch-comparison-config/1",
+ "task": "compare two PAD networks, LivenessNet and ResNet-18, both trained from scratch with the same recipe, the same subject splits, the same seeds and the same preprocessing, across patience 4 / 12, ordinary or fitting-re-estimated BatchNorm statistics, and the fixed threshold 0.5 or the EER threshold estimated on the source dev; this delivery fixes the operational definitions (code with tests), the table of the planned runs (generated from this configuration) and a short technical trial per network (NUAA, arm B, fold 1, seed 42, fitting and dev only, 3 epochs) to measure seconds per epoch and estimate the hours of the plan",
+ "authorisation": "the task is the coordinator's comment on the C2 card of 17 November 2026 (after merging PR #28) and nothing else: a short protocol and a table of the planned runs for LivenessNet and ResNet-18, both from scratch, same subject splits, seeds and preprocessing; patience 4/12, BN ordinary or re-estimated on the fitting set only, threshold 0.5 or the EER threshold estimated on the source dev; how to count the runs that at 0.5 assign the whole dev to one class when both are present; the network comparison by the ACER difference ResNet-18 minus LivenessNet, how to recognise a sign change, with ties, subject intervals, APCER and BPCER; a short technical trial per network on NUAA, arm B, fold 1, seed 42, fitting and dev only, a few epochs, with the command or configuration, the device, the batch, the seconds per epoch and the estimated hours of the full plan; tests and external runs follow the pre-registration and the confirmation of the accesses. Choices of the author, not requested by the coordinator: (i) a leave-one-subject-out sensitivity of the sign, in the form of the coordinator's N1 protocol of 24 October 2026 (N1 card; N1 delivery, PR #10); (ii) every training of the plan is new, the accepted LivenessNet runs being only the reference of a history reproduction check",
+ "declarations": {
+  "no_test": "no test frame is assembled or evaluated and no test score or metric is read, computed or written in this delivery; as in the accepted runs the frame files (the cache and the extracted frames, which also hold frames of the held-out subjects) are hashed and loaded whole, but only the fitting and dev frames of arm B, fold 1 are assembled, and an explicit check refuses any other role; the fold schema (which holds the test role) is never loaded; no external dataset is touched",
+  "technical_trial": "the trial measures time and memory; the histories it records are technical outputs, not results, and no metric is computed from them; the LivenessNet history is compared with the accepted card only as a check of the copy of the trainer",
+  "cpu_only": "TensorFlow runs on the CPU only (the GPU is hidden before any operation: known tensorflow-metal defect that skips the ReLU after a Dense layer in graph mode), as in the accepted runs",
+  "no_checkpoint": "no checkpoint is saved by the trial: the models live in memory for the inference passes and are then released",
+  "threads": "the TensorFlow thread settings are not set by this runner (they were not set in the accepted runs either); the number of logical CPUs and the inter-op and intra-op values read from tf.config.threading (0 = TensorFlow default) are recorded"
+ },
+ "parent_runs": {
+  "patience_4": {
+   "run_id": "20261106-SESSABLRUN-d999458",
+   "folder": "results/sessionablationrun/20261106-SESSABLRUN-d999458",
+   "config_path": "delivery/sessionablationrun/nuaa_session_ablation_run.json",
+   "config_sha256": "4c2d29d13dede8a48c3a8e74e1ca48379c5c7e7721eb0a1f55fececbc684e23b",
+   "restricted_sha256sums_sha256": "4ca502e0b07e556615c5042bb072770435c062d030e6d2a36d290c1481090fc2",
+   "early_stopping_patience": 4
+  },
+  "patience_12": {
+   "run_id": "20261109-SESSABLRUN-6a50265",
+   "folder": "results/sessionablationrun/20261109-SESSABLRUN-6a50265",
+   "config_path": "delivery/patienceverify/nuaa_session_ablation_run_patience12.json",
+   "config_sha256": "ca039df5d3114f9cb983c7256330aae671de54ae34d949ad4e9b9c80beb6aa43",
+   "restricted_sha256sums_sha256": "6787bc2bfb280fc0fa2d48323f1cdb15a84d754843bc8703e923098d6f2d2142",
+   "early_stopping_patience": 12
+  }
+ },
+ "code": {
+  "scripts/nuaa_folds_run.py": "82fed566cfa8ac0b280b55edbf430e7051dff1ae83d17a902d78157f2c72ffb2",
+  "scripts/nuaa_session_ablation_run.py": "9c45255199b87a41126b77867d5bbcf0da6f6ecf1684bf8fdd89185f463a276e",
+  "scripts/nuaa_bn_recalibration.py": "8c228ef400f5ef4337612477b23113fb6b8cac5364a5ff026e2c0ac8096734f5",
+  "scripts/nuaa_patience_verify.py": "edc839849ac76be9ce3149a3c217f35b6f1f430e352b471d03b78398093f4b9e",
+  "scripts/m2_writers.py": "22760abc368dede3aa0a690a241f6622afe1ba586940422497db8a33994ee34a",
+  "scripts/path_guard.py": "e5fa9c835c23745ff932e157a44d3104eb9713d86bbdecc9cdbbd3caa7a7ee34",
+  "scripts/package_rules.py": "96ec7ffab4b089bac71fd18918fcd32af72d15980cdfa1361cc84bb43e0e4c11",
+  "scripts/pad_arch_models.py": "72790b4fdc8a9f56e4ef5494c8f7fdd87cbfa3bf752eb471e531b524848a5832",
+  "scripts/pad_arch_definitions.py": "7551950f7ae3542a75db20499b2548c7c0c35cf90d551b9635aad61dfac3be23"
+ },
+ "architectures": {
+  "LivenessNet": {
+   "path": "src/livedetection/src/architectures.py",
+   "sha256": "a83c02b0788bd6f98262abf00f5fe970abed501f231edba348820482aea64d30",
+   "builder": "create_model('LivenessNet', input_shape=(256, 256, 3)).get_model() of the reference code, loaded as nuaa_folds_run.default_arch_loader does (the call of the accepted trainer, create_model('LivenessNet'), uses the same input shape as its default)",
+   "input_shape": [256, 256, 3],
+   "trainable_parameters": 8405778,
+   "non_trainable_parameters": 320,
+   "batchnorm_layers": 5
+  },
+  "ResNet-18": {
+   "module": "scripts/pad_arch_models.py",
+   "definition": "ResNet-18 of He, Zhang, Ren, Sun (CVPR 2016), post-activation (v1): the layout of the 18-layer column of Table 1 with projection shortcuts (option B, section 3.3), as in the torchvision reference implementation; the 18-layer results of the paper (Table 2) use option A (zero-padding shortcuts, section 4.1), option B being that of the 50/101/152-layer networks. Stem conv 7x7, 64 filters, stride 2 -> BN -> ReLU -> max-pool 3x3 stride 2; four stages of two basic blocks (conv 3x3 -> BN -> ReLU -> conv 3x3 -> BN, sum with the shortcut, ReLU) with 64, 128, 256, 512 filters; stride 2 in the first block of stages 2-4 with a projection shortcut conv 1x1 stride 2 followed by BN (the BN after the projection is deduced from section 3.4, 'BN right after each convolution', not written in Table 1); global average pooling; Dense(2, softmax, name output), column 1 = attack. Convolutions without bias, initialised with the Keras he_normal (truncated normal, fan in); the final Dense layer uses the default Keras initialiser (Glorot uniform, zero bias), as the output layer of LivenessNet; explicit symmetric ZeroPadding2D before the strided layers (spatial sides 256 -> 128 -> 64 -> 64, 32, 16, 8), padding same for the stride-1 3x3 convolutions; flat functional model with a stable name for every layer, no nested model, its topology checked against pad_arch_models.resnet18_topology; input float32 in [0, 1] (frames / 255) as LivenessNet. Trunk 11,176,512 parameters (convolutions and BN gamma/beta, as torchvision resnet18 without the classifier) + 1,026 of the Dense = 11,177,538 trainable, plus 9,600 moving statistics",
+   "batchnorm": "Keras 2.15 defaults (momentum 0.99, epsilon 0.001), the same as the five BatchNormalization layers of LivenessNet, which pass no argument (checked on the built model); 20 layers on the top level",
+   "input_shape": [256, 256, 3],
+   "trainable_parameters": 11177538,
+   "non_trainable_parameters": 9600,
+   "batchnorm_layers": 20
+  }
+ },
+ "training": {
+  "recipe": "the training of the accepted run at patience 4, equal to nuaa_folds_run.FROZEN_TRAINING (legacy Adam lr 0.001 clipnorm 1.0, categorical cross-entropy with one-hot labels, balanced class weights, batch 16, at most 12 epochs, EarlyStopping on val_loss with restore_best_weights, ReduceLROnPlateau factor 0.5 patience 2 min_lr 1e-6, augmentation on the fitting set only, shuffle(4096, seed), seeds for random, numpy and TensorFlow), for both networks",
+  "trial_overrides": {"max_epochs": 3},
+  "trainer": "pad_arch_comparison.trial_trainer: a declared copy of nuaa_folds_run.default_trainer (itself a declared copy of n1_trainer.train) with the model builder as a parameter; the only differences are the substitutions of TRAINER_SUBSTITUTIONS, checked by the test suite against the source of the original: no checkpoint saved, the timing callback inserted before the cap callback, the network named in the card, (card, model) returned; the callbacks of the accepted recipe (EarlyStopping, ReduceLROnPlateau, cap) are present",
+  "timing": "a callback that does not touch the training records per epoch: total seconds (monotonic clock, from the start to the end of the epoch), seconds of the validation on the dev only (on_test_begin / on_test_end), process CPU seconds over all threads (time.process_time), and the five history values of the epoch",
+  "checkpoint": "none saved in the trial",
+  "threads": "not set (as in the accepted runs); os.cpu_count() and tf.config.threading values recorded"
+ },
+ "trial": {
+  "dataset": "NUAA",
+  "arm": "arm_b",
+  "fold": 1,
+  "seed": 42,
+  "roles": ["fitting", "dev"],
+  "frames": {
+   "fitting": {"n": 1400, "bona_fide": 700, "attack": 700, "subjects": 4},
+   "dev": {"n": 400, "bona_fide": 200, "attack": 200, "subjects": 2}
+  },
+  "networks": ["LivenessNet", "ResNet-18"],
+  "inference_batch": 16,
+  "inference": "after the 3 epochs, one inference-only pass (batch 16, training=False, frames / 255 per batch) over the fitting set and one over the dev, timed with the monotonic clock and the process CPU time; the probabilities are checked and discarded",
+  "process": "one process for both networks, LivenessNet first: LivenessNet is then the first training of the process, as arm_b_fold1_seed42 was in the accepted run; the runs of the plan train many models in sequence in one process, as the accepted runs did; the inputs (about 2.5 GB of frames) are loaded and verified once; between the two networks the trainer calls clear_session and the previous model is released",
+  "wall_time_cap_minutes": 60,
+  "cap_unit": "minutes of wall time (elapsed real time, not CPU time)",
+  "cap_checks": "the 60-minute wall-time cap is checked before each network, at the end of every epoch (with its validation) and before each of the two inference passes; it can therefore be exceeded by at most: after the check before a network, the cost of a training outside its epochs (model building, data preparation) plus one epoch with its validation; after an end-of-epoch check, one epoch with its validation; after the check before a pass, one inference pass; a stop gives INCOMPLETE with the measured epochs and passes",
+  "estimate_minutes": 15,
+  "upper_estimate_minutes": 40,
+  "estimate": "LivenessNet: the accepted card of arm_b_fold1_seed42 records 130.8 s for 5 epochs (about 26 s per epoch on this machine) and the BNRECAL run scored about 277 frames per second: 3 epochs + 1,800 inference frames = about 85 s; ResNet-18: about 4.8 GFLOPs per 256 x 256 forward pass against about 0.8 for LivenessNet (ratio about 6), so about 160 s per epoch and about 40 s of inference = about 9 minutes; inputs about 1 minute; total about 12 minutes, rounded up to 15. Upper estimate: ResNet-18 three times slower than this ratio (less efficient small-batch convolutions on the CPU) = about 40 minutes. Memory: the accepted run reached a peak RSS of 4,492 MB after its first LivenessNet model; ResNet-18 adds about 1.5 GB of activations at batch 16: a peak of about 6 to 7 GB expected on a 16 GB machine"
+ },
+ "baseline_check": {
+  "reference_run": "20261106-SESSABLRUN-d999458",
+  "model": "arm_b_fold1_seed42",
+  "card_sha256": "69b12f0762faea8f16f69a802b577f563e9c793465ac7b6e0bdca10dd613a07f",
+  "epochs": 3,
+  "fields": ["loss", "accuracy", "val_loss", "val_accuracy", "lr"],
+  "difference": 0,
+  "rule": "the shared-history rule of the project (nuaa_patience_verify.shared_history, criteria.shared_history_difference = 0 of nuaa_patience_verify.json): the five values of each of the first 3 epochs identical, difference 0, no tolerance; per field the largest absolute difference and the first differing epoch are reported",
+  "source": "the rule with which the epochs in common between the accepted runs at patience 4 and 12 were found identical (shared_history_check of the patience-12 amendment, checked by nuaa_patience_verify: 36 of 36 models, largest absolute difference 0.0 in the five fields; delivery/patienceverify/CONCLUSION.md)",
+  "consequence": "the outcome is recorded and does not change the status of the trial; it is the first check of the copy of the trainer; in the plan the same check is repeated on every epoch of every one of the 24 LivenessNet trainings (against the accepted run at the same patience); if the history is not reproduced in the trial, the difference is reported and the pre-registration is not closed before it is explained"
+ },
+ "definitions": {
+  "one_class": "pad_arch_definitions.one_class_run and one_class_counts: for a trained model and a BN state (ordinary or re-estimated), on the dev of its fold, at the fixed threshold 0.5 with the rule of the project (attack if score > 0.5, tie = bona fide): if one of the two classes is absent from the dev labels the run is not evaluable (counted apart, outside the denominator); otherwise it is a one-class run if and only if the number of frames decided attack is 0 or equals the number of dev frames; reported as k of n evaluable per network x patience x BN state, with the class. Unlike the degenerate criterion (restored epoch 1 or 2 and card dev accuracy 0.5 within 1e-6, which on a balanced dev also includes exactly half wrong), it reads only the decisions at 0.5 of the BN state evaluated",
+  "comparison": "pad_arch_definitions.compare_condition: unit = (dataset, fold or split, seed); condition = (patience, BN state, threshold), 8 conditions; the EER threshold is nuaa_folds_run.eer_threshold on the dev of the fold with the scores of the model in the same BN state; per unit and condition delta = ACER(ResNet-18) - ACER(LivenessNet) on the same test frames, and the same for APCER and BPCER; a tie of a unit = the two ACER equal as exact fractions of the integer counts; per condition the mean delta over the units, the counts of units with delta < 0, delta > 0 and ties, the subject-bootstrap interval of the project (test subjects pooled over the folds, the same indices for both networks, statistic = mean over the units of the paired differences, a resample dropped if a metric is undefined in any unit, the valid resamples reported), and the same values for each seed separately",
+  "sign": "pad_arch_definitions.sign_of and compare_conditions: the sign of a condition is ResNet-18 lower if the ACER interval is entirely below zero, LivenessNet lower if entirely above, unresolved if it contains zero (a bound exactly at zero contains it) or cannot be computed; a sign change between two conditions is recognised only if both are resolved and of opposite sign; reported apart under other names: the inversion of the point estimate only (means of opposite sign with at least one unresolved condition), the paired contrast delta_c - delta_c' with its interval (same indices), and the number of units whose delta changes sign; no reading names a cause",
+  "subject_sensitivity": "pad_arch_definitions.leave_one_subject_out, a choice of the author (not requested by the coordinator) in the form of the definition of the coordinator's N1 protocol of 24 October 2026 (N1 card; N1 delivery, PR #10): for a condition, the mean delta ACER over the units recomputed excluding one test subject at a time from the computation of the metrics (over all units): the values (one per excluded subject), minimum and maximum, the number of exclusions whose point-estimate sign differs from the one with all subjects (zero is a sign of its own), and the denominators per class of each exclusion; if after an exclusion a class is absent from a unit the value is NA, never zero, and it is counted apart; a sensitivity analysis reported next to the sign, not part of the rule of the resolved sign or of the sign change",
+  "fixed_threshold": 0.5,
+  "decision": "attack if score_attack > threshold (tie = bona fide)",
+  "eer_threshold": "eer, the M1 protocol: candidates = distinct dev scores plus nextafter(min, -inf) if >= 0; attack if score > value (tie = bona fide); minimum of |fp * n_attack - fn * n_bona_fide| on integers, ties to the highest value",
+  "bootstrap": {"resamples": 1000, "seed": 0, "percentiles": [2.5, 97.5], "min_subjects": 5},
+  "conditions": [[4, "ordinary", "fixed_0.5"], [4, "ordinary", "dev_eer"], [4, "re-estimated", "fixed_0.5"], [4, "re-estimated", "dev_eer"],
+                 [12, "ordinary", "fixed_0.5"], [12, "ordinary", "dev_eer"], [12, "re-estimated", "fixed_0.5"], [12, "re-estimated", "dev_eer"]]
+ },
+ "plan": {
+  "networks": ["LivenessNet", "ResNet-18"],
+  "patiences": [4, 12],
+  "bn_states": ["ordinary", "re-estimated"],
+  "thresholds": ["fixed_0.5", "dev_eer"],
+  "max_epochs": 12,
+  "datasets": [
+   {
+    "name": "NUAA",
+    "access": "available",
+    "official_source": "NUAA Photograph Imposter Database (Tan, Li, Liu, Jiang, ECCV 2010), the copy and official lists used since M2 (manifests official_train and official_test)",
+    "identity_split": "the four subject folds of the accepted fold schema (run 20261103-FOLDS-67b7f3d): four held-out test subjects per fold; arm B fitting and common dev of the fold from the cells run 20261104-SESSABL-5d89888",
+    "missing_access": null,
+    "unit_kind": "fold",
+    "splits": [1, 2, 3, 4],
+    "seeds": [42, 43, 44],
+    "frames_per_unit": {"fitting": 1400, "dev": 400, "test_per_split": [3242, 3114, 3439, 2819]},
+    "trainings": [
+     {"network": "LivenessNet", "patience": 4, "existing": 0, "new": 12, "reference_run": "20261106-SESSABLRUN-d999458"},
+     {"network": "LivenessNet", "patience": 12, "existing": 0, "new": 12, "reference_run": "20261109-SESSABLRUN-6a50265"},
+     {"network": "ResNet-18", "patience": 4, "existing": 0, "new": 12, "reference_run": null},
+     {"network": "ResNet-18", "patience": 12, "existing": 0, "new": 12, "reference_run": null}
+    ]
+   },
+   {
+    "name": "CelebA-Spoof",
+    "access": "access missing",
+    "official_source": "Zhang et al., CelebA-Spoof (ECCV 2020, DOI 10.1007/978-3-030-58610-2_5); repository https://github.com/ZhangYuanhan-AI/CelebA-Spoof, download folder linked from its README",
+    "identity_split": "the official training / validation / test split, ratio 8 : 1 : 1, with no overlap on subjects (paper, section 3.3), taken as one split; how the identity is encoded in the archive is not verified; fitting and dev subsampled to the NUAA arm B budget (proposal, to be fixed in the pre-registration with the frame sampling and the test size)",
+    "missing_access": "the official archive is not held (the local copy is one shard of an unofficial mirror with no identity column); according to the coordinator's D1 card as of 17 November 2026 the conditions of use were confirmed by the first author of the dataset on 8 October 2026 and the university channel is still to be agreed",
+    "unit_kind": "split",
+    "splits": [1],
+    "seeds": [42, 43, 44],
+    "frames_per_unit": {"fitting": 1400, "dev": 400, "test_per_split": null},
+    "trainings": [
+     {"network": "LivenessNet", "patience": 4, "existing": 0, "new": 3, "reference_run": null},
+     {"network": "LivenessNet", "patience": 12, "existing": 0, "new": 3, "reference_run": null},
+     {"network": "ResNet-18", "patience": 4, "existing": 0, "new": 3, "reference_run": null},
+     {"network": "ResNet-18", "patience": 12, "existing": 0, "new": 3, "reference_run": null}
+    ]
+   },
+   {
+    "name": "Replay-Attack",
+    "access": "access missing",
+    "official_source": "Chingovska, Anjos, Marcel, Replay-Attack (BIOSIG 2012); Idiap, https://www.idiap.ch/en/scientific-research/data/replayattack, distributed through Zenodo, DOI 10.34777/cwcg-7r82",
+    "identity_split": "the official train / devel / test sets, whose identities do not overlap (paper, section III; 15 devel and 20 test clients, 15 train clients by difference), taken as one split; fitting and dev frames sampled from the train and devel videos to the NUAA arm B budget (proposal, to be fixed in the pre-registration with the frame sampling, the per-video aggregation and the test size)",
+    "missing_access": "no copy is held; the Zenodo record is restricted and access depends on an End-User License Agreement signed for the university by a signatory in a permanent position; according to the coordinator's D1 card as of 17 November 2026 no new agreement or access is confirmed",
+    "unit_kind": "split",
+    "splits": [1],
+    "seeds": [42, 43, 44],
+    "frames_per_unit": {"fitting": 1400, "dev": 400, "test_per_split": null},
+    "trainings": [
+     {"network": "LivenessNet", "patience": 4, "existing": 0, "new": 3, "reference_run": null},
+     {"network": "LivenessNet", "patience": 12, "existing": 0, "new": 3, "reference_run": null},
+     {"network": "ResNet-18", "patience": 4, "existing": 0, "new": 3, "reference_run": null},
+     {"network": "ResNet-18", "patience": 12, "existing": 0, "new": 3, "reference_run": null}
+    ]
+   }
+  ],
+  "costs": {
+   "rates": "from the trial.json of a trial produced with this configuration and this code, per network: training seconds per 1,000 fitting frames per epoch = mean over the measured epochs, the first included (it includes the graph tracing: a cautious estimate), of (epoch seconds - validation seconds) / fitting frames x 1,000; validation seconds per 1,000 dev frames (same mean); inference seconds per 1,000 frames from the two inference passes; seconds per training outside the epochs (the whole trainer minus the sum of its epochs: model building, data preparation before the fit, time between and after the epochs); CPU / wall ratio of all of these",
+   "training": "per row: new trainings x (epochs x (training rate x fitting frames + validation rate x dev frames) / 1,000 + seconds per training outside the epochs); minimum epochs min(patience + 1, 12) (best epoch 1, then patience epochs without improvement), maximum 12",
+   "evaluation": "per training (all trainings of a row are evaluated): inference rate x ((BN layers + 1) x fitting frames + 2 x dev frames + 2 x test frames of its split) / 1,000; (BN layers + 1) full passes is an upper bound (at most): the PR #27 re-estimation makes one pass per BN layer truncated at the input of that layer, plus one consistency pass; the test and the dev are scored in the two BN states; the two thresholds add no pass",
+   "totals": "hours of wall time on the machine of the trial, interval from the minimum to the maximum epochs; CPU hours apart, wall hours x the measured CPU / wall ratio; a row with a value not fixed in the configuration, or without a trial measurement, has no number and is left out of the totals (the totals state how many rows they include); outside the estimate: saving the checkpoints, assembling the test, loading the inputs (once per process)"
+  }
+ },
+ "outputs": {
+  "trial": ["status.json", "run.log", "trial.json", "trial.md"],
+  "plan": ["run_plan.csv", "run_plan.md"]
+ },
+ "environment": {
+  "tensorflow": "2.15.0",
+  "keras": "2.15.0"
+ },
+ "test": "no test frame is assembled or evaluated and no test score or metric is read, computed or written. check-inputs and trial read: the five M2 manifests (official_train, official_test, cnn_train, cnn_es and cnn_test: NUAA's official image lists and the cache order, read to index the cache and to check the rows of extracted_frames.csv against the official lists; official_test and cnn_test are not the test role of the folds); the cache, hashed whole with its label and subject members read (only trial loads its image arrays whole, in the frame store); the extracted frames file, loaded whole with the SHA-256 of every frame (both commands); these frame files also hold frames of the held-out subjects, but only the fitting and dev frames of arm B, fold 1 are assembled, by trial only (an explicit check refuses any other role); of the cells run status.json, the public and restricted SHA256SUMS, its configuration and the cell manifests of the arms and of the common dev; of the folds run status.json, the restricted SHA256SUMS and extracted_frames.csv (no public file opened); of the accepted run at patience 4 status.json, the restricted SHA256SUMS and one training card (arm_b_fold1_seed42); of the accepted run at patience 12 status.json and the restricted SHA256SUMS; the configurations of the two accepted runs and the LivenessNet architecture file; the fold schema (fold<k>_test.csv, the test role of the folds) is never loaded and no <model>_test_scores.csv, public aggregate or run record of any run is opened; plan reads only this configuration, the configurations of the two accepted runs, the code files pinned in this configuration and, if given, the status.json and trial.json of a trial"
+}

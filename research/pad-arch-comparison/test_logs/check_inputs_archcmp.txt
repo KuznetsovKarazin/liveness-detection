@@ -1,0 +1,10 @@
+# macOS, Python 3.11.16, NumPy 1.26.4, TensorFlow 2.15.0, 2026-11-18 10:58 CET; check-inputs of the runner on the real inputs (read only: the five M2 manifests, the cache hashed whole without loading its image arrays, the cell manifests, the extracted frames loaded whole and hashed frame by frame, status and restricted SHA256SUMS of the two accepted runs, one training card; fold schema never loaded, no frame assembled, TensorFlow not imported; nothing written); uncommitted working files
+# SHA-256 f60c41bea3eeee168741f2ac913b57ff98a4931a5b70d1696e876c97ed9b070e  scripts/pad_arch_comparison.py
+# SHA-256 7551950f7ae3542a75db20499b2548c7c0c35cf90d551b9635aad61dfac3be23  scripts/pad_arch_definitions.py
+# SHA-256 72790b4fdc8a9f56e4ef5494c8f7fdd87cbfa3bf752eb471e531b524848a5832  scripts/pad_arch_models.py
+# SHA-256 00a62adbd76084561a55608f711adef67030607fa17c6aed9c1b6f07ecf2e1d0  scripts/check_pad_arch_comparison.py
+# SHA-256 a0879b82c073ae172a5ef054df1f505b9e547bc1c9fd4b3dc4437438bd84e797  scripts/check_pad_arch_comparison_mutations.py
+# SHA-256 9264ec0201c148519b3cd07a5e8493ff49b25aadfbd2680636d0a4b0d9bcaab8  delivery/archcmp/pad_arch_comparison.json
+CHECK-INPUTS: configuration 9264ec0201c1, accepted runs 20261106-SESSABLRUN-d999458 (patience 4) and 20261109-SESSABLRUN-6a50265 (patience 12) PASS with their configurations and restricted SHA256SUMS, reference card arm_b_fold1_seed42 69b12f0762fa, code pinned (9 files), LivenessNet architecture a83c02b0788b, trial fitting 1400 frames (700/700, 4 subjects) and dev 400 (200/200, 2 subjects) from the manifests, 6614 extracted frames loaded whole and verified frame by frame, the cache hashed (its image arrays not loaded), fitting and dev keys equal to the reference card; fold schema not loaded, no frame assembled; TensorFlow 2.15.0 installed and not imported; nothing written
+RESULT: PASS (check-inputs)
+exit 0

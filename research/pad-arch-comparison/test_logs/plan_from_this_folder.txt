@@ -1,0 +1,12 @@
+# macOS, Python 3.11.16, NumPy 1.26.4, 2026-11-18 11:11 CET; the plan regenerated from livenesslab/ of this folder with the trial of this folder, into a new folder outside the repository, then compared byte for byte with plan/ (no image, checkpoint or score read)
+# command: python -I -B scripts/pad_arch_comparison.py plan --trial-run ../trial --out-dir <new folder outside the repository>
+plan: 12 rows, 4 with every number; files run_plan.csv, run_plan.md in <new folder>
+RESULT: PASS (plan)
+exit 0
+run_plan.csv: identical to plan/run_plan.csv (SHA-256 ca85871bfc32c176cba925354e47aec04968452f2bb15684f18ac11810b5de90)
+run_plan.md: identical to plan/run_plan.md (SHA-256 6053e5d23ddaa177580a4572cafcd84cbcbf6af28df5f0e591527f1b86b15723)
+# the same command again, 2026-11-18 11:16 CET, with TensorFlow and OpenCV hidden by an import blocker (sys.modules entries set to None before running the script), into another new folder outside the repository
+plan: 12 rows, 4 with every number; files run_plan.csv, run_plan.md in <new folder>
+RESULT: PASS (plan)
+exit 0
+run_plan.csv and run_plan.md: identical to plan/run_plan.csv and plan/run_plan.md

@@ -1,0 +1,20 @@
+# macOS, Python 3.11.16, NumPy 1.26.4, TensorFlow 2.15.0, 2026-11-18 11:09 CET; the same synthetic suite run from livenesslab/ of this folder (research/pad-arch-comparison/livenesslab in the fork, after copying the files), command: python -I -B scripts/check_pad_arch_comparison.py; the files tested are those of this folder
+# SHA-256 f60c41bea3eeee168741f2ac913b57ff98a4931a5b70d1696e876c97ed9b070e  scripts/pad_arch_comparison.py
+# SHA-256 7551950f7ae3542a75db20499b2548c7c0c35cf90d551b9635aad61dfac3be23  scripts/pad_arch_definitions.py
+# SHA-256 72790b4fdc8a9f56e4ef5494c8f7fdd87cbfa3bf752eb471e531b524848a5832  scripts/pad_arch_models.py
+# SHA-256 00a62adbd76084561a55608f711adef67030607fa17c6aed9c1b6f07ecf2e1d0  scripts/check_pad_arch_comparison.py
+# SHA-256 a0879b82c073ae172a5ef054df1f505b9e547bc1c9fd4b3dc4437438bd84e797  scripts/check_pad_arch_comparison_mutations.py
+# SHA-256 9264ec0201c148519b3cd07a5e8493ff49b25aadfbd2680636d0a4b0d9bcaab8  delivery/archcmp/pad_arch_comparison.json
+# SHA-256 a83c02b0788bd6f98262abf00f5fe970abed501f231edba348820482aea64d30  src/livedetection/src/architectures.py
+
+......................................................................WARNING:tensorflow:5 out of the last 13 calls to <function Model.make_test_function.<locals>.test_function at 0x147a9ff60> triggered tf.function retracing. Tracing is expensive and the excessive number of tracings could be due to (1) creating @tf.function repeatedly in a loop, (2) passing tensors with different shapes, (3) passing Python objects instead of tensors. For (1), please define your @tf.function outside of the loop. For (2), @tf.function has reduce_retracing=True option that can avoid unnecessary retracing. For (3), please refer to https://www.tensorflow.org/guide/function#controlling_retracing and https://www.tensorflow.org/api_docs/python/tf/function for  more details.
+WARNING:tensorflow:5 out of the last 13 calls to <function Model.make_test_function.<locals>.test_function at 0x147fd93a0> triggered tf.function retracing. Tracing is expensive and the excessive number of tracings could be due to (1) creating @tf.function repeatedly in a loop, (2) passing tensors with different shapes, (3) passing Python objects instead of tensors. For (1), please define your @tf.function outside of the loop. For (2), @tf.function has reduce_retracing=True option that can avoid unnecessary retracing. For (3), please refer to https://www.tensorflow.org/guide/function#controlling_retracing and https://www.tensorflow.org/api_docs/python/tf/function for  more details.
+.............
+----------------------------------------------------------------------
+Ran 83 tests in 29.811s
+
+OK
+tests run: 83, failures: 0, errors: 0, skipped: 0
+RESULT: PASS
+exit 0
+# wall 31 s
