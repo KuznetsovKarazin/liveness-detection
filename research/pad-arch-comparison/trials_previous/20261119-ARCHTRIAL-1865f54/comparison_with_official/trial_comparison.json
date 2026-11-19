@@ -1,0 +1,158 @@
+{
+ "schema": "pad-arch-trial-comparison/1",
+ "outcome": "reproduced",
+ "rule": "per network and field (loss, accuracy, val_loss, val_accuracy, lr), over the epochs present in both trials: epochs compared, first differing epoch, largest absolute difference and the first epoch at which it is reached; reproduced only if both networks have the same, non-zero number of epochs and difference 0 in every field (no tolerance)",
+ "new": {
+  "run_id": "20261119-ARCHTRIAL-b8f7cca",
+  "schema": "pad-arch-trial/2",
+  "status": "PASS",
+  "commit": "b8f7cca",
+  "config_sha256": "5a83325e13d29d1a67dcda4f129838d19ec39b8f119f5de647693b68c5128b0a",
+  "machine": {
+   "logical_cpus": 15,
+   "os": "macOS 27.2.1",
+   "processor": "Apple M5 Pro",
+   "ram_gb": 24.0
+  },
+  "threads": {
+   "recorded": {
+    "requested": {
+     "intra_op": 10,
+     "inter_op": 10
+    },
+    "effective": {
+     "intra_op": 10,
+     "inter_op": 10
+    },
+    "set_by_this_runner": true,
+    "environment": {
+     "TF_NUM_INTRAOP_THREADS": null,
+     "TF_NUM_INTEROP_THREADS": null
+    },
+    "logical_cpus": 15
+   },
+   "note": "format pad-arch-trial/2: threads set by the runner; requested, effective (read back) and environment variables recorded"
+  },
+  "files_sha256": {
+   "status.json": "eabd17a7f2431cf792a29598002012e2431db75ef543c37474841805263fb094",
+   "trial.json": "d44a82c80bae0f5d54e3df8b07135993e79df75929b2eabd079b97547cf43c80"
+  }
+ },
+ "reference": {
+  "run_id": "20261119-ARCHTRIAL-1865f54",
+  "schema": "pad-arch-trial/2",
+  "status": "PASS",
+  "commit": "1865f54",
+  "config_sha256": "2ade32c6d9bd48b1ba63cd29cbcd811f2f8ec85e0d2816e0603351d94f03b539",
+  "machine": {
+   "logical_cpus": 15,
+   "os": "macOS 27.2.1",
+   "processor": "Apple M5 Pro",
+   "ram_gb": 24.0
+  },
+  "threads": {
+   "recorded": {
+    "requested": {
+     "intra_op": 10,
+     "inter_op": 10
+    },
+    "effective": {
+     "intra_op": 10,
+     "inter_op": 10
+    },
+    "set_by_this_runner": true,
+    "environment": {
+     "TF_NUM_INTRAOP_THREADS": null,
+     "TF_NUM_INTEROP_THREADS": null
+    },
+    "logical_cpus": 15
+   },
+   "note": "format pad-arch-trial/2: threads set by the runner; requested, effective (read back) and environment variables recorded"
+  },
+  "files_sha256": {
+   "status.json": "1e30d86977ee520aa5ae9a071ab8638549d2d0a3f19a50b53e69954f1943ffbf",
+   "trial.json": "7818108cfeddd2986f4c9197cd339bfbdf4a8cff5dd4611b89a8af26ad20a78b"
+  },
+  "threads_as_imposed": {
+   "source": "not recorded"
+  }
+ },
+ "networks": {
+  "LivenessNet": {
+   "epochs_new": 3,
+   "epochs_reference": 3,
+   "same_number_of_epochs": true,
+   "fields": {
+    "loss": {
+     "epochs_compared": 3,
+     "first_differing_epoch": null,
+     "max_abs_difference": 0.0,
+     "epoch_of_max_abs_difference": null
+    },
+    "accuracy": {
+     "epochs_compared": 3,
+     "first_differing_epoch": null,
+     "max_abs_difference": 0.0,
+     "epoch_of_max_abs_difference": null
+    },
+    "val_loss": {
+     "epochs_compared": 3,
+     "first_differing_epoch": null,
+     "max_abs_difference": 0.0,
+     "epoch_of_max_abs_difference": null
+    },
+    "val_accuracy": {
+     "epochs_compared": 3,
+     "first_differing_epoch": null,
+     "max_abs_difference": 0.0,
+     "epoch_of_max_abs_difference": null
+    },
+    "lr": {
+     "epochs_compared": 3,
+     "first_differing_epoch": null,
+     "max_abs_difference": 0.0,
+     "epoch_of_max_abs_difference": null
+    }
+   },
+   "reproduced": true
+  },
+  "ResNet-18": {
+   "epochs_new": 3,
+   "epochs_reference": 3,
+   "same_number_of_epochs": true,
+   "fields": {
+    "loss": {
+     "epochs_compared": 3,
+     "first_differing_epoch": null,
+     "max_abs_difference": 0.0,
+     "epoch_of_max_abs_difference": null
+    },
+    "accuracy": {
+     "epochs_compared": 3,
+     "first_differing_epoch": null,
+     "max_abs_difference": 0.0,
+     "epoch_of_max_abs_difference": null
+    },
+    "val_loss": {
+     "epochs_compared": 3,
+     "first_differing_epoch": null,
+     "max_abs_difference": 0.0,
+     "epoch_of_max_abs_difference": null
+    },
+    "val_accuracy": {
+     "epochs_compared": 3,
+     "first_differing_epoch": null,
+     "max_abs_difference": 0.0,
+     "epoch_of_max_abs_difference": null
+    },
+    "lr": {
+     "epochs_compared": 3,
+     "first_differing_epoch": null,
+     "max_abs_difference": 0.0,
+     "epoch_of_max_abs_difference": null
+    }
+   },
+   "reproduced": true
+  }
+ }
+}

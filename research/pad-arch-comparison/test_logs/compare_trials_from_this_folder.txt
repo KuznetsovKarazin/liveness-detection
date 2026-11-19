@@ -1,0 +1,35 @@
+# macOS, Python 3.11.16, NumPy 1.26.4, TensorFlow 2.15.0, started 2026-11-19 21:15 CET; compare-trials run from livenesslab/ of this folder on the trials of this folder (only their status.json and trial.json and the conditions file are read; no TensorFlow needed), outputs into new folders outside the repository, then compared byte for byte with the files of this folder
+# SHA-256 8f9a7c314acef2b6c00bd37b9d3089c94ea5c6acfc55b27b89ce8ddd6d8f7451  scripts/pad_arch_comparison.py
+# SHA-256 7bef6b62c9df355ca9ce1eb971dea142825b5aebb48c313d45087cbb899b5bff  scripts/pad_arch_definitions.py
+# SHA-256 72790b4fdc8a9f56e4ef5494c8f7fdd87cbfa3bf752eb471e531b524848a5832  scripts/pad_arch_models.py
+# SHA-256 184106b54350f384815334fcee3a90edbbd672903fda74c5ac3715968cacc86c  scripts/check_pad_arch_comparison.py
+# SHA-256 c21fb01f3987f2421028825354e17e890070ab1315e054ec6a258296b7cee728  scripts/check_pad_arch_comparison_mutations.py
+# SHA-256 5a83325e13d29d1a67dcda4f129838d19ec39b8f119f5de647693b68c5128b0a  delivery/archcmp/pad_arch_comparison.json
+# SHA-256 a83c02b0788bd6f98262abf00f5fe970abed501f231edba348820482aea64d30  src/livedetection/src/architectures.py
+# command: python -I -B scripts/pad_arch_comparison.py compare-trials --trial-run ../trial --reference-run ../trials_previous/20261119-ARCHTRIAL-b8e78b2 --reference-conditions ../trial_comparison/reference_conditions.txt --compare-out-dir <new folder outside the repository>
+compare-trials: 20261119-ARCHTRIAL-b8f7cca against 20261119-ARCHTRIAL-b8e78b2: reproduced; files trial_comparison.json, trial_comparison.md in <new folder>
+RESULT: PASS (compare-trials)
+trial_comparison.json: identical to trial_comparison/trial_comparison.json (SHA-256 5efd111512e3bacb67225169208b7a9b145da2116a54dc9ffc5331ddaf7b0080)
+trial_comparison.md: identical to trial_comparison/trial_comparison.md (SHA-256 60cf84433d8e643c693d64d02676babe527f32135c57b0aa81344203c50e8491)
+# the same command against ../trials_previous/20261118-ARCHTRIAL-3f059b7, without --reference-conditions
+compare-trials: 20261119-ARCHTRIAL-b8f7cca against 20261118-ARCHTRIAL-3f059b7: reproduced; files trial_comparison.json, trial_comparison.md in <new folder>
+RESULT: PASS (compare-trials)
+trial_comparison.json: identical to trials_previous/20261118-ARCHTRIAL-3f059b7/comparison_with_official/trial_comparison.json
+trial_comparison.md: identical to trials_previous/20261118-ARCHTRIAL-3f059b7/comparison_with_official/trial_comparison.md
+# the same command against ../trials_previous/20261118-ARCHTRIAL-0858ae7, without --reference-conditions
+compare-trials: 20261119-ARCHTRIAL-b8f7cca against 20261118-ARCHTRIAL-0858ae7: not reproduced; files trial_comparison.json, trial_comparison.md in <new folder>
+RESULT: PASS (compare-trials)
+trial_comparison.json: identical to trials_previous/20261118-ARCHTRIAL-0858ae7/comparison_with_official/trial_comparison.json
+trial_comparison.md: identical to trials_previous/20261118-ARCHTRIAL-0858ae7/comparison_with_official/trial_comparison.md
+# the same command against ../trials_previous/20261119-ARCHTRIAL-1865f54, without --reference-conditions
+compare-trials: 20261119-ARCHTRIAL-b8f7cca against 20261119-ARCHTRIAL-1865f54: reproduced; files trial_comparison.json, trial_comparison.md in <new folder>
+RESULT: PASS (compare-trials)
+trial_comparison.json: identical to trials_previous/20261119-ARCHTRIAL-1865f54/comparison_with_official/trial_comparison.json
+trial_comparison.md: identical to trials_previous/20261119-ARCHTRIAL-1865f54/comparison_with_official/trial_comparison.md
+# the same command against ../trials_previous/20261119-ARCHTRIAL-571b812, without --reference-conditions
+compare-trials: 20261119-ARCHTRIAL-b8f7cca against 20261119-ARCHTRIAL-571b812: reproduced; files trial_comparison.json, trial_comparison.md in <new folder>
+RESULT: PASS (compare-trials)
+trial_comparison.json: identical to trials_previous/20261119-ARCHTRIAL-571b812/comparison_with_official/trial_comparison.json
+trial_comparison.md: identical to trials_previous/20261119-ARCHTRIAL-571b812/comparison_with_official/trial_comparison.md
+exit 0
+# finished 2026-11-19 21:15 CET, wall 4 s

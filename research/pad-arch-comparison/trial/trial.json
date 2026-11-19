@@ -1,0 +1,367 @@
+{
+ "schema": "pad-arch-trial/2",
+ "run_id": "20261119-ARCHTRIAL-b8f7cca",
+ "commit": "b8f7cca",
+ "dirty": false,
+ "config_sha256": "5a83325e13d29d1a67dcda4f129838d19ec39b8f119f5de647693b68c5128b0a",
+ "command": "python -I -B scripts/pad_arch_comparison.py trial --i-am-authorized",
+ "status": "PASS",
+ "started": "2026-11-19T21:04:47+0100",
+ "finished": "2026-11-19T21:07:47+0100",
+ "wall_seconds": 180.0,
+ "process_cpu_seconds": 1534.1,
+ "cap_minutes": 60,
+ "cap_unit": "minutes of wall time (elapsed real time, not CPU time)",
+ "stopped": null,
+ "unit": {
+  "dataset": "NUAA",
+  "arm": "arm_b",
+  "fold": 1,
+  "seed": 42,
+  "frames": {
+   "fitting": {
+    "n": 1400,
+    "bona_fide": 700,
+    "attack": 700,
+    "subjects": 4
+   },
+   "dev": {
+    "n": 400,
+    "bona_fide": 200,
+    "attack": 200,
+    "subjects": 2
+   }
+  }
+ },
+ "epochs_fixed": 3,
+ "batch": 16,
+ "inference_batch": 16,
+ "device": "CPU (GPU hidden)",
+ "visible_devices": [
+  "CPU"
+ ],
+ "threads": {
+  "requested": {
+   "intra_op": 10,
+   "inter_op": 10
+  },
+  "effective": {
+   "intra_op": 10,
+   "inter_op": 10
+  },
+  "set_by_this_runner": true,
+  "environment": {
+   "TF_NUM_INTRAOP_THREADS": null,
+   "TF_NUM_INTEROP_THREADS": null
+  },
+  "logical_cpus": 15
+ },
+ "machine": {
+  "processor": "Apple M5 Pro",
+  "core_levels": [
+   {
+    "name": "Super",
+    "physical_cores": 5
+   },
+   {
+    "name": "Performance",
+    "physical_cores": 10
+   }
+  ],
+  "ram_gb": 24.0,
+  "os": "macOS 27.2.1",
+  "logical_cpus": 15,
+  "architecture": "arm64"
+ },
+ "environment": {
+  "python": "3.11.16",
+  "numpy": "1.26.4",
+  "platform": "darwin",
+  "tensorflow": "2.15.0",
+  "tensorflow-metal": "1.1.0",
+  "keras": "2.15.0",
+  "opencv": "4.11.0",
+  "tensorflow_installed": "2.15.0"
+ },
+ "peak_rss_mb": 5299.1,
+ "networks": {
+  "LivenessNet": {
+   "epochs": [
+    {
+     "epoch": 1,
+     "loss": 0.058354452252388,
+     "accuracy": 0.9807142615318298,
+     "val_loss": 7.0610671043396,
+     "val_accuracy": 0.5,
+     "lr": 0.0010000000474974513,
+     "seconds_total": 13.779779875010718,
+     "seconds_validation": 0.9172273330041207,
+     "cpu_seconds": 112.639527
+    },
+    {
+     "epoch": 2,
+     "loss": 0.029925785958766937,
+     "accuracy": 0.9885714054107666,
+     "val_loss": 11.087084770202637,
+     "val_accuracy": 0.5,
+     "lr": 0.0010000000474974513,
+     "seconds_total": 13.707466249994468,
+     "seconds_validation": 0.8466727500053821,
+     "cpu_seconds": 114.718802
+    },
+    {
+     "epoch": 3,
+     "loss": 0.015531154349446297,
+     "accuracy": 0.9942857027053833,
+     "val_loss": 25.260087966918945,
+     "val_accuracy": 0.5,
+     "lr": 0.0010000000474974513,
+     "seconds_total": 13.887857458001235,
+     "seconds_validation": 0.849753000002238,
+     "cpu_seconds": 115.939424
+    }
+   ],
+   "inference": {
+    "fitting": {
+     "frames": 1400,
+     "batch": 16,
+     "seconds": 3.355191708993516,
+     "cpu_seconds": 28.54325399999999
+    },
+    "dev": {
+     "frames": 400,
+     "batch": 16,
+     "seconds": 0.9737490840052487,
+     "cpu_seconds": 8.157203999999979
+    }
+   },
+   "threads": {
+    "intra_op": 10,
+    "inter_op": 10
+   },
+   "training_overhead": {
+    "seconds": 1.2740922499942826,
+    "cpu_seconds": 1.0979619999999954
+   },
+   "parameters": {
+    "trainable": 8405778,
+    "non_trainable": 320
+   },
+   "batchnorm_layers": 5,
+   "steps_per_epoch": 88,
+   "card": {
+    "arch": "LivenessNet",
+    "train_seed": 42,
+    "n_fitting": 1400,
+    "n_dev": 400,
+    "max_epochs": 3,
+    "epochs_run": 3,
+    "restored_epoch": 1,
+    "restored_by": "end of epochs (set_weights)",
+    "device": "CPU",
+    "visible_devices": [
+     "CPU"
+    ],
+    "lr": 0.001,
+    "batch": 16,
+    "early_stopping_patience": 4,
+    "scheduler": "ReduceLROnPlateau(monitor=val_loss, factor=0.5, patience=2, min_lr=1e-6)",
+    "class_weight": {
+     "0": 1.0,
+     "1": 1.0
+    },
+    "train_seconds": 41.8,
+    "checkpoint": "none saved (trial)"
+   },
+   "rates": {
+    "train_seconds_per_1000_fitting_frames_per_epoch": 9.22891678571302,
+    "validation_seconds_per_1000_frames": 2.1780442358431173,
+    "inference_seconds_per_1000_frames": 2.4049671072215357,
+    "overhead_seconds_per_training": 1.2740922499942826,
+    "cpu_over_wall": 8.112202832436036,
+    "epochs_measured": 3
+   }
+  },
+  "ResNet-18": {
+   "epochs": [
+    {
+     "epoch": 1,
+     "loss": 0.2266986072063446,
+     "accuracy": 0.947857141494751,
+     "val_loss": 1.0073198080062866,
+     "val_accuracy": 0.8224999904632568,
+     "lr": 0.0010000000474974513,
+     "seconds_total": 37.64193749999686,
+     "seconds_validation": 3.0125737500056857,
+     "cpu_seconds": 342.891656
+    },
+    {
+     "epoch": 2,
+     "loss": 0.06164513900876045,
+     "accuracy": 0.9750000238418579,
+     "val_loss": 0.3396044671535492,
+     "val_accuracy": 0.8450000286102295,
+     "lr": 0.0010000000474974513,
+     "seconds_total": 36.802585291996365,
+     "seconds_validation": 2.873867041009362,
+     "cpu_seconds": 341.05346399999996
+    },
+    {
+     "epoch": 3,
+     "loss": 0.04385300353169441,
+     "accuracy": 0.9835714101791382,
+     "val_loss": 0.0018736415077000856,
+     "val_accuracy": 1.0,
+     "lr": 0.0010000000474974513,
+     "seconds_total": 37.0970537920075,
+     "seconds_validation": 2.8987536250060657,
+     "cpu_seconds": 343.2688620000001
+    }
+   ],
+   "inference": {
+    "fitting": {
+     "frames": 1400,
+     "batch": 16,
+     "seconds": 10.843353707998176,
+     "cpu_seconds": 92.80332799999996
+    },
+    "dev": {
+     "frames": 400,
+     "batch": 16,
+     "seconds": 3.0595273329963675,
+     "cpu_seconds": 26.229350000000068
+    }
+   },
+   "threads": {
+    "intra_op": 10,
+    "inter_op": 10
+   },
+   "training_overhead": {
+    "seconds": 0.8041205829940736,
+    "cpu_seconds": 0.9647509999999784
+   },
+   "parameters": {
+    "trainable": 11177538,
+    "non_trainable": 9600
+   },
+   "batchnorm_layers": 20,
+   "steps_per_epoch": 88,
+   "card": {
+    "arch": "ResNet-18",
+    "train_seed": 42,
+    "n_fitting": 1400,
+    "n_dev": 400,
+    "max_epochs": 3,
+    "epochs_run": 3,
+    "restored_epoch": 3,
+    "restored_by": "end of epochs (set_weights)",
+    "device": "CPU",
+    "visible_devices": [
+     "CPU"
+    ],
+    "lr": 0.001,
+    "batch": 16,
+    "early_stopping_patience": 4,
+    "scheduler": "ReduceLROnPlateau(monitor=val_loss, factor=0.5, patience=2, min_lr=1e-6)",
+    "class_weight": {
+     "0": 1.0,
+     "1": 1.0
+    },
+    "train_seconds": 111.8,
+    "checkpoint": "none saved (trial)"
+   },
+   "rates": {
+    "train_seconds_per_1000_fitting_frames_per_epoch": 24.465805278090386,
+    "validation_seconds_per_1000_frames": 7.320995346684261,
+    "inference_seconds_per_1000_frames": 7.723822800552524,
+    "overhead_seconds_per_training": 0.8041205829940736,
+    "cpu_over_wall": 9.086925391825138,
+    "epochs_measured": 3
+   }
+  }
+ },
+ "data_check": {
+  "fitting_keys_equal_to_reference_card": true,
+  "dev_keys_equal_to_reference_card": true
+ },
+ "baseline_check": {
+  "reference_run": "20261106-SESSABLRUN-d999458",
+  "model": "arm_b_fold1_seed42",
+  "epochs_compared": 3,
+  "fields": [
+   "loss",
+   "accuracy",
+   "val_loss",
+   "val_accuracy",
+   "lr"
+  ],
+  "rule": "the shared-history rule of the project (nuaa_patience_verify.shared_history, criteria.shared_history_difference = 0 of nuaa_patience_verify.json): the five values of each of the first 3 epochs identical, difference 0, no tolerance, computed with one source, pad_arch_comparison.history_differences (a non-finite value, NaN or infinite, in the compared epochs stops the trial as FAIL with no outputs); per field the first epoch at which the two values differ (first_differing_epoch), the largest absolute difference (max_abs_difference) and the first epoch at which it is reached (epoch_of_max_abs_difference) are reported; in PR #29 the field first_differing_epoch held the epoch of the largest difference (our defect, corrected with a test on 19 November 2026)",
+  "consequence": "the outcome is recorded and does not change the status of the trial; it is the first check of the copy of the trainer; in the plan the same check is repeated on every epoch of every one of the 24 LivenessNet trainings (against the accepted run at the same patience); if the history is not reproduced in the trial, the difference is reported and the pre-registration is not closed before it is explained",
+  "outcome": "reproduced",
+  "first_differing_epoch": {
+   "loss": null,
+   "accuracy": null,
+   "val_loss": null,
+   "val_accuracy": null,
+   "lr": null
+  },
+  "max_abs_difference": {
+   "loss": 0.0,
+   "accuracy": 0.0,
+   "val_loss": 0.0,
+   "val_accuracy": 0.0,
+   "lr": 0.0
+  },
+  "epoch_of_max_abs_difference": {
+   "loss": null,
+   "accuracy": null,
+   "val_loss": null,
+   "val_accuracy": null,
+   "lr": null
+  }
+ },
+ "checkpoint": "none saved",
+ "training": {
+  "recipe": "N1 part 2 (n1_nuaa_stability.json, study 20261024-N1-LivenessNet-fb93496), unchanged",
+  "max_epochs": 3,
+  "batch": 16,
+  "initial_learning_rate": 0.001,
+  "early_stopping_patience": 4,
+  "checkpoint": "weights of the epoch with minimum val_loss on the dev frames (EarlyStopping restore_best_weights; set_weights when the epochs end first)",
+  "optimizer": "tf.keras.optimizers.legacy.Adam(learning_rate=initial_learning_rate, clipnorm=1.0)",
+  "loss": "CategoricalCrossentropy, one-hot labels (index 0 bona fide, 1 attack)",
+  "class_weight": "balanced on the fitting set: n / (2 * n_class)",
+  "augmentation": "RandomFlip(horizontal), RandomRotation(0.03), RandomZoom(0.12, 0.12), RandomTranslation(0.06, 0.06), RandomBrightness(0.15, value_range=(0, 1)), RandomContrast(0.2), GaussianNoise(0.02); fitting set only",
+  "scheduler": "ReduceLROnPlateau(monitor=val_loss, factor=0.5, patience=2, min_lr=1e-6)",
+  "shuffle": "tf.data shuffle(4096, seed=train_seed)",
+  "seeds": "train_seed for random, numpy and TensorFlow (weight initialisation, augmentation, batch order); no split seed: the folds and the samples are deterministic",
+  "device": "CPU"
+ },
+ "process": "one process for both networks, LivenessNet first: LivenessNet is then the first training of the process, as arm_b_fold1_seed42 was in the accepted run; the runs of the plan train many models in sequence in one process, as the accepted runs did; the inputs (about 2.5 GB of frames) are loaded and verified once; between the two networks the trainer calls clear_session and the previous model is released",
+ "code_sha256": {
+  "architecture": "a83c02b0788bd6f98262abf00f5fe970abed501f231edba348820482aea64d30",
+  "scripts/nuaa_folds_run.py": "82fed566cfa8ac0b280b55edbf430e7051dff1ae83d17a902d78157f2c72ffb2",
+  "scripts/nuaa_session_ablation_run.py": "9c45255199b87a41126b77867d5bbcf0da6f6ecf1684bf8fdd89185f463a276e",
+  "scripts/nuaa_bn_recalibration.py": "8c228ef400f5ef4337612477b23113fb6b8cac5364a5ff026e2c0ac8096734f5",
+  "scripts/nuaa_patience_verify.py": "edc839849ac76be9ce3149a3c217f35b6f1f430e352b471d03b78398093f4b9e",
+  "scripts/m2_writers.py": "22760abc368dede3aa0a690a241f6622afe1ba586940422497db8a33994ee34a",
+  "scripts/path_guard.py": "e5fa9c835c23745ff932e157a44d3104eb9713d86bbdecc9cdbbd3caa7a7ee34",
+  "scripts/package_rules.py": "96ec7ffab4b089bac71fd18918fcd32af72d15980cdfa1361cc84bb43e0e4c11",
+  "scripts/pad_arch_models.py": "72790b4fdc8a9f56e4ef5494c8f7fdd87cbfa3bf752eb471e531b524848a5832",
+  "scripts/pad_arch_definitions.py": "7bef6b62c9df355ca9ce1eb971dea142825b5aebb48c313d45087cbb899b5bff",
+  "scripts/pad_arch_comparison.py": "8f9a7c314acef2b6c00bd37b9d3089c94ea5c6acfc55b27b89ce8ddd6d8f7451"
+ },
+ "checks": {
+  "configuration_unchanged": true,
+  "code_unchanged": 9,
+  "reference_card_unchanged": true
+ },
+ "test_read": "no test frame is assembled or evaluated and no test score or metric is read, computed or written. check-inputs and trial read: the five M2 manifests (official_train, official_test, cnn_train, cnn_es and cnn_test: NUAA's official image lists and the cache order, read to index the cache and to check the rows of extracted_frames.csv against the official lists; official_test and cnn_test are not the test role of the folds); the cache, hashed whole with its label and subject members read (only trial loads its image arrays whole, in the frame store); the extracted frames file, loaded whole with the SHA-256 of every frame (both commands); these frame files also hold frames of the held-out subjects, but only the fitting and dev frames of arm B, fold 1 are assembled, by trial only (an explicit check refuses any other role); of the cells run status.json, the public and restricted SHA256SUMS, its configuration and the cell manifests of the arms and of the common dev; of the folds run status.json, the restricted SHA256SUMS and extracted_frames.csv (no public file opened); of the accepted run at patience 4 status.json, the restricted SHA256SUMS and one training card (arm_b_fold1_seed42); of the accepted run at patience 12 status.json and the restricted SHA256SUMS; the configurations of the two accepted runs and the LivenessNet architecture file; the fold schema (fold<k>_test.csv, the test role of the folds) is never loaded and no <model>_test_scores.csv, public aggregate or run record of any run is opened; plan reads only this configuration, the configurations of the two accepted runs, the code files pinned in this configuration and, if given, the status.json and trial.json of a trial; compare-trials reads only the status.json and trial.json of the two trials it compares and, if given, the reference conditions file",
+ "declarations": {
+  "no_test": "no test frame is assembled or evaluated and no test score or metric is read, computed or written in this delivery; as in the accepted runs the frame files (the cache and the extracted frames, which also hold frames of the held-out subjects) are hashed and loaded whole, but only the fitting and dev frames of arm B, fold 1 are assembled, and an explicit check refuses any other role; the fold schema (which holds the test role) is never loaded; no external dataset is touched",
+  "technical_trial": "the trial measures time and memory; the histories it records are technical outputs, not results, and no metric is computed from them; the LivenessNet history is compared with the accepted card only as a check of the copy of the trainer",
+  "cpu_only": "TensorFlow runs on the CPU only (the GPU is hidden before any operation: known tensorflow-metal defect that skips the ReLU after a Dense layer in graph mode), as in the accepted runs",
+  "no_checkpoint": "no checkpoint is saved by the trial: the models live in memory for the inference passes and are then released",
+  "threads": "requested by the coordinator on 19 November 2026: for the whole NUAA plan, the intra-op and the inter-op TensorFlow threads fixed at 10, set and recorded by the runner. Choice of the author: how. The runner sets the intra-op and inter-op values of tf.config.threading to 10 and 10 (training.threads) right after TensorFlow is imported and before any TensorFlow operation and reads them back from its getters; nothing else of the threading is set by the runner; 'effective' is the value read back from the getters of tf.config.threading, not a measured size of any thread pool; environment variables TF_NUM_INTRAOP_THREADS or TF_NUM_INTEROP_THREADS that contradict the configuration are refused before any work. The accepted runs did not set them and ran on an Apple M4 with 10 logical CPUs; on the Apple M5 Pro (15 logical CPUs) a trial with the TensorFlow defaults (20261118-ARCHTRIAL-0858ae7) did not reproduce the accepted LivenessNet history, while a trial with both values set to 10 through environment variables (20261119-ARCHTRIAL-b8e78b2, outside the repository) did. The requested and effective values, the environment variables found and the number of logical CPUs are recorded in status.json, trial.json and trial.md; the record of each network holds the values read back after that network, and they are checked also before it"
+ }
+}

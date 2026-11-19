@@ -1,0 +1,33 @@
+# macOS, Python 3.11.16, NumPy 1.26.4, TensorFlow 2.15.0, started 2026-11-19 21:14 CET; the same suite from livenesslab/ of this folder with TensorFlow hidden by tools/run_without_tensorflow.py (as on a machine without TensorFlow); the files tested are those of this folder
+# SHA-256 8f9a7c314acef2b6c00bd37b9d3089c94ea5c6acfc55b27b89ce8ddd6d8f7451  scripts/pad_arch_comparison.py
+# SHA-256 7bef6b62c9df355ca9ce1eb971dea142825b5aebb48c313d45087cbb899b5bff  scripts/pad_arch_definitions.py
+# SHA-256 72790b4fdc8a9f56e4ef5494c8f7fdd87cbfa3bf752eb471e531b524848a5832  scripts/pad_arch_models.py
+# SHA-256 184106b54350f384815334fcee3a90edbbd672903fda74c5ac3715968cacc86c  scripts/check_pad_arch_comparison.py
+# SHA-256 c21fb01f3987f2421028825354e17e890070ab1315e054ec6a258296b7cee728  scripts/check_pad_arch_comparison_mutations.py
+# SHA-256 5a83325e13d29d1a67dcda4f129838d19ec39b8f119f5de647693b68c5128b0a  delivery/archcmp/pad_arch_comparison.json
+# SHA-256 a83c02b0788bd6f98262abf00f5fe970abed501f231edba348820482aea64d30  src/livedetection/src/architectures.py
+# SHA-256 55c3ec016783c8152c456f36de63697c2c4e7082f12e47ff2546f18d0f23a70c  tools/run_without_tensorflow.py
+# command: python -I -B tools/run_without_tensorflow.py scripts/check_pad_arch_comparison.py
+..................................................................................ssssssssssssss..........................................................
+----------------------------------------------------------------------
+Ran 154 tests in 6.745s
+
+OK (skipped=14)
+tests run: 154, failures: 0, errors: 0, skipped: 14
+skipped __main__.TestKModels.test_check_model_refusals: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+skipped __main__.TestKModels.test_livenessnet_has_the_same_batchnorm_defaults: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+skipped __main__.TestKModels.test_resnet18_built_at_256: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+skipped __main__.TestKThreadsInAProcess.test_set_threads_in_a_clean_process_and_after_an_operation: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+skipped __main__.TestLTrial.test_errors_before_and_during_the_trial: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+skipped __main__.TestLTrial.test_not_reproduced_is_recorded_and_status_unchanged: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+skipped __main__.TestLTrial.test_overhead_is_the_trainer_minus_its_epochs: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+skipped __main__.TestLTrial.test_personal_text_fails_and_removes_the_outputs: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+skipped __main__.TestLTrial.test_same_command_after_a_pass_with_a_broken_input: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+skipped __main__.TestLTrial.test_stop_between_the_two_inference_passes: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+skipped __main__.TestLTrial.test_stop_during_resnet_epochs_is_incomplete: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+skipped __main__.TestLTrial.test_trainer_matches_the_original_trainer: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+skipped __main__.TestLTrial.test_trial_pass_then_plan_then_refused_again: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+skipped __main__.TestLTrial.test_wall_time_cap_before_any_epoch: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+RESULT: PASS
+exit 0
+# finished 2026-11-19 21:14 CET, wall 7 s

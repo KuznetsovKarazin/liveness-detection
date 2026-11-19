@@ -1,0 +1,20 @@
+{
+ "run_id": "20261118-ARCHTRIAL-3f059b7",
+ "commit": "3f059b7",
+ "dirty": false,
+ "config_sha256": "9264ec0201c148519b3cd07a5e8493ff49b25aadfbd2680636d0a4b0d9bcaab8",
+ "command": "trial",
+ "status": "PASS",
+ "passed": true,
+ "started": "2026-11-18T10:59:46+0100",
+ "finished": "2026-11-18T11:05:23+0100",
+ "wall_seconds": 336.8,
+ "process_cpu_seconds": 2556.0,
+ "cap_minutes": 60,
+ "cap_unit": "minutes of wall time (elapsed real time, not CPU time)",
+ "stopped": null,
+ "baseline_check": "reproduced",
+ "trial_json_sha256": "56d20023ddb62ca49d2f2ea972b2dd5c5d9161f7d2d33b71beae2ae47611c13b",
+ "trial_md_sha256": "0564b74f817ea9672eb8fd4377372c0c2e23c9aa0e4ac98c2a9652f30187c246",
+ "run_log_sha256": "c60885ba02caeedc93e04072b9897d067c1f734f259164880a19edcf83bc55ba"
+}

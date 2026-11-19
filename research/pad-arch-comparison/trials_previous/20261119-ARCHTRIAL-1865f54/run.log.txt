@@ -1,0 +1,31 @@
+===== 2026-11-19T17:57:34+0100 run =====
+== architecture trial 20261119-ARCHTRIAL-1865f54: configuration 2ade32c6d9bd, cap 60 minutes of wall time (elapsed real time, not CPU time), pid 37529
+   inputs PASS in 3.7 s: fitting 1400 and dev 400 frames assembled, no test frame assembled, keys equal to the reference card; peak RSS 2644 MB
+   TensorFlow threads set by this runner: requested intra-op 10 and inter-op 10, effective (read back from tf.config.threading) intra-op 10 and inter-op 10; environment variables: TF_NUM_INTRAOP_THREADS absent, TF_NUM_INTEROP_THREADS absent; logical CPUs 15.
+Epoch 1/3
+88/88 - 14s - loss: 0.0584 - accuracy: 0.9807 - val_loss: 7.0611 - val_accuracy: 0.5000 - lr: 0.0010 - 14s/epoch - 157ms/step
+Epoch 2/3
+88/88 - 14s - loss: 0.0299 - accuracy: 0.9886 - val_loss: 11.0871 - val_accuracy: 0.5000 - lr: 0.0010 - 14s/epoch - 156ms/step
+Epoch 3/3
+88/88 - 14s - loss: 0.0155 - accuracy: 0.9943 - val_loss: 25.2601 - val_accuracy: 0.5000 - lr: 0.0010 - 14s/epoch - 159ms/step
+== LivenessNet seed 42: 3 epochs in 42s, restored epoch 1 (val_loss 7.061067)
+   LivenessNet epoch 1: 13.8 s (validation 0.9 s, process CPU 112.7 s)
+   LivenessNet epoch 2: 13.8 s (validation 0.8 s, process CPU 114.7 s)
+   LivenessNet epoch 3: 14.0 s (validation 0.9 s, process CPU 116.4 s)
+   LivenessNet inference on the fitting: 1400 frames in 3.4 s
+   LivenessNet inference on the dev: 400 frames in 1.0 s
+Epoch 1/3
+88/88 - 38s - loss: 0.2267 - accuracy: 0.9479 - val_loss: 1.0073 - val_accuracy: 0.8225 - lr: 0.0010 - 38s/epoch - 434ms/step
+Epoch 2/3
+88/88 - 37s - loss: 0.0616 - accuracy: 0.9750 - val_loss: 0.3396 - val_accuracy: 0.8450 - lr: 0.0010 - 37s/epoch - 423ms/step
+Epoch 3/3
+88/88 - 38s - loss: 0.0439 - accuracy: 0.9836 - val_loss: 0.0019 - val_accuracy: 1.0000 - lr: 0.0010 - 38s/epoch - 428ms/step
+== ResNet-18 seed 42: 3 epochs in 113s, restored epoch 3 (val_loss 0.001874)
+   ResNet-18 epoch 1: 38.2 s (validation 3.1 s, process CPU 345.4 s)
+   ResNet-18 epoch 2: 37.2 s (validation 2.9 s, process CPU 344.8 s)
+   ResNet-18 epoch 3: 37.6 s (validation 2.9 s, process CPU 347.6 s)
+   ResNet-18 inference on the fitting: 1400 frames in 11.1 s
+   ResNet-18 inference on the dev: 400 frames in 3.1 s
+   LivenessNet history against arm_b_fold1_seed42 of 20261106-SESSABLRUN-d999458: reproduced
+run folder: 20261119-ARCHTRIAL-1865f54, wall 182 s (3.0 min of the 60-minute wall-time cap), process CPU 1548 s, peak RSS 5826 MB
+RESULT: PASS (trial)
