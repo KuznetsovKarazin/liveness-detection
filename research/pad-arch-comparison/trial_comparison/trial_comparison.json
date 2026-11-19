@@ -1,0 +1,156 @@
+{
+ "schema": "pad-arch-trial-comparison/1",
+ "outcome": "reproduced",
+ "rule": "per network and field (loss, accuracy, val_loss, val_accuracy, lr), over the epochs present in both trials: epochs compared, first differing epoch, largest absolute difference and the first epoch at which it is reached; reproduced only if both networks have the same, non-zero number of epochs and difference 0 in every field (no tolerance)",
+ "new": {
+  "run_id": "20261119-ARCHTRIAL-b8f7cca",
+  "schema": "pad-arch-trial/2",
+  "status": "PASS",
+  "commit": "b8f7cca",
+  "config_sha256": "5a83325e13d29d1a67dcda4f129838d19ec39b8f119f5de647693b68c5128b0a",
+  "machine": {
+   "logical_cpus": 15,
+   "os": "macOS 27.2.1",
+   "processor": "Apple M5 Pro",
+   "ram_gb": 24.0
+  },
+  "threads": {
+   "recorded": {
+    "requested": {
+     "intra_op": 10,
+     "inter_op": 10
+    },
+    "effective": {
+     "intra_op": 10,
+     "inter_op": 10
+    },
+    "set_by_this_runner": true,
+    "environment": {
+     "TF_NUM_INTRAOP_THREADS": null,
+     "TF_NUM_INTEROP_THREADS": null
+    },
+    "logical_cpus": 15
+   },
+   "note": "format pad-arch-trial/2: threads set by the runner; requested, effective (read back) and environment variables recorded"
+  },
+  "files_sha256": {
+   "status.json": "eabd17a7f2431cf792a29598002012e2431db75ef543c37474841805263fb094",
+   "trial.json": "d44a82c80bae0f5d54e3df8b07135993e79df75929b2eabd079b97547cf43c80"
+  }
+ },
+ "reference": {
+  "run_id": "20261119-ARCHTRIAL-b8e78b2",
+  "schema": "pad-arch-trial/1",
+  "status": "PASS",
+  "commit": "b8e78b2",
+  "config_sha256": "9264ec0201c148519b3cd07a5e8493ff49b25aadfbd2680636d0a4b0d9bcaab8",
+  "machine": {
+   "logical_cpus": 15,
+   "os": "macOS 27.2.1",
+   "processor": "Apple M5 Pro",
+   "ram_gb": 24.0
+  },
+  "threads": {
+   "recorded": {
+    "logical_cpus": 15,
+    "inter_op_parallelism_threads": 0,
+    "intra_op_parallelism_threads": 0,
+    "set_by_this_runner": false
+   },
+   "note": "format pad-arch-trial/1: the runner did not set the threads; the recorded values are those read from the getters of tf.config.threading (0 = not set through tf.config.threading); format /1 does not record the environment variables"
+  },
+  "files_sha256": {
+   "status.json": "8e77ee8e449b44e845c60ae5c5c0b1a0fe5c2ecc39e508622e730eab1264b1ed",
+   "trial.json": "7c252328261367cf7fbfefbedcb0d20ba5350d3e1d7ed55dfc125b8e39e96021"
+  },
+  "threads_as_imposed": {
+   "source": "conditions file",
+   "file": "reference_conditions.txt",
+   "sha256": "591e60bfd5644d356e0579866ff2d4fad089cf9ffab4a7f04cb6adbd545c0e41",
+   "command_line": "TF_NUM_INTRAOP_THREADS=10 TF_NUM_INTEROP_THREADS=10 .venv/bin/python -I -B scripts/pad_arch_comparison.py trial --i-am-authorized --out-root <folder outside the repository>",
+   "values": {
+    "TF_NUM_INTRAOP_THREADS": 10,
+    "TF_NUM_INTEROP_THREADS": 10
+   },
+   "note": "declared by a conditions file written by the author around the reference trial, not by its record (the format pad-arch-trial/1 does not record the environment variables); checked by the code: the file holds the commit of the reference record as a whole word, and its one line with both variables sets TF_NUM_INTRAOP_THREADS and TF_NUM_INTEROP_THREADS to integers equal to the threads required of the configuration"
+  }
+ },
+ "networks": {
+  "LivenessNet": {
+   "epochs_new": 3,
+   "epochs_reference": 3,
+   "same_number_of_epochs": true,
+   "fields": {
+    "loss": {
+     "epochs_compared": 3,
+     "first_differing_epoch": null,
+     "max_abs_difference": 0.0,
+     "epoch_of_max_abs_difference": null
+    },
+    "accuracy": {
+     "epochs_compared": 3,
+     "first_differing_epoch": null,
+     "max_abs_difference": 0.0,
+     "epoch_of_max_abs_difference": null
+    },
+    "val_loss": {
+     "epochs_compared": 3,
+     "first_differing_epoch": null,
+     "max_abs_difference": 0.0,
+     "epoch_of_max_abs_difference": null
+    },
+    "val_accuracy": {
+     "epochs_compared": 3,
+     "first_differing_epoch": null,
+     "max_abs_difference": 0.0,
+     "epoch_of_max_abs_difference": null
+    },
+    "lr": {
+     "epochs_compared": 3,
+     "first_differing_epoch": null,
+     "max_abs_difference": 0.0,
+     "epoch_of_max_abs_difference": null
+    }
+   },
+   "reproduced": true
+  },
+  "ResNet-18": {
+   "epochs_new": 3,
+   "epochs_reference": 3,
+   "same_number_of_epochs": true,
+   "fields": {
+    "loss": {
+     "epochs_compared": 3,
+     "first_differing_epoch": null,
+     "max_abs_difference": 0.0,
+     "epoch_of_max_abs_difference": null
+    },
+    "accuracy": {
+     "epochs_compared": 3,
+     "first_differing_epoch": null,
+     "max_abs_difference": 0.0,
+     "epoch_of_max_abs_difference": null
+    },
+    "val_loss": {
+     "epochs_compared": 3,
+     "first_differing_epoch": null,
+     "max_abs_difference": 0.0,
+     "epoch_of_max_abs_difference": null
+    },
+    "val_accuracy": {
+     "epochs_compared": 3,
+     "first_differing_epoch": null,
+     "max_abs_difference": 0.0,
+     "epoch_of_max_abs_difference": null
+    },
+    "lr": {
+     "epochs_compared": 3,
+     "first_differing_epoch": null,
+     "max_abs_difference": 0.0,
+     "epoch_of_max_abs_difference": null
+    }
+   },
+   "reproduced": true
+  }
+ }
+}

@@ -1,0 +1,30 @@
+===== 2026-11-18T22:54:48+0100 run =====
+== architecture trial 20261118-ARCHTRIAL-0858ae7: configuration 9264ec0201c1, cap 60 minutes of wall time (elapsed real time, not CPU time), pid 26789
+   inputs PASS in 3.7 s: fitting 1400 and dev 400 frames assembled, no test frame assembled, keys equal to the reference card; peak RSS 2830 MB
+Epoch 1/3
+88/88 - 24s - loss: 0.0581 - accuracy: 0.9800 - val_loss: 11.5234 - val_accuracy: 0.5000 - lr: 0.0010 - 24s/epoch - 269ms/step
+Epoch 2/3
+88/88 - 25s - loss: 0.0245 - accuracy: 0.9921 - val_loss: 17.2593 - val_accuracy: 0.5000 - lr: 0.0010 - 25s/epoch - 282ms/step
+Epoch 3/3
+88/88 - 25s - loss: 0.0180 - accuracy: 0.9936 - val_loss: 22.9046 - val_accuracy: 0.5000 - lr: 0.0010 - 25s/epoch - 280ms/step
+== LivenessNet seed 42: 3 epochs in 74s, restored epoch 1 (val_loss 11.523386)
+   LivenessNet epoch 1: 23.7 s (validation 1.6 s, process CPU 115.8 s)
+   LivenessNet epoch 2: 24.8 s (validation 1.4 s, process CPU 114.0 s)
+   LivenessNet epoch 3: 24.6 s (validation 1.4 s, process CPU 114.8 s)
+   LivenessNet inference on the fitting: 1400 frames in 5.3 s
+   LivenessNet inference on the dev: 400 frames in 1.6 s
+Epoch 1/3
+88/88 - 65s - loss: 0.2549 - accuracy: 0.9357 - val_loss: 27.8268 - val_accuracy: 0.4525 - lr: 0.0010 - 65s/epoch - 733ms/step
+Epoch 2/3
+88/88 - 52s - loss: 0.0531 - accuracy: 0.9800 - val_loss: 0.1685 - val_accuracy: 0.9650 - lr: 0.0010 - 52s/epoch - 596ms/step
+Epoch 3/3
+88/88 - 47s - loss: 0.0356 - accuracy: 0.9886 - val_loss: 33.6037 - val_accuracy: 0.5025 - lr: 0.0010 - 47s/epoch - 531ms/step
+== ResNet-18 seed 42: 3 epochs in 164s, restored epoch 2 (val_loss 0.168487)
+   ResNet-18 epoch 1: 64.5 s (validation 4.7 s, process CPU 339.2 s)
+   ResNet-18 epoch 2: 52.5 s (validation 3.0 s, process CPU 370.6 s)
+   ResNet-18 epoch 3: 46.7 s (validation 3.0 s, process CPU 384.4 s)
+   ResNet-18 inference on the fitting: 1400 frames in 9.8 s
+   ResNet-18 inference on the dev: 400 frames in 2.7 s
+   LivenessNet history against arm_b_fold1_seed42 of 20261106-SESSABLRUN-d999458: not reproduced
+run folder: 20261118-ARCHTRIAL-0858ae7, wall 266 s (4.4 min of the 60-minute wall-time cap), process CPU 1618 s, peak RSS 5776 MB
+RESULT: PASS (trial)

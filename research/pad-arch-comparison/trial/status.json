@@ -1,20 +1,36 @@
 {
- "run_id": "20261118-ARCHTRIAL-3f059b7",
- "commit": "3f059b7",
+ "run_id": "20261119-ARCHTRIAL-b8f7cca",
+ "commit": "b8f7cca",
  "dirty": false,
- "config_sha256": "9264ec0201c148519b3cd07a5e8493ff49b25aadfbd2680636d0a4b0d9bcaab8",
+ "config_sha256": "5a83325e13d29d1a67dcda4f129838d19ec39b8f119f5de647693b68c5128b0a",
  "command": "trial",
  "status": "PASS",
  "passed": true,
- "started": "2026-11-18T10:59:46+0100",
- "finished": "2026-11-18T11:05:23+0100",
- "wall_seconds": 336.8,
- "process_cpu_seconds": 2556.0,
+ "started": "2026-11-19T21:04:47+0100",
+ "finished": "2026-11-19T21:07:47+0100",
+ "wall_seconds": 180.0,
+ "process_cpu_seconds": 1534.1,
  "cap_minutes": 60,
  "cap_unit": "minutes of wall time (elapsed real time, not CPU time)",
  "stopped": null,
+ "threads": {
+  "requested": {
+   "intra_op": 10,
+   "inter_op": 10
+  },
+  "effective": {
+   "intra_op": 10,
+   "inter_op": 10
+  },
+  "set_by_this_runner": true,
+  "environment": {
+   "TF_NUM_INTRAOP_THREADS": null,
+   "TF_NUM_INTEROP_THREADS": null
+  },
+  "logical_cpus": 15
+ },
  "baseline_check": "reproduced",
- "trial_json_sha256": "56d20023ddb62ca49d2f2ea972b2dd5c5d9161f7d2d33b71beae2ae47611c13b",
- "trial_md_sha256": "0564b74f817ea9672eb8fd4377372c0c2e23c9aa0e4ac98c2a9652f30187c246",
- "run_log_sha256": "c60885ba02caeedc93e04072b9897d067c1f734f259164880a19edcf83bc55ba"
+ "trial_json_sha256": "d44a82c80bae0f5d54e3df8b07135993e79df75929b2eabd079b97547cf43c80",
+ "trial_md_sha256": "fb0aec3445a2dc918148e28f3870b9cbd8a06741c170b362d98459b7b4c6eabd",
+ "run_log_sha256": "bd3c62535ded333d555fc3ec257705b689e0a31ed54a8e6e41b67b46ff1108ba"
 }

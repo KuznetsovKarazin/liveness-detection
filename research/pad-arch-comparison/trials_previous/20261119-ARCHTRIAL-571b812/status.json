@@ -1,0 +1,36 @@
+{
+ "run_id": "20261119-ARCHTRIAL-571b812",
+ "commit": "571b812",
+ "dirty": false,
+ "config_sha256": "2ade32c6d9bd48b1ba63cd29cbcd811f2f8ec85e0d2816e0603351d94f03b539",
+ "command": "trial",
+ "status": "PASS",
+ "passed": true,
+ "started": "2026-11-19T18:02:25+0100",
+ "finished": "2026-11-19T18:05:30+0100",
+ "wall_seconds": 185.4,
+ "process_cpu_seconds": 1575.4,
+ "cap_minutes": 60,
+ "cap_unit": "minutes of wall time (elapsed real time, not CPU time)",
+ "stopped": null,
+ "threads": {
+  "requested": {
+   "intra_op": 10,
+   "inter_op": 10
+  },
+  "effective": {
+   "intra_op": 10,
+   "inter_op": 10
+  },
+  "set_by_this_runner": true,
+  "environment": {
+   "TF_NUM_INTRAOP_THREADS": null,
+   "TF_NUM_INTEROP_THREADS": null
+  },
+  "logical_cpus": 15
+ },
+ "baseline_check": "reproduced",
+ "trial_json_sha256": "e04eec31fa7eabe1ba019ca20350894af8a1ac76fc3988d2e08fecb5f823a9ff",
+ "trial_md_sha256": "e83039e97ce7fb90c98e21cc63881905e9b73cc3d7ff5b0c988b177caed8bbd3",
+ "run_log_sha256": "f3591be17a4dff675a43dc432ee16f9386fce88b12c697bc673702a5dc298a21"
+}

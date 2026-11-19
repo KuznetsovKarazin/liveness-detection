@@ -1,13 +1,19 @@
-# macOS, Python 3.11.16, NumPy 1.26.4, TensorFlow 2.15.0, 2026-11-18 10:57 CET; synthetic suite only (8x8 frames; LivenessNet of the reference code and ResNet-18 trained for 3 epochs on the CPU in a temporary folder; ResNet-18 built at 256x256 only to count its parameters; no real frame, checkpoint or score); uncommitted working files
-# SHA-256 f60c41bea3eeee168741f2ac913b57ff98a4931a5b70d1696e876c97ed9b070e  scripts/pad_arch_comparison.py
-# SHA-256 7551950f7ae3542a75db20499b2548c7c0c35cf90d551b9635aad61dfac3be23  scripts/pad_arch_definitions.py
+# macOS, Python 3.11.16, NumPy 1.26.4, TensorFlow 2.15.0, started 2026-11-19 19:59 CET; synthetic suite only (8x8 frames; LivenessNet of the reference code and ResNet-18 trained for 3 epochs on the CPU in a temporary folder; ResNet-18 built at 256x256 only to count its parameters; TensorFlow started in two subprocesses without training; no real frame, checkpoint or score); uncommitted working files
+# SHA-256 8f9a7c314acef2b6c00bd37b9d3089c94ea5c6acfc55b27b89ce8ddd6d8f7451  scripts/pad_arch_comparison.py
+# SHA-256 7bef6b62c9df355ca9ce1eb971dea142825b5aebb48c313d45087cbb899b5bff  scripts/pad_arch_definitions.py
 # SHA-256 72790b4fdc8a9f56e4ef5494c8f7fdd87cbfa3bf752eb471e531b524848a5832  scripts/pad_arch_models.py
-# SHA-256 00a62adbd76084561a55608f711adef67030607fa17c6aed9c1b6f07ecf2e1d0  scripts/check_pad_arch_comparison.py
-# SHA-256 a0879b82c073ae172a5ef054df1f505b9e547bc1c9fd4b3dc4437438bd84e797  scripts/check_pad_arch_comparison_mutations.py
-# SHA-256 9264ec0201c148519b3cd07a5e8493ff49b25aadfbd2680636d0a4b0d9bcaab8  delivery/archcmp/pad_arch_comparison.json
+# SHA-256 184106b54350f384815334fcee3a90edbbd672903fda74c5ac3715968cacc86c  scripts/check_pad_arch_comparison.py
+# SHA-256 c21fb01f3987f2421028825354e17e890070ab1315e054ec6a258296b7cee728  scripts/check_pad_arch_comparison_mutations.py
+# SHA-256 5a83325e13d29d1a67dcda4f129838d19ec39b8f119f5de647693b68c5128b0a  delivery/archcmp/pad_arch_comparison.json
+# command: .venv/bin/python -I -B scripts/check_pad_arch_comparison.py
+.........................................................................................WARNING:tensorflow:5 out of the last 13 calls to <function Model.make_test_function.<locals>.test_function at 0x153d97c40> triggered tf.function retracing. Tracing is expensive and the excessive number of tracings could be due to (1) creating @tf.function repeatedly in a loop, (2) passing tensors with different shapes, (3) passing Python objects instead of tensors. For (1), please define your @tf.function outside of the loop. For (2), @tf.function has reduce_retracing=True option that can avoid unnecessary retracing. For (3), please refer to https://www.tensorflow.org/guide/function#controlling_retracing and https://www.tensorflow.org/api_docs/python/tf/function for  more details.
+WARNING:tensorflow:5 out of the last 13 calls to <function Model.make_test_function.<locals>.test_function at 0x156cd6b60> triggered tf.function retracing. Tracing is expensive and the excessive number of tracings could be due to (1) creating @tf.function repeatedly in a loop, (2) passing tensors with different shapes, (3) passing Python objects instead of tensors. For (1), please define your @tf.function outside of the loop. For (2), @tf.function has reduce_retracing=True option that can avoid unnecessary retracing. For (3), please refer to https://www.tensorflow.org/guide/function#controlling_retracing and https://www.tensorflow.org/api_docs/python/tf/function for  more details.
+.................................................................
+----------------------------------------------------------------------
+Ran 154 tests in 34.886s
 
 OK
-tests run: 83, failures: 0, errors: 0, skipped: 0
+tests run: 154, failures: 0, errors: 0, skipped: 0
 RESULT: PASS
 exit 0
-# wall 29 s
+# finished 2026-11-19 20:00 CET, wall 36 s

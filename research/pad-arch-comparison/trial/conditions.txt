@@ -1,0 +1,17 @@
+Conditions of the official trial 20261119-ARCHTRIAL-b8f7cca, written by the author around the trial (uptime, CPU usage, command, number of TF_NUM_ variables set, commit and number of lines of git status --short), not by the runner; copied unchanged below this line.
+== conditions before
+2026-11-19 21:04:46 +0100
+21:04  up 23:55, 2 users, load averages: 2.23 3.03 3.24
+CPU usage: 3.77% user, 8.3% sys, 88.19% idle 
+== command
+.venv/bin/python -I -B scripts/pad_arch_comparison.py trial --i-am-authorized
+== environment: number of TF_NUM_ variables set
+0
+== git
+b8f7cca
+0
+trial exit 0
+== conditions after
+2026-11-19 21:07:47 +0100
+21:07  up 23:58, 2 users, load averages: 10.55 6.50 4.65
+CPU usage: 1.77% user, 6.20% sys, 92.2% idle 

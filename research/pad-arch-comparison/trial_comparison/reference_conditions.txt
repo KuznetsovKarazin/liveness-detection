@@ -1,0 +1,15 @@
+Command and conditions of the unofficial reference trial 20261119-ARCHTRIAL-b8e78b2 (Apple M5 Pro; TensorFlow threads imposed with environment variables; code of PR #29, private commit b8e78b2). Written by the author: copied from the private log kept around the trial; the lines that do not concern the command, the commit or the load of the machine are omitted, and the folder of the output is replaced by a placeholder. Under "git": the short commit and the number of lines of "git status --short" (0 = clean work tree).
+== conditions before
+2026-11-19 06:11:42 +0100
+ 6:11  up  9:02, 2 users, load averages: 1.10 1.29 1.68
+CPU usage: 0.65% user, 1.7% sys, 98.27% idle
+== command
+TF_NUM_INTRAOP_THREADS=10 TF_NUM_INTEROP_THREADS=10 .venv/bin/python -I -B scripts/pad_arch_comparison.py trial --i-am-authorized --out-root <folder outside the repository>
+== git
+b8e78b2
+0
+trial exit 0
+== conditions after
+2026-11-19 06:14:44 +0100
+ 6:14  up  9:05, 2 users, load averages: 9.25 4.83 3.07
+CPU usage: 2.29% user, 2.83% sys, 94.87% idle

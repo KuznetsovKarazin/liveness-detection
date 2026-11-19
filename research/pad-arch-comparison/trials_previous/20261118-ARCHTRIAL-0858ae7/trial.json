@@ -1,0 +1,344 @@
+{
+ "schema": "pad-arch-trial/1",
+ "run_id": "20261118-ARCHTRIAL-0858ae7",
+ "commit": "0858ae7",
+ "dirty": false,
+ "config_sha256": "9264ec0201c148519b3cd07a5e8493ff49b25aadfbd2680636d0a4b0d9bcaab8",
+ "command": "python -I -B scripts/pad_arch_comparison.py trial --i-am-authorized",
+ "status": "PASS",
+ "started": "2026-11-18T22:54:48+0100",
+ "finished": "2026-11-18T22:59:14+0100",
+ "wall_seconds": 266.1,
+ "process_cpu_seconds": 1618.1,
+ "cap_minutes": 60,
+ "cap_unit": "minutes of wall time (elapsed real time, not CPU time)",
+ "stopped": null,
+ "unit": {
+  "dataset": "NUAA",
+  "arm": "arm_b",
+  "fold": 1,
+  "seed": 42,
+  "frames": {
+   "fitting": {
+    "n": 1400,
+    "bona_fide": 700,
+    "attack": 700,
+    "subjects": 4
+   },
+   "dev": {
+    "n": 400,
+    "bona_fide": 200,
+    "attack": 200,
+    "subjects": 2
+   }
+  }
+ },
+ "epochs_fixed": 3,
+ "batch": 16,
+ "inference_batch": 16,
+ "device": "CPU (GPU hidden)",
+ "visible_devices": [
+  "CPU"
+ ],
+ "threads": {
+  "logical_cpus": 15,
+  "inter_op_parallelism_threads": 0,
+  "intra_op_parallelism_threads": 0,
+  "set_by_this_runner": false
+ },
+ "machine": {
+  "processor": "Apple M5 Pro",
+  "performance_cores": 5,
+  "efficiency_cores": 10,
+  "ram_gb": 24.0,
+  "os": "macOS 27.2.1",
+  "logical_cpus": 15,
+  "architecture": "arm64"
+ },
+ "environment": {
+  "python": "3.11.16",
+  "numpy": "1.26.4",
+  "platform": "darwin",
+  "tensorflow": "2.15.0",
+  "tensorflow-metal": "1.1.0",
+  "keras": "2.15.0",
+  "opencv": "4.11.0",
+  "tensorflow_installed": "2.15.0"
+ },
+ "peak_rss_mb": 5775.7,
+ "networks": {
+  "LivenessNet": {
+   "epochs": [
+    {
+     "epoch": 1,
+     "loss": 0.05809931457042694,
+     "accuracy": 0.9800000190734863,
+     "val_loss": 11.523386001586914,
+     "val_accuracy": 0.5,
+     "lr": 0.0010000000474974513,
+     "seconds_total": 23.69770037499984,
+     "seconds_validation": 1.5713279579995287,
+     "cpu_seconds": 115.77072
+    },
+    {
+     "epoch": 2,
+     "loss": 0.024543438106775284,
+     "accuracy": 0.9921428561210632,
+     "val_loss": 17.259323120117188,
+     "val_accuracy": 0.5,
+     "lr": 0.0010000000474974513,
+     "seconds_total": 24.816249667000193,
+     "seconds_validation": 1.4171712090001165,
+     "cpu_seconds": 113.95726800000001
+    },
+    {
+     "epoch": 3,
+     "loss": 0.01797621138393879,
+     "accuracy": 0.993571400642395,
+     "val_loss": 22.90460968017578,
+     "val_accuracy": 0.5,
+     "lr": 0.0010000000474974513,
+     "seconds_total": 24.614466916999845,
+     "seconds_validation": 1.3622505829998772,
+     "cpu_seconds": 114.77544600000002
+    }
+   ],
+   "inference": {
+    "fitting": {
+     "frames": 1400,
+     "batch": 16,
+     "seconds": 5.312810915999762,
+     "cpu_seconds": 28.839609999999993
+    },
+    "dev": {
+     "frames": 400,
+     "batch": 16,
+     "seconds": 1.560978041999988,
+     "cpu_seconds": 8.306670999999994
+    }
+   },
+   "training_overhead": {
+    "seconds": 1.756116041000496,
+    "cpu_seconds": 1.3989479999999617
+   },
+   "parameters": {
+    "trainable": 8405778,
+    "non_trainable": 320
+   },
+   "batchnorm_layers": 5,
+   "steps_per_epoch": 88,
+   "card": {
+    "arch": "LivenessNet",
+    "train_seed": 42,
+    "n_fitting": 1400,
+    "n_dev": 400,
+    "max_epochs": 3,
+    "epochs_run": 3,
+    "restored_epoch": 1,
+    "restored_by": "end of epochs (set_weights)",
+    "device": "CPU",
+    "visible_devices": [
+     "CPU"
+    ],
+    "lr": 0.001,
+    "batch": 16,
+    "early_stopping_patience": 4,
+    "scheduler": "ReduceLROnPlateau(monitor=val_loss, factor=0.5, patience=2, min_lr=1e-6)",
+    "class_weight": {
+     "0": 1.0,
+     "1": 1.0
+    },
+    "train_seconds": 73.6,
+    "checkpoint": "none saved (trial)"
+   },
+   "threads": {
+    "inter_op_parallelism_threads": 0,
+    "intra_op_parallelism_threads": 0,
+    "set_by_this_runner": false
+   },
+   "rates": {
+    "train_seconds_per_1000_fitting_frames_per_epoch": 16.375635049761993,
+    "validation_seconds_per_1000_frames": 3.6256247916662687,
+    "inference_seconds_per_1000_frames": 3.818771643333194,
+    "overhead_seconds_per_training": 1.756116041000496,
+    "cpu_over_wall": 4.685133620975917,
+    "epochs_measured": 3
+   }
+  },
+  "ResNet-18": {
+   "epochs": [
+    {
+     "epoch": 1,
+     "loss": 0.25485044717788696,
+     "accuracy": 0.9357143044471741,
+     "val_loss": 27.82683753967285,
+     "val_accuracy": 0.45249998569488525,
+     "lr": 0.0010000000474974513,
+     "seconds_total": 64.54777566699977,
+     "seconds_validation": 4.673319625000659,
+     "cpu_seconds": 339.18807499999997
+    },
+    {
+     "epoch": 2,
+     "loss": 0.05307844281196594,
+     "accuracy": 0.9800000190734863,
+     "val_loss": 0.168487086892128,
+     "val_accuracy": 0.9649999737739563,
+     "lr": 0.0010000000474974513,
+     "seconds_total": 52.464274458000546,
+     "seconds_validation": 3.019444791000751,
+     "cpu_seconds": 370.57870200000013
+    },
+    {
+     "epoch": 3,
+     "loss": 0.035589028149843216,
+     "accuracy": 0.9885714054107666,
+     "val_loss": 33.603694915771484,
+     "val_accuracy": 0.5024999976158142,
+     "lr": 0.0010000000474974513,
+     "seconds_total": 46.71236399999998,
+     "seconds_validation": 2.9972197079996477,
+     "cpu_seconds": 384.4276850000001
+    }
+   ],
+   "inference": {
+    "fitting": {
+     "frames": 1400,
+     "batch": 16,
+     "seconds": 9.835057457999937,
+     "cpu_seconds": 103.77058499999998
+    },
+    "dev": {
+     "frames": 400,
+     "batch": 16,
+     "seconds": 2.7062758329993812,
+     "cpu_seconds": 29.7612630000001
+    }
+   },
+   "training_overhead": {
+    "seconds": 1.267115833000389,
+    "cpu_seconds": 1.3259089999999105
+   },
+   "parameters": {
+    "trainable": 11177538,
+    "non_trainable": 9600
+   },
+   "batchnorm_layers": 20,
+   "steps_per_epoch": 88,
+   "card": {
+    "arch": "ResNet-18",
+    "train_seed": 42,
+    "n_fitting": 1400,
+    "n_dev": 400,
+    "max_epochs": 3,
+    "epochs_run": 3,
+    "restored_epoch": 2,
+    "restored_by": "end of epochs (set_weights)",
+    "device": "CPU",
+    "visible_devices": [
+     "CPU"
+    ],
+    "lr": 0.001,
+    "batch": 16,
+    "early_stopping_patience": 4,
+    "scheduler": "ReduceLROnPlateau(monitor=val_loss, factor=0.5, patience=2, min_lr=1e-6)",
+    "class_weight": {
+     "0": 1.0,
+     "1": 1.0
+    },
+    "train_seconds": 164.2,
+    "checkpoint": "none saved (trial)"
+   },
+   "threads": {
+    "inter_op_parallelism_threads": 0,
+    "intra_op_parallelism_threads": 0,
+    "set_by_this_runner": false
+   },
+   "rates": {
+    "train_seconds_per_1000_fitting_frames_per_epoch": 36.43676904785696,
+    "validation_seconds_per_1000_frames": 8.908320103334214,
+    "inference_seconds_per_1000_frames": 6.967407383888511,
+    "overhead_seconds_per_training": 1.267115833000389,
+    "cpu_over_wall": 6.922956102365026,
+    "epochs_measured": 3
+   }
+  }
+ },
+ "data_check": {
+  "fitting_keys_equal_to_reference_card": true,
+  "dev_keys_equal_to_reference_card": true
+ },
+ "baseline_check": {
+  "reference_run": "20261106-SESSABLRUN-d999458",
+  "model": "arm_b_fold1_seed42",
+  "epochs_compared": 3,
+  "fields": [
+   "loss",
+   "accuracy",
+   "val_loss",
+   "val_accuracy",
+   "lr"
+  ],
+  "rule": "the shared-history rule of the project (nuaa_patience_verify.shared_history, criteria.shared_history_difference = 0 of nuaa_patience_verify.json): the five values of each of the first 3 epochs identical, difference 0, no tolerance; per field the largest absolute difference and the first differing epoch are reported",
+  "consequence": "the outcome is recorded and does not change the status of the trial; it is the first check of the copy of the trainer; in the plan the same check is repeated on every epoch of every one of the 24 LivenessNet trainings (against the accepted run at the same patience); if the history is not reproduced in the trial, the difference is reported and the pre-registration is not closed before it is explained",
+  "outcome": "not reproduced",
+  "max_abs_difference": {
+   "loss": 0.0053823478519916534,
+   "accuracy": 0.003571450710296631,
+   "val_loss": 6.172238349914551,
+   "val_accuracy": 0.0,
+   "lr": 0.0
+  },
+  "first_differing_epoch": {
+   "loss": 2,
+   "accuracy": 2,
+   "val_loss": 2,
+   "val_accuracy": null,
+   "lr": null
+  }
+ },
+ "checkpoint": "none saved",
+ "training": {
+  "recipe": "N1 part 2 (n1_nuaa_stability.json, study 20261024-N1-LivenessNet-fb93496), unchanged",
+  "max_epochs": 3,
+  "batch": 16,
+  "initial_learning_rate": 0.001,
+  "early_stopping_patience": 4,
+  "checkpoint": "weights of the epoch with minimum val_loss on the dev frames (EarlyStopping restore_best_weights; set_weights when the epochs end first)",
+  "optimizer": "tf.keras.optimizers.legacy.Adam(learning_rate=initial_learning_rate, clipnorm=1.0)",
+  "loss": "CategoricalCrossentropy, one-hot labels (index 0 bona fide, 1 attack)",
+  "class_weight": "balanced on the fitting set: n / (2 * n_class)",
+  "augmentation": "RandomFlip(horizontal), RandomRotation(0.03), RandomZoom(0.12, 0.12), RandomTranslation(0.06, 0.06), RandomBrightness(0.15, value_range=(0, 1)), RandomContrast(0.2), GaussianNoise(0.02); fitting set only",
+  "scheduler": "ReduceLROnPlateau(monitor=val_loss, factor=0.5, patience=2, min_lr=1e-6)",
+  "shuffle": "tf.data shuffle(4096, seed=train_seed)",
+  "seeds": "train_seed for random, numpy and TensorFlow (weight initialisation, augmentation, batch order); no split seed: the folds and the samples are deterministic",
+  "device": "CPU"
+ },
+ "process": "one process for both networks, LivenessNet first: LivenessNet is then the first training of the process, as arm_b_fold1_seed42 was in the accepted run; the runs of the plan train many models in sequence in one process, as the accepted runs did; the inputs (about 2.5 GB of frames) are loaded and verified once; between the two networks the trainer calls clear_session and the previous model is released",
+ "code_sha256": {
+  "architecture": "a83c02b0788bd6f98262abf00f5fe970abed501f231edba348820482aea64d30",
+  "scripts/nuaa_folds_run.py": "82fed566cfa8ac0b280b55edbf430e7051dff1ae83d17a902d78157f2c72ffb2",
+  "scripts/nuaa_session_ablation_run.py": "9c45255199b87a41126b77867d5bbcf0da6f6ecf1684bf8fdd89185f463a276e",
+  "scripts/nuaa_bn_recalibration.py": "8c228ef400f5ef4337612477b23113fb6b8cac5364a5ff026e2c0ac8096734f5",
+  "scripts/nuaa_patience_verify.py": "edc839849ac76be9ce3149a3c217f35b6f1f430e352b471d03b78398093f4b9e",
+  "scripts/m2_writers.py": "22760abc368dede3aa0a690a241f6622afe1ba586940422497db8a33994ee34a",
+  "scripts/path_guard.py": "e5fa9c835c23745ff932e157a44d3104eb9713d86bbdecc9cdbbd3caa7a7ee34",
+  "scripts/package_rules.py": "96ec7ffab4b089bac71fd18918fcd32af72d15980cdfa1361cc84bb43e0e4c11",
+  "scripts/pad_arch_models.py": "72790b4fdc8a9f56e4ef5494c8f7fdd87cbfa3bf752eb471e531b524848a5832",
+  "scripts/pad_arch_definitions.py": "7551950f7ae3542a75db20499b2548c7c0c35cf90d551b9635aad61dfac3be23",
+  "scripts/pad_arch_comparison.py": "f60c41bea3eeee168741f2ac913b57ff98a4931a5b70d1696e876c97ed9b070e"
+ },
+ "checks": {
+  "configuration_unchanged": true,
+  "code_unchanged": 9,
+  "reference_card_unchanged": true
+ },
+ "test_read": "no test frame is assembled or evaluated and no test score or metric is read, computed or written. check-inputs and trial read: the five M2 manifests (official_train, official_test, cnn_train, cnn_es and cnn_test: NUAA's official image lists and the cache order, read to index the cache and to check the rows of extracted_frames.csv against the official lists; official_test and cnn_test are not the test role of the folds); the cache, hashed whole with its label and subject members read (only trial loads its image arrays whole, in the frame store); the extracted frames file, loaded whole with the SHA-256 of every frame (both commands); these frame files also hold frames of the held-out subjects, but only the fitting and dev frames of arm B, fold 1 are assembled, by trial only (an explicit check refuses any other role); of the cells run status.json, the public and restricted SHA256SUMS, its configuration and the cell manifests of the arms and of the common dev; of the folds run status.json, the restricted SHA256SUMS and extracted_frames.csv (no public file opened); of the accepted run at patience 4 status.json, the restricted SHA256SUMS and one training card (arm_b_fold1_seed42); of the accepted run at patience 12 status.json and the restricted SHA256SUMS; the configurations of the two accepted runs and the LivenessNet architecture file; the fold schema (fold<k>_test.csv, the test role of the folds) is never loaded and no <model>_test_scores.csv, public aggregate or run record of any run is opened; plan reads only this configuration, the configurations of the two accepted runs, the code files pinned in this configuration and, if given, the status.json and trial.json of a trial",
+ "declarations": {
+  "no_test": "no test frame is assembled or evaluated and no test score or metric is read, computed or written in this delivery; as in the accepted runs the frame files (the cache and the extracted frames, which also hold frames of the held-out subjects) are hashed and loaded whole, but only the fitting and dev frames of arm B, fold 1 are assembled, and an explicit check refuses any other role; the fold schema (which holds the test role) is never loaded; no external dataset is touched",
+  "technical_trial": "the trial measures time and memory; the histories it records are technical outputs, not results, and no metric is computed from them; the LivenessNet history is compared with the accepted card only as a check of the copy of the trainer",
+  "cpu_only": "TensorFlow runs on the CPU only (the GPU is hidden before any operation: known tensorflow-metal defect that skips the ReLU after a Dense layer in graph mode), as in the accepted runs",
+  "no_checkpoint": "no checkpoint is saved by the trial: the models live in memory for the inference passes and are then released",
+  "threads": "the TensorFlow thread settings are not set by this runner (they were not set in the accepted runs either); the number of logical CPUs and the inter-op and intra-op values read from tf.config.threading (0 = TensorFlow default) are recorded"
+ }
+}

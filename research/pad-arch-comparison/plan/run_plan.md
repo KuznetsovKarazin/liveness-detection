@@ -1,6 +1,6 @@
 # Planned runs: LivenessNet and ResNet-18
 
-Generated from the configuration 9264ec0201c1 and the trial 20261118-ARCHTRIAL-3f059b7 (trial.json 56d20023ddb6, status PASS).
+Generated from the configuration 5a83325e13d2 and the trial 20261119-ARCHTRIAL-b8f7cca (trial.json d44a82c80bae, status PASS).
 
 Both networks trained from scratch with the same recipe, subject splits, seeds and preprocessing; patience 4 and 12, at most 12 epochs; evaluation cells per training: BN ordinary / re-estimated x threshold fixed_0.5 / dev_eer. Every training of the plan is new (existing = 0, a choice of the author); for LivenessNet the accepted runs are the reference runs of the history reproduction check, not checkpoints to reuse.
 
@@ -8,27 +8,27 @@ Hours are hours of wall time on the machine of the trial; CPU hours use the CPU 
 
 | dataset | access | network | patience | units | existing_trainings | new_trainings | reference_run | epochs_min | epochs_max | fitting_frames_per_unit | dev_frames_per_unit | test_frames_per_split | evaluation_cells | training_wall_hours_min | training_wall_hours_max | evaluation_wall_hours | wall_hours_min | wall_hours_max | cpu_hours_min | cpu_hours_max |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| NUAA | available | LivenessNet | 4 | 12 | 0 | 12 | 20261106-SESSABLRUN-d999458 | 5 | 12 | 1400 | 400 | 3242 3114 3439 2819 | 4 | 0.46 | 1.10 | 0.27 | 0.73 | 1.37 | 5.06 | 9.44 |
-| NUAA | available | LivenessNet | 12 | 12 | 0 | 12 | 20261109-SESSABLRUN-6a50265 | 12 | 12 | 1400 | 400 | 3242 3114 3439 2819 | 4 | 1.10 | 1.10 | 0.27 | 1.37 | 1.37 | 9.44 | 9.44 |
-| NUAA | available | ResNet-18 | 4 | 12 | 0 | 12 | none | 5 | 12 | 1400 | 400 | 3242 3114 3439 2819 | 4 | 1.16 | 2.78 | 1.66 | 2.82 | 4.44 | 22.86 | 35.98 |
-| NUAA | available | ResNet-18 | 12 | 12 | 0 | 12 | none | 12 | 12 | 1400 | 400 | 3242 3114 3439 2819 | 4 | 2.78 | 2.78 | 1.66 | 4.44 | 4.44 | 35.98 | 35.98 |
-| CelebA-Spoof | access missing | LivenessNet | 4 | 3 | 0 | 3 | none | 5 | 12 | 1400 | 400 | to be fixed in the pre-registration | 4 | 0.12 | 0.27 |  |  |  |  |  |
-| CelebA-Spoof | access missing | LivenessNet | 12 | 3 | 0 | 3 | none | 12 | 12 | 1400 | 400 | to be fixed in the pre-registration | 4 | 0.27 | 0.27 |  |  |  |  |  |
-| CelebA-Spoof | access missing | ResNet-18 | 4 | 3 | 0 | 3 | none | 5 | 12 | 1400 | 400 | to be fixed in the pre-registration | 4 | 0.29 | 0.70 |  |  |  |  |  |
-| CelebA-Spoof | access missing | ResNet-18 | 12 | 3 | 0 | 3 | none | 12 | 12 | 1400 | 400 | to be fixed in the pre-registration | 4 | 0.70 | 0.70 |  |  |  |  |  |
-| Replay-Attack | access missing | LivenessNet | 4 | 3 | 0 | 3 | none | 5 | 12 | 1400 | 400 | to be fixed in the pre-registration | 4 | 0.12 | 0.27 |  |  |  |  |  |
-| Replay-Attack | access missing | LivenessNet | 12 | 3 | 0 | 3 | none | 12 | 12 | 1400 | 400 | to be fixed in the pre-registration | 4 | 0.27 | 0.27 |  |  |  |  |  |
-| Replay-Attack | access missing | ResNet-18 | 4 | 3 | 0 | 3 | none | 5 | 12 | 1400 | 400 | to be fixed in the pre-registration | 4 | 0.29 | 0.70 |  |  |  |  |  |
-| Replay-Attack | access missing | ResNet-18 | 12 | 3 | 0 | 3 | none | 12 | 12 | 1400 | 400 | to be fixed in the pre-registration | 4 | 0.70 | 0.70 |  |  |  |  |  |
+| NUAA | available | LivenessNet | 4 | 12 | 0 | 12 | 20261106-SESSABLRUN-d999458 | 5 | 12 | 1400 | 400 | 3242 3114 3439 2819 | 4 | 0.23 | 0.56 | 0.12 | 0.36 | 0.68 | 2.91 | 5.52 |
+| NUAA | available | LivenessNet | 12 | 12 | 0 | 12 | 20261109-SESSABLRUN-6a50265 | 12 | 12 | 1400 | 400 | 3242 3114 3439 2819 | 4 | 0.56 | 0.56 | 0.12 | 0.68 | 0.68 | 5.52 | 5.52 |
+| NUAA | available | ResNet-18 | 4 | 12 | 0 | 12 | none | 5 | 12 | 1400 | 400 | 3242 3114 3439 2819 | 4 | 0.62 | 1.49 | 0.94 | 1.56 | 2.43 | 14.20 | 22.08 |
+| NUAA | available | ResNet-18 | 12 | 12 | 0 | 12 | none | 12 | 12 | 1400 | 400 | 3242 3114 3439 2819 | 4 | 1.49 | 1.49 | 0.94 | 2.43 | 2.43 | 22.08 | 22.08 |
+| CelebA-Spoof | access missing | LivenessNet | 4 | 3 | 0 | 3 | none | 5 | 12 | 1400 | 400 | to be fixed in the pre-registration | 4 | 0.06 | 0.14 |  |  |  |  |  |
+| CelebA-Spoof | access missing | LivenessNet | 12 | 3 | 0 | 3 | none | 12 | 12 | 1400 | 400 | to be fixed in the pre-registration | 4 | 0.14 | 0.14 |  |  |  |  |  |
+| CelebA-Spoof | access missing | ResNet-18 | 4 | 3 | 0 | 3 | none | 5 | 12 | 1400 | 400 | to be fixed in the pre-registration | 4 | 0.16 | 0.37 |  |  |  |  |  |
+| CelebA-Spoof | access missing | ResNet-18 | 12 | 3 | 0 | 3 | none | 12 | 12 | 1400 | 400 | to be fixed in the pre-registration | 4 | 0.37 | 0.37 |  |  |  |  |  |
+| Replay-Attack | access missing | LivenessNet | 4 | 3 | 0 | 3 | none | 5 | 12 | 1400 | 400 | to be fixed in the pre-registration | 4 | 0.06 | 0.14 |  |  |  |  |  |
+| Replay-Attack | access missing | LivenessNet | 12 | 3 | 0 | 3 | none | 12 | 12 | 1400 | 400 | to be fixed in the pre-registration | 4 | 0.14 | 0.14 |  |  |  |  |  |
+| Replay-Attack | access missing | ResNet-18 | 4 | 3 | 0 | 3 | none | 5 | 12 | 1400 | 400 | to be fixed in the pre-registration | 4 | 0.16 | 0.37 |  |  |  |  |  |
+| Replay-Attack | access missing | ResNet-18 | 12 | 3 | 0 | 3 | none | 12 | 12 | 1400 | 400 | to be fixed in the pre-registration | 4 | 0.37 | 0.37 |  |  |  |  |  |
 
-## Totals (hours of wall time on this machine; CPU hours apart)
+## Totals (hours of wall time on the machine of the trial; CPU hours apart)
 
 | scope | rows with every number | training_wall_hours_min | training_wall_hours_max | evaluation_wall_hours | wall_hours_min | wall_hours_max | cpu_hours_min | cpu_hours_max |
 |---|---|---|---|---|---|---|---|---|
-| NUAA | 4 of 4 | 5.51 | 7.76 | 3.86 | 9.36 | 11.62 | 73.34 | 90.84 |
+| NUAA | 4 of 4 | 2.90 | 4.09 | 2.13 | 5.03 | 6.22 | 44.70 | 55.20 |
 | CelebA-Spoof | 0 of 4 |  |  |  |  |  |  |  |
 | Replay-Attack | 0 of 4 |  |  |  |  |  |  |  |
-| all | 4 of 12 | 5.51 | 7.76 | 3.86 | 9.36 | 11.62 | 73.34 | 90.84 |
+| all | 4 of 12 | 2.90 | 4.09 | 2.13 | 5.03 | 6.22 | 44.70 | 55.20 |
 
 ## Datasets
 
@@ -42,3 +42,20 @@ Hours are hours of wall time on the machine of the trial; CPU hours use the CPU 
 - training: per row: new trainings x (epochs x (training rate x fitting frames + validation rate x dev frames) / 1,000 + seconds per training outside the epochs); minimum epochs min(patience + 1, 12) (best epoch 1, then patience epochs without improvement), maximum 12
 - evaluation: per training (all trainings of a row are evaluated): inference rate x ((BN layers + 1) x fitting frames + 2 x dev frames + 2 x test frames of its split) / 1,000; (BN layers + 1) full passes is an upper bound (at most): the PR #27 re-estimation makes one pass per BN layer truncated at the input of that layer, plus one consistency pass; the test and the dev are scored in the two BN states; the two thresholds add no pass
 - totals: hours of wall time on the machine of the trial, interval from the minimum to the maximum epochs; CPU hours apart, wall hours x the measured CPU / wall ratio; a row with a value not fixed in the configuration, or without a trial measurement, has no number and is left out of the totals (the totals state how many rows they include); outside the estimate: saving the checkpoints, assembling the test, loading the inputs (once per process)
+
+## NUAA runs: order, caps, machine and threads
+
+Order of the trainings (`run_order.csv`): a choice of the author (pad_arch_comparison.plan_order and nuaa_runs): two NUAA runs, one process each, patience 4 first and then patience 12, as the accepted runs; in each run the 24 trainings in this order: for fold 1 to 4 and, within a fold, for seed 42, 43, 44 (the order of the accepted run, nuaa_session_ablation_run.training_order), LivenessNet then ResNet-18. In the accepted runs, which trained the 36 models in one process, each arm B model was followed by the arm A* model of the same fold and seed; with this order every LivenessNet training has, in its process, the position that the arm B model of the same fold and seed had in the accepted run (1, 3, 5, ..., 23; run_order.csv, reference_position), preceded by the same number of trainings, and the first training of each process is LivenessNet fold 1 seed 42, as in the trial; the training before each later LivenessNet is a ResNet-18 model instead of an arm A* LivenessNet model, a difference that the code cannot remove (arm A* is not part of this plan). Every training seeds random, NumPy and TensorFlow and clears the Keras session before building its model, as in the accepted runs. In the accepted runs (Apple M4, TensorFlow default threads, the same sequence of LivenessNet models in one process) the history of a model did not change when the models before it in the process trained for more epochs: 35 of the 36 models had at least one such predecessor at patience 12, and the shared epochs of the two runs are identical in 36 of 36 (training cards; delivery/patienceverify/CONCLUSION.md). Not measured: a ResNet-18 model before it, the Apple M5 Pro at 10 threads, another order or number of models, other operations between two trainings; in the plan the history check of every LivenessNet training against the accepted card is the direct measure.
+
+Caps (`run_caps.csv`): for each NUAA run, from the rows of the plan with its patience (computed from the trial with the rule of costs): the estimated hours of wall time from the minimum to the maximum epochs, training and evaluation, summed over the two rows; cap = the maximum x wall_multiplier, rounded up to a multiple of round_up_hours; the estimate in CPU hours, minimum and maximum, is reported apart (wall hours x the CPU / wall ratio measured in the trial) and is not a cap; the margin of the cap covers what the estimate leaves out (loading the inputs once per process, saving the checkpoints, assembling the test) and a busier machine; a run that reaches its cap stops as INCOMPLETE and keeps its outcome; unit of the cap: hours of wall time (elapsed real time, not CPU time); multiplier 1.5, rounded up to a multiple of 0.5 hours.
+
+| run | dataset | patience | trainings | wall_hours_min | wall_hours_max | cap_wall_hours | cpu_hours_min | cpu_hours_max |
+|---|---|---|---|---|---|---|---|---|
+| nuaa_patience_4 | NUAA | 4 | 24 | 1.92 | 3.11 | 5.00 | 17.10 | 27.60 |
+| nuaa_patience_12 | NUAA | 12 | 24 | 3.11 | 3.11 | 5.00 | 27.60 | 27.60 |
+
+Machine of the trial 20261119-ARCHTRIAL-b8f7cca: Apple M5 Pro, 15 logical CPUs, 24.0 GB RAM, macOS 27.2.1.
+
+TensorFlow threads (training.threads): intra-op 10, inter-op 10, set by the runner; rule: requested by the coordinator on 19 November 2026: for the whole NUAA plan, intra-op and inter-op threads of TensorFlow at 10, set and recorded by the runner. Choice of the author: the values apply to every TensorFlow command of the NUAA plan, trainings and evaluations (our reading of 'the whole NUAA plan'); pad_arch_comparison.set_threads sets them with tf.config.threading.set_intra_op_parallelism_threads and set_inter_op_parallelism_threads right after TensorFlow is imported and before any TensorFlow operation, reads them back with the getters and fails if they differ or if TensorFlow was already initialised; nothing else of the threading is set by the runner; TF_NUM_INTRAOP_THREADS and TF_NUM_INTEROP_THREADS, if present, must equal these values (otherwise the command fails before any work); requested, effective, the environment variables found and os.cpu_count() are recorded.
+
+Machine rule: a declared rule, not checked by this code (plan and trial do not enforce it): every training and every evaluation of the NUAA plan runs on the same machine as the official trial (Apple M5 Pro, 15 logical CPUs, 24 GB RAM, macOS 27.2.1; the machine recorded in trial.json and printed in run_plan.md), CPU only, with the same threads (intra-op 10 and inter-op 10, training.threads, set by the runner), the same TensorFlow and Keras versions (environment); the runner of the 48 trainings will apply it and record machine, threads and versions; the hours of the plan are hours on that machine.

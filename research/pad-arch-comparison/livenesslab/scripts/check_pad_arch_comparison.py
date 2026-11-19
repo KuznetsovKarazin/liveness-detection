@@ -14,8 +14,12 @@ CPU, con LivenessNet del codice di riferimento e ResNet-18 su frame 8×8 (mai 25
 costruita a 256×256 solo per contare i parametri). Nessuna scrittura nel repository (controllo finale su results/,
 export/, delivery/).
 
-Senza TensorFlow i test che costruiscono o addestrano un modello Keras sono saltati, con un motivo dichiarato in
-MISSING_INPUT; gli altri girano.
+Senza TensorFlow i test che costruiscono o addestrano un modello Keras, o che avviano TensorFlow in un sottoprocesso,
+sono saltati, con un motivo dichiarato in MISSING_INPUT; gli altri girano.
+
+Le cartelle temporanee del mondo sintetico stanno in TMPDIR: la suite fallisce se TMPDIR sta dentro la radice del
+repository o della copia su cui gira (rilievo della revisione indipendente del 19/11); TMPDIR va tenuto fuori dalla
+radice (il controllo dei mutanti lo mette in una cartella temporanea fuori dalla copia).
 
   .venv/bin/python -I -B scripts/check_pad_arch_comparison.py [--verbose] [-f]
 """
@@ -43,6 +47,7 @@ import check_nuaa_folds_run as CFR  # noqa: E402
 import check_nuaa_session_ablation_run as SAR  # noqa: E402
 import nuaa_bn_recalibration as BR  # noqa: E402
 import nuaa_folds_run as FR  # noqa: E402
+import nuaa_patience_verify as PV  # noqa: E402
 import nuaa_session_ablation_run as SR  # noqa: E402
 import pad_arch_comparison as P  # noqa: E402
 import pad_arch_definitions as D  # noqa: E402
@@ -73,6 +78,30 @@ def need_tf(test: unittest.TestCase):
         skip_missing(test, "tensorflow")
     if not REF_ARCH.is_file():
         skip_missing(test, "reference architecture")
+
+
+@contextlib.contextmanager
+def tensorflow_unloaded():
+    """check-inputs rifiuta un processo in cui TensorFlow è già importato (FR.tf_state guarda sys.modules): i test che lo
+    eseguono tolgono per la sua durata le voci di TensorFlow da sys.modules e le rimettono dopo, così non dipendono
+    dall'ordine dei test. Il controllo resta vero: se check-inputs importasse TensorFlow, tf_state lo troverebbe."""
+    saved = {k: v for k, v in sys.modules.items() if k == "tensorflow" or k.startswith("tensorflow.")}
+    for k in saved:
+        del sys.modules[k]
+    try:
+        yield
+    finally:
+        sys.modules.update(saved)
+
+
+def tf_with_threads():
+    """TensorFlow con i thread della configurazione (10 e 10) impostati prima di qualunque operazione, come fa il runner:
+    i test che costruiscono modelli inizializzano TensorFlow nello stesso processo della prova, che poi reimposta gli
+    stessi valori (nessun cambiamento, nessun errore)."""
+    import tensorflow as tf
+    tf.config.threading.set_intra_op_parallelism_threads(P.REQUIRED_THREADS)
+    tf.config.threading.set_inter_op_parallelism_threads(P.REQUIRED_THREADS)
+    return tf
 
 
 def sha(b: bytes) -> str:
@@ -184,7 +213,8 @@ class World(SAR.World):
             "code": {f: sha((ROOT / f).read_bytes()) for f in P.CODE_FILES},
             "architectures": {"LivenessNet": {"path": "ref/architectures.py", "sha256": self.code["ref/architectures.py"], "builder": "b", **arch("LivenessNet")},
                               "ResNet-18": {"module": "scripts/pad_arch_models.py", "definition": "d", "batchnorm": "b", **arch("ResNet-18")}},
-            "training": {"recipe": "r", "trial_overrides": {"max_epochs": 3}, "trainer": "t", "timing": "t", "checkpoint": "none saved", "threads": "t"},
+            "training": {"recipe": "r", "trial_overrides": {"max_epochs": 3}, "trainer": "t", "timing": "t", "checkpoint": "none saved",
+                         "threads": {"intra_op": 10, "inter_op": 10, "rule": "t"}},
             "trial": {**P.TRIAL_UNIT, "roles": ["fitting", "dev"], "frames": {"fitting": self.counts("armB_fitting"), "dev": self.counts("dev")},
                       "networks": list(AM.NETWORKS), "inference_batch": 16, "inference": "i", "process": "p", "wall_time_cap_minutes": 60,
                       "cap_unit": P.CAP_UNIT, "cap_checks": "c", "estimate_minutes": 1, "upper_estimate_minutes": 2, "estimate": "e"},
@@ -193,11 +223,20 @@ class World(SAR.World):
                                "consequence": "if not reproduced, reported and explained before the pre-registration is closed"},
             "definitions": {"one_class": "o", "comparison": "c", "sign": "s", "subject_sensitivity": "s", "fixed_threshold": 0.5,
                             "decision": FR.DECISION_RULE, "eer_threshold": FR.THRESHOLD_CRITERION, "bootstrap": dict(SR.BOOT),
-                            "conditions": [list(c) for c in D.CONDITIONS]},
+                            "conditions": [list(c) for c in D.CONDITIONS], "frame_ids": {"field": "sample_id", "rule": "r"},
+                            "primary_analysis": {"patience": 4, "threshold": "fixed_0.5", "ordinary": [4, "ordinary", "fixed_0.5"],
+                                                 "re_estimated": [4, "re-estimated", "fixed_0.5"],
+                                                 "contrast": "re-estimated minus ordinary", "reading": "a choice of the author",
+                                                 "reading_names": [D.CONTRAST_LOWER, D.CONTRAST_HIGHER, D.CONTRAST_UNRESOLVED],
+                                                 "per_seed": "p", "secondary": "s"},
+                            "per_seed_reading": "p"},
             "plan": {"networks": list(AM.NETWORKS), "patiences": [4, 12], "bn_states": list(D.BN_STATES), "thresholds": list(D.THRESHOLD_RULES),
-                     "max_epochs": 12, "datasets": [nuaa, missing("CelebA-Spoof"), missing("Replay-Attack")],
+                     "max_epochs": 12, "datasets": [nuaa, missing("CelebA-Spoof"), missing("Replay-Attack")], "order": "o",
+                     "runs": P.nuaa_runs(nuaa), "caps": {"rule": "r", "unit": P.RUN_CAP_UNIT, "wall_multiplier": 1.5, "round_up_hours": 0.5},
+                     "machine_rule": "the same machine and the same threads",
                      "costs": {"rates": "r", "training": "t", "evaluation": "e", "totals": "t"}},
-            "outputs": {"trial": ["status.json", "run.log", "trial.json", "trial.md"], "plan": ["run_plan.csv", "run_plan.md"]},
+            "outputs": {"trial": ["status.json", "run.log", "trial.json", "trial.md"], "plan": list(P.PLAN_OUTPUTS),
+                        "compare_trials": list(P.COMPARE_OUTPUTS)},
             "environment": {"tensorflow": env["tensorflow_installed"], "keras": env.get("keras")},
             "test": P.TEST_READ}
 
@@ -232,13 +271,20 @@ def world() -> World:
 
 # ============================================================================ dati sintetici delle definizioni
 
-def unit(split, seed, frames, s_res, s_liv, t_res=0.5, t_liv=0.5, dataset="D"):
-    """frames: lista di (soggetto, etichetta); punteggi d'attacco delle due reti."""
+def frame_ids_of(frames, split) -> list:
+    """ID sintetici dei frame: split, soggetto e posizione (diversi per frame e per split, uguali per gli stessi frame)."""
+    return [f"f{split}-{s}-{i}" for i, (s, _) in enumerate(frames)]
+
+
+def unit(split, seed, frames, s_res, s_liv, t_res=0.5, t_liv=0.5, dataset="D", ids=None):
+    """frames: lista di (soggetto, etichetta); punteggi d'attacco delle due reti; ID dei frame (sample_id) uguali per le
+    due reti, quelli di frame_ids_of se non dati."""
     subj = [f for f, _ in frames]
     y = [lab for _, lab in frames]
+    ids = list(ids if ids is not None else frame_ids_of(frames, split))
     return {"unit": (dataset, split, seed), "networks": {
-        "ResNet-18": {"y": y, "s": list(s_res), "subject": subj, "threshold": t_res},
-        "LivenessNet": {"y": y, "s": list(s_liv), "subject": subj, "threshold": t_liv}}}
+        "ResNet-18": {"y": y, "s": list(s_res), "subject": subj, "threshold": t_res, "sample_id": list(ids)},
+        "LivenessNet": {"y": y, "s": list(s_liv), "subject": subj, "threshold": t_liv, "sample_id": list(ids)}}}
 
 
 def frames_of(subjects, per=2):
@@ -815,6 +861,52 @@ class TestGConfig(unittest.TestCase):
         self.refused(lambda d: d["outputs"].update(plan=["plan.csv"]), "outputs must be")
         self.refused(lambda d: d["environment"].pop("keras"), "environment needs exactly")
 
+    def test_threads(self):
+        th = lambda **k: (lambda d: d["training"]["threads"].update(**k))        # noqa: E731
+        self.refused(lambda d: d["training"].update(threads="not set"), "training.threads needs exactly")
+        self.refused(lambda d: d["training"]["threads"].pop("inter_op"), "training.threads needs exactly")
+        self.refused(lambda d: d["training"]["threads"].update(extra=1), "training.threads needs exactly")
+        for bad in ("10", 10.0, 0, -10, True, None):
+            self.refused(th(intra_op=bad), "training.threads.intra_op must be a positive integer")
+            self.refused(th(inter_op=bad), "training.threads.inter_op must be a positive integer")
+        self.refused(th(intra_op=15), "must be 10")
+        self.refused(th(inter_op=8), "must be 10")
+        self.refused(th(rule=""), "training.threads.rule")
+
+    def test_definitions_added(self):
+        pa = lambda **k: (lambda d: d["definitions"]["primary_analysis"].update(**k))   # noqa: E731
+        self.refused(lambda d: d["definitions"]["frame_ids"].update(field="key"), "definitions.frame_ids.field")
+        self.refused(lambda d: d["definitions"].pop("frame_ids"), "definitions needs exactly")
+        self.refused(lambda d: d["definitions"].pop("per_seed_reading"), "definitions needs exactly")
+        self.refused(pa(patience=12), "must fix patience 4")
+        self.refused(pa(patience=True), "must fix patience 4")
+        self.refused(pa(threshold="dev_eer"), "must fix patience 4")
+        self.refused(pa(ordinary=[12, "ordinary", "fixed_0.5"]), "conditions must be those")
+        self.refused(pa(re_estimated=[4, "ordinary", "fixed_0.5"]), "conditions must be those")
+        self.refused(pa(ordinary=[4, "re-estimated", "fixed_0.5"], re_estimated=[4, "ordinary", "fixed_0.5"]), "conditions must be those")
+        self.refused(pa(reading_names=["lower", "higher", "unresolved"]), "reading_names")
+        self.refused(pa(reading="the rule"), "choice of the author")
+        self.refused(pa(contrast="ordinary minus nothing"), "re-estimated minus ordinary")
+        self.refused(pa(per_seed=""), "primary_analysis.per_seed")
+        self.refused(pa(secondary="the reading is caused by BN"), "causal")
+
+    def test_plan_added(self):
+        def runs_swapped(d):
+            d["plan"]["runs"][0]["trainings"][0:2] = d["plan"]["runs"][0]["trainings"][1::-1]
+        self.refused(runs_swapped, "plan.runs must list")
+        self.refused(lambda d: d["plan"]["runs"].reverse(), "plan.runs must list")
+        self.refused(lambda d: d["plan"]["runs"].pop(), "plan.runs must list")
+        self.refused(lambda d: d["plan"].pop("order"), "plan needs exactly")
+        self.refused(lambda d: d["plan"].update(order=""), "plan.order")
+        self.refused(lambda d: d["plan"]["caps"].update(wall_multiplier=0.9), "at least 1")
+        self.refused(lambda d: d["plan"]["caps"].update(wall_multiplier=True), "plan.caps.wall_multiplier")
+        self.refused(lambda d: d["plan"]["caps"].update(round_up_hours=0), "plan.caps.round_up_hours")
+        self.refused(lambda d: d["plan"]["caps"].update(unit="hours"), "plan.caps.unit")
+        self.refused(lambda d: d["plan"]["caps"].pop("rule"), "plan.caps needs exactly")
+        self.refused(lambda d: d["plan"].update(machine_rule="any machine"), "same machine")
+        self.refused(lambda d: d["plan"].update(machine_rule="the same machine"), "same threads")
+        self.refused(lambda d: d["outputs"].update(compare_trials=["x.json"]), "outputs must be")
+
 
 # ============================================================================ ingressi e check-inputs
 
@@ -840,7 +932,8 @@ class TestHInputs(unittest.TestCase):
         self.assertEqual(inp.folds, {})
         self.assertEqual(inp.assembled, [])
         self.assertEqual(inp.reference_card["history"], self.w.history)
-        rc, out, err = run_main(self.w.argv("check-inputs"))
+        with tensorflow_unloaded():
+            rc, out, err = run_main(self.w.argv("check-inputs"))
         self.assertEqual(rc, 0, err)
         self.assertIn("fold schema not loaded, no frame assembled", out)
         self.assertNotIn("results", os.listdir(self.w.tmp))
@@ -882,7 +975,7 @@ class TestHInputs(unittest.TestCase):
         card = self.w.base / "patience_4" / "restricted" / f"{REF_MODEL}_card.json"
         saved = card.read_bytes()
         try:
-            card.write_bytes(saved.replace(b"0.71", b"0.72"))
+            card.write_bytes(saved + b" ")              # non dipende dalla storia scritta (TestLTrial la riscrive)
             self.refused("SHA-256")
         finally:
             card.write_bytes(saved)
@@ -912,9 +1005,12 @@ class TestHInputs(unittest.TestCase):
     def test_assembled_keys_checked_against_the_card(self):
         real = FR.assemble
 
-        def short(store, rows):
-            return real(store, sorted(rows, key=lambda r: r["key"])[1:])
         out = self.w.tmp / "assemble_out"
+        running = []
+
+        def short(store, rows):
+            running.append(json.loads((out / RUN / "status.json").read_text()))       # lo stato RUNNING, durante il run
+            return real(store, sorted(rows, key=lambda r: r["key"])[1:])
         self.addCleanup(shutil.rmtree, out, True)
         with injected(fr={"assemble": short}):
             rc, o, err = run_main(self.w.argv("trial", out=out))
@@ -923,6 +1019,11 @@ class TestHInputs(unittest.TestCase):
         run = out / RUN
         st = json.loads((run / "status.json").read_text())
         self.assertEqual(st["status"], "FAIL")
+        want = {"requested": {"intra_op": 10, "inter_op": 10}, "effective": None, "set_by_this_runner": False, "logical_cpus": os.cpu_count()}
+        self.assertEqual(running[0]["status"], "RUNNING")
+        for s in (running[0], st):                    # fermata prima dell'import di TensorFlow: thread richiesti, non impostati
+            self.assertEqual({k: s["threads"][k] for k in want}, want)
+            self.assertEqual(sorted(s["threads"]["environment"]), ["TF_NUM_INTEROP_THREADS", "TF_NUM_INTRAOP_THREADS"])
         self.assertEqual(sorted(os.listdir(run)), ["run.log", "status.json"])
 
     def test_output_root_symbolic_link_refused(self):
@@ -1008,11 +1109,19 @@ def fake_trial(w: World, folder: Path, nets=None, status="PASS", over=None) -> d
                         "inference": {"fitting": {"frames": 32, "seconds": 0.8, "cpu_seconds": 3.2}, "dev": {"frames": 16, "seconds": 0.4, "cpu_seconds": 1.6}}},
         "ResNet-18": {"epochs": [{"epoch": i, "seconds_total": 30.0, "seconds_validation": 6.0, "cpu_seconds": 90.0} for i in (1, 2, 3)],
                       "inference": {"fitting": {"frames": 32, "seconds": 3.2, "cpu_seconds": 9.6}, "dev": {"frames": 16, "seconds": 1.6, "cpu_seconds": 4.8}}}}
+    want = {"intra_op": 10, "inter_op": 10}
     for v in nets.values():
         v.setdefault("training_overhead", {"seconds": 5.0, "cpu_seconds": 10.0} if v["epochs"] else None)
+        if v["epochs"]:
+            v.setdefault("threads", dict(want))
     code = {**cfg["code"], "scripts/pad_arch_comparison.py": sha((ROOT / "scripts/pad_arch_comparison.py").read_bytes())}
     doc = {"schema": P.TRIAL_SCHEMA, "run_id": RUN, "status": status, "unit": {**P.TRIAL_UNIT, "frames": cfg["trial"]["frames"]}, "networks": nets,
-           "config_sha256": sha(w.cfg_path.read_bytes()), "code_sha256": code, **(over or {})}
+           "config_sha256": sha(w.cfg_path.read_bytes()), "code_sha256": code, "commit": STATE["commit"],
+           "machine": {"processor": "Test CPU", "logical_cpus": 15, "ram_gb": 24.0, "os": "macOS 27.2.1",
+                       "core_levels": [{"name": "Super", "physical_cores": 5}, {"name": "Performance", "physical_cores": 10}],
+                       "architecture": "arm64"},
+           "threads": {"requested": dict(want), "effective": dict(want), "set_by_this_runner": True,
+                       "environment": {"TF_NUM_INTRAOP_THREADS": None, "TF_NUM_INTEROP_THREADS": None}, "logical_cpus": 15}, **(over or {})}
     folder.mkdir(parents=True, exist_ok=True)
     b = (json.dumps(doc, indent=1) + "\n").encode()
     (folder / "trial.json").write_bytes(b)
@@ -1154,6 +1263,12 @@ class TestJDeliveredConfiguration(unittest.TestCase):
         self.assertEqual(cfg["training"]["trial_overrides"], {"max_epochs": 3})
         self.assertEqual([e["new"] for e in cfg["plan"]["datasets"][0]["trainings"]], [12, 12, 12, 12])
         self.assertEqual([e["existing"] for d in cfg["plan"]["datasets"] for e in d["trainings"]], [0] * 12)
+        self.assertEqual({k: cfg["training"]["threads"][k] for k in P.THREAD_KEYS}, {"intra_op": 10, "inter_op": 10})
+        self.assertEqual(cfg["definitions"]["primary_analysis"]["ordinary"], [4, "ordinary", "fixed_0.5"])
+        self.assertEqual(cfg["definitions"]["primary_analysis"]["re_estimated"], [4, "re-estimated", "fixed_0.5"])
+        self.assertEqual(len(cfg["plan"]["runs"]), 2)
+        self.assertEqual(sum(len(r["trainings"]) for r in cfg["plan"]["runs"]), 48)
+        self.assertEqual(cfg["test"], P.TEST_READ)
 
 
 # ============================================================================ TensorFlow: modelli
@@ -1161,7 +1276,7 @@ class TestJDeliveredConfiguration(unittest.TestCase):
 class TestKModels(unittest.TestCase):
     def setUp(self):
         need_tf(self)
-        import tensorflow as tf
+        tf = tf_with_threads()
         FR.hide_gpu(tf)
         self.tf = tf
 
@@ -1241,6 +1356,7 @@ class TestLTrial(unittest.TestCase):
     def setUpClass(cls):
         if not TF_AVAILABLE or not REF_ARCH.is_file():
             return
+        tf_with_threads()
         w = world()
         with injected(**hooks(w)):
             cfg, _, pcfg = P.load_config(w.cfg_path, w.base)
@@ -1284,11 +1400,29 @@ class TestLTrial(unittest.TestCase):
         return st
 
     def test_trial_pass_then_plan_then_refused_again(self):
-        rc, out, err, run = self.go()
+        """Prova completa; in più: i thread impostati con i valori della configurazione prima di ogni addestramento (le
+        chiamate di impostazione e del trainer registrate nell'ordine)."""
+        import tensorflow as tf
+        from unittest import mock
+        log = []
+        real = {k: getattr(tf.config.threading, k) for k in ("set_intra_op_parallelism_threads", "set_inter_op_parallelism_threads")}
+
+        def trainer(data, training, network, *a, **k):
+            log.append(f"train {network}")
+            return P.trial_trainer(data, training, network, *a, **k)
+        with mock.patch.object(tf.config.threading, "set_intra_op_parallelism_threads",
+                               lambda n: log.append(f"intra {n}") or real["set_intra_op_parallelism_threads"](n)), \
+                mock.patch.object(tf.config.threading, "set_inter_op_parallelism_threads",
+                                  lambda n: log.append(f"inter {n}") or real["set_inter_op_parallelism_threads"](n)):
+            rc, out, err, run = self.go(TRAINER=trainer)
         self.assertEqual(rc, 0, err[-3000:])
         self.assertEqual(sorted(os.listdir(run)), ["run.log", "status.json", "trial.json", "trial.md"])
         st = self.assert_final_status(run, "PASS")
         self.assertEqual(st["trial_json_sha256"], sha((run / "trial.json").read_bytes()))
+        once = json.loads((run / "trial.json").read_text())
+        self.assertEqual({k: st[k] for k in ("finished", "wall_seconds", "process_cpu_seconds")},
+                         {k: once[k] for k in ("finished", "wall_seconds", "process_cpu_seconds")})      # misurati una volta
+        self.assertIn(f"process CPU time (all threads) {once['process_cpu_seconds']:.0f} s", (run / "trial.md").read_text())
         self.assertEqual(st["run_log_sha256"], sha((run / "run.log").read_bytes()))
         doc = json.loads((run / "trial.json").read_text())
         self.assertEqual((doc["status"], doc["started"], doc["batch"], doc["inference_batch"], doc["device"]),
@@ -1304,7 +1438,16 @@ class TestLTrial(unittest.TestCase):
             self.assertTrue(all(e["seconds_validation"] < e["seconds_total"] for e in r["epochs"]))
             self.assertEqual(r["card"]["checkpoint"], "none saved (trial)")
             self.assertEqual(r["card"]["max_epochs"], 3)
-        self.assertEqual(doc["networks"]["LivenessNet"]["threads"]["set_by_this_runner"], False)
+        want = {"intra_op": 10, "inter_op": 10}
+        self.assertEqual({k: doc["threads"][k] for k in ("requested", "effective", "set_by_this_runner")}, {"requested": want, "effective": want,
+                                                                                                         "set_by_this_runner": True})
+        self.assertEqual(doc["threads"]["logical_cpus"], os.cpu_count())
+        self.assertEqual(sorted(doc["threads"]["environment"]), ["TF_NUM_INTEROP_THREADS", "TF_NUM_INTRAOP_THREADS"])
+        self.assertEqual([doc["networks"][n]["threads"] for n in AM.NETWORKS], [want, want])
+        self.assertEqual(st["threads"], doc["threads"])
+        self.assertIn("TensorFlow threads set by this runner: requested intra-op 10 and inter-op 10", (run / "trial.md").read_text())
+        self.assertEqual(log, ["intra 10", "inter 10", "train LivenessNet", "train ResNet-18"])
+        self.assertEqual(doc["schema"], P.TRIAL_SCHEMA)
         self.assertEqual(doc["baseline_check"]["outcome"], "reproduced")
         self.assertEqual(set(doc["baseline_check"]["max_abs_difference"].values()), {0.0})
         self.assertEqual(doc["data_check"], {"fitting_keys_equal_to_reference_card": True, "dev_keys_equal_to_reference_card": True})
@@ -1359,6 +1502,7 @@ class TestLTrial(unittest.TestCase):
         doc = json.loads((run / "trial.json").read_text())
         self.assertEqual([len(doc["networks"][n]["epochs"]) for n in AM.NETWORKS], [3, 2])
         self.assertEqual(doc["networks"]["ResNet-18"]["inference"], {})
+        self.assertEqual(doc["networks"]["ResNet-18"]["threads"], {"intra_op": 10, "inter_op": 10})   # riletti prima della rete
         self.assertEqual(doc["baseline_check"]["outcome"], "reproduced")
         self.assertIsNone(doc["networks"]["ResNet-18"]["rates"]["inference_seconds_per_1000_frames"])
 
@@ -1419,6 +1563,20 @@ class TestLTrial(unittest.TestCase):
                 P.trial_network(self.cfg, self.pcfg, "LivenessNet", None, self.fit, self.dev, budget, rec)
         self.assertEqual(rec["training_overhead"]["seconds"], 7.0)
         self.assertEqual(P.network_rates(rec, 32, 16)["overhead_seconds_per_training"], 7.0)
+        self.assertEqual(rec["threads"], {"intra_op": 10, "inter_op": 10})
+        # i thread riletti dopo la rete: un getter che cambia durante il training ferma la prova a fine rete
+        patcher = mock.patch.object(tf.config.threading, "get_inter_op_parallelism_threads", lambda: 3)
+
+        def changing(*a, **k):
+            out = fake(*a, **k)
+            patcher.start()
+            return out
+        try:
+            with injected(p={"TRAINER": changing}), self.assertRaises(FR.Failure) as cm, contextlib.redirect_stdout(io.StringIO()):
+                P.trial_network(self.cfg, self.pcfg, "LivenessNet", None, self.fit, self.dev, SR.Budget(60), {"epochs": [], "inference": {}})
+        finally:
+            patcher.stop()
+        self.assertIn("after LivenessNet", str(cm.exception))
 
     def test_trainer_matches_the_original_trainer(self):
         """Stessa storia del trainer originale (3 epoche, stesso seed, stessi dati): la callback dei tempi e la copia non
@@ -1466,6 +1624,8 @@ class TestLTrial(unittest.TestCase):
         self.assertEqual(rc, 1)
         st = self.assert_final_status(run, "FAIL")
         self.assertIn("synthetic trainer failure", st["reason"])
+        self.assertEqual({k: st["threads"][k] for k in ("requested", "effective", "set_by_this_runner")},
+                         {"requested": {"intra_op": 10, "inter_op": 10}, "effective": {"intra_op": 10, "inter_op": 10}, "set_by_this_runner": True})
         self.assertEqual(sorted(os.listdir(run)), ["run.log", "status.json"])
         self.assertIn("RESULT: FAIL (trial)", (run / "run.log").read_text())
 
@@ -1515,8 +1675,22 @@ class TestMOutputs(unittest.TestCase):
 
     def test_machine_has_no_host_or_user(self):
         m = P.machine()
-        self.assertEqual(sorted(m), ["architecture", "efficiency_cores", "logical_cpus", "os", "performance_cores", "processor", "ram_gb"])
+        self.assertEqual(sorted(m), ["architecture", "core_levels", "logical_cpus", "os", "processor", "ram_gb"])
         self.assertEqual(P.output_problems(json.dumps(m), FR.Inputs()), [])
+
+    def test_core_levels_are_named_by_the_system(self):
+        """I gruppi di core portano il nome dato dal sistema, non un nome fisso (difetto della PR #29: «performance» ed
+        «efficiency» anche sull'Apple M5 Pro, dove il sistema li chiama «Super» e «Performance»)."""
+        m = P.machine()
+        self.assertIsInstance(m["core_levels"], list)
+        for lv in m["core_levels"]:
+            self.assertEqual(sorted(lv), ["name", "physical_cores"])
+        self.assertNotIn("performance_cores", m)
+        self.assertNotIn("efficiency_cores", m)
+        two = {"core_levels": [{"name": "Super", "physical_cores": 5}, {"name": "Performance", "physical_cores": 10}]}
+        self.assertEqual(P.core_levels_text(two), "5 Super, 10 Performance")
+        self.assertEqual(P.core_levels_text({"core_levels": []}), "not reported")
+        self.assertEqual(P.core_levels_text({}), "not reported")
 
     def test_rates_rule(self):
         rec = {"epochs": [{"seconds_total": 10.0, "seconds_validation": 2.0, "cpu_seconds": 30.0},
@@ -1546,6 +1720,1203 @@ class TestMOutputs(unittest.TestCase):
         self.assertIn(str(ROOT), t)
         if len(getpass.getuser()) >= 3:
             self.assertIn(getpass.getuser(), t)
+
+
+# ============================================================================ ID dei frame (richiesta del coordinatore, 19/11/2026)
+
+def two_splits(seeds=(42,), liv=None):
+    """Due split (soggetti a, b, c e d, e, f), ResNet-18 perfetta e LivenessNet costante (o liv(frames)), per i seed dati."""
+    units = []
+    for split, subs in ((1, list("abc")), (2, list("def"))):
+        f = frames_of(subs)
+        for seed in seeds:
+            units.append(unit(split, seed, f, perfect(f), liv(f) if liv else [0.2] * len(f)))
+    return units
+
+
+class TestBFrameIds(unittest.TestCase):
+    def refused(self, units, needle, fn=None):
+        with self.assertRaises(FR.Failure) as cm:
+            (fn or D.compare_condition)(units)
+        msg = str(cm.exception)
+        self.assertIn(needle, msg)
+        self.assertNotIn("other-frame", msg)
+        self.assertFalse(any(f"f{s}-" in msg for s in (1, 2)), msg)        # nessun ID di frame nel messaggio
+        return msg
+
+    def test_networks_with_the_same_subjects_and_labels_and_one_identifier_different(self):
+        """(a) Fra le due reti: stessi soggetti, stesse etichette, stesso ordine, un solo ID diverso -> il confronto si ferma
+        per il controllo degli ID (messaggio degli ID, non quello dei frame)."""
+        units = two_splits()
+        n = units[0]["networks"]
+        n["LivenessNet"]["sample_id"][3] = "other-frame"
+        self.assertEqual((n["ResNet-18"]["y"], n["ResNet-18"]["subject"]), (n["LivenessNet"]["y"], n["LivenessNet"]["subject"]))
+        self.refused(units, "the two networks are not scored on the same frame identifiers in the same order")
+        self.refused(units, "the two networks are not scored on the same frame identifiers in the same order", D.leave_one_subject_out)
+
+    def test_same_identifiers_in_another_order(self):
+        """(c) Stessi ID in ordine diverso, con soggetto ed etichetta coerenti (due frame dello stesso soggetto e classe
+        scambiati): Failure."""
+        units = two_splits()
+        ids = units[0]["networks"]["LivenessNet"]["sample_id"]
+        self.assertEqual(frames_of(list("abc"))[0], frames_of(list("abc"))[1])
+        ids[0], ids[1] = ids[1], ids[0]
+        self.refused(units, "same frame identifiers in the same order")
+
+    def test_identifiers_missing_duplicated_empty_or_of_another_length(self):
+        """(d) Per ciascuna rete: campo mancante, un ID in meno o in più, duplicato, vuoto, non testuale, non una lista,
+        array a due dimensioni, campo in più."""
+        cases = ((lambda n: n.pop("sample_id"), "must hold exactly the fields"),
+                 (lambda n: n.update(sample_id=n["sample_id"][:-1]), "frame identifiers for"),
+                 (lambda n: n.update(sample_id=n["sample_id"] + ["x"]), "frame identifiers for"),
+                 (lambda n: n["sample_id"].__setitem__(2, n["sample_id"][1]), "duplicated frame identifiers"),
+                 (lambda n: n["sample_id"].__setitem__(0, " "), "non-empty text"),
+                 (lambda n: n["sample_id"].__setitem__(0, 7), "non-empty text"),
+                 (lambda n: n.update(sample_id="abc"), "must be a list"),
+                 (lambda n: n.update(sample_id=np.array([n["sample_id"]])), "must be a list"),
+                 (lambda n: n.update(extra=1), "must hold exactly the fields"))
+        for mutate, needle in cases:
+            for net in AM.NETWORKS:
+                units = two_splits()
+                mutate(units[0]["networks"][net])
+                self.refused(units, needle)
+
+    def test_units_of_a_split_on_other_frames(self):
+        """(e) Unità dello stesso split (seed diversi): un ID diverso; gli stessi frame in un altro ordine (ID, soggetti ed
+        etichette permutati insieme, in modo coerente) -> Failure; gli stessi frame -> passa."""
+        units = two_splits(seeds=(42, 43))
+        for n in AM.NETWORKS:
+            units[1]["networks"][n]["sample_id"][0] = "other-frame"
+        self.refused(units, "two units of ('D', 1) are not scored on the same frames")
+        units = two_splits(seeds=(42, 43))
+        f = list(reversed(frames_of(list("abc"))))
+        units[1] = unit(1, 43, f, perfect(f), [0.2] * len(f), ids=list(reversed(frame_ids_of(frames_of(list("abc")), 1))))
+        self.refused(units, "two units of ('D', 1) are not scored on the same frames")
+        self.assertEqual(D.compare_condition(two_splits(seeds=(42, 43)))["acer_counts"]["units"], 4)
+
+    def test_identifier_in_two_splits(self):
+        units = two_splits()
+        for n in AM.NETWORKS:
+            units[1]["networks"][n]["sample_id"][0] = units[0]["networks"]["ResNet-18"]["sample_id"][0]
+        self.refused(units, "also appears in")
+
+    def test_good_case_numbers_and_public_rows(self):
+        """(f) Il caso buono passa con gli stessi numeri di prima; nelle righe il numero dei frame e l'impronta degli ID,
+        nessun ID; ID dati come array di testi accettati."""
+        units = two_splits(seeds=(42, 43))
+        out = D.compare_condition(units)
+        self.assertEqual(out["mean_delta"], {"acer": -0.5, "apcer": -1.0, "bpcer": 0.0})
+        self.assertEqual(out["acer_counts"], {"resnet18_lower": 4, "livenessnet_lower": 0, "ties": 0, "undefined": 0, "units": 4})
+        self.assertEqual((out["interval"]["acer"]["low"], out["interval"]["acer"]["high"]), (-0.5, -0.5))
+        row = out["rows"][0]
+        self.assertEqual(row["n_frames"], 12)
+        self.assertEqual(row["frame_ids_sha256"], sha("\n".join(sorted(frame_ids_of(frames_of(list("abc")), 1))).encode()))
+        self.assertEqual(D.ids_sha256(["b", "a"]), sha(b"a\nb"))
+        public = repr({k: v for k, v in out.items() if k != "prepared"})
+        self.assertNotIn("f1-", public)
+        self.assertNotIn("f2-", public)
+        u = two_splits()
+        for n in AM.NETWORKS:
+            for x in u:
+                x["networks"][n]["sample_id"] = np.array(x["networks"][n]["sample_id"])
+        self.assertEqual(D.compare_condition(u)["mean_delta"]["acer"], -0.5)
+
+
+class TestCFrameIdsBetweenConditions(unittest.TestCase):
+    def conditions(self):
+        a = two_splits()
+        b = two_splits(liv=perfect)
+        return a, b
+
+    def test_conditions_with_the_same_subjects_and_labels_and_one_identifier_different(self):
+        """(b) Fra due condizioni: stessi soggetti, etichette e conteggi per classe in ogni unità, un ID diverso (lo stesso
+        nelle due reti della seconda condizione) -> il confronto si ferma per il controllo degli ID."""
+        ua, ub = self.conditions()
+        for n in AM.NETWORKS:
+            ub[0]["networks"][n]["sample_id"][5] = "other-frame"
+        a, b = D.compare_condition(ua), D.compare_condition(ub)
+        x, y = a["prepared"][0], b["prepared"][0]
+        self.assertEqual(x["frames"][1:], y["frames"][1:])
+        self.assertEqual([(c["subjects"], list(c["na"]), list(c["nb"])) for c in (x["counts"]["ResNet-18"], y["counts"]["ResNet-18"])][0],
+                         [(c["subjects"], list(c["na"]), list(c["nb"])) for c in (x["counts"]["ResNet-18"], y["counts"]["ResNet-18"])][1])
+        with self.assertRaises(FR.Failure) as cm:
+            D.compare_conditions(a, b)
+        self.assertIn("the two conditions are not scored on the same frame identifiers in the same order", str(cm.exception))
+        self.assertNotIn("other-frame", str(cm.exception))
+
+    def test_conditions_with_the_same_identifiers_in_another_order(self):
+        ua, ub = self.conditions()
+        for n in AM.NETWORKS:
+            ids = ub[1]["networks"][n]["sample_id"]
+            ids[0], ids[1] = ids[1], ids[0]                  # stesso soggetto e stessa etichetta
+        with self.assertRaises(FR.Failure) as cm:
+            D.compare_conditions(D.compare_condition(ua), D.compare_condition(ub))
+        self.assertIn("same frame identifiers in the same order", str(cm.exception))
+
+    def test_conditions_with_the_same_identifiers_and_other_subjects(self):
+        """Stessi ID, un frame con un altro soggetto della stessa classe (conteggi per soggetto diversi): il controllo dei
+        soggetti e delle etichette, a parte da quello degli ID."""
+        ua, ub = self.conditions()
+        for n in AM.NETWORKS:
+            ub[0]["networks"][n]["subject"][0] = "b"
+        with self.assertRaises(FR.Failure) as cm:
+            D.compare_conditions(D.compare_condition(ua), D.compare_condition(ub))
+        self.assertIn("is not scored on the same test frames (subjects and labels)", str(cm.exception))
+
+
+# ============================================================================ (e) analisi primaria
+
+def primary_conditions(seed43_like_ordinary=True):
+    """Le 8 condizioni sintetiche: a (4, ordinary, 0,5) Δ = −1/2 in ogni unità (ResNet-18 perfetta, LivenessNet costante
+    0,2: APCER 1); a (4, re-estimated, 0,5) Δ = −1/4 nelle unità del seed 42 (LivenessNet sbaglia un attacco su due per
+    soggetto: APCER 1/2) e −1/2 in quelle del seed 43; le altre sei Δ = 0 (due reti perfette)."""
+    def half(f):
+        out, seen = [], {}
+        for s, lab in f:
+            if lab:
+                seen[s] = seen.get(s, 0) + 1
+                out.append(0.9 if seen[s] % 2 else 0.2)
+            else:
+                out.append(0.1)
+        return out
+    conds = {}
+    for c in D.CONDITIONS:
+        units = []
+        for split, subs in ((1, list("abc")), (2, list("def"))):
+            f = frames_of(subs)
+            for seed in (42, 43):
+                if c == D.PRIMARY_ORDINARY:
+                    liv = [0.2] * len(f)
+                elif c == D.PRIMARY_RE_ESTIMATED:
+                    liv = half(f) if seed == 42 else [0.2] * len(f)
+                else:
+                    liv = perfect(f)
+                units.append(unit(split, seed, f, perfect(f), liv))
+        conds[c] = units
+    return conds
+
+
+class TestNPrimaryAnalysis(unittest.TestCase):
+    def test_constants(self):
+        self.assertEqual((D.PRIMARY_ORDINARY, D.PRIMARY_RE_ESTIMATED), ((4, "ordinary", "fixed_0.5"), (4, "re-estimated", "fixed_0.5")))
+        self.assertTrue(D.PRIMARY_ORDINARY in D.CONDITIONS and D.PRIMARY_RE_ESTIMATED in D.CONDITIONS)
+
+    def test_known_gaps_and_contrast(self):
+        r = D.primary_analysis(primary_conditions())
+        self.assertEqual(r["conditions"], {"ordinary": [4, "ordinary", "fixed_0.5"], "re-estimated": [4, "re-estimated", "fixed_0.5"]})
+        self.assertEqual(r["gap_ordinary"]["mean_delta"], {"acer": -0.5, "apcer": -1.0, "bpcer": 0.0})
+        self.assertEqual(r["gap_re_estimated"]["mean_delta"], {"acer": -0.375, "apcer": -0.75, "bpcer": 0.0})
+        self.assertEqual(r["contrast"]["mean"], {"acer": 0.125, "apcer": 0.25, "bpcer": 0.0})
+        self.assertEqual((r["contrast"]["interval"]["acer"]["low"], r["contrast"]["interval"]["acer"]["high"]), (0.125, 0.125))
+        self.assertEqual(r["contrast"]["reading"], D.CONTRAST_HIGHER)
+        self.assertEqual(r["contrast"]["units"], 4)
+        by_unit = {row["unit"]: row for row in r["rows"]}
+        self.assertEqual(by_unit[("D", 1, 42)]["contrast"]["acer"], Fraction(1, 4))
+        self.assertEqual(by_unit[("D", 1, 42)]["delta_re_estimated"]["acer"], Fraction(-1, 4))
+        self.assertEqual(by_unit[("D", 1, 42)]["delta_ordinary"]["acer"], Fraction(-1, 2))
+        self.assertEqual(by_unit[("D", 2, 43)]["contrast"]["acer"], Fraction(0))
+        self.assertEqual(by_unit[("D", 1, 42)]["n_frames"], 12)
+        self.assertNotIn("f1-", repr(r))
+
+    def test_per_seed_apart(self):
+        r = D.primary_analysis(primary_conditions())
+        self.assertEqual(sorted(r["per_seed"]), [42, 43])
+        s42, s43 = r["per_seed"][42], r["per_seed"][43]
+        self.assertEqual((s42["contrast"]["mean"]["acer"], s42["contrast"]["reading"]), (0.25, D.CONTRAST_HIGHER))
+        self.assertEqual((s43["contrast"]["mean"]["acer"], s43["contrast"]["reading"]), (0.0, D.CONTRAST_UNRESOLVED))
+        self.assertEqual((s42["gap_ordinary"]["mean_delta"]["acer"], s42["gap_re_estimated"]["mean_delta"]["acer"]), (-0.5, -0.25))
+        self.assertEqual((s43["gap_ordinary"]["mean_delta"]["acer"], s43["gap_re_estimated"]["mean_delta"]["acer"]), (-0.5, -0.5))
+        self.assertEqual(s42["contrast"]["units"], 2)
+        self.assertEqual(r["contrast"]["reading"], D.CONTRAST_HIGHER)          # la lettura viene dai seed insieme
+
+    def test_order_chosen_by_the_function(self):
+        """L'ordine della sottrazione non dipende da chi chiama: stesse condizioni in ordine diverso danno lo stesso
+        risultato; scambiare il contenuto delle due chiavi primarie inverte il segno del contrasto."""
+        conds = primary_conditions()
+        rev = dict(reversed(list(conds.items())))
+        self.assertEqual(D.primary_analysis(rev)["contrast"]["mean"], D.primary_analysis(conds)["contrast"]["mean"])
+        sw = dict(conds)
+        sw[D.PRIMARY_ORDINARY], sw[D.PRIMARY_RE_ESTIMATED] = conds[D.PRIMARY_RE_ESTIMATED], conds[D.PRIMARY_ORDINARY]
+        r = D.primary_analysis(sw)
+        self.assertEqual(r["contrast"]["mean"]["acer"], -0.125)
+        self.assertEqual(r["contrast"]["reading"], D.CONTRAST_LOWER)
+        only = {k: conds[k] for k in (D.PRIMARY_ORDINARY, D.PRIMARY_RE_ESTIMATED)}
+        self.assertEqual(D.primary_analysis(only)["contrast"]["mean"]["acer"], 0.125)
+
+    def test_missing_or_unknown_condition(self):
+        conds = primary_conditions()
+        for k in (D.PRIMARY_ORDINARY, D.PRIMARY_RE_ESTIMATED):
+            c = dict(conds)
+            c.pop(k)
+            with self.assertRaises(FR.Failure) as cm:
+                D.primary_analysis(c)
+            self.assertIn("is missing", str(cm.exception))
+        for bad in ({**conds, (4, "ordinary", "youden"): conds[D.PRIMARY_ORDINARY]}, {**conds, (4, "ordinary"): []},
+                    [conds[D.PRIMARY_ORDINARY]]):
+            with self.assertRaises(FR.Failure):
+                D.primary_analysis(bad)
+
+    def test_frame_identifiers_differ_between_the_two_conditions(self):
+        conds = primary_conditions()
+        for u in conds[D.PRIMARY_RE_ESTIMATED][2:]:             # le due unità dello split 2, nelle due reti
+            for n in AM.NETWORKS:
+                u["networks"][n]["sample_id"][4] = "other-frame"
+        with self.assertRaises(FR.Failure) as cm:
+            D.primary_analysis(conds)
+        self.assertIn("the two conditions are not scored on the same frame identifiers", str(cm.exception))
+
+    def test_contrast_reading_bounds(self):
+        self.assertEqual(D.contrast_reading({"low": -0.3, "high": -0.01}), D.CONTRAST_LOWER)
+        self.assertEqual(D.contrast_reading({"low": 0.01, "high": 0.3}), D.CONTRAST_HIGHER)
+        self.assertEqual(D.contrast_reading({"low": -0.3, "high": 0.0}), D.CONTRAST_UNRESOLVED)
+        self.assertEqual(D.contrast_reading({"low": 0.0, "high": 0.3}), D.CONTRAST_UNRESOLVED)
+        self.assertEqual(D.contrast_reading({"low": None, "high": None}), D.CONTRAST_UNRESOLVED)
+        self.assertEqual(len({D.CONTRAST_LOWER, D.CONTRAST_HIGHER, D.CONTRAST_UNRESOLVED}), 3)
+        for name in (D.CONTRAST_LOWER, D.CONTRAST_HIGHER):
+            self.assertIn("ResNet-18 - LivenessNet", name)
+            self.assertIn("re-estimated BN", name)
+
+
+# ============================================================================ (f) lettura per seed
+
+class TestOPerSeedReading(unittest.TestCase):
+    @staticmethod
+    def e(d, lo, hi):
+        return {"difference": d, "low": lo, "high": hi}
+
+    def test_rule(self):
+        e = self.e
+        r = D.per_seed_reading([e(-0.2, -0.3, -0.1)] * 3)
+        self.assertEqual((r["verdict"], r["direction"]), ("consistent", D.SIGN_RESNET_LOWER))
+        r = D.per_seed_reading([e(0.2, 0.1, 0.3), e(0.1, 0.05, 0.2), e(0.3, 0.01, 0.5)])
+        self.assertEqual((r["verdict"], r["direction"]), ("consistent", D.SIGN_LIVENESSNET_LOWER))
+        for seeds, reason in (([e(-0.2, -0.3, -0.1), e(-0.2, -0.3, 0.0), e(-0.2, -0.3, -0.1)], "does not exclude 0"),
+                              ([e(0.2, 0.0, 0.3), e(0.2, 0.1, 0.3), e(0.2, 0.1, 0.3)], "does not exclude 0"),
+                              ([e(-0.2, -0.3, -0.1), e(0.2, 0.1, 0.3), e(-0.2, -0.3, -0.1)], "sign differs"),
+                              ([e(-0.2, -0.3, -0.1), e(0.0, -0.1, 0.1), e(-0.2, -0.3, -0.1)], "zero difference"),
+                              ([e(-0.2, -0.3, -0.1), None, e(-0.2, -0.3, -0.1)], "no value"),
+                              ([e(-0.2, -0.3, -0.1), e(None, None, None), e(-0.2, -0.3, -0.1)], "no difference"),
+                              ([e(-0.2, -0.3, -0.1), e(-0.2, None, None), e(-0.2, -0.3, -0.1)], "no bootstrap interval")):
+            r = D.per_seed_reading(seeds)
+            self.assertEqual((r["verdict"], r["direction"]), ("inconclusive", None))
+            self.assertIn(reason, r["reason"])
+        for bad in ([], [e(-0.2, -0.3, -0.1)], [e(-0.2, -0.3, -0.1)] * 4, None):
+            with self.assertRaises(FR.Failure):
+                D.per_seed_reading(bad)
+        self.assertEqual(D.PLAN_SEEDS, (42, 43, 44))
+
+    def test_same_as_the_rule_of_pr21(self):
+        """Stessi verdetti e stesse ragioni di nuaa_session_ablation_run.reading_verdict su casi casuali."""
+        rng = np.random.default_rng(5)
+        comp = SR.COMPARISONS[0]
+        for _ in range(300):
+            seeds = []
+            for _ in range(3):
+                kind = rng.integers(0, 6)
+                d = float(rng.choice([-0.2, -0.1, 0.0, 0.1, 0.2]))
+                lo, hi = sorted(float(x) for x in rng.choice([-0.3, -0.05, 0.0, 0.05, 0.3], 2))
+                seeds.append(None if kind == 0 else self.e(None, lo, hi) if kind == 1 else self.e(d, None, None) if kind == 2 else self.e(d, lo, hi))
+            mine, theirs = D.per_seed_reading(seeds), SR.reading_verdict(comp, "acer_05", seeds)
+            # stessa regola e stesse ragioni; un seed assente qui è «no value» (non c'è un valore unito sui fold)
+            reason = {"a seed has no value": "a seed has no pooled value (incomplete run)"}.get(mine["reason"], mine["reason"])
+            self.assertEqual((mine["verdict"], reason), (theirs["verdict"], theirs["reason"]))
+            if theirs["verdict"] == "consistent":
+                self.assertEqual(mine["direction"], D.SIGN_RESNET_LOWER if "lower" in theirs["direction"] else D.SIGN_LIVENESSNET_LOWER)
+
+    def test_reported_by_compare_condition(self):
+        out = D.compare_condition(two_splits(seeds=(42, 43, 44)))
+        self.assertEqual((out["per_seed_reading"]["verdict"], out["per_seed_reading"]["direction"]), ("consistent", D.SIGN_RESNET_LOWER))
+        for seeds in ((42,), (42, 43), (43, 44)):          # seed mancanti: mai «consistent»
+            r = D.compare_condition(two_splits(seeds=seeds))["per_seed_reading"]
+            self.assertEqual((r["verdict"], r["reason"]), ("inconclusive", "a seed has no value"))
+        units = two_splits(seeds=(42, 43, 44))
+        units[4] = unit(2, 43, frames_of(list("def")), perfect(frames_of(list("def"))), perfect(frames_of(list("def"))))
+        units[1] = unit(1, 43, frames_of(list("abc")), perfect(frames_of(list("abc"))), perfect(frames_of(list("abc"))))
+        out = D.compare_condition(units)
+        self.assertEqual(out["per_seed"][43]["mean_delta"]["acer"], 0.0)
+        self.assertEqual((out["per_seed_reading"]["verdict"], out["per_seed_reading"]["reason"]),
+                         ("inconclusive", "a seed has a zero difference"))
+        src = inspect.getsource(D.sign_of) + inspect.getsource(D.compare_conditions)
+        self.assertNotIn("per_seed_reading", src)
+
+
+# ============================================================================ thread di TensorFlow (modulo finto)
+
+class FakeThreading:
+    def __init__(self, raise_on_set=False, offset=0):
+        self.calls, self.vals, self.raise_on_set, self.offset = [], {"intra": 0, "inter": 0}, raise_on_set, offset
+
+    def set_intra_op_parallelism_threads(self, n):
+        self.calls.append(("intra", n))
+        if self.raise_on_set:
+            raise RuntimeError("Intra op parallelism cannot be modified after initialization.")
+        self.vals["intra"] = n
+
+    def set_inter_op_parallelism_threads(self, n):
+        self.calls.append(("inter", n))
+        if self.raise_on_set:
+            raise RuntimeError("Inter op parallelism cannot be modified after initialization.")
+        self.vals["inter"] = n
+
+    def get_intra_op_parallelism_threads(self):
+        return self.vals["intra"] + self.offset
+
+    def get_inter_op_parallelism_threads(self):
+        return self.vals["inter"]
+
+
+def fake_tf(**k):
+    return types.SimpleNamespace(config=types.SimpleNamespace(threading=FakeThreading(**k)))
+
+
+THREAD_CFG = {"training": {"threads": {"intra_op": 10, "inter_op": 10, "rule": "r"}}}
+NO_THREAD_ENV = {"TF_NUM_INTRAOP_THREADS": None, "TF_NUM_INTEROP_THREADS": None}
+
+
+class TestHThreads(unittest.TestCase):
+    """Prima delle classi che importano TensorFlow (K, L): check-inputs rifiuta un processo in cui TensorFlow è già importato."""
+    def setUp(self):
+        from unittest import mock
+        self.env = mock.patch.dict(os.environ)
+        self.env.start()
+        self.addCleanup(self.env.stop)
+        for v in P.TF_THREAD_ENV.values():
+            os.environ.pop(v, None)
+
+    def test_set_with_the_configuration_values(self):
+        tf = fake_tf()
+        rec = P.set_threads(tf, THREAD_CFG)
+        self.assertEqual(tf.config.threading.calls, [("intra", 10), ("inter", 10)])
+        self.assertEqual(rec, {"requested": {"intra_op": 10, "inter_op": 10}, "effective": {"intra_op": 10, "inter_op": 10},
+                               "set_by_this_runner": True, "environment": NO_THREAD_ENV, "logical_cpus": os.cpu_count()})
+        self.assertEqual(P.check_threads(tf, THREAD_CFG, "x"), {"intra_op": 10, "inter_op": 10})
+
+    def test_getter_discordant(self):
+        with self.assertRaises(FR.Failure) as cm:
+            P.set_threads(fake_tf(offset=1), THREAD_CFG)
+        self.assertIn("differ from training.threads", str(cm.exception))
+        tf = fake_tf()
+        tf.config.threading.vals.update(intra=10, inter=4)
+        with self.assertRaises(FR.Failure):
+            P.check_threads(tf, THREAD_CFG, "after LivenessNet")
+
+    def test_runtime_error_is_a_failure(self):
+        with self.assertRaises(FR.Failure) as cm:
+            P.set_threads(fake_tf(raise_on_set=True), THREAD_CFG)
+        self.assertIn("cannot be set", str(cm.exception))
+
+    def test_environment_variables(self):
+        os.environ["TF_NUM_INTRAOP_THREADS"] = "10"
+        os.environ["TF_NUM_INTEROP_THREADS"] = " 10 "
+        rec = P.set_threads(fake_tf(), THREAD_CFG)
+        self.assertEqual(rec["environment"], {"TF_NUM_INTRAOP_THREADS": "10", "TF_NUM_INTEROP_THREADS": " 10 "})
+        for var in P.TF_THREAD_ENV.values():
+            for bad in ("8", "", "ten", "10.0"):
+                os.environ.pop("TF_NUM_INTRAOP_THREADS", None)
+                os.environ.pop("TF_NUM_INTEROP_THREADS", None)
+                os.environ[var] = bad
+                tf = fake_tf()
+                with self.assertRaises(FR.Failure) as cm:
+                    P.set_threads(tf, THREAD_CFG)
+                self.assertIn("contradicts training.threads", str(cm.exception))
+                self.assertEqual(tf.config.threading.calls, [])          # rifiuto prima di impostare
+        os.environ.pop("TF_NUM_INTRAOP_THREADS", None)
+        os.environ.pop("TF_NUM_INTEROP_THREADS", None)
+        self.assertEqual(P.thread_environment(THREAD_CFG), NO_THREAD_ENV)
+
+    def test_trial_and_check_inputs_refuse_the_environment_before_any_work(self):
+        w = world()
+        out = w.tmp / "env_out"
+        self.addCleanup(shutil.rmtree, out, True)
+        os.environ["TF_NUM_INTEROP_THREADS"] = "15"
+        with injected(**hooks(w)):
+            rc, o, err = run_main(w.argv("trial", out=out))
+            self.assertEqual(rc, 1)
+            self.assertIn("TF_NUM_INTEROP_THREADS='15' contradicts training.threads.inter_op", err)
+            self.assertFalse(out.exists())
+            with tensorflow_unloaded():
+                rc, o, err = run_main(w.argv("check-inputs"))
+                self.assertEqual(rc, 1)
+                self.assertIn("contradicts", err)
+                os.environ["TF_NUM_INTEROP_THREADS"] = "10"
+                rc, o, err = run_main(w.argv("check-inputs"))
+        self.assertEqual(rc, 0, err)
+        self.assertIn("TF_NUM_INTEROP_THREADS '10'", o)
+
+    def test_set_threads_is_the_only_place_that_sets_them(self):
+        """Controllo sul solo testo del codice (inspect.getsource), non sul comportamento: un'unica chiamata di
+        impostazione e, in cmd_trial, l'import di TensorFlow prima di set_threads e set_threads prima di trial_network.
+        L'ordine effettivo delle chiamate rispetto al training è provato con TensorFlow in
+        TestLTrial.test_trial_pass_then_plan_then_refused_again."""
+        src = inspect.getsource(P)
+        self.assertEqual(src.count("set_intra_op_parallelism_threads("), 1)
+        self.assertEqual(src.count("set_inter_op_parallelism_threads("), 1)
+        trial = inspect.getsource(P.cmd_trial)
+        self.assertLess(trial.index("import tensorflow as tf"), trial.index("set_threads(tf, cfg)"))
+        self.assertLess(trial.index("set_threads(tf, cfg)"), trial.index("trial_network("))
+
+
+# ============================================================================ prima epoca diversa
+
+def baseline_cfg():
+    return {"baseline_check": {"epochs": 3, "reference_run": P4, "model": REF_MODEL, "rule": "r", "consequence": "c"}}
+
+
+def epochs_of(h: dict, n: int) -> list:
+    return [{"epoch": i + 1, **{k: h[k][i] for k in P.HISTORY_KEYS}} for i in range(n)]
+
+
+class TestQFirstDifferingEpoch(unittest.TestCase):
+    def test_first_differing_epoch_is_not_the_epoch_of_the_largest_difference(self):
+        r = P.history_differences([1.0, 2.0, 3.0], [1.5, 4.0, 3.0])
+        self.assertEqual(r, {"epochs_compared": 3, "first_differing_epoch": 1, "max_abs_difference": 2.0, "epoch_of_max_abs_difference": 2})
+        r = P.history_differences([1.0, 2.0, 3.0, 4.0], [1.0, 2.5, 3.0, 4.5])     # stesso massimo in due epoche: la prima
+        self.assertEqual((r["first_differing_epoch"], r["epoch_of_max_abs_difference"]), (2, 2))
+        self.assertEqual(P.history_differences([1.0, 2.0], [1.0, 2.0, 7.0])["epochs_compared"], 2)
+
+    def test_equal_histories(self):
+        self.assertEqual(P.history_differences([0.5, 0.25], [0.5, 0.25]),
+                         {"epochs_compared": 2, "first_differing_epoch": None, "max_abs_difference": 0.0, "epoch_of_max_abs_difference": None})
+
+    def test_baseline_check_field_by_field(self):
+        """La forma della prova 20261118-ARCHTRIAL-0858ae7: loss diversa dall'epoca 1 con il massimo all'epoca 2,
+        val_loss diversa solo all'epoca 3, accuracy uguale."""
+        ref = {"loss": [0.7, 0.6, 0.5, 0.4], "accuracy": [0.5, 0.6, 0.7, 0.8], "val_loss": [0.71, 0.69, 0.65, 0.6],
+               "val_accuracy": [0.5, 0.5, 0.75, 0.8], "lr": [0.001] * 4}
+        new = json.loads(json.dumps(ref))
+        new["loss"][0] += 0.001
+        new["loss"][1] += 0.01
+        new["val_loss"][2] += 1e-6
+        new["lr"][3] = 0.5                                   # epoca 4 fuori dalle 3 confrontate
+        b = P.baseline_check(baseline_cfg(), {"history": ref}, {"epochs": epochs_of(new, 3)})
+        self.assertEqual(b["outcome"], "not reproduced")
+        self.assertEqual(b["first_differing_epoch"], {"loss": 1, "accuracy": None, "val_loss": 3, "val_accuracy": None, "lr": None})
+        self.assertEqual(b["epoch_of_max_abs_difference"], {"loss": 2, "accuracy": None, "val_loss": 3, "val_accuracy": None, "lr": None})
+        self.assertAlmostEqual(b["max_abs_difference"]["loss"], 0.01, places=12)
+        self.assertEqual(b["max_abs_difference"]["accuracy"], 0.0)
+        b = P.baseline_check(baseline_cfg(), {"history": ref}, {"epochs": epochs_of(ref, 3)})
+        self.assertEqual((b["outcome"], set(b["first_differing_epoch"].values()), set(b["max_abs_difference"].values())),
+                         ("reproduced", {None}, {0.0}))
+        b = P.baseline_check(baseline_cfg(), {"history": ref}, {"epochs": epochs_of(ref, 2)})
+        self.assertEqual((b["outcome"], b["first_differing_epoch"], b["epoch_of_max_abs_difference"]), ("not checked", None, None))
+
+    def test_trial_md_reports_both_epochs(self):
+        ref = {k: [0.5, 0.4, 0.3] for k in P.HISTORY_KEYS}
+        new = json.loads(json.dumps(ref))
+        new["loss"] = [0.51, 0.6, 0.3]
+        b = P.baseline_check(baseline_cfg(), {"history": ref}, {"epochs": epochs_of(new, 3)})
+        md = P.trial_md(minimal_trial_doc(b))
+        self.assertIn("| loss | 1 | 0.2 | 2 |", md)
+        self.assertIn("| accuracy | none | 0 | none |", md)
+        self.assertIn("TensorFlow threads set by this runner: requested intra-op 10 and inter-op 10", md)
+        self.assertIn("environment variables: TF_NUM_INTRAOP_THREADS absent, TF_NUM_INTEROP_THREADS '10'", md)
+
+
+def minimal_trial_doc(bcheck: dict) -> dict:
+    """Un trial.json minimo del formato pad-arch-trial/2 per trial_md (senza TensorFlow)."""
+    rec = {"epochs": [], "inference": {}, "rates": P.network_rates({"epochs": [], "inference": {}}, 32, 16)}
+    return {"run_id": RUN, "status": "PASS", "unit": {**P.TRIAL_UNIT, "frames": {"fitting": {"n": 32}, "dev": {"n": 16}}}, "epochs_fixed": 3,
+            "batch": 16, "device": "CPU (GPU hidden)", "cap_minutes": 60, "cap_unit": P.CAP_UNIT, "started": "s", "finished": "f",
+            "wall_seconds": 1.0, "process_cpu_seconds": 2.0, "peak_rss_mb": 3.0,
+            "machine": {"processor": "Test CPU", "core_levels": [{"name": "Super", "physical_cores": 5}, {"name": "Performance", "physical_cores": 10}],
+                        "logical_cpus": 15, "ram_gb": 24.0, "os": "macOS"},
+            "environment": {"tensorflow_installed": "2.15.0", "keras": "2.15.0", "python": "3.11", "numpy": "1.26"},
+            "threads": {"requested": {"intra_op": 10, "inter_op": 10}, "effective": {"intra_op": 10, "inter_op": 10}, "set_by_this_runner": True,
+                        "environment": {"TF_NUM_INTRAOP_THREADS": None, "TF_NUM_INTEROP_THREADS": "10"}, "logical_cpus": 15},
+            "stopped": None, "networks": {n: rec for n in AM.NETWORKS}, "data_check": {"fitting_keys_equal_to_reference_card": True},
+            "baseline_check": bcheck, "command": "c"}
+
+
+# ============================================================================ piano: ordine, tetti, macchina
+
+class TestSPlanOrderAndCaps(unittest.TestCase):
+    def setUp(self):
+        self.w = world()
+        self.ctx = injected(**hooks(self.w))
+        self.ctx.__enter__()
+        self.addCleanup(self.ctx.__exit__, None, None, None)
+        self.out = self.w.tmp / "plan_order_out"
+        self.addCleanup(shutil.rmtree, self.out, True)
+        self.addCleanup(shutil.rmtree, self.w.tmp / "trialfake2", True)
+
+    def plan(self, *extra):
+        return run_main(self.w.argv("plan", "--out-dir", str(self.out), *extra))
+
+    def test_order_of_the_48_trainings(self):
+        self.assertEqual(self.plan()[0], 0)
+        rows = [l.split(",") for l in (self.out / "run_order.csv").read_text().splitlines()]
+        self.assertEqual(rows[0], list(P.ORDER_COLUMNS))
+        self.assertEqual(len(rows), 49)
+        self.assertEqual(rows[1], ["nuaa_patience_4", "1", "LivenessNet", "1", "42", "4", P4, "arm_b_fold1_seed42", "1"])
+        self.assertEqual(rows[2], ["nuaa_patience_4", "2", "ResNet-18", "1", "42", "4", "none", "none", "none"])
+        self.assertEqual(rows[25][:7], ["nuaa_patience_12", "1", "LivenessNet", "1", "42", "12", P12])
+        accepted = SR.training_order(4, SAR.SEEDS)
+        for r in rows[1:]:
+            if r[2] == "LivenessNet":
+                self.assertEqual(int(r[8]), int(r[1]))                            # stessa posizione del run accettato
+                self.assertEqual(accepted[int(r[1]) - 1], ("arm_b", int(r[3]), int(r[4])))
+        self.assertEqual([(r[3], r[4]) for r in rows[1:25:2]], [(str(f), str(s)) for f in (1, 2, 3, 4) for s in SAR.SEEDS])
+        caps = (self.out / "run_caps.csv").read_text().splitlines()
+        self.assertEqual(caps[1], "nuaa_patience_4,NUAA,4,24,,,,,")
+        self.assertIn("Machine: no trial given.", (self.out / "run_plan.md").read_text())
+
+    def test_caps_from_the_trial(self):
+        folder = self.w.tmp / "trialfake2"
+        fake_trial(self.w, folder)
+        rc, out, err = self.plan("--trial-run", str(folder))
+        self.assertEqual(rc, 0, err)
+        cfg, _, _ = P.load_config(self.w.cfg_path, self.w.base)
+        rows = P.plan_rows(cfg, json.loads((folder / "trial.json").read_text()))
+        caps = {l.split(",")[0]: l.split(",") for l in (self.out / "run_caps.csv").read_text().splitlines()[1:]}
+        col = {k: i for i, k in enumerate(P.CAPS_COLUMNS)}
+        for p in (4, 12):
+            rs = [r for r in rows if r["dataset"] == "NUAA" and r["patience"] == p]
+            wmax = rs[0]["wall_hours_max"] + rs[1]["wall_hours_max"]
+            c = caps[f"nuaa_patience_{p}"]
+            self.assertEqual(c[col["wall_hours_max"]], f"{wmax:.2f}")
+            self.assertEqual(c[col["wall_hours_min"]], f"{rs[0]['wall_hours_min'] + rs[1]['wall_hours_min']:.2f}")
+            self.assertEqual(c[col["cpu_hours_max"]], f"{rs[0]['cpu_hours_max'] + rs[1]['cpu_hours_max']:.2f}")
+            cap = float(c[col["cap_wall_hours"]])
+            self.assertEqual(cap % 0.5, 0.0)
+            self.assertGreaterEqual(cap, 1.5 * wmax)
+            self.assertLess(cap - 0.5, 1.5 * wmax)
+        md = (self.out / "run_plan.md").read_text()
+        self.assertIn(f"Machine of the trial {RUN}: Test CPU, 15 logical CPUs, 24.0 GB RAM, macOS 27.2.1.", md)
+        self.assertIn("TensorFlow threads (training.threads): intra-op 10, inter-op 10, set by the runner; rule: t.", md)
+        self.assertIn("Machine rule: the same machine and the same threads", md)
+
+    def test_cap_rule(self):
+        cfg = {"plan": {"caps": {"wall_multiplier": 1.5, "round_up_hours": 0.5},
+                        "datasets": [{"name": "NUAA", "splits": [1, 2, 3, 4], "seeds": [42, 43, 44]}]}}
+        rows = [{"dataset": "NUAA", "patience": p, "new_trainings": 12, "wall_hours_min": 1.0, "wall_hours_max": x, "cpu_hours_min": 8.0,
+                 "cpu_hours_max": 9.0} for p in (4, 12) for x in (1.0, 2.0)]
+        c = P.run_caps(cfg, rows)
+        self.assertEqual([(x["wall_hours_max"], x["cap_wall_hours"], x["cpu_hours_max"]) for x in c], [(3.0, 4.5, 18.0), (3.0, 4.5, 18.0)])
+        rows[0]["wall_hours_max"] = 1.1                       # 3,1 x 1,5 = 4,65 -> 5,0
+        self.assertEqual(P.run_caps(cfg, rows)[0]["cap_wall_hours"], 5.0)
+        rows[0]["new_trainings"] = 11
+        with self.assertRaises(FR.Failure):
+            P.run_caps(cfg, rows)
+
+    def test_trial_of_the_previous_format_or_without_threads_refused(self):
+        folder = self.w.tmp / "trialfake2"
+        fake_trial(self.w, folder, over={"schema": P.TRIAL_SCHEMA_V1})
+        rc, out, err = self.plan("--trial-run", str(folder))
+        self.assertEqual(rc, 1)
+        self.assertIn("schema pad-arch-trial/1 is the format before the runner set the TensorFlow threads", err)
+        good = fake_trial(self.w, folder)
+        for over, needle in (({"threads": {**good["threads"], "set_by_this_runner": False}}, "were not set by the runner"),
+                             ({"threads": {**good["threads"], "requested": {"intra_op": 15, "inter_op": 10}}}, "were not set by the runner"),
+                             ({"threads": {**good["threads"], "effective": {"intra_op": 0, "inter_op": 0}}}, "were not set by the runner"),
+                             ({"threads": {k: v for k, v in good["threads"].items() if k != "environment"}}, "must hold exactly"),
+                             ({"machine": {"processor": "x", "os": "y", "logical_cpus": 15}}, "machine record must hold"),
+                             ({"machine": {**good["machine"], "logical_cpus": 0}}, "machine processor"),
+                             ({"machine": {**good["machine"], "ram_gb": "24"}}, "ram_gb")):
+            fake_trial(self.w, folder, over=over)
+            rc, out, err = self.plan("--trial-run", str(folder))
+            self.assertEqual(rc, 1, over)
+            self.assertIn(needle, err)
+        nets = json.loads(json.dumps(good["networks"]))
+        nets["ResNet-18"]["threads"] = {"intra_op": 10, "inter_op": 15}
+        fake_trial(self.w, folder, nets=nets)
+        rc, out, err = self.plan("--trial-run", str(folder))
+        self.assertIn("the threads recorded for ResNet-18 differ", err)
+        self.assertFalse(self.out.exists())
+
+
+# ============================================================================ confronto fra due prove
+
+def history_epochs(h: dict) -> list:
+    return [{"epoch": i + 1, **{k: h[k][i] for k in P.HISTORY_KEYS}, "seconds_total": 1.0} for i in range(len(h["loss"]))]
+
+
+def comparison_trial(folder: Path, run_id: str, schema=None, hist=None, over=None, status="PASS") -> dict:
+    """Una prova finta per compare-trials (status.json e trial.json coerenti) nel formato dato."""
+    schema = schema or P.TRIAL_SCHEMA
+    base = {k: [0.5, 0.4, 0.3] for k in P.HISTORY_KEYS}
+    hist = hist or {n: base for n in AM.NETWORKS}
+    threads = ({"logical_cpus": 10, "inter_op_parallelism_threads": 0, "intra_op_parallelism_threads": 0, "set_by_this_runner": False}
+               if schema == P.TRIAL_SCHEMA_V1 else
+               {"requested": {"intra_op": 10, "inter_op": 10}, "effective": {"intra_op": 10, "inter_op": 10}, "set_by_this_runner": True,
+                "environment": {"TF_NUM_INTRAOP_THREADS": None, "TF_NUM_INTEROP_THREADS": None}, "logical_cpus": 15})
+    doc = {"schema": schema, "run_id": run_id, "status": status, "commit": run_id.split("-")[-1], "config_sha256": "c" * 64,
+           "unit": {**P.TRIAL_UNIT, "frames": {}}, "machine": {"processor": "Test CPU", "logical_cpus": 15, "ram_gb": 24.0, "os": "macOS 27.2.1"},
+           "threads": threads, "networks": {n: {"epochs": history_epochs(h)} for n, h in hist.items()}, **(over or {})}
+    folder.mkdir(parents=True, exist_ok=True)
+    b = (json.dumps(doc, indent=1) + "\n").encode()
+    (folder / "trial.json").write_bytes(b)
+    (folder / "status.json").write_text(json.dumps({"run_id": run_id, "status": status, "trial_json_sha256": sha(b)}), encoding="utf-8")
+    return doc
+
+
+class TestRCompareTrials(unittest.TestCase):
+    NEW, REF = "20261120-ARCHTRIAL-1111111", "20261119-ARCHTRIAL-2222222"
+
+    def setUp(self):
+        self.tmp = Path(world().tmp) / "compare"
+        shutil.rmtree(self.tmp, ignore_errors=True)
+        self.addCleanup(shutil.rmtree, self.tmp, True)
+        self.new, self.ref, self.out = self.tmp / "new", self.tmp / "ref", self.tmp / "out"
+
+    def run_cmp(self, out=None, new=None, ref=None):
+        return run_main(["compare-trials", "--trial-run", str(new or self.new), "--reference-run", str(ref or self.ref),
+                         "--compare-out-dir", str(out or self.out)])
+
+    def test_identical_histories_reproduced_across_formats(self):
+        comparison_trial(self.new, self.NEW)
+        comparison_trial(self.ref, self.REF, schema=P.TRIAL_SCHEMA_V1)
+        rc, out, err = self.run_cmp()
+        self.assertEqual(rc, 0, err)
+        self.assertEqual(sorted(os.listdir(self.out)), sorted(P.COMPARE_OUTPUTS))
+        doc = json.loads((self.out / "trial_comparison.json").read_text())
+        self.assertEqual(doc["outcome"], "reproduced")
+        self.assertEqual((doc["new"]["run_id"], doc["reference"]["run_id"]), (self.NEW, self.REF))
+        self.assertEqual(doc["reference"]["threads"]["recorded"]["set_by_this_runner"], False)
+        self.assertIn("0 = not set through tf.config.threading); format /1 does not record the environment variables",
+                      doc["reference"]["threads"]["note"])
+        self.assertEqual(doc["new"]["threads"]["recorded"]["requested"], {"intra_op": 10, "inter_op": 10})
+        self.assertEqual(doc["new"]["files_sha256"], {"status.json": sha((self.new / "status.json").read_bytes()),
+                                                      "trial.json": sha((self.new / "trial.json").read_bytes())})
+        f = doc["networks"]["LivenessNet"]["fields"]["loss"]
+        self.assertEqual(f, {"epochs_compared": 3, "first_differing_epoch": None, "max_abs_difference": 0.0, "epoch_of_max_abs_difference": None})
+        self.assertIn("Outcome: **reproduced**", (self.out / "trial_comparison.md").read_text())
+        rc, out, err = self.run_cmp()
+        self.assertEqual(rc, 1)
+        self.assertIn("already exist", err)
+
+    def test_first_differing_epoch_and_largest_difference(self):
+        base = {k: [0.5, 0.4, 0.3] for k in P.HISTORY_KEYS}
+        other = json.loads(json.dumps(base))
+        other["val_loss"] = [0.6, 1.4, 0.3]
+        comparison_trial(self.new, self.NEW, hist={"LivenessNet": other, "ResNet-18": base})
+        comparison_trial(self.ref, self.REF)
+        self.assertEqual(self.run_cmp()[0], 0)
+        doc = json.loads((self.out / "trial_comparison.json").read_text())
+        self.assertEqual(doc["outcome"], "not reproduced")
+        f = doc["networks"]["LivenessNet"]["fields"]["val_loss"]
+        self.assertEqual((f["first_differing_epoch"], f["epoch_of_max_abs_difference"]), (1, 2))
+        self.assertAlmostEqual(f["max_abs_difference"], 1.0, places=12)
+        self.assertTrue(doc["networks"]["ResNet-18"]["reproduced"])
+        self.assertFalse(doc["networks"]["LivenessNet"]["reproduced"])
+
+    def test_different_number_of_epochs(self):
+        base = {k: [0.5, 0.4, 0.3] for k in P.HISTORY_KEYS}
+        short = {k: v[:2] for k, v in base.items()}
+        comparison_trial(self.new, self.NEW, hist={"LivenessNet": base, "ResNet-18": short})
+        comparison_trial(self.ref, self.REF)
+        self.assertEqual(self.run_cmp()[0], 0)
+        doc = json.loads((self.out / "trial_comparison.json").read_text())
+        r = doc["networks"]["ResNet-18"]
+        self.assertEqual((r["epochs_new"], r["epochs_reference"], r["same_number_of_epochs"], r["reproduced"]), (2, 3, False, False))
+        self.assertEqual(r["fields"]["loss"]["first_differing_epoch"], None)
+        self.assertEqual(doc["outcome"], "not reproduced")
+        shutil.rmtree(self.out)
+        empty = {k: [] for k in P.HISTORY_KEYS}
+        comparison_trial(self.new, self.NEW, hist={"LivenessNet": empty, "ResNet-18": empty})
+        comparison_trial(self.ref, self.REF, hist={"LivenessNet": empty, "ResNet-18": empty}, status="INCOMPLETE")
+        self.assertEqual(self.run_cmp()[0], 0)
+        self.assertEqual(json.loads((self.out / "trial_comparison.json").read_text())["outcome"], "not reproduced")
+
+    def test_failures_leave_no_output(self):
+        base = {k: [0.5, 0.4, 0.3] for k in P.HISTORY_KEYS}
+        cases = [
+            (lambda: comparison_trial(self.new, self.NEW, hist={"LivenessNet": base}), "networks must be exactly"),
+            (lambda: (self.new / "trial.json").unlink(), "trial.json"),
+            (lambda: (self.new / "status.json").write_text("{broken", encoding="utf-8"), "status.json"),
+            (lambda: (self.new / "trial.json").write_text("{}", encoding="utf-8"), "SHA-256 differs"),
+            (lambda: comparison_trial(self.new, self.NEW, over={"schema": "pad-arch-trial/9"}), "schema must be"),
+            (lambda: comparison_trial(self.new, self.NEW, over={"unit": {**P.TRIAL_UNIT, "fold": 2}}), "not a trial of the unit"),
+            (lambda: comparison_trial(self.new, self.NEW, status="FAIL"), "not a PASS or INCOMPLETE"),
+            (lambda: comparison_trial(self.new, self.NEW, over={"run_id": self.REF}), "run id or status differ"),
+            (lambda: comparison_trial(self.new, self.NEW, over={"threads": {"logical_cpus": 15}}), "threads record"),
+            (lambda: comparison_trial(self.new, self.NEW, over={"machine": {"os": "x"}}), "machine record"),
+            (lambda: comparison_trial(self.new, self.NEW, over={"commit": "zz"}), "commit or config_sha256"),
+            (lambda: comparison_trial(self.new, self.NEW, over={"machine": {"processor": str(Path.home()), "logical_cpus": 15, "ram_gb": 24.0,
+                                                                            "os": "macOS"}}), "trial_comparison.json refused"),
+            (lambda: comparison_trial(self.new, self.NEW, over={"networks": {n: {"epochs": [{"epoch": 2, **{k: 0.1 for k in P.HISTORY_KEYS}}]}
+                                                                             for n in AM.NETWORKS}}), "numbered from 1"),
+            (lambda: comparison_trial(self.new, self.NEW, over={"networks": {n: {"epochs": [{"epoch": 1, **{k: True for k in P.HISTORY_KEYS}}]}
+                                                                             for n in AM.NETWORKS}}), "numeric"),
+        ]
+        for make, needle in cases:
+            shutil.rmtree(self.tmp, ignore_errors=True)
+            comparison_trial(self.new, self.NEW)
+            comparison_trial(self.ref, self.REF)
+            make()
+            rc, out, err = self.run_cmp()
+            self.assertEqual(rc, 1, needle)
+            self.assertIn(needle, err)
+            self.assertFalse(self.out.exists(), needle)
+
+    def test_output_folder_rules(self):
+        """Uscita dentro una delle cartelle lette; le cartelle del repository: TestWOutputFolderFakeRoot (radice finta)."""
+        comparison_trial(self.new, self.NEW)
+        comparison_trial(self.ref, self.REF)
+        for out, needle in ((self.new / "cmp", "inputs and outputs must be separate"), (self.ref, "inputs and outputs must be separate")):
+            rc, o, err = self.run_cmp(out=out)
+            self.assertEqual(rc, 1, out)
+            self.assertIn(needle, err)
+            self.assertFalse(out.exists() and any(n in os.listdir(out) for n in P.COMPARE_OUTPUTS))
+        rc, o, err = self.run_cmp(ref=self.new)
+        self.assertEqual(rc, 1)
+        self.assertIn("must be different", err)
+        rc, o, err = run_main(["compare-trials", "--trial-run", str(self.new), "--compare-out-dir", str(self.out)])
+        self.assertIn("needs --trial-run", err)
+        self.assertFalse(self.out.exists())
+
+
+# ============================================================================ rilievi della revisione indipendente (19/11)
+
+class TestTReviewDefinitions(unittest.TestCase):
+    def test_labels_are_part_of_the_frames(self):
+        """Stessi ID e soggetti, un'etichetta diversa (nelle due reti): fra seed dello stesso split e fra condizioni."""
+        units = two_splits(seeds=(42, 43))
+        self.assertIs(units[1]["networks"]["ResNet-18"]["y"], units[1]["networks"]["LivenessNet"]["y"])   # una lista per le due reti
+        units[1]["networks"]["ResNet-18"]["y"][0] = 1 - units[1]["networks"]["ResNet-18"]["y"][0]
+        with self.assertRaises(FR.Failure) as cm:
+            D.compare_condition(units)
+        self.assertIn("two units of ('D', 1) are not scored on the same frames", str(cm.exception))
+        ua, ub = two_splits(), two_splits(liv=perfect)
+        ub[0]["networks"]["ResNet-18"]["y"][0] = 1 - ub[0]["networks"]["ResNet-18"]["y"][0]
+        with self.assertRaises(FR.Failure) as cm:
+            D.compare_conditions(D.compare_condition(ua), D.compare_condition(ub))
+        self.assertIn("same test frames (subjects and labels)", str(cm.exception))
+
+    def test_seed_outside_the_plan(self):
+        f = frames_of(list("abc"))
+        for seed in (45, True, "42"):
+            with self.assertRaises(FR.Failure) as cm:
+                D.compare_condition([unit(1, seed, f, perfect(f), perfect(f))])
+            self.assertIn("seeds of the plan", str(cm.exception))
+
+    def test_per_seed_reading_uses_the_interval_of_each_seed(self):
+        """Seed 42 e 43: Δ = −1/2; seed 44: LivenessNet sbaglia solo gli attacchi del soggetto a (Δ medio < 0, ma
+        l'intervallo del seed tocca lo zero); l'intervallo complessivo è tutto sotto zero."""
+        def wrong_on_a(f):
+            return [0.2 if (s == "a" and lab) else (0.9 if lab else 0.1) for s, lab in f]
+        units = []
+        for split, subs in ((1, list("abc")), (2, list("def"))):
+            f = frames_of(subs)
+            for seed in (42, 43, 44):
+                units.append(unit(split, seed, f, perfect(f), wrong_on_a(f) if seed == 44 else [0.2] * len(f)))
+        out = D.compare_condition(units)
+        self.assertLess(out["interval"]["acer"]["high"], 0)
+        self.assertEqual(out["per_seed"][44]["interval"]["acer"]["high"], 0.0)
+        self.assertLess(out["per_seed"][44]["mean_delta"]["acer"], 0)
+        r = out["per_seed_reading"]
+        self.assertEqual((r["verdict"], r["reason"]), ("inconclusive", "the bootstrap interval of a seed does not exclude 0 on the side of the difference"))
+        self.assertEqual((out["sign_reason"], out["per_seed"][44]["sign_reason"]), ("interval entirely below zero", "interval contains zero"))
+
+    def test_contrast_reading_from_acer_only(self):
+        iv = lambda lo, hi: {"low": lo, "high": hi, "valid_resamples": 1000}      # noqa: E731
+        c = {"contrast_mean": {}, "units": 2, "units_changing_sign": 0,
+             "contrast_interval": {"acer": iv(-0.2, -0.1), "apcer": iv(0.1, 0.2), "bpcer": iv(0.1, 0.2)}}
+        s = D.contrast_summary(c)
+        self.assertEqual((s["reading"], s["reason"]), (D.CONTRAST_LOWER, "interval entirely below zero"))
+
+    def test_n_subjects_and_reasons(self):
+        r = D.primary_analysis(primary_conditions())
+        self.assertEqual((r["gap_ordinary"]["n_subjects"], r["gap_re_estimated"]["n_subjects"]), (6, 6))
+        self.assertEqual(r["contrast"]["reason"], "interval entirely above zero")
+        self.assertEqual(r["per_seed"][43]["contrast"]["reason"], "interval contains zero")
+        self.assertEqual(r["gap_ordinary"]["sign_reason"], "interval entirely below zero")
+        self.assertEqual([D.interval_reason(x) for x in ({"low": -1, "high": -0.5}, {"low": 0.5, "high": 1}, {"low": 0.0, "high": 1},
+                                                          {"low": -1, "high": 0.0}, {"low": None, "high": None})],
+                         [D.INTERVAL_REASONS[i] for i in (0, 1, 2, 2, 3)])
+        f = frames_of(list("ab"))
+        out = D.compare_condition([unit(1, 42, f, perfect(f), [0.2] * len(f))])          # 2 soggetti: nessun intervallo
+        self.assertEqual((out["sign"], out["sign_reason"]), (D.SIGN_UNRESOLVED, D.INTERVAL_REASONS[3]))
+        self.assertEqual(out["per_seed"][42]["sign_reason"], D.INTERVAL_REASONS[3])
+        out = D.compare_condition(two_splits(seeds=(42,), liv=perfect))                     # reti uguali: [0, 0]
+        self.assertEqual((out["sign"], out["sign_reason"]), (D.SIGN_UNRESOLVED, D.INTERVAL_REASONS[2]))
+
+    def test_prepared_malformed(self):
+        a, b = D.compare_condition(two_splits()), D.compare_condition(two_splits(liv=perfect))
+        for bad in ({**b, "prepared": [{k: v for k, v in p.items() if k != "frames"} for p in b["prepared"]]}, {**b, "prepared": []},
+                    {k: v for k, v in b.items() if k != "prepared"}, {k: v for k, v in b.items() if k != "sign"}, None):
+            with self.assertRaises(FR.Failure) as cm:
+                D.compare_conditions(a, bad)
+            self.assertIn("field prepared malformed", str(cm.exception))
+
+
+class TestUReviewRunner(unittest.TestCase):
+    def test_non_finite_history(self):
+        nan, inf = float("nan"), float("inf")
+        for ref, new in (([1.0, 2.0, 3.0], [nan, 2.0, 5.0]), ([nan], [nan]), ([1.0], [inf]), ([1.0], [True]), ([-inf], [1.0])):
+            with self.assertRaises(FR.Failure) as cm:
+                P.history_differences(ref, new)
+            self.assertIn("not a finite number", str(cm.exception))
+        ref = {k: [0.5, 0.4, 0.3] for k in P.HISTORY_KEYS}
+        new = json.loads(json.dumps(ref))
+        new["val_loss"][1] = nan
+        with self.assertRaises(FR.Failure):
+            P.baseline_check(baseline_cfg(), {"history": ref}, {"epochs": epochs_of(new, 3)})
+
+    def test_outcome_equals_the_shared_history_rule(self):
+        """L'esito di baseline_check (una sola fonte, history_differences) è quello di PV.shared_history su storie casuali,
+        anche con una scheda più corta delle epoche fissate."""
+        rng = np.random.default_rng(3)
+        for _ in range(200):
+            ref = {k: [float(x) for x in rng.choice([0.1, 0.2], 4)] for k in P.HISTORY_KEYS}
+            new = {k: [float(x) for x in rng.choice([0.1, 0.2], 3)] if rng.random() < 0.5 else ref[k][:3] for k in P.HISTORY_KEYS}
+            b = P.baseline_check(baseline_cfg(), {"history": ref}, {"epochs": epochs_of(new, 3)})
+            self.assertEqual(b["outcome"] == "reproduced", PV.shared_history(ref, new, 3)["identical"])
+        short = {k: [0.1, 0.2] for k in P.HISTORY_KEYS}          # scheda più corta delle epoche fissate: mai riprodotta
+        b = P.baseline_check(baseline_cfg(), {"history": short}, {"epochs": epochs_of({k: [0.1, 0.2, 0.3] for k in P.HISTORY_KEYS}, 3)})
+        self.assertEqual(b["outcome"], "not reproduced")
+
+    def test_boolean_or_non_finite_epoch_in_compare_trials(self):
+        tmp = Path(world().tmp) / "compare_bool"
+        shutil.rmtree(tmp, ignore_errors=True)
+        self.addCleanup(shutil.rmtree, tmp, True)
+        base = {k: [0.5, 0.4, 0.3] for k in P.HISTORY_KEYS}
+        comparison_trial(tmp / "ref", TestRCompareTrials.REF)
+        for over in ({"networks": {n: {"epochs": [{"epoch": True, **{k: 0.1 for k in P.HISTORY_KEYS}}]} for n in AM.NETWORKS}},
+                     {"networks": {n: {"epochs": [{"epoch": 1, **{k: float("nan") for k in P.HISTORY_KEYS}}]} for n in AM.NETWORKS}},
+                     {"networks": {n: {"epochs": [{"epoch": 1, **{k: float("inf") for k in P.HISTORY_KEYS}}]} for n in AM.NETWORKS}}):
+            comparison_trial(tmp / "new", TestRCompareTrials.NEW, hist={n: base for n in AM.NETWORKS}, over=over)
+            rc, o, err = run_main(["compare-trials", "--trial-run", str(tmp / "new"), "--reference-run", str(tmp / "ref"),
+                                   "--compare-out-dir", str(tmp / "out")])
+            self.assertEqual(rc, 1)
+            self.assertIn("numbered from 1 with finite numeric", err)
+            self.assertFalse((tmp / "out").exists())
+
+
+class TestVReferenceConditions(unittest.TestCase):
+    NEW, REF = TestRCompareTrials.NEW, TestRCompareTrials.REF
+
+    def setUp(self):
+        self.tmp = Path(world().tmp) / "conditions"
+        shutil.rmtree(self.tmp, ignore_errors=True)
+        self.addCleanup(shutil.rmtree, self.tmp, True)
+        comparison_trial(self.tmp / "new", self.NEW)
+        comparison_trial(self.tmp / "ref", self.REF, schema=P.TRIAL_SCHEMA_V1)
+        self.out = self.tmp / "out"
+
+    def run_cmp(self, cond=None):
+        argv = ["compare-trials", "--trial-run", str(self.tmp / "new"), "--reference-run", str(self.tmp / "ref"), "--compare-out-dir", str(self.out)]
+        return run_main(argv + (["--reference-conditions", str(cond)] if cond else []))
+
+    def cond(self, text: str) -> Path:
+        q = self.tmp / "conditions.txt"
+        q.write_text(text, encoding="utf-8")
+        return q
+
+    def test_not_recorded_without_the_file(self):
+        self.assertEqual(self.run_cmp()[0], 0)
+        doc = json.loads((self.out / "trial_comparison.json").read_text())
+        self.assertEqual(doc["reference"]["threads_as_imposed"], {"source": "not recorded"})
+        self.assertNotIn("threads_as_imposed", doc["new"])
+        self.assertIn(f"How the threads were imposed in the reference trial {self.REF}: not recorded.", (self.out / "trial_comparison.md").read_text())
+
+    def test_command_line_reported(self):
+        """Riga del comando riportata (spazi ai lati tolti), con i valori letti e la nota su che cosa è dichiarato e che
+        cosa è controllato; il resto del file non è riportato."""
+        q = self.cond("== conditions before\nload 1.1\n== command\n   TF_NUM_INTRAOP_THREADS=10 TF_NUM_INTEROP_THREADS=10 python -I -B "
+                      "scripts/pad_arch_comparison.py trial --i-am-authorized --out-root <folder>   \nTF_NUM_INTRAOP_THREADS only\n== git\n2222222\n")
+        rc, o, err = self.run_cmp(q)
+        self.assertEqual(rc, 0, err)
+        c = json.loads((self.out / "trial_comparison.json").read_text())["reference"]["threads_as_imposed"]
+        self.assertEqual(c, {"source": "conditions file", "file": "conditions.txt", "sha256": sha(q.read_bytes()),
+                             "command_line": "TF_NUM_INTRAOP_THREADS=10 TF_NUM_INTEROP_THREADS=10 python -I -B scripts/pad_arch_comparison.py "
+                                             "trial --i-am-authorized --out-root <folder>",
+                             "values": {"TF_NUM_INTRAOP_THREADS": 10, "TF_NUM_INTEROP_THREADS": 10}, "note": P.CONDITIONS_NOTE})
+        md = (self.out / "trial_comparison.md").read_text()
+        self.assertIn("in the conditions file conditions.txt (SHA-256 " + sha(q.read_bytes()), md)
+        self.assertIn("declared by a conditions file written by the author around the reference trial, not by its record", md)
+        self.assertIn("does not record the environment variables", md)
+        self.assertNotIn("load 1.1", md)
+
+    def test_conditions_refused(self):
+        ok = "TF_NUM_INTRAOP_THREADS=10 TF_NUM_INTEROP_THREADS=10 run\n"
+        for text, needle in (("2222222\nno variables here\n", "0 lines hold both"), ("2222222\nTF_NUM_INTRAOP_THREADS=10 only\n", "0 lines hold both"),
+                             ("2222222\n" + ok + "TF_NUM_INTRAOP_THREADS=1 TF_NUM_INTEROP_THREADS=1 b\n", "2 lines hold both"),
+                             (f"2222222\nTF_NUM_INTRAOP_THREADS=10 TF_NUM_INTEROP_THREADS=10 cd {Path.home()}\n", "trial_comparison.json refused"),
+                             (ok, "does not hold the commit 2222222"),
+                             ("22222223\n" + ok, "does not hold the commit 2222222"),
+                             ("a2222222\n" + ok, "does not hold the commit 2222222"),
+                             ("2222222\nTF_NUM_INTRAOP_THREADS=8 TF_NUM_INTEROP_THREADS=10 run\n", "TF_NUM_INTRAOP_THREADS must be set once"),
+                             ("2222222\nTF_NUM_INTRAOP_THREADS=10 TF_NUM_INTEROP_THREADS=15 run\n", "TF_NUM_INTEROP_THREADS must be set once"),
+                             ("2222222\nTF_NUM_INTRAOP_THREADS=10.0 TF_NUM_INTEROP_THREADS=10 run\n", "TF_NUM_INTRAOP_THREADS must be set once"),
+                             ("2222222\nTF_NUM_INTRAOP_THREADS= TF_NUM_INTEROP_THREADS=10 run\n", "TF_NUM_INTRAOP_THREADS must be set once"),
+                             ("2222222\nTF_NUM_INTRAOP_THREADS=10 TF_NUM_INTEROP_THREADS=10 TF_NUM_INTRAOP_THREADS=10 run\n",
+                              "TF_NUM_INTRAOP_THREADS must be set once")):
+            shutil.rmtree(self.out, ignore_errors=True)
+            rc, o, err = self.run_cmp(self.cond(text))
+            self.assertEqual(rc, 1, text)
+            self.assertIn(needle, err)
+            self.assertFalse(self.out.exists())
+        rc, o, err = self.run_cmp(self.tmp / "missing.txt")
+        self.assertEqual(rc, 1)
+        self.assertFalse(self.out.exists())
+        q = self.tmp / "bin.txt"
+        q.write_bytes(b"\xff\xfe TF_NUM_INTRAOP_THREADS TF_NUM_INTEROP_THREADS")
+        self.assertIn("not UTF-8", self.run_cmp(q)[2])
+
+
+class TestWOutputFolderFakeRoot(unittest.TestCase):
+    def test_output_folder_inside_a_fake_repository(self):
+        """Le regole della cartella d'uscita di compare-trials provate su una radice finta (nessun percorso del
+        repository vero)."""
+        tmp = Path(world().tmp) / "fakeroot_cmp"
+        shutil.rmtree(tmp, ignore_errors=True)
+        self.addCleanup(shutil.rmtree, tmp, True)
+        root = tmp / "repo"
+        for d in ("scripts", "results", "delivery/archcmp"):
+            (root / d).mkdir(parents=True)
+        comparison_trial(tmp / "new", TestRCompareTrials.NEW)
+        comparison_trial(tmp / "ref", TestRCompareTrials.REF)
+        with injected(p={"ROOT": root}):
+            for out in (root / "scripts" / "cmp", root / "results" / "cmp", root / "cmp"):
+                rc, o, err = run_main(["compare-trials", "--trial-run", str(tmp / "new"), "--reference-run", str(tmp / "ref"),
+                                       "--compare-out-dir", str(out)])
+                self.assertEqual(rc, 1, out)
+                self.assertIn("refusing the comparison folder", err)
+                self.assertFalse(out.exists())
+            rc, o, err = run_main(["compare-trials", "--trial-run", str(tmp / "new"), "--reference-run", str(tmp / "ref")])
+            self.assertEqual(rc, 0, err)
+            self.assertEqual(sorted(os.listdir(root / P.DEFAULT_COMPARE_DIR)), sorted(P.COMPARE_OUTPUTS))
+
+
+SUBPROCESS_THREADS = r"""
+import json, os, sys
+sys.path.insert(0, sys.argv[1])
+import nuaa_folds_run as FR
+import pad_arch_comparison as P
+cfg = {"training": {"threads": {"intra_op": 10, "inter_op": 10, "rule": "r"}}}
+import tensorflow as tf
+if sys.argv[2] == "after-operation":
+    tf.constant(1.0)
+try:
+    rec = P.set_threads(tf, cfg)
+    print(json.dumps({"ok": True, "effective": rec["effective"], "getters": P.read_threads(tf)}))
+except FR.Failure as e:
+    print(json.dumps({"ok": False, "error": str(e)}))
+"""
+
+
+class TestKThreadsInAProcess(unittest.TestCase):
+    def test_set_threads_in_a_clean_process_and_after_an_operation(self):
+        """Con TensorFlow vero, in processi nuovi (nessun addestramento): in un processo pulito i getter leggono 10 e 10;
+        dopo un'operazione di TensorFlow l'impostazione è un Failure."""
+        if not TF_AVAILABLE:
+            skip_missing(self, "tensorflow")
+        import subprocess
+        env = {k: v for k, v in os.environ.items() if k not in P.TF_THREAD_ENV.values()}
+        env.update(CUDA_VISIBLE_DEVICES="-1", TF_CPP_MIN_LOG_LEVEL="2")
+        out = {}
+        for mode in ("clean", "after-operation"):
+            r = subprocess.run([sys.executable, "-I", "-B", "-c", SUBPROCESS_THREADS, str(Path(P.__file__).resolve().parent), mode],
+                               capture_output=True, text=True, env=env, timeout=300)
+            self.assertEqual(r.returncode, 0, r.stderr[-2000:])
+            out[mode] = json.loads(r.stdout.strip().splitlines()[-1])
+        self.assertEqual(out["clean"], {"ok": True, "effective": {"intra_op": 10, "inter_op": 10}, "getters": {"intra_op": 10, "inter_op": 10}})
+        self.assertFalse(out["after-operation"]["ok"])
+        self.assertIn("the TensorFlow threads cannot be set", out["after-operation"]["error"])
+
+
+
+# ============================================================================ rilievi della seconda revisione (A3)
+
+class TestXReviewDefinitions(unittest.TestCase):
+    def test_sign_reason_from_acer(self):
+        """LivenessNet decide tutto attacco: ΔACER = −1/2 (sotto zero), ΔAPCER = 0 (intervallo che contiene lo zero)."""
+        out = D.compare_condition(two_splits(liv=lambda f: [0.9] * len(f)))
+        self.assertEqual((out["interval"]["apcer"]["low"], out["interval"]["apcer"]["high"]), (0.0, 0.0))
+        self.assertEqual((out["sign"], out["sign_reason"]), (D.SIGN_RESNET_LOWER, "interval entirely below zero"))
+
+    def test_units_changing_sign_in_the_contrast(self):
+        r = D.primary_analysis(primary_conditions())
+        self.assertEqual((r["contrast"]["units"], r["contrast"]["units_changing_sign"]), (4, 0))
+
+    def test_seed_must_be_an_integer(self):
+        f = frames_of(list("abc"))
+        for seed in (42.0, np.float64(42.0), np.bool_(True)):
+            with self.assertRaises(FR.Failure) as cm:
+                D.compare_condition([unit(1, seed, f, perfect(f), perfect(f))])
+            self.assertIn("integer among the seeds", str(cm.exception))
+        self.assertEqual(D.compare_condition([unit(1, np.int64(42), f, perfect(f), [0.2] * len(f))])["mean_delta"]["acer"], -0.5)
+
+    def test_one_dataset_per_call(self):
+        f1, f2 = frames_of(list("abc")), frames_of(list("def"))
+        units = [unit(1, 42, f1, perfect(f1), perfect(f1)), unit(2, 42, f2, perfect(f2), perfect(f2), dataset="E")]
+        with self.assertRaises(FR.Failure) as cm:
+            D.compare_condition(units)
+        self.assertIn("one dataset", str(cm.exception))
+
+    def test_non_finite_readings_refused(self):
+        nan = float("nan")
+        for iv in ({"low": nan, "high": 0.1}, {"low": -0.1, "high": float("inf")}, {"low": 0.2, "high": 0.1}, {"low": None, "high": 0.1},
+                   {"low": True, "high": 0.1}):
+            for fn in (D.interval_reason, D.sign_of, D.contrast_reading):
+                with self.assertRaises(FR.Failure):
+                    fn(iv)
+        e = {"difference": -0.2, "low": -0.3, "high": -0.1}
+        for bad in ({**e, "difference": nan}, {**e, "low": nan}, {**e, "high": float("-inf")}):
+            with self.assertRaises(FR.Failure) as cm:
+                D.per_seed_reading([e, bad, e])
+            self.assertIn("not a finite number", str(cm.exception))
+
+    def test_prepared_frames_malformed(self):
+        a, b = D.compare_condition(two_splits()), D.compare_condition(two_splits(liv=perfect))
+        for frames in ("x", (), ((), (), ()), (("i",), ("s",)), (("i", "j"), ("s",), (0,)), [("i",), ("s",), (0,)]):
+            bad = {**b, "prepared": [{**b["prepared"][0], "frames": frames}] + b["prepared"][1:]}
+            with self.assertRaises(FR.Failure) as cm:
+                D.compare_conditions(a, bad)
+            self.assertIn("field prepared malformed", str(cm.exception))
+
+
+class TestYReviewRunner(unittest.TestCase):
+    def test_history_values(self):
+        r = P.history_differences([np.float32(0.5), 1], [np.float64(0.5), np.int64(2)])
+        self.assertEqual((r["first_differing_epoch"], r["max_abs_difference"]), (2, 1.0))
+        for bad in ([np.bool_(True)], [True], ["0.5"], [None], [Fraction(1, 2)]):
+            with self.assertRaises(FR.Failure):
+                P.history_differences([0.5], bad)
+        with self.assertRaises(FR.Failure) as cm:
+            P.history_differences([1e308], [-1e308])
+        self.assertIn("difference of two values is not finite", str(cm.exception))
+
+    def test_json_text_refuses_non_finite(self):
+        self.assertEqual(P.json_text({"a": 1.5}, "x"), '{\n "a": 1.5\n}\n')
+        for doc in ({"a": float("nan")}, {"a": float("inf")}, {"a": object()}):
+            with self.assertRaises(FR.Failure) as cm:
+                P.json_text(doc, "x.json")
+            self.assertIn("x.json: not written", str(cm.exception))
+
+    def test_machine_record(self):
+        good = {"processor": "p", "os": "o", "logical_cpus": 15, "ram_gb": 24.0}
+        self.assertEqual(P.check_machine({**good, "ram_gb": None}, "m")["ram_gb"], None)
+        for bad in ({**good, "processor": 5}, {**good, "os": None}, {**good, "ram_gb": 0}, {**good, "ram_gb": -1.0}, {**good, "ram_gb": float("nan")},
+                    {**good, "ram_gb": float("inf")}, {**good, "ram_gb": True}, {**good, "logical_cpus": 0}, {**good, "logical_cpus": True}):
+            with self.assertRaises(FR.Failure):
+                P.check_machine(bad, "m")
+
+    def test_machine_with_a_fake_sysctl(self):
+        gib = str(24 * 2 ** 30)
+        cases = {
+            "M5 Pro": ({"machdep.cpu.brand_string": "Apple M5 Pro", "hw.memsize": gib, "hw.nperflevels": "2", "hw.perflevel0.name": "Super",
+                        "hw.perflevel0.physicalcpu": "5", "hw.perflevel1.name": "Performance", "hw.perflevel1.physicalcpu": "10"},
+                       [{"name": "Super", "physical_cores": 5}, {"name": "Performance", "physical_cores": 10}], 24.0),
+            "M4": ({"machdep.cpu.brand_string": "Apple M4", "hw.memsize": str(16 * 2 ** 30), "hw.nperflevels": "2", "hw.perflevel0.name": "Performance",
+                    "hw.perflevel0.physicalcpu": "4", "hw.perflevel1.name": "Efficiency", "hw.perflevel1.physicalcpu": "6"},
+                   [{"name": "Performance", "physical_cores": 4}, {"name": "Efficiency", "physical_cores": 6}], 16.0),
+            "Intel": ({"machdep.cpu.brand_string": "Intel", "hw.memsize": gib}, [], 24.0),
+            "Linux": ({}, [], None),
+        }
+        for name, (values, levels, ram) in cases.items():
+            with injected(p={"SYSCTL": values.get}):
+                m = P.machine()
+            self.assertEqual((m["core_levels"], m["ram_gb"]), (levels, ram), name)
+        self.assertEqual(P.core_levels_text({"core_levels": cases["M5 Pro"][1]}), "5 Super, 10 Performance")
+        self.assertEqual(P.core_levels_text({"core_levels": [{"name": None, "physical_cores": None}]}), "not reported not reported")
+        self.assertEqual(P.core_levels_text({"core_levels": []}), "not reported")
+        self.assertEqual((P.ram_text({"ram_gb": None}), P.ram_text({"ram_gb": 24.0})), ("RAM not reported", "24.0 GB RAM"))
+        doc = minimal_trial_doc(P.baseline_check(baseline_cfg(), {"history": {k: [0.5] * 3 for k in P.HISTORY_KEYS}},
+                                                 {"epochs": epochs_of({k: [0.5] * 3 for k in P.HISTORY_KEYS}, 3)}))
+        doc["machine"] = {**doc["machine"], "ram_gb": None, "core_levels": [], "logical_cpus": 4}
+        md = P.trial_md(doc)
+        self.assertIn("RAM not reported", md)
+        self.assertNotIn("None", md.split("## Epochs")[0])
+
+    def test_thread_records(self):
+        v1 = {"logical_cpus": 10, "inter_op_parallelism_threads": 0, "intra_op_parallelism_threads": 0, "set_by_this_runner": False}
+        w = {"intra_op": 10, "inter_op": 10}
+        v2 = {"requested": dict(w), "effective": dict(w), "set_by_this_runner": True, "logical_cpus": 15,
+              "environment": {"TF_NUM_INTRAOP_THREADS": None, "TF_NUM_INTEROP_THREADS": "10"}}
+        self.assertIs(P.check_thread_record(v1, P.TRIAL_SCHEMA_V1, "x"), v1)
+        self.assertIs(P.check_thread_record(v2, P.TRIAL_SCHEMA, "x"), v2)
+        for bad in ({**v1, "intra_op_parallelism_threads": "0"}, {**v1, "inter_op_parallelism_threads": -1}, {**v1, "set_by_this_runner": 0},
+                    {**v1, "logical_cpus": 0}, {**v1, "extra": 1}):
+            with self.assertRaises(FR.Failure):
+                P.check_thread_record(bad, P.TRIAL_SCHEMA_V1, "x")
+        for bad in ({**v2, "requested": {**w, "extra": 1}}, {**v2, "effective": {"intra_op": 10}}, {**v2, "requested": {"intra_op": 0, "inter_op": 10}},
+                    {**v2, "set_by_this_runner": 1}, {**v2, "environment": {"TF_NUM_INTRAOP_THREADS": None}},
+                    {**v2, "environment": {"TF_NUM_INTRAOP_THREADS": None, "TF_NUM_INTEROP_THREADS": 10}}, {**v2, "extra": 1}):
+            with self.assertRaises(FR.Failure):
+                P.check_thread_record(bad, P.TRIAL_SCHEMA, "x")
+
+
+class TestZReviewPlanAndCompare(unittest.TestCase):
+    def setUp(self):
+        self.w = world()
+        self.ctx = injected(**hooks(self.w))
+        self.ctx.__enter__()
+        self.addCleanup(self.ctx.__exit__, None, None, None)
+        self.tmp = self.w.tmp / "review3"
+        shutil.rmtree(self.tmp, ignore_errors=True)
+        self.addCleanup(shutil.rmtree, self.tmp, True)
+
+    def plan(self, folder):
+        return run_main(self.w.argv("plan", "--out-dir", str(self.tmp / "plan"), "--trial-run", str(folder)))
+
+    def test_plan_thread_record_exact(self):
+        folder = self.tmp / "trial"
+        good = fake_trial(self.w, folder)
+        for over in ({"threads": {**good["threads"], "set_by_this_runner": 1}}, {"threads": {**good["threads"], "extra": 1}},
+                     {"threads": {**good["threads"], "requested": {"intra_op": 10, "inter_op": 10, "x": 1}}}):
+            fake_trial(self.w, folder, over=over)
+            rc, o, err = self.plan(folder)
+            self.assertEqual(rc, 1, over)
+        fake_trial(self.w, folder, over={"machine": {**good["machine"], "ram_gb": None}})
+        rc, o, err = self.plan(folder)
+        self.assertEqual(rc, 0, err)
+        self.assertIn("logical CPUs, RAM not reported, macOS", (self.tmp / "plan" / "run_plan.md").read_text())
+
+    def cmp(self, new, ref, out=None):
+        return run_main(["compare-trials", "--trial-run", str(new), "--reference-run", str(ref), "--compare-out-dir", str(out or self.tmp / "out")])
+
+    def test_compare_record_checks(self):
+        new, ref = self.tmp / "new", self.tmp / "ref"
+        comparison_trial(ref, TestRCompareTrials.REF)
+        for make, needle in ((lambda: comparison_trial(new, TestRCompareTrials.NEW, over={"config_sha256": "zz"}), "commit or config_sha256"),
+                             (lambda: comparison_trial(new, TestRCompareTrials.NEW, over={"machine": {"processor": 5, "logical_cpus": 15, "ram_gb": 1.0,
+                                                                                                    "os": "o"}}), "machine processor"),
+                             (lambda: comparison_trial(new, TestRCompareTrials.NEW, over={"machine": {"processor": "p", "logical_cpus": 15,
+                                                                                                    "ram_gb": float("nan"), "os": "o"}}), "ram_gb"),
+                             (lambda: comparison_trial(new, TestRCompareTrials.NEW, schema=P.TRIAL_SCHEMA_V1,
+                                                       over={"threads": {"logical_cpus": 10, "inter_op_parallelism_threads": "0",
+                                                                         "intra_op_parallelism_threads": 0, "set_by_this_runner": False}}), "malformed values")):
+            shutil.rmtree(new, ignore_errors=True)
+            make()
+            rc, o, err = self.cmp(new, ref)
+            self.assertEqual(rc, 1)
+            self.assertIn(needle, err)
+            self.assertFalse((self.tmp / "out").exists())
+        comparison_trial(new, TestRCompareTrials.NEW)
+        (new / "status.json").write_text(json.dumps({**json.loads((new / "status.json").read_text()), "run_id": "x"}), encoding="utf-8")
+        rc, o, err = self.cmp(new, ref)
+        self.assertIn("ARCHTRIAL run id", err)
+        big = {k: [1e308, 0.4, 0.3] for k in P.HISTORY_KEYS}
+        small = {k: [-1e308, 0.4, 0.3] for k in P.HISTORY_KEYS}
+        comparison_trial(new, TestRCompareTrials.NEW, hist={n: big for n in AM.NETWORKS})
+        comparison_trial(ref, TestRCompareTrials.REF, hist={n: small for n in AM.NETWORKS})
+        rc, o, err = self.cmp(new, ref)
+        self.assertEqual(rc, 1)
+        self.assertIn("RESULT: FAIL (compare-trials)", o)
+        self.assertIn("not finite", err)
+        self.assertFalse((self.tmp / "out").exists())
+
+    def test_nested_trial_folders_both_directions(self):
+        outer = self.tmp / "outer"
+        comparison_trial(outer, TestRCompareTrials.REF)
+        comparison_trial(outer / "inner", TestRCompareTrials.NEW)
+        for new, ref in ((outer / "inner", outer), (outer, outer / "inner")):
+            rc, o, err = self.cmp(new, ref)
+            self.assertEqual(rc, 1)
+            self.assertIn("different and not nested", err)
+
+    def test_markdown_first_differing_epoch_column(self):
+        """Il .md di compare-trials: nella colonna «first differing epoch» la prima epoca diversa (1), non quella dello
+        scarto massimo (2): il difetto della PR #29 non torna nel nuovo testo."""
+        base = {k: [0.5, 0.4, 0.3] for k in P.HISTORY_KEYS}
+        other = json.loads(json.dumps(base))
+        other["val_loss"] = [0.6, 1.4, 0.3]
+        comparison_trial(self.tmp / "new", TestRCompareTrials.NEW, hist={"LivenessNet": other, "ResNet-18": base})
+        comparison_trial(self.tmp / "ref", TestRCompareTrials.REF)
+        self.assertEqual(self.cmp(self.tmp / "new", self.tmp / "ref")[0], 0)
+        md = (self.tmp / "out" / "trial_comparison.md").read_text()
+        self.assertIn("| LivenessNet | val_loss | 3 / 3 | 3 | 1 | 1 | 2 |", md)
 
 
 class ZZRepositoryUntouched(unittest.TestCase):
