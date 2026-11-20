@@ -1,0 +1,35 @@
+# macOS, Python 3.11.16, NumPy 1.26.4, TensorFlow 2.15.0, started 2026-11-20 15:32 CET; the same suite with TensorFlow hidden by livenesslab/tools/run_without_tensorflow.py of this folder (every finder of sys.meta_path made blind to tensorflow, as on a machine without TensorFlow): only the tests that build, train or re-estimate a Keras model are skipped, with the declared reason; files of commit 7067fd6
+# SHA-256 c79a8eb834a1bee1e467513cee5cc548321ab5e7c0be007a5f7ad6240b9d503a  scripts/pad_arch_run.py
+# SHA-256 bc3225e3940870f39a10c72241778e80c5ab729b48edc90a159d1f2e0b42981d  scripts/check_pad_arch_run.py
+# SHA-256 ca94f0f0a38f7a8b64ae327fd071c5f71bf9ac10b10330c711cb19a41d8439f8  scripts/check_pad_arch_run_mutations.py
+# SHA-256 0df7a2ddb16d436a7552169c5ff332e44759237020e8c466077986b92d0d734d  delivery/archrun/pad_arch_run.json
+# SHA-256 55c3ec016783c8152c456f36de63697c2c4e7082f12e47ff2546f18d0f23a70c  delivery/pad-arch-run/livenesslab/tools/run_without_tensorflow.py
+# command: python -I -B <this folder>/livenesslab/tools/run_without_tensorflow.py scripts/check_pad_arch_run.py
+..................................................................................................................sssssssssssssssssss..
+----------------------------------------------------------------------
+Ran 135 tests in 8.375s
+
+OK (skipped=19)
+tests run: 135, failures: 0, errors: 0, skipped: 19
+skipped __main__.TestZAEstimator.test_against_brute_force_reference: missing input: TensorFlow is not installed: the tests that build, train or re-estimate a Keras model are skipped
+skipped __main__.TestZAEstimator.test_livenessnet_same_statistics_as_the_accepted_estimator: missing input: TensorFlow is not installed: the tests that build, train or re-estimate a Keras model are skipped
+skipped __main__.TestZAEstimator.test_order_between_independent_layers_does_not_change_the_result: missing input: TensorFlow is not installed: the tests that build, train or re-estimate a Keras model are skipped
+skipped __main__.TestZAEstimator.test_resnet18_graph_order_and_re_estimation: missing input: TensorFlow is not installed: the tests that build, train or re-estimate a Keras model are skipped
+skipped __main__.TestZBRealRun.test_real_run_and_reconstruction: missing input: TensorFlow is not installed: the tests that build, train or re-estimate a Keras model are skipped
+skipped __main__.TestZCCheckEstimator.test_cap: missing input: TensorFlow is not installed: the tests that build, train or re-estimate a Keras model are skipped
+skipped __main__.TestZCCheckEstimator.test_cap_checks_inside_a_model: missing input: TensorFlow is not installed: the tests that build, train or re-estimate a Keras model are skipped
+skipped __main__.TestZCCheckEstimator.test_pass_and_mismatch: missing input: TensorFlow is not installed: the tests that build, train or re-estimate a Keras model are skipped
+skipped __main__.TestZCCheckEstimator.test_tensors_and_consistency_checked: missing input: TensorFlow is not installed: the tests that build, train or re-estimate a Keras model are skipped
+skipped __main__.TestZDPhaseTwoChecks.test_cap_checks: missing input: TensorFlow is not installed: the tests that build, train or re-estimate a Keras model are skipped
+skipped __main__.TestZDPhaseTwoChecks.test_checkpoint_changed: missing input: TensorFlow is not installed: the tests that build, train or re-estimate a Keras model are skipped
+skipped __main__.TestZDPhaseTwoChecks.test_copy_differs_before_the_re_estimation: missing input: TensorFlow is not installed: the tests that build, train or re-estimate a Keras model are skipped
+skipped __main__.TestZDPhaseTwoChecks.test_count_checked: missing input: TensorFlow is not installed: the tests that build, train or re-estimate a Keras model are skipped
+skipped __main__.TestZDPhaseTwoChecks.test_inconsistent_statistics: missing input: TensorFlow is not installed: the tests that build, train or re-estimate a Keras model are skipped
+skipped __main__.TestZDPhaseTwoChecks.test_installed_statistic_differs: missing input: TensorFlow is not installed: the tests that build, train or re-estimate a Keras model are skipped
+skipped __main__.TestZDPhaseTwoChecks.test_normal: missing input: TensorFlow is not installed: the tests that build, train or re-estimate a Keras model are skipped
+skipped __main__.TestZDPhaseTwoChecks.test_ordinary_softmax_checked: missing input: TensorFlow is not installed: the tests that build, train or re-estimate a Keras model are skipped
+skipped __main__.TestZDPhaseTwoChecks.test_trained_tensor_changed: missing input: TensorFlow is not installed: the tests that build, train or re-estimate a Keras model are skipped
+skipped __main__.TestZDPhaseTwoChecks.test_wrong_architecture: missing input: TensorFlow is not installed: the tests that build, train or re-estimate a Keras model are skipped
+RESULT: PASS
+exit 0
+# finished 2026-11-20 15:32 CET, wall 9 s

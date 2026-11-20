@@ -1,0 +1,228 @@
+# macOS, Python 3.11.16, NumPy 1.26.4, TensorFlow 2.15.0, started 2026-11-20 15:35 CET; the mutation check run from livenesslab/ of this folder (research/pad-arch-run/livenesslab in the fork, after copying the files): the mutants one at a time in a temporary copy, first with TensorFlow hidden, then with TensorFlow for those that survive; synthetic data only; the delivered configuration is not copied (its test is skipped with the declared reason); the files tested are those of this folder
+# SHA-256 c79a8eb834a1bee1e467513cee5cc548321ab5e7c0be007a5f7ad6240b9d503a  scripts/pad_arch_run.py
+# SHA-256 bc3225e3940870f39a10c72241778e80c5ab729b48edc90a159d1f2e0b42981d  scripts/check_pad_arch_run.py
+# SHA-256 ca94f0f0a38f7a8b64ae327fd071c5f71bf9ac10b10330c711cb19a41d8439f8  scripts/check_pad_arch_run_mutations.py
+# SHA-256 0df7a2ddb16d436a7552169c5ff332e44759237020e8c466077986b92d0d734d  delivery/archrun/pad_arch_run.json
+# SHA-256 a83c02b0788bd6f98262abf00f5fe970abed501f231edba348820482aea64d30  src/livedetection/src/architectures.py
+# command: python -I -B scripts/check_pad_arch_run_mutations.py
+unmutated copy without TensorFlow: scripts/check_pad_arch_run.py exit 0 (tests run: 135, failures: 0, errors: 0, skipped: 20)
+unmutated copy without TensorFlow: skipped __main__.TestAConfig.test_delivered_configuration: missing input: delivery/archrun/pad_arch_run.json is not present
+unmutated copy without TensorFlow: skipped __main__.TestZAEstimator.test_against_brute_force_reference: missing input: TensorFlow is not installed: the tests that build, train or re-estimate a Keras model are skipped
+unmutated copy without TensorFlow: skipped __main__.TestZAEstimator.test_livenessnet_same_statistics_as_the_accepted_estimator: missing input: TensorFlow is not installed: the tests that build, train or re-estimate a Keras model are skipped
+unmutated copy without TensorFlow: skipped __main__.TestZAEstimator.test_order_between_independent_layers_does_not_change_the_result: missing input: TensorFlow is not installed: the tests that build, train or re-estimate a Keras model are skipped
+unmutated copy without TensorFlow: skipped __main__.TestZAEstimator.test_resnet18_graph_order_and_re_estimation: missing input: TensorFlow is not installed: the tests that build, train or re-estimate a Keras model are skipped
+unmutated copy without TensorFlow: skipped __main__.TestZBRealRun.test_real_run_and_reconstruction: missing input: TensorFlow is not installed: the tests that build, train or re-estimate a Keras model are skipped
+unmutated copy without TensorFlow: skipped __main__.TestZCCheckEstimator.test_cap: missing input: TensorFlow is not installed: the tests that build, train or re-estimate a Keras model are skipped
+unmutated copy without TensorFlow: skipped __main__.TestZCCheckEstimator.test_cap_checks_inside_a_model: missing input: TensorFlow is not installed: the tests that build, train or re-estimate a Keras model are skipped
+unmutated copy without TensorFlow: skipped __main__.TestZCCheckEstimator.test_pass_and_mismatch: missing input: TensorFlow is not installed: the tests that build, train or re-estimate a Keras model are skipped
+unmutated copy without TensorFlow: skipped __main__.TestZCCheckEstimator.test_tensors_and_consistency_checked: missing input: TensorFlow is not installed: the tests that build, train or re-estimate a Keras model are skipped
+unmutated copy without TensorFlow: skipped __main__.TestZDPhaseTwoChecks.test_cap_checks: missing input: TensorFlow is not installed: the tests that build, train or re-estimate a Keras model are skipped
+unmutated copy without TensorFlow: skipped __main__.TestZDPhaseTwoChecks.test_checkpoint_changed: missing input: TensorFlow is not installed: the tests that build, train or re-estimate a Keras model are skipped
+unmutated copy without TensorFlow: skipped __main__.TestZDPhaseTwoChecks.test_copy_differs_before_the_re_estimation: missing input: TensorFlow is not installed: the tests that build, train or re-estimate a Keras model are skipped
+unmutated copy without TensorFlow: skipped __main__.TestZDPhaseTwoChecks.test_count_checked: missing input: TensorFlow is not installed: the tests that build, train or re-estimate a Keras model are skipped
+unmutated copy without TensorFlow: skipped __main__.TestZDPhaseTwoChecks.test_inconsistent_statistics: missing input: TensorFlow is not installed: the tests that build, train or re-estimate a Keras model are skipped
+unmutated copy without TensorFlow: skipped __main__.TestZDPhaseTwoChecks.test_installed_statistic_differs: missing input: TensorFlow is not installed: the tests that build, train or re-estimate a Keras model are skipped
+unmutated copy without TensorFlow: skipped __main__.TestZDPhaseTwoChecks.test_normal: missing input: TensorFlow is not installed: the tests that build, train or re-estimate a Keras model are skipped
+unmutated copy without TensorFlow: skipped __main__.TestZDPhaseTwoChecks.test_ordinary_softmax_checked: missing input: TensorFlow is not installed: the tests that build, train or re-estimate a Keras model are skipped
+unmutated copy without TensorFlow: skipped __main__.TestZDPhaseTwoChecks.test_trained_tensor_changed: missing input: TensorFlow is not installed: the tests that build, train or re-estimate a Keras model are skipped
+unmutated copy without TensorFlow: skipped __main__.TestZDPhaseTwoChecks.test_wrong_architecture: missing input: TensorFlow is not installed: the tests that build, train or re-estimate a Keras model are skipped
+unmutated copy with TensorFlow: scripts/check_pad_arch_run.py exit 0 (tests run: 135, failures: 0, errors: 0, skipped: 1)
+unmutated copy with TensorFlow: skipped __main__.TestAConfig.test_delivered_configuration: missing input: delivery/archrun/pad_arch_run.json is not present
+CONTROL   SURVIVED comment only (control) (without TensorFlow: survived, tests run: 135, failures: 0, errors: 0, skipped: 20; with TensorFlow: survived, tests run: 135, failures: 0, errors: 0, skipped: 1)
+CONTROL   SURVIVED thread rule not recorded in the run status (redundant: after thread_environment_rule before the folder, PAC.set_threads after the import and PAC.load_trial on the trial record, the comparison with the trial cannot differ, and it is recorded on every path that reaches it) (without TensorFlow: survived, tests run: 135, failures: 0, errors: 0, skipped: 20; with TensorFlow: survived, tests run: 135, failures: 0, errors: 0, skipped: 1)
+CONTROL   SURVIVED thread rule not applied in check-estimator (redundant: environment variables refused before the folder by thread_environment_rule, requested and effective threads by PAC.set_threads, set_by_this_runner and the trial values by PAC.load_trial; require_threads itself is tested on the rule) (without TensorFlow: survived, tests run: 135, failures: 0, errors: 0, skipped: 20; with TensorFlow: survived, tests run: 135, failures: 0, errors: 0, skipped: 1)
+CONTROL   SURVIVED threads read back before a training (redundant: read back after set_threads, compared with the trial, and after the previous model) (without TensorFlow: survived, tests run: 135, failures: 0, errors: 0, skipped: 20; with TensorFlow: survived, tests run: 135, failures: 0, errors: 0, skipped: 1)
+CONTROL   SURVIVED keys of a position re-checked in phase 1 (redundant: check_unit_keys checks the same cards and rows before the first training) (without TensorFlow: survived, tests run: 135, failures: 0, errors: 0, skipped: 20; with TensorFlow: survived, tests run: 135, failures: 0, errors: 0, skipped: 1)
+CONTROL   SURVIVED frame counts of the card (redundant: n_fitting and n_dev are the lengths of the assembled rows, whose number check_unit_keys compares with the configuration) (without TensorFlow: survived, tests run: 135, failures: 0, errors: 0, skipped: 20; with TensorFlow: survived, tests run: 135, failures: 0, errors: 0, skipped: 1)
+CONTROL   SURVIVED frame counts of the manifests (redundant: the keys of the same rows are compared with the reference card) (without TensorFlow: survived, tests run: 135, failures: 0, errors: 0, skipped: 20; with TensorFlow: survived, tests run: 135, failures: 0, errors: 0, skipped: 1)
+CONTROL   SURVIVED original model unchanged after the re-estimation (redundant: the re-estimation works on a clone; tensor_problems checks the copy) (without TensorFlow: survived, tests run: 135, failures: 0, errors: 0, skipped: 20; with TensorFlow: survived, tests run: 135, failures: 0, errors: 0, skipped: 1)
+CONTROL   SURVIVED number of timing epochs (redundant: the repr lists of the two histories differ in length when the numbers differ) (without TensorFlow: survived, tests run: 135, failures: 0, errors: 0, skipped: 20; with TensorFlow: survived, tests run: 135, failures: 0, errors: 0, skipped: 1)
+CONTROL   SURVIVED number of models in check-estimator (redundant: load_pins compares the number with the PR #28 configuration and BT.load_bnrecal the parent order with it) (without TensorFlow: survived, tests run: 135, failures: 0, errors: 0, skipped: 20; with TensorFlow: survived, tests run: 135, failures: 0, errors: 0, skipped: 1)
+CONTROL   SURVIVED fold schema in check-estimator (redundant: nuaa_bn_recalibration.load_inputs refuses a loaded fold schema) (without TensorFlow: survived, tests run: 135, failures: 0, errors: 0, skipped: 20; with TensorFlow: survived, tests run: 135, failures: 0, errors: 0, skipped: 1)
+CONTROL   SURVIVED copy different before the re-estimation in check-estimator (redundant: clone_model plus set_weights; the same check in the run is tested and the tensors are checked after) (without TensorFlow: survived, tests run: 135, failures: 0, errors: 0, skipped: 20; with TensorFlow: survived, tests run: 135, failures: 0, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  runs in another order accepted (tests run: 6, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  machine rule fields not fixed (tests run: 6, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  history difference as a boolean accepted (tests run: 6, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  history consequence not required (tests run: 6, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  estimator orders not fixed (tests run: 6, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  cap unit not fixed (tests run: 6, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  choices not declared as the author (tests run: 1, failures: 1, errors: 0, skipped: 0)
+KILLED without TensorFlow, by a failed assertion  test text not fixed (tests run: 6, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  authorisation text not required (tests run: 5, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  operations text not required (tests run: 5, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  machine scope text not required (tests run: 5, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  frame_ids text not required (tests run: 5, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  discarded state not required in cap.on_cap (tests run: 5, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  estimator cap unit not fixed (tests run: 5, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  pinned file SHA-256 not compared (tests run: 11, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  code pins not compared (tests run: 11, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  run_order.csv not compared with the regenerated order (tests run: 10, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  positions not compared with the plan (tests run: 10, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  reference run of a position not compared (tests run: 10, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  run_caps.csv not compared with the regenerated caps (tests run: 7, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  cap of the plan not used (tests run: 49, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  trial not required to be PASS (tests run: 13, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  trial record files not hashed (tests run: 11, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  trial record not anchored to the package (tests run: 11, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  LivenessNet order not compared with PR #27 (tests run: 9, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  estimator cap not compared with PR #27 (tests run: 8, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  PR #27 configuration not compared with PR #28 (tests run: 113, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  BNRECAL run and models not compared with PR #28 (tests run: 113, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  machine rule not applied (tests run: 15, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  versions not compared (tests run: 16, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  absent or null machine field equal (tests run: 17, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  thread rule not applied (tests run: 19, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  thread rule on the effective threads only (tests run: 19, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  absent thread field equal (tests run: 20, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  null thread values equal (tests run: 20, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  threads not set by the runner (tests run: 49, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  thread environment variables not checked before the folder (tests run: 52, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  thread environment compared with the trial only by check-inputs (tests run: 52, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  thread environment not compared with the trial by check-inputs (tests run: 48, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  thread environment different from the trial accepted (tests run: 48, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  TF_NUM_INTRAOP_THREADS not read (tests run: 44, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  TF_NUM_INTEROP_THREADS not read (tests run: 44, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  requested intra-op threads not required to be 10 (tests run: 68, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  requested inter-op threads not required to be 10 (tests run: 67, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  effective intra-op threads not read back (tests run: 51, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  effective inter-op threads not read back (tests run: 50, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  TensorFlow initialised before the threads accepted (tests run: 72, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  processor not compared (tests run: 15, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  RAM not compared (tests run: 15, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  machine rule not applied in check-estimator (tests run: 112, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  GPU not hidden in run (tests run: 59, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  GPU not hidden in check-estimator (tests run: 114, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  threads not read back after a model (tests run: 74, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  estimator record of another configuration accepted (tests run: 45, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  estimator record of other code accepted (tests run: 45, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  estimator record not PASS accepted (tests run: 45, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  schema and status of estimator_check.json not checked (tests run: 45, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  estimator record with a failed model accepted (tests run: 45, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  estimator record without the machine rule accepted (tests run: 45, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  unofficial estimator record accepted by an official run (tests run: 45, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  MISMATCH of check-estimator reported as PASS (tests run: 111, failures: 1, errors: 0, skipped: 1)
+KILLED with TensorFlow, by a failed assertion  estimator status not used by check-estimator (tests run: 122, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  patience of the reference card not checked (tests run: 47, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  reference card not required in the SHA256SUMS (tests run: 46, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  reference card SHA-256 not compared (tests run: 46, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  reference card keys not checked before the runs (tests run: 47, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  test role accepted by unit_frames (tests run: 43, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  assembled roles not checked (tests run: 43, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  BN states not compared (tests run: 36, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  networks of a unit not compared (tests run: 37, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  history always identical (tests run: 21, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  number of epochs ignored by the history check (tests run: 23, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  last differing epoch reported as the first (tests run: 22, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  last differing epoch of a field reported as the first (tests run: 21, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  different history stops the run (tests run: 55, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  non-finite epoch not counted as differing (tests run: 27, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  unrepresentable difference not counted as differing (tests run: 21, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  earlier difference hidden by a non-finite value (tests run: 21, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  tie of the largest difference to the last field (tests run: 25, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  timing history not compared with Keras (tests run: 28, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  non-finite new history not stopped (tests run: 83, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  network of the card not checked (tests run: 106, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  val_loss of the checkpoint not checked (tests run: 75, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  checkpoint overwritten (tests run: 109, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  EER threshold replaced by 0.5 (tests run: 33, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  threshold computed without both classes (tests run: 40, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  EER cross-check removed (tests run: 35, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  tie at 0.5 decided attack (tests run: 41, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  tie at the EER threshold decided attack (tests run: 33, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  CSV prediction at 0.5 with >= (tests run: 41, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  CSV prediction at the EER threshold with >= (tests run: 41, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  evaluator agreement ignored (tests run: 89, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  agreement without the EER threshold (tests run: 89, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  agreement without the 0.5 decisions (tests run: 89, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  discordances counted as agreements (tests run: 54, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  evaluator gap always 0 (tests run: 89, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  different shapes accepted (tests run: 89, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  phase-1 scores from the bona fide column (tests run: 54, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  MISMATCH not raised (tests run: 94, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  public outputs written with a MISMATCH (tests run: 94, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  no cap check before a training (tests run: 76, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  no cap check at the end of an epoch (tests run: 49, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  no cap check before the dev scoring (tests run: 77, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  no cap check before the re-estimation (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED with TensorFlow, by a failed assertion  no cap check before the ordinary dev (tests run: 124, failures: 1, errors: 0, skipped: 1)
+KILLED with TensorFlow, by a failed assertion  re-estimation without cap checks (tests run: 124, failures: 1, errors: 0, skipped: 1)
+KILLED with TensorFlow, by a failed assertion  no cap check before the consistency pass (tests run: 124, failures: 1, errors: 0, skipped: 1)
+KILLED with TensorFlow, by a failed assertion  no cap check before the re-estimated dev (tests run: 124, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  no cap check in check-estimator (tests run: 114, failures: 1, errors: 0, skipped: 1)
+KILLED with TensorFlow, by a failed assertion  check-estimator re-estimation without cap checks (tests run: 121, failures: 1, errors: 0, skipped: 1)
+KILLED with TensorFlow, by a failed assertion  no cap check before the consistency pass of check-estimator (tests run: 121, failures: 1, errors: 0, skipped: 1)
+KILLED with TensorFlow, by a failed assertion  no cap check before the dev of check-estimator (tests run: 121, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  SIGUSR1 handler not installed in run (tests run: 101, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  model in progress kept on a FAIL (tests run: 53, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  no test role check at the end of the run (tests run: 87, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  model in progress kept at the cap (tests run: 77, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  discarded model reported as complete (tests run: 49, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  complete model discarded at a stop in phase 2 (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  INCOMPLETE reported with exit code 0 (tests run: 49, failures: 1, errors: 0, skipped: 1)
+KILLED with TensorFlow, by a failed assertion  BN order not checked on the graph (tests run: 116, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  ancestor order reversed (tests run: 29, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  only direct inputs as ancestors (tests run: 29, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  trained tensors not checked (tests run: 98, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  consistency not checked (tests run: 98, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  consistency counts not checked (tests run: 98, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  softmax after the re-estimation not checked (tests run: 98, failures: 1, errors: 0, skipped: 1)
+KILLED with TensorFlow, by a failed assertion  softmax of the ordinary state not checked (tests run: 131, failures: 1, errors: 0, skipped: 1)
+KILLED with TensorFlow, by a failed assertion  copy different before the re-estimation accepted (run) (tests run: 126, failures: 1, errors: 0, skipped: 1)
+KILLED with TensorFlow, by a failed assertion  checks of PR #27 not applied in check-estimator (tests run: 123, failures: 1, errors: 0, skipped: 1)
+KILLED with TensorFlow, by a failed assertion  loaded checkpoint not checked (tests run: 133, failures: 1, errors: 0, skipped: 1)
+KILLED with TensorFlow, by a failed assertion  statistics in float64 in the file (tests run: 119, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  layer order rearranged in the statistics file (tests run: 69, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  phase_2 column equal to phase_1 (tests run: 71, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  one-class class hidden (tests run: 69, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  public SHA256SUMS empty (tests run: 69, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  public outputs not scanned (tests run: 84, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  run.log not scanned (tests run: 86, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  configuration not re-verified at the end (tests run: 79, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  code not re-verified at the end (tests run: 90, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  reference cards not re-verified at the end (tests run: 85, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  trial record not re-verified at the end (tests run: 88, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  estimator record not re-verified at the end (tests run: 92, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  started missing from the final status (tests run: 49, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  restricted note ignores the SHA256SUMS written (tests run: 86, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  existing run folder not refused (tests run: 70, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  symbolic link output root accepted (tests run: 104, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  dirty tree accepted (tests run: 66, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  estimator record not required by run (tests run: 66, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  one-class counts with the wrong patience (tests run: 65, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  attempt rule not applied (tests run: 66, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  earlier attempts of other runs counted (tests run: 93, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  attempt number of a suffix ignored (tests run: 99, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  unofficial output root without the flag (tests run: 95, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  flag accepted on the official root (tests run: 95, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  official root compared by string (tests run: 100, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  non-official root inside the repository accepted (tests run: 100, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  root containing the repository accepted (tests run: 100, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  malformed entries of the output root ignored (tests run: 93, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  suffix -r1 accepted (tests run: 93, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  personal paths in the command (tests run: 49, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  command built from the raw command line (tests run: 49, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  command not scanned before the folder (tests run: 97, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  status.json not scanned (tests run: 103, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  personal text not redacted in the FAIL status (tests run: 103, failures: 1, errors: 0, skipped: 1)
+KILLED without TensorFlow, by a failed assertion  package SHA256SUMS not re-verified at the end (tests run: 96, failures: 1, errors: 0, skipped: 1)
+mutations killed without TensorFlow: 151/165
+mutations killed only with TensorFlow: 14/165
+  needs TensorFlow: estimator status not used by check-estimator
+  needs TensorFlow: no cap check before the ordinary dev
+  needs TensorFlow: re-estimation without cap checks
+  needs TensorFlow: no cap check before the consistency pass
+  needs TensorFlow: no cap check before the re-estimated dev
+  needs TensorFlow: check-estimator re-estimation without cap checks
+  needs TensorFlow: no cap check before the consistency pass of check-estimator
+  needs TensorFlow: no cap check before the dev of check-estimator
+  needs TensorFlow: BN order not checked on the graph
+  needs TensorFlow: softmax of the ordinary state not checked
+  needs TensorFlow: copy different before the re-estimation accepted (run)
+  needs TensorFlow: checks of PR #27 not applied in check-estimator
+  needs TensorFlow: loaded checkpoint not checked
+  needs TensorFlow: statistics in float64 in the file
+killed by a failed assertion: 165; killed by an error: 0
+control mutations survived: 12/12 (1 control, 11 declared redundant)
+RESULT: PASS
+exit 0
+# finished 2026-11-20 16:31 CET, wall 3349 s
