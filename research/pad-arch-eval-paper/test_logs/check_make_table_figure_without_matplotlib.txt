@@ -1,0 +1,23 @@
+# macOS arm64; python3 is Python 3.14.7 without matplotlib; started 2026-11-21 17:21 CET; files of this folder
+# SHA-256 16783e84c321fdebcc81eaa724d55670d1e0201df86b8a51bc95e5239d1e0ab1  make_table_figure.py
+# SHA-256 f31568d1d84bb1a484751c904dceba20e258993ca0a2cdef262e6df4f85b17a9  check_make_table_figure.py
+# SHA-256 ac0682b29f3d8913c450d27f478b8efa74f97d57202a01bae68f8dac1d03097d  check_make_table_figure_mutations.py
+# command (from this folder): python3 -I -B check_make_table_figure.py
+...................................................................ss...ss........sssss...
+----------------------------------------------------------------------
+Ran 90 tests in 20.174s
+
+OK (skipped=9)
+tests run: 90, failures: 0, errors: 0, skipped: 9
+skipped __main__.F_Check.test_full_check_passes_on_committed: missing input: matplotlib is not installed: the tests that generate or compare the figure images are skipped
+skipped __main__.F_Check.test_one_byte_in_each_output: missing input: matplotlib is not installed: the tests that generate or compare the figure images are skipped
+skipped __main__.G_Determinism.test_local_matplotlibrc_ignored: missing input: matplotlib is not installed: the tests that generate or compare the figure images are skipped
+skipped __main__.G_Determinism.test_two_full_generations: missing input: matplotlib is not installed: the tests that generate or compare the figure images are skipped
+skipped __main__.S_Signals.test_real_after_mkdir: missing input: matplotlib is not installed: the tests that generate or compare the figure images are skipped
+skipped __main__.S_Signals.test_real_after_rename: missing input: matplotlib is not installed: the tests that generate or compare the figure images are skipped
+skipped __main__.S_Signals.test_real_after_restore: missing input: matplotlib is not installed: the tests that generate or compare the figure images are skipped
+skipped __main__.S_Signals.test_real_before_reservation: missing input: matplotlib is not installed: the tests that generate or compare the figure images are skipped
+skipped __main__.S_Signals.test_real_during_restore: missing input: matplotlib is not installed: the tests that generate or compare the figure images are skipped
+RESULT: PASS
+exit 0
+# finished 2026-11-21 17:21 CET, wall 20 s
