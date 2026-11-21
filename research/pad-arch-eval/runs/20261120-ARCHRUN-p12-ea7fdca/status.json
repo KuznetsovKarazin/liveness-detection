@@ -1,0 +1,326 @@
+{
+ "run_id": "20261120-ARCHRUN-p12-ea7fdca",
+ "run": "nuaa_patience_12",
+ "commit": "ea7fdca",
+ "dirty": false,
+ "config_sha256": "0df7a2ddb16d436a7552169c5ff332e44759237020e8c466077986b92d0d734d",
+ "command": "run",
+ "command_line": "python -I -B scripts/pad_arch_run.py run --config delivery/archrun/pad_arch_run.json --out-root results/archrun --run nuaa_patience_12 --estimator-check results/archrun/20261120-ARCHEST-6c4f9e8 --attempt 1 --i-am-authorized",
+ "official": true,
+ "attempt": {
+  "attempt": 1,
+  "previous": []
+ },
+ "status": "PASS",
+ "passed": true,
+ "started": "2026-11-20T22:03:54+0100",
+ "finished": "2026-11-21T00:53:14+0100",
+ "wall_seconds": 10160.2,
+ "process_cpu_seconds": 88269.9,
+ "threads": {
+  "requested": {
+   "intra_op": 10,
+   "inter_op": 10
+  },
+  "effective": {
+   "intra_op": 10,
+   "inter_op": 10
+  },
+  "set_by_this_runner": true,
+  "environment": {
+   "TF_NUM_INTRAOP_THREADS": null,
+   "TF_NUM_INTEROP_THREADS": null
+  },
+  "logical_cpus": 15
+ },
+ "machine_rule": {
+  "trial_run": "20261119-ARCHTRIAL-b8f7cca",
+  "machine": {
+   "processor": {
+    "trial": "Apple M5 Pro",
+    "now": "Apple M5 Pro",
+    "equal": true
+   },
+   "core_levels": {
+    "trial": [
+     {
+      "name": "Super",
+      "physical_cores": 5
+     },
+     {
+      "name": "Performance",
+      "physical_cores": 10
+     }
+    ],
+    "now": [
+     {
+      "name": "Super",
+      "physical_cores": 5
+     },
+     {
+      "name": "Performance",
+      "physical_cores": 10
+     }
+    ],
+    "equal": true
+   },
+   "ram_gb": {
+    "trial": 24.0,
+    "now": 24.0,
+    "equal": true
+   },
+   "os": {
+    "trial": "macOS 27.2.1",
+    "now": "macOS 27.2.1",
+    "equal": true
+   },
+   "logical_cpus": {
+    "trial": 15,
+    "now": 15,
+    "equal": true
+   },
+   "architecture": {
+    "trial": "arm64",
+    "now": "arm64",
+    "equal": true
+   }
+  },
+  "versions": {
+   "python": {
+    "trial": "3.11.16",
+    "now": "3.11.16",
+    "equal": true
+   },
+   "numpy": {
+    "trial": "1.26.4",
+    "now": "1.26.4",
+    "equal": true
+   },
+   "tensorflow_installed": {
+    "trial": "2.15.0",
+    "now": "2.15.0",
+    "equal": true
+   },
+   "keras": {
+    "trial": "2.15.0",
+    "now": "2.15.0",
+    "equal": true
+   },
+   "platform": {
+    "trial": "darwin",
+    "now": "darwin",
+    "equal": true
+   }
+  },
+  "equal": true
+ },
+ "estimator_check": {
+  "run_id": "20261120-ARCHEST-6c4f9e8",
+  "estimator_check_json_sha256": "b8630a90b2a7e55bc14f03a21548b5270f3cd798e8d05cdfdb8cfefcb531469a",
+  "models": 36,
+  "official": true
+ },
+ "cap_hours": 5.0,
+ "cap_unit": "hours of wall time (elapsed real time, not CPU time)",
+ "threads_rule": {
+  "fields": {
+   "requested": {
+    "trial": {
+     "intra_op": 10,
+     "inter_op": 10
+    },
+    "now": {
+     "intra_op": 10,
+     "inter_op": 10
+    },
+    "equal": true
+   },
+   "effective": {
+    "trial": {
+     "intra_op": 10,
+     "inter_op": 10
+    },
+    "now": {
+     "intra_op": 10,
+     "inter_op": 10
+    },
+    "equal": true
+   },
+   "environment": {
+    "trial": {
+     "TF_NUM_INTRAOP_THREADS": null,
+     "TF_NUM_INTEROP_THREADS": null
+    },
+    "now": {
+     "TF_NUM_INTRAOP_THREADS": null,
+     "TF_NUM_INTEROP_THREADS": null
+    },
+    "equal": true
+   },
+   "set_by_this_runner": {
+    "trial": true,
+    "now": true,
+    "equal": true
+   }
+  },
+  "equal": true,
+  "trial_run": "20261119-ARCHTRIAL-b8f7cca"
+ },
+ "stopped": null,
+ "complete_phase_1": [
+  "LivenessNet_fold1_seed42",
+  "ResNet-18_fold1_seed42",
+  "LivenessNet_fold1_seed43",
+  "ResNet-18_fold1_seed43",
+  "LivenessNet_fold1_seed44",
+  "ResNet-18_fold1_seed44",
+  "LivenessNet_fold2_seed42",
+  "ResNet-18_fold2_seed42",
+  "LivenessNet_fold2_seed43",
+  "ResNet-18_fold2_seed43",
+  "LivenessNet_fold2_seed44",
+  "ResNet-18_fold2_seed44",
+  "LivenessNet_fold3_seed42",
+  "ResNet-18_fold3_seed42",
+  "LivenessNet_fold3_seed43",
+  "ResNet-18_fold3_seed43",
+  "LivenessNet_fold3_seed44",
+  "ResNet-18_fold3_seed44",
+  "LivenessNet_fold4_seed42",
+  "ResNet-18_fold4_seed42",
+  "LivenessNet_fold4_seed43",
+  "ResNet-18_fold4_seed43",
+  "LivenessNet_fold4_seed44",
+  "ResNet-18_fold4_seed44"
+ ],
+ "complete_phase_2": [
+  "LivenessNet_fold1_seed42",
+  "ResNet-18_fold1_seed42",
+  "LivenessNet_fold1_seed43",
+  "ResNet-18_fold1_seed43",
+  "LivenessNet_fold1_seed44",
+  "ResNet-18_fold1_seed44",
+  "LivenessNet_fold2_seed42",
+  "ResNet-18_fold2_seed42",
+  "LivenessNet_fold2_seed43",
+  "ResNet-18_fold2_seed43",
+  "LivenessNet_fold2_seed44",
+  "ResNet-18_fold2_seed44",
+  "LivenessNet_fold3_seed42",
+  "ResNet-18_fold3_seed42",
+  "LivenessNet_fold3_seed43",
+  "ResNet-18_fold3_seed43",
+  "LivenessNet_fold3_seed44",
+  "ResNet-18_fold3_seed44",
+  "LivenessNet_fold4_seed42",
+  "ResNet-18_fold4_seed42",
+  "LivenessNet_fold4_seed43",
+  "ResNet-18_fold4_seed43",
+  "LivenessNet_fold4_seed44",
+  "ResNet-18_fold4_seed44"
+ ],
+ "missing_phase_1": [],
+ "evaluator_mismatches": [],
+ "dev_frames": {
+  "units_two_networks_compared": {
+   "ordinary": 12,
+   "re-estimated": 12
+  },
+  "units_two_states_compared": 12,
+  "units": {
+   "fold1_seed42": {
+    "n_frames": 400,
+    "frame_ids_sha256": "b7b95d98eabe17c2b5658097d21ec54d72f7914e9aaf031bde74cfc90a08a477"
+   },
+   "fold1_seed43": {
+    "n_frames": 400,
+    "frame_ids_sha256": "b7b95d98eabe17c2b5658097d21ec54d72f7914e9aaf031bde74cfc90a08a477"
+   },
+   "fold1_seed44": {
+    "n_frames": 400,
+    "frame_ids_sha256": "b7b95d98eabe17c2b5658097d21ec54d72f7914e9aaf031bde74cfc90a08a477"
+   },
+   "fold2_seed42": {
+    "n_frames": 400,
+    "frame_ids_sha256": "16a1682525c6544b7db5125aad69681b5624132dad5a78e2cda08cebc433017c"
+   },
+   "fold2_seed43": {
+    "n_frames": 400,
+    "frame_ids_sha256": "16a1682525c6544b7db5125aad69681b5624132dad5a78e2cda08cebc433017c"
+   },
+   "fold2_seed44": {
+    "n_frames": 400,
+    "frame_ids_sha256": "16a1682525c6544b7db5125aad69681b5624132dad5a78e2cda08cebc433017c"
+   },
+   "fold3_seed42": {
+    "n_frames": 400,
+    "frame_ids_sha256": "f80acc54e514c98ee42219c7dfec0883cc4ed5bd87a1935cdee5f8a47b9929d6"
+   },
+   "fold3_seed43": {
+    "n_frames": 400,
+    "frame_ids_sha256": "f80acc54e514c98ee42219c7dfec0883cc4ed5bd87a1935cdee5f8a47b9929d6"
+   },
+   "fold3_seed44": {
+    "n_frames": 400,
+    "frame_ids_sha256": "f80acc54e514c98ee42219c7dfec0883cc4ed5bd87a1935cdee5f8a47b9929d6"
+   },
+   "fold4_seed42": {
+    "n_frames": 400,
+    "frame_ids_sha256": "9621933d840c614dae6a58a702b0c3be0fa7f857d58c510bd42c6b8759aca8cc"
+   },
+   "fold4_seed43": {
+    "n_frames": 400,
+    "frame_ids_sha256": "9621933d840c614dae6a58a702b0c3be0fa7f857d58c510bd42c6b8759aca8cc"
+   },
+   "fold4_seed44": {
+    "n_frames": 400,
+    "frame_ids_sha256": "9621933d840c614dae6a58a702b0c3be0fa7f857d58c510bd42c6b8759aca8cc"
+   }
+  }
+ },
+ "machine": {
+  "processor": "Apple M5 Pro",
+  "core_levels": [
+   {
+    "name": "Super",
+    "physical_cores": 5
+   },
+   {
+    "name": "Performance",
+    "physical_cores": 10
+   }
+  ],
+  "ram_gb": 24.0,
+  "os": "macOS 27.2.1",
+  "logical_cpus": 15,
+  "architecture": "arm64"
+ },
+ "code_sha256": {
+  "scripts/nuaa_folds_run.py": "82fed566cfa8ac0b280b55edbf430e7051dff1ae83d17a902d78157f2c72ffb2",
+  "scripts/nuaa_session_ablation_run.py": "9c45255199b87a41126b77867d5bbcf0da6f6ecf1684bf8fdd89185f463a276e",
+  "scripts/nuaa_bn_recalibration.py": "8c228ef400f5ef4337612477b23113fb6b8cac5364a5ff026e2c0ac8096734f5",
+  "scripts/nuaa_patience_verify.py": "edc839849ac76be9ce3149a3c217f35b6f1f430e352b471d03b78398093f4b9e",
+  "scripts/m2_writers.py": "22760abc368dede3aa0a690a241f6622afe1ba586940422497db8a33994ee34a",
+  "scripts/path_guard.py": "e5fa9c835c23745ff932e157a44d3104eb9713d86bbdecc9cdbbd3caa7a7ee34",
+  "scripts/package_rules.py": "96ec7ffab4b089bac71fd18918fcd32af72d15980cdfa1361cc84bb43e0e4c11",
+  "scripts/pad_arch_models.py": "72790b4fdc8a9f56e4ef5494c8f7fdd87cbfa3bf752eb471e531b524848a5832",
+  "scripts/pad_arch_definitions.py": "7bef6b62c9df355ca9ce1eb971dea142825b5aebb48c313d45087cbb899b5bff",
+  "scripts/pad_arch_comparison.py": "8f9a7c314acef2b6c00bd37b9d3089c94ea5c6acfc55b27b89ce8ddd6d8f7451",
+  "scripts/nuaa_bn_test.py": "909869a8b127ae96d0a184f6294ac1017bd28fbcec20c2d83355b9b370b7dfbb",
+  "scripts/pad_arch_run.py": "c79a8eb834a1bee1e467513cee5cc548321ab5e7c0be007a5f7ad6240b9d503a"
+ },
+ "inputs_sha256": {
+  "preregistration": "5a83325e13d29d1a67dcda4f129838d19ec39b8f119f5de647693b68c5128b0a",
+  "package_sums": "8e6e9f26c0b91d08e875aed9ea41e7885de6c44a45f53f491ab154385050a4f4",
+  "trial_status": "eabd17a7f2431cf792a29598002012e2431db75ef543c37474841805263fb094",
+  "trial_json": "d44a82c80bae0f5d54e3df8b07135993e79df75929b2eabd079b97547cf43c80",
+  "run_order": "406fab6ce50f590950ad237f73b97fc993b4c00395b20b204f3996189ae11632",
+  "run_caps": "a1228ddc0ef6b08ac8657eab0d83d0829c0f40ddac4cb3f2377e73b2240b8ef9",
+  "bn_recalibration_config": "d97e2e7497fb038708f09613bab6b8602ddac53976a31d84f8771c87c3d52865",
+  "bn_test_config": "1d72956997fdab1f59ff472b98bd45b84b62b80096d9bee64433ebe163487bf1",
+  "configuration": "0df7a2ddb16d436a7552169c5ff332e44759237020e8c466077986b92d0d734d"
+ },
+ "public_sha256sums_sha256": "1894e2e8d7bfc76e853ac9534a7a4a4550c0ebcfd7b08aa2f7d7261ffee46c56",
+ "restricted_sha256sums_sha256": "85e84294cfbe8d9f5465206cd1c418f3f6b298f14628516a9d64996777d1c111",
+ "run_log_sha256": "fec90fbe0b404a762bb4f1e47da2a81d938f5f88e4c7e3463dbd35db08f4fbbc"
+}

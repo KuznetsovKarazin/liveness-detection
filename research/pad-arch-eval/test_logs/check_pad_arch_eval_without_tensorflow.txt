@@ -1,0 +1,22 @@
+# macOS, Python 3.11.16, NumPy 1.26.4, TensorFlow 2.15.0, started 2026-11-21 04:08 CET; the same suite with TensorFlow hidden by livenesslab/tools/run_without_tensorflow.py of this folder (every finder of sys.meta_path made blind to tensorflow, as on a machine without TensorFlow): only the tests that build or score a Keras model are skipped, with the declared reason; files of commit 31184c7
+# SHA-256 645db0e5461cecf5f2dece4d7e86ec7bb0e5613710cfe360e6426b57565cd52d  scripts/pad_arch_eval.py
+# SHA-256 cfe08f2114f330d4dead57e160db15fb32f2954d26391f6b52b7f563dc1b2d8a  scripts/check_pad_arch_eval.py
+# SHA-256 8e85a7922e171d4aae5cb6b83ada72f8a9044dfc0ee7b219df39c337f4bb0015  scripts/check_pad_arch_eval_mutations.py
+# SHA-256 8f00f5f11aa83c874048e4f1846c453b8cc7c64af18a1220372bd0e7bc603bb1  delivery/archeval/pad_arch_eval.json
+# SHA-256 c79a8eb834a1bee1e467513cee5cc548321ab5e7c0be007a5f7ad6240b9d503a  scripts/pad_arch_run.py
+# SHA-256 55c3ec016783c8152c456f36de63697c2c4e7082f12e47ff2546f18d0f23a70c  delivery/pad-arch-eval/livenesslab/tools/run_without_tensorflow.py
+# command: python -I -B <this folder>/livenesslab/tools/run_without_tensorflow.py scripts/check_pad_arch_eval.py
+...................................................................................................................................sssss..
+----------------------------------------------------------------------
+Ran 138 tests in 72.157s
+
+OK (skipped=5)
+tests run: 138, failures: 0, errors: 0, skipped: 5
+skipped __main__.TestZAScoreModel.test_checkpoint_sha_checked_before_loading: missing input: TensorFlow is not installed: the tests that build or score a Keras model are skipped
+skipped __main__.TestZAScoreModel.test_softmax_tolerance_applied: missing input: TensorFlow is not installed: the tests that build or score a Keras model are skipped
+skipped __main__.TestZAScoreModel.test_two_states_equal_to_the_evaluator: missing input: TensorFlow is not installed: the tests that build or score a Keras model are skipped
+skipped __main__.TestZAScoreModel.test_wrong_statistics_refused: missing input: TensorFlow is not installed: the tests that build or score a Keras model are skipped
+skipped __main__.TestZBRealEvaluation.test_real_runs_and_evaluation: missing input: TensorFlow is not installed: the tests that build or score a Keras model are skipped
+RESULT: PASS
+exit 0
+# finished 2026-11-21 04:09 CET, wall 73 s

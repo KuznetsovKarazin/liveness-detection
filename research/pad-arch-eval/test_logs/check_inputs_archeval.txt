@@ -1,0 +1,11 @@
+# macOS, Python 3.11.16, NumPy 1.26.4, TensorFlow 2.15.0, started 2026-11-21 04:08 CET; check-inputs of the evaluation command on the real inputs and on the two official run folders (read only: TensorFlow not imported, no fold schema, no test frame, nothing written); no TF_NUM_INTRAOP_THREADS or TF_NUM_INTEROP_THREADS in the environment; files of commit 31184c7
+# SHA-256 645db0e5461cecf5f2dece4d7e86ec7bb0e5613710cfe360e6426b57565cd52d  scripts/pad_arch_eval.py
+# SHA-256 cfe08f2114f330d4dead57e160db15fb32f2954d26391f6b52b7f563dc1b2d8a  scripts/check_pad_arch_eval.py
+# SHA-256 8e85a7922e171d4aae5cb6b83ada72f8a9044dfc0ee7b219df39c337f4bb0015  scripts/check_pad_arch_eval_mutations.py
+# SHA-256 8f00f5f11aa83c874048e4f1846c453b8cc7c64af18a1220372bd0e7bc603bb1  delivery/archeval/pad_arch_eval.json
+# SHA-256 c79a8eb834a1bee1e467513cee5cc548321ab5e7c0be007a5f7ad6240b9d503a  scripts/pad_arch_run.py
+# command: .venv/bin/python -I -B scripts/pad_arch_eval.py check-inputs --run-p4 results/archrun/20261120-ARCHRUN-p4-7faa49f --run-p12 results/archrun/20261120-ARCHRUN-p12-ea7fdca
+CHECK-INPUTS: configuration 8f00f5f11aa8; run configuration 0df7a2ddb16d; PROTOCOL.md and run_plan.csv equal to the package; code pinned (12 files); cap 3.50 h from the plan (2.1284 h estimated); machine model and versions equal to the trial; environment variables TF_NUM_INTRAOP_THREADS absent, TF_NUM_INTEROP_THREADS absent; inputs of the pre-registration PASS; run folders 20261120-ARCHRUN-p4-7faa49f official, 20261120-ARCHRUN-p12-ea7fdca official PASS, every file equal to its SHA256SUMS; 48 models with both dev files equal to the manifests; check (a) passed on 192 plan entries (8 conditions); no fold schema, no test frame; TensorFlow not imported; nothing written
+RESULT: PASS (check-inputs)
+exit 0
+# finished 2026-11-21 04:08 CET, wall 2 s

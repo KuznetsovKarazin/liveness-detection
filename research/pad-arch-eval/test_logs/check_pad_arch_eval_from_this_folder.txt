@@ -1,0 +1,21 @@
+# macOS, Python 3.11.16, NumPy 1.26.4, TensorFlow 2.15.0, started 2026-11-21 04:03 CET; the same synthetic suite run from livenesslab/ of this folder (research/pad-arch-eval/livenesslab in the fork, after copying the files); the files tested are those of this folder
+# SHA-256 645db0e5461cecf5f2dece4d7e86ec7bb0e5613710cfe360e6426b57565cd52d  scripts/pad_arch_eval.py
+# SHA-256 cfe08f2114f330d4dead57e160db15fb32f2954d26391f6b52b7f563dc1b2d8a  scripts/check_pad_arch_eval.py
+# SHA-256 8e85a7922e171d4aae5cb6b83ada72f8a9044dfc0ee7b219df39c337f4bb0015  scripts/check_pad_arch_eval_mutations.py
+# SHA-256 8f00f5f11aa83c874048e4f1846c453b8cc7c64af18a1220372bd0e7bc603bb1  delivery/archeval/pad_arch_eval.json
+# SHA-256 c79a8eb834a1bee1e467513cee5cc548321ab5e7c0be007a5f7ad6240b9d503a  scripts/pad_arch_run.py
+# SHA-256 a83c02b0788bd6f98262abf00f5fe970abed501f231edba348820482aea64d30  src/livedetection/src/architectures.py
+# command: python -I -B scripts/check_pad_arch_eval.py
+.......................................................................................................................................WARNING:tensorflow:5 out of the last 9 calls to <function Model.make_train_function.<locals>.train_function at 0x1558db1a0> triggered tf.function retracing. Tracing is expensive and the excessive number of tracings could be due to (1) creating @tf.function repeatedly in a loop, (2) passing tensors with different shapes, (3) passing Python objects instead of tensors. For (1), please define your @tf.function outside of the loop. For (2), @tf.function has reduce_retracing=True option that can avoid unnecessary retracing. For (3), please refer to https://www.tensorflow.org/guide/function#controlling_retracing and https://www.tensorflow.org/api_docs/python/tf/function for  more details.
+WARNING:tensorflow:5 out of the last 5 calls to <function Model.make_test_function.<locals>.test_function at 0x1558d9f80> triggered tf.function retracing. Tracing is expensive and the excessive number of tracings could be due to (1) creating @tf.function repeatedly in a loop, (2) passing tensors with different shapes, (3) passing Python objects instead of tensors. For (1), please define your @tf.function outside of the loop. For (2), @tf.function has reduce_retracing=True option that can avoid unnecessary retracing. For (3), please refer to https://www.tensorflow.org/guide/function#controlling_retracing and https://www.tensorflow.org/api_docs/python/tf/function for  more details.
+WARNING:tensorflow:6 out of the last 11 calls to <function Model.make_train_function.<locals>.train_function at 0x158a0efc0> triggered tf.function retracing. Tracing is expensive and the excessive number of tracings could be due to (1) creating @tf.function repeatedly in a loop, (2) passing tensors with different shapes, (3) passing Python objects instead of tensors. For (1), please define your @tf.function outside of the loop. For (2), @tf.function has reduce_retracing=True option that can avoid unnecessary retracing. For (3), please refer to https://www.tensorflow.org/guide/function#controlling_retracing and https://www.tensorflow.org/api_docs/python/tf/function for  more details.
+WARNING:tensorflow:6 out of the last 6 calls to <function Model.make_test_function.<locals>.test_function at 0x1588993a0> triggered tf.function retracing. Tracing is expensive and the excessive number of tracings could be due to (1) creating @tf.function repeatedly in a loop, (2) passing tensors with different shapes, (3) passing Python objects instead of tensors. For (1), please define your @tf.function outside of the loop. For (2), @tf.function has reduce_retracing=True option that can avoid unnecessary retracing. For (3), please refer to https://www.tensorflow.org/guide/function#controlling_retracing and https://www.tensorflow.org/api_docs/python/tf/function for  more details.
+...
+----------------------------------------------------------------------
+Ran 138 tests in 227.190s
+
+OK
+tests run: 138, failures: 0, errors: 0, skipped: 0
+RESULT: PASS
+exit 0
+# finished 2026-11-21 04:06 CET, wall 230 s
