@@ -1,0 +1,16 @@
+# macOS arm64; python3 is Python 3.11.16 with matplotlib 3.11.2 (FreeType 2.14.3); started 2026-11-21 17:21 CET; files of this folder
+# SHA-256 16783e84c321fdebcc81eaa724d55670d1e0201df86b8a51bc95e5239d1e0ab1  make_table_figure.py
+# SHA-256 f31568d1d84bb1a484751c904dceba20e258993ca0a2cdef262e6df4f85b17a9  check_make_table_figure.py
+# SHA-256 ac0682b29f3d8913c450d27f478b8efa74f97d57202a01bae68f8dac1d03097d  check_make_table_figure_mutations.py
+# command (from this folder): python3 -I -B make_table_figure.py --check
+primary_table.csv: identical
+primary_table.md: identical
+primary_table.tex: identical
+per_seed.csv: identical
+per_seed.md: identical
+figure_acer_gaps_data.csv: identical
+figure_acer_gaps.png: identical
+figure_acer_gaps.pdf: identical
+RESULT: PASS
+exit 0
+# finished 2026-11-21 17:21 CET, wall 1 s
