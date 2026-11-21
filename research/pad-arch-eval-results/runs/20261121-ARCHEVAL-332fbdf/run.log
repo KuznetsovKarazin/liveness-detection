@@ -1,0 +1,102 @@
+===== 2026-11-21T09:11:55+0100 run =====
+== evaluation 20261121-ARCHEVAL-332fbdf (attempt 1): configuration 8f00f5f11aa8, cap 3.50 hours of wall time (elapsed real time, not CPU time), pid 54422
+   check (a) passed before the test: 192 plan entries, 12 fold-seed combinations per network in each BN state, threshold 0.5 in the fixed-threshold conditions
+   TensorFlow threads set by this runner: requested intra-op 10 and inter-op 10, effective (read back from tf.config.threading) intra-op 10 and inter-op 10; environment variables: TF_NUM_INTRAOP_THREADS absent, TF_NUM_INTEROP_THREADS absent; logical CPUs 15.
+   dev reproduced p4_LivenessNet_fold1_seed42: ordinary yes, re-estimated yes
+   dev reproduced p4_ResNet-18_fold1_seed42: ordinary yes, re-estimated yes
+   dev reproduced p4_LivenessNet_fold1_seed43: ordinary yes, re-estimated yes
+   dev reproduced p4_ResNet-18_fold1_seed43: ordinary yes, re-estimated yes
+   dev reproduced p4_LivenessNet_fold1_seed44: ordinary yes, re-estimated yes
+   dev reproduced p4_ResNet-18_fold1_seed44: ordinary yes, re-estimated yes
+   dev reproduced p4_LivenessNet_fold2_seed42: ordinary yes, re-estimated yes
+   dev reproduced p4_ResNet-18_fold2_seed42: ordinary yes, re-estimated yes
+   dev reproduced p4_LivenessNet_fold2_seed43: ordinary yes, re-estimated yes
+   dev reproduced p4_ResNet-18_fold2_seed43: ordinary yes, re-estimated yes
+   dev reproduced p4_LivenessNet_fold2_seed44: ordinary yes, re-estimated yes
+   dev reproduced p4_ResNet-18_fold2_seed44: ordinary yes, re-estimated yes
+   dev reproduced p4_LivenessNet_fold3_seed42: ordinary yes, re-estimated yes
+   dev reproduced p4_ResNet-18_fold3_seed42: ordinary yes, re-estimated yes
+   dev reproduced p4_LivenessNet_fold3_seed43: ordinary yes, re-estimated yes
+   dev reproduced p4_ResNet-18_fold3_seed43: ordinary yes, re-estimated yes
+   dev reproduced p4_LivenessNet_fold3_seed44: ordinary yes, re-estimated yes
+   dev reproduced p4_ResNet-18_fold3_seed44: ordinary yes, re-estimated yes
+   dev reproduced p4_LivenessNet_fold4_seed42: ordinary yes, re-estimated yes
+   dev reproduced p4_ResNet-18_fold4_seed42: ordinary yes, re-estimated yes
+   dev reproduced p4_LivenessNet_fold4_seed43: ordinary yes, re-estimated yes
+   dev reproduced p4_ResNet-18_fold4_seed43: ordinary yes, re-estimated yes
+   dev reproduced p4_LivenessNet_fold4_seed44: ordinary yes, re-estimated yes
+   dev reproduced p4_ResNet-18_fold4_seed44: ordinary yes, re-estimated yes
+   dev reproduced p12_LivenessNet_fold1_seed42: ordinary yes, re-estimated yes
+   dev reproduced p12_ResNet-18_fold1_seed42: ordinary yes, re-estimated yes
+   dev reproduced p12_LivenessNet_fold1_seed43: ordinary yes, re-estimated yes
+   dev reproduced p12_ResNet-18_fold1_seed43: ordinary yes, re-estimated yes
+   dev reproduced p12_LivenessNet_fold1_seed44: ordinary yes, re-estimated yes
+   dev reproduced p12_ResNet-18_fold1_seed44: ordinary yes, re-estimated yes
+   dev reproduced p12_LivenessNet_fold2_seed42: ordinary yes, re-estimated yes
+   dev reproduced p12_ResNet-18_fold2_seed42: ordinary yes, re-estimated yes
+   dev reproduced p12_LivenessNet_fold2_seed43: ordinary yes, re-estimated yes
+   dev reproduced p12_ResNet-18_fold2_seed43: ordinary yes, re-estimated yes
+   dev reproduced p12_LivenessNet_fold2_seed44: ordinary yes, re-estimated yes
+   dev reproduced p12_ResNet-18_fold2_seed44: ordinary yes, re-estimated yes
+   dev reproduced p12_LivenessNet_fold3_seed42: ordinary yes, re-estimated yes
+   dev reproduced p12_ResNet-18_fold3_seed42: ordinary yes, re-estimated yes
+   dev reproduced p12_LivenessNet_fold3_seed43: ordinary yes, re-estimated yes
+   dev reproduced p12_ResNet-18_fold3_seed43: ordinary yes, re-estimated yes
+   dev reproduced p12_LivenessNet_fold3_seed44: ordinary yes, re-estimated yes
+   dev reproduced p12_ResNet-18_fold3_seed44: ordinary yes, re-estimated yes
+   dev reproduced p12_LivenessNet_fold4_seed42: ordinary yes, re-estimated yes
+   dev reproduced p12_ResNet-18_fold4_seed42: ordinary yes, re-estimated yes
+   dev reproduced p12_LivenessNet_fold4_seed43: ordinary yes, re-estimated yes
+   dev reproduced p12_ResNet-18_fold4_seed43: ordinary yes, re-estimated yes
+   dev reproduced p12_LivenessNet_fold4_seed44: ordinary yes, re-estimated yes
+   dev reproduced p12_ResNet-18_fold4_seed44: ordinary yes, re-estimated yes
+   test scored p4_LivenessNet_fold1_seed42 (two BN states)
+   test scored p4_ResNet-18_fold1_seed42 (two BN states)
+   test scored p4_LivenessNet_fold1_seed43 (two BN states)
+   test scored p4_ResNet-18_fold1_seed43 (two BN states)
+   test scored p4_LivenessNet_fold1_seed44 (two BN states)
+   test scored p4_ResNet-18_fold1_seed44 (two BN states)
+   test scored p12_LivenessNet_fold1_seed42 (two BN states)
+   test scored p12_ResNet-18_fold1_seed42 (two BN states)
+   test scored p12_LivenessNet_fold1_seed43 (two BN states)
+   test scored p12_ResNet-18_fold1_seed43 (two BN states)
+   test scored p12_LivenessNet_fold1_seed44 (two BN states)
+   test scored p12_ResNet-18_fold1_seed44 (two BN states)
+   test scored p4_LivenessNet_fold2_seed42 (two BN states)
+   test scored p4_ResNet-18_fold2_seed42 (two BN states)
+   test scored p4_LivenessNet_fold2_seed43 (two BN states)
+   test scored p4_ResNet-18_fold2_seed43 (two BN states)
+   test scored p4_LivenessNet_fold2_seed44 (two BN states)
+   test scored p4_ResNet-18_fold2_seed44 (two BN states)
+   test scored p12_LivenessNet_fold2_seed42 (two BN states)
+   test scored p12_ResNet-18_fold2_seed42 (two BN states)
+   test scored p12_LivenessNet_fold2_seed43 (two BN states)
+   test scored p12_ResNet-18_fold2_seed43 (two BN states)
+   test scored p12_LivenessNet_fold2_seed44 (two BN states)
+   test scored p12_ResNet-18_fold2_seed44 (two BN states)
+   test scored p4_LivenessNet_fold3_seed42 (two BN states)
+   test scored p4_ResNet-18_fold3_seed42 (two BN states)
+   test scored p4_LivenessNet_fold3_seed43 (two BN states)
+   test scored p4_ResNet-18_fold3_seed43 (two BN states)
+   test scored p4_LivenessNet_fold3_seed44 (two BN states)
+   test scored p4_ResNet-18_fold3_seed44 (two BN states)
+   test scored p12_LivenessNet_fold3_seed42 (two BN states)
+   test scored p12_ResNet-18_fold3_seed42 (two BN states)
+   test scored p12_LivenessNet_fold3_seed43 (two BN states)
+   test scored p12_ResNet-18_fold3_seed43 (two BN states)
+   test scored p12_LivenessNet_fold3_seed44 (two BN states)
+   test scored p12_ResNet-18_fold3_seed44 (two BN states)
+   test scored p4_LivenessNet_fold4_seed42 (two BN states)
+   test scored p4_ResNet-18_fold4_seed42 (two BN states)
+   test scored p4_LivenessNet_fold4_seed43 (two BN states)
+   test scored p4_ResNet-18_fold4_seed43 (two BN states)
+   test scored p4_LivenessNet_fold4_seed44 (two BN states)
+   test scored p4_ResNet-18_fold4_seed44 (two BN states)
+   test scored p12_LivenessNet_fold4_seed42 (two BN states)
+   test scored p12_ResNet-18_fold4_seed42 (two BN states)
+   test scored p12_LivenessNet_fold4_seed43 (two BN states)
+   test scored p12_ResNet-18_fold4_seed43 (two BN states)
+   test scored p12_LivenessNet_fold4_seed44 (two BN states)
+   test scored p12_ResNet-18_fold4_seed44 (two BN states)
+   results written to public/ and restricted/ (no number of the analysis in this log); the final scan and status follow
+evaluation folder: 20261121-ARCHEVAL-332fbdf, elapsed 1848 s (0.51 h of the 3.50-hour cap), process CPU 15480 s
