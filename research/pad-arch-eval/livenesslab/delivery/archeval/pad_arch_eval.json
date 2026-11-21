@@ -1,0 +1,259 @@
+{
+ "schema": "pad-arch-eval-config/1",
+ "task": "The evaluation on the NUAA test of the 48 models of the two runs of the comparison of LivenessNet and ResNet-18 pre-registered in PR #29 (delivery/pad-arch-comparison/PROTOCOL.md): the checkpoints of runs nuaa_patience_4 and nuaa_patience_12 of scripts/pad_arch_run.py (4 folds x 3 seeds x 2 networks each), in the two BN states (ordinary; re-estimated on the fitting set, with the statistics saved by the run) and at the two thresholds (0.5; the EER threshold of the dev of the fold in the same BN state): the 8 conditions, the primary analysis requested by the coordinator (patience 4, threshold 0.5: the two ACER gaps, their contrast with the subject interval and the per-seed results apart) and the secondary analyses of PROTOCOL.md §6, all computed with the frozen functions of scripts/pad_arch_definitions.py.",
+ "authorisation": "Requested by the coordinator on 19 November 2026 (C2 card): the evaluation code is published before the test is read (PROTOCOL.md §11: the NUAA test according to the pre-registration, with the code of the evaluation published before the test is read). The command evaluate is launched only after this code and this configuration are published and after the two runs have ended PASS; --i-am-authorized is passed only then.",
+ "operations": "results/ is versioned: the two run folders must be committed before evaluate, which refuses a work tree that is not clean; the command is launched as nohup caffeinate -dims .venv/bin/python -I -B scripts/pad_arch_eval.py evaluate ... > <log outside the repository> 2>&1 &: nohup because a SIGHUP (closing the terminal) would stop the command as FAIL (SIGTERM does too); the output redirected outside the repository because nohup without a redirection writes nohup.out in the repository root, the work tree is then not clean and the command refuses; caffeinate keeps the machine awake, since the cap counts elapsed real time; SIGUSR1 to the pid in status.json stops it as INCOMPLETE at the next check; one heavy process at a time on the machine; the evaluation folder is committed after the command ends.",
+ "preregistration": {
+  "protocol": {
+   "path": "delivery/pad-arch-comparison/PROTOCOL.md",
+   "sha256": "e649ed3d386f5e15cae7d917324ae943ffcb52870a125be86a3ccd0f483f3436"
+  },
+  "run_plan": {
+   "path": "delivery/pad-arch-comparison/plan/run_plan.csv",
+   "sha256": "aa846f55705e78258220f4cbf0d825a0563363a5f335a3a33abfa085c55b48da"
+  }
+ },
+ "run_configuration": {
+  "path": "delivery/archrun/pad_arch_run.json",
+  "sha256": "0df7a2ddb16d436a7552169c5ff332e44759237020e8c466077986b92d0d734d"
+ },
+ "code": {
+  "scripts/nuaa_folds_run.py": "82fed566cfa8ac0b280b55edbf430e7051dff1ae83d17a902d78157f2c72ffb2",
+  "scripts/nuaa_session_ablation_run.py": "9c45255199b87a41126b77867d5bbcf0da6f6ecf1684bf8fdd89185f463a276e",
+  "scripts/nuaa_bn_recalibration.py": "8c228ef400f5ef4337612477b23113fb6b8cac5364a5ff026e2c0ac8096734f5",
+  "scripts/nuaa_patience_verify.py": "edc839849ac76be9ce3149a3c217f35b6f1f430e352b471d03b78398093f4b9e",
+  "scripts/m2_writers.py": "22760abc368dede3aa0a690a241f6622afe1ba586940422497db8a33994ee34a",
+  "scripts/path_guard.py": "e5fa9c835c23745ff932e157a44d3104eb9713d86bbdecc9cdbbd3caa7a7ee34",
+  "scripts/package_rules.py": "96ec7ffab4b089bac71fd18918fcd32af72d15980cdfa1361cc84bb43e0e4c11",
+  "scripts/pad_arch_models.py": "72790b4fdc8a9f56e4ef5494c8f7fdd87cbfa3bf752eb471e531b524848a5832",
+  "scripts/pad_arch_definitions.py": "7bef6b62c9df355ca9ce1eb971dea142825b5aebb48c313d45087cbb899b5bff",
+  "scripts/pad_arch_comparison.py": "8f9a7c314acef2b6c00bd37b9d3089c94ea5c6acfc55b27b89ce8ddd6d8f7451",
+  "scripts/nuaa_bn_test.py": "909869a8b127ae96d0a184f6294ac1017bd28fbcec20c2d83355b9b370b7dfbb",
+  "scripts/pad_arch_run.py": "c79a8eb834a1bee1e467513cee5cc548321ab5e7c0be007a5f7ad6240b9d503a"
+ },
+ "runs": [
+  "nuaa_patience_4",
+  "nuaa_patience_12"
+ ],
+ "run_checks": "Each run folder is checked before any other work as follows: the folder name is the run id of the right run; status.json is a PASS of that run (passed true, not stopped, no model missing, no evaluator mismatch, the 24 positions of run_order.csv complete in phases 1 and 2), produced with the pinned run configuration and the pinned code (code_sha256), from a clean work tree, with the machine and thread rule met and effective threads 10 and 10; for an official evaluation the run is official and inside results/archrun; run.log and the two SHA256SUMS equal to the SHA-256 recorded in status.json; the public and restricted SHA256SUMS list exactly the files of the runner (in restricted the 6 files of each of the 24 models) and every file equals its line, checkpoints included; summary.json is the PASS summary of the run with the same configuration and code; public/one_class.csv is parsed and must equal, cell by cell, the one-class counts recomputed here from the dev files; per model the training card (checkpoint SHA-256, network, fold, seed, patience, run, position) and the BN statistics file (model, network, checkpoint, the order of the BN layers of the run configuration, installed float32 values finite, variances not negative, evaluator agreement passed); the two dev score files equal, row by row, to the common dev of the fold in key order (sample_id, subject, session, label, file SHA-256), with the network, fold, seed, BN state and checkpoint of the model, and prediction_05, threshold_dev_eer and prediction_dev_eer consistent with the saved scores. The re-verification is done twice, immediately before the test lists are loaded (a FAIL that needs no test comes before the test) and again before the results are computed: this configuration; the configuration of the runs and the files it pins (pad_arch_run.final_checks); the code; PROTOCOL.md and run_plan.csv; of each run folder status.json, run.log, the two SHA256SUMS and every file they list, the checkpoints included; the inputs of pad_arch_comparison.load_inputs, already in memory, are not read again. Its cost is that of hashing every file of the two run folders once more (seconds to tens of seconds on the machine of the trial, not measured); it is inside the cap, which counts from the start of the command.",
+ "primary_check": {
+  "requested": "requested by the coordinator on 19 November 2026 (C2 card): a check that stops the primary analysis if the effective threshold differs from 0.5 for one of the networks or if one of the 12 fold-seed combinations is missing in one of the two BN states; the coordinator's description of the card adds: before the test, check the effective threshold 0.5 and all 12 fold-seed units in the two primary conditions",
+  "where": "a choice of the author: the check is applied in two places, each with its own message and tests: (a) check_plan, before any test frame is assembled or any test list is used (also before the dev reproduction), on the evaluation plan built from the validated run folders (one entry per model x BN state x threshold rule, with the threshold that will be applied, from pad_arch_definitions.condition_threshold): for patience 4 and each BN state, exactly the 12 fold-seed combinations for each network (none missing, duplicated or outside the plan) and the threshold of the fixed-threshold condition exactly 0.5 for each network; (b) check_units, immediately before pad_arch_definitions.primary_analysis, on the units passed to primary_analysis (the same objects): the same two conditions on the effective values. After (b) the same units go through pad_arch_definitions.prepare_units (its own checks of the frame identifiers) and the number of prepared units is compared with 12: a consistency assertion that cannot fire after the completeness check (its mutant is declared redundant), not part of the requested check. A failure stops the command before the primary analysis is computed: FAIL, no result file left, public or restricted",
+  "effective_threshold": "a choice of the author: the effective threshold of a network in a unit is the field threshold that pad_arch_definitions.prepare_units passes to subject_counts to derive the decisions (attack if score > threshold) that enter APCER, BPCER and ACER; the check reads that same field of the same unit objects; its value comes from the entry of the evaluation plan, which takes it from pad_arch_definitions.condition_threshold ('fixed_0.5' gives nuaa_folds_run.FIXED_THRESHOLD), never from a constant read again; it must be a number, not a boolean, equal to 0.5; the per-frame test files record the decisions at the same values"
+ },
+ "condition_checks": "a choice of the author: the completeness check (the 12 fold-seed combinations for each network, none missing, duplicated or outside the plan) is applied in (a) and (b) to all 8 conditions, the two primary ones first; the threshold check (exactly 0.5) to the four fixed-threshold conditions (patience 4 and 12, both BN states); the EER conditions have no check of the value of the threshold (one per model and BN state, from its dev), only of completeness; the messages say 'primary analysis stopped' for the two primary conditions and 'condition (...) stopped' for the others",
+ "bn_states": {
+  "ordinary": "the checkpoint saved by the run (.keras, SHA-256 checked right before loading, nuaa_bn_recalibration.load_model), checked against the pre-registration (pad_arch_run.check_loaded) and scored as it is",
+  "re_estimated": "a choice of the author: the statistics re-estimated on the fitting set by the run (installed_moving_mean_float32 and installed_moving_variance_float32 of <model>_bn_statistics.json, listed in the restricted SHA256SUMS of the run) are re-installed on an in-memory copy of the checkpoint (nuaa_bn_test.install, the way PR #28 rebuilt the re-estimated copy), not re-estimated a second time: the test is scored in exactly the state whose dev scores, EER thresholds and one-class counts the run recorded before the test, and the estimator was checked against run 20261114-BNRECAL-a10a082 (check-estimator) and by the checks of PR #27 inside the run; nuaa_bn_recalibration.tensor_problems checks that only moving_mean and moving_variance differ from the checkpoint and that they equal, byte for byte, the saved float32 values; alternative not chosen: a second re-estimation from the fitting set, compared with the saved statistics within the tolerances of PR #28"
+ },
+ "dev_reproduction": "a choice of the author: before the first test frame is assembled, every model is scored on the dev of its fold in both BN states (the ordinary checkpoint; the copy with the re-installed statistics) and each state is compared with the dev scores saved by the run with pad_arch_run.evaluator_agreement and the tolerances of the configuration of PR #27 that the runner uses: at most 1e-5 per frame and no discordant decision at 0.5 nor at the EER threshold of the state; all 48 models are checked; if any model-state pair is outside, the evaluation ends as MISMATCH (exit code 4), documented per model in status.json, and the test is not read",
+ "thresholds": "the threshold of each condition with pad_arch_definitions.condition_threshold on the dev of the fold with the scores of the model in the same BN state: 'fixed_0.5' gives 0.5, 'dev_eer' the EER threshold of the project (nuaa_folds_run.eer_threshold); a choice of the author: the dev scores are those saved by the run (fixed before the test and reproduced before it), and the EER threshold is checked against the column threshold_dev_eer of the saved file; attack if score > threshold (a tie is bona fide); a dev without one class stops the evaluation before the test",
+ "test_scoring": "a choice of the author: the fold schema is loaded only after the 48 dev reproductions, as nuaa_bn_test.load_inputs loads it; per fold the test frames are assembled once (nuaa_folds_run.assemble, key order) and scored by the 12 models of the fold (two runs x three seeds x two networks) in the two BN states with nuaa_bn_recalibration.forward (the pass of nuaa_bn_recalibration.evaluate, without the labels: no test metric is computed while scoring), with the softmax check of PR #27 (1e-4); attack probabilities and logits stay in memory until the inputs are re-verified and the checks requested by the coordinator are applied; the number of test frames per fold must equal the pre-registration (3,242, 3,114, 3,439, 2,819) and the test of a fold must share no frame and no subject with the fitting and the dev of the fold",
+ "comparisons": {
+  "pairs": [
+   [
+    [
+     4,
+     "re-estimated",
+     "fixed_0.5"
+    ],
+    [
+     4,
+     "ordinary",
+     "fixed_0.5"
+    ]
+   ],
+   [
+    [
+     4,
+     "re-estimated",
+     "dev_eer"
+    ],
+    [
+     4,
+     "ordinary",
+     "dev_eer"
+    ]
+   ],
+   [
+    [
+     12,
+     "re-estimated",
+     "fixed_0.5"
+    ],
+    [
+     12,
+     "ordinary",
+     "fixed_0.5"
+    ]
+   ],
+   [
+    [
+     12,
+     "re-estimated",
+     "dev_eer"
+    ],
+    [
+     12,
+     "ordinary",
+     "dev_eer"
+    ]
+   ],
+   [
+    [
+     4,
+     "ordinary",
+     "dev_eer"
+    ],
+    [
+     4,
+     "ordinary",
+     "fixed_0.5"
+    ]
+   ],
+   [
+    [
+     4,
+     "re-estimated",
+     "dev_eer"
+    ],
+    [
+     4,
+     "re-estimated",
+     "fixed_0.5"
+    ]
+   ],
+   [
+    [
+     12,
+     "ordinary",
+     "dev_eer"
+    ],
+    [
+     12,
+     "ordinary",
+     "fixed_0.5"
+    ]
+   ],
+   [
+    [
+     12,
+     "re-estimated",
+     "dev_eer"
+    ],
+    [
+     12,
+     "re-estimated",
+     "fixed_0.5"
+    ]
+   ],
+   [
+    [
+     12,
+     "ordinary",
+     "fixed_0.5"
+    ],
+    [
+     4,
+     "ordinary",
+     "fixed_0.5"
+    ]
+   ],
+   [
+    [
+     12,
+     "ordinary",
+     "dev_eer"
+    ],
+    [
+     4,
+     "ordinary",
+     "dev_eer"
+    ]
+   ],
+   [
+    [
+     12,
+     "re-estimated",
+     "fixed_0.5"
+    ],
+    [
+     4,
+     "re-estimated",
+     "fixed_0.5"
+    ]
+   ],
+   [
+    [
+     12,
+     "re-estimated",
+     "dev_eer"
+    ],
+    [
+     4,
+     "re-estimated",
+     "dev_eer"
+    ]
+   ]
+  ],
+  "rule": "a choice of the author: PROTOCOL.md §6 defines the change of sign between two conditions and its paired contrast without saying which pairs are compared: the pairs are the 12 that differ in one factor only (BN state, threshold, patience); in each pair the contrast is gap(first) - gap(second), the first condition having the second level of the factor (re-estimated, dev EER, patience 12), the direction of the primary contrast; the pair of the BN state at patience 4 and threshold 0.5 repeats the primary contrast; every comparison is secondary and descriptive (pad_arch_definitions.compare_conditions)"
+ },
+ "conclusions": {
+  "source": "delivery/pad-arch-comparison/PROTOCOL.md §6, the two conclusions written before the test",
+  "rule": "a choice of the author: the two written conclusions are not constants of the frozen code: they are quoted from the pinned PROTOCOL.md (whitespace normalised), not retyped; if the reading of the primary contrast is the lower (higher) one, the first conclusion with its alternative 'lower [higher]' resolved to 'lower' ('higher'); if it is unresolved, the second"
+ },
+ "cap": {
+  "hours": 3.5,
+  "unit": "hours of wall time (elapsed real time, not CPU time)",
+  "derivation": "a choice of the author: the pre-registration fixes no cap for a separate evaluation command (its caps, plan/run_caps.csv, are per run and include the evaluation of every training); the rule of the caps of the plan (plan.caps: the maximum estimate x 1.5, rounded up to a multiple of 0.5 hours) is applied to the evaluation estimate of the plan, the sum without rounding of evaluation_wall_hours of the four NUAA rows of pad_arch_comparison.plan_rows (2.1284 hours: 0.1243 + 0.1243 for LivenessNet and 0.9399 + 0.9399 for ResNet-18, at patience 4 and 12): 2.1284 x 1.5 = 3.1927, rounded up to 3.5 hours; the command recomputes it from the pinned pre-registration and trial and refuses another value; the plan's estimate counts the BN re-estimation ((BN layers + 1) passes over the fitting set), which this command does not repeat, and 2 dev and 2 test passes per model, which it does (about 0.48 hours at the rates of the official trial, 2.40 and 7.72 s per 1,000 frames); outside the estimate: loading the inputs, loading the checkpoints (twice per model), assembling the test",
+  "checks": "before the dev reproduction of every model, before the re-verification that precedes the test lists, before the assembly of the test of every fold, before the test scoring of every model and before the analysis (the analysis, NumPy only, is not interrupted); SIGUSR1 stops the evaluation at the next check",
+  "on_cap": "an evaluation at its cap, or stopped by SIGUSR1, stops as INCOMPLETE (exit code 2): no result is computed or written, status.json records the step, the elapsed time and whether the reading of the test had started"
+ },
+ "after_stop": "a choice of the author: no automatic resume. An evaluation that stops (INCOMPLETE, MISMATCH, FAIL, or interrupted) keeps its folder and its outcome; status.json records test_read_started: once it is true, any new attempt is a second reading of the NUAA test, and a new attempt is started only after the outcome has been reported to the coordinator on the C2 card; it repeats every step in a new process and a new folder; nothing is excluded after the test is seen: every model enters, one-class models included, no model or unit is dropped; every attempt is reported",
+ "attempts": "a choice of the author: the rule of pad_arch_run.py with the run id of this command: in the output root the evaluation folders (any date and commit) are listed; --attempt must be the last attempt + 1 (1, without suffix, only if there is none; suffix -r<k> otherwise); status.json records the attempt and the earlier run ids with their status; the official output root is results/archeval, recognised by the identity of the files (pad_arch_run.root_kind); another root, outside the repository, only with --unofficial-out-root, and the evaluation is then recorded as not official; an unofficial evaluation does not read an official run nor a folder of the official run root results/archrun (identity of the files), and does not use the repository as its input root (an input root that is the repository by identity of the files is refused before any file is read); declared limits, not detected by the command: a copy of an official run folder and of the restricted data outside the repository, with official edited in the status.json of the copy (no SHA256SUMS covers status.json), nor an input root outside the repository that holds the real inputs (copied, or reached through symbolic links), with unofficial runs made on them; an entry that looks like an evaluation run id without its form stops the command; the command recorded in status.json is built from the parsed arguments, with paths inside the repository relative to its root and paths outside it by their last component only",
+ "machine_rule": "PROTOCOL.md §7 and plan.machine_rule: every TensorFlow command of the NUAA plan, evaluations included, runs on the machine of the official trial with intra-op 10 and inter-op 10 TensorFlow threads; applied with the functions of the runner: pad_arch_run.machine_rule (machine model and versions equal to the official trial 20261119-ARCHTRIAL-b8f7cca) and pad_arch_comparison.thread_environment before any work, pad_arch_comparison.set_threads right after TensorFlow is imported, pad_arch_run.threads_rule against the trial (recorded in status.json); any difference stops the work before any evaluation; the threads are read back after the dev reproduction and after the test scoring",
+ "late_failures": "what remains on disk after a failure: before the test is read, status.json (FAIL with the reason) and run.log only; after the test is read and before the results are written (re-verification, scan of the run.log so far, the checks requested by the coordinator, the analysis, the scan of the public texts), status.json and run.log only, and neither contains a number of the analysis; after the restricted or public result files are written (a failure while writing, the final scan of run.log or the writing of the final status.json), those files are removed (all or nothing, the restricted test scores included) and status.json says which files were written and then removed; run.log never contains a number of the analysis: it says only that the results were written, and 'analysis computed' with the RESULT line is printed (to the standard output only) after the final status.json is PASS. Limit: after a failure, pad_arch_run.fail_cleanup writes the line 'ERROR: <reason>' to run.log without passing it through the scan of the publishable outputs, and the FAIL status.json, written with redact=True, has only the personal texts replaced; an error message holding an identifier would therefore reach run.log and status.json; the risk is low because the error messages of this command and of the functions it calls hold no frame identifier by construction (counts, file names, model names and SHA-256 only), with one known exception: the refusal of a scan names the subject identifier it found (nuaa_folds_run.public_problems, 'subject id <id>'), and an unexpected exception carries the text of the exception",
+ "degenerate_apart": "a choice of the author: PROTOCOL.md §6 asks for the earlier \"degenerate\" count apart from the one-class count: it is computed on the training cards of the 48 new models (fitting and dev information only) with the accepted rule of the group \"ten\" of PR #27, nuaa_bn_recalibration.group_of with the groups section of the pinned configuration of PR #27 (restored_epoch in {1, 2} and the dev accuracy at the checkpoint, val_acc_at_best of the card, equal to 0.5 within 1e-6, the bound included; source: the degenerate criterion of the degenerate study 20261107-DEGEN-a3b4dc0), per network x patience; applied to ResNet-18 as written, since its cards have the same fields; the rule was derived from LivenessNet histories; the study's own script, nuaa_degenerate_trainings.is_degenerate, uses a strict bound (< 1e-6) where group_of includes it (<= 1e-6): they differ only for a dev accuracy exactly 1e-6 from 0.5",
+ "outputs": {
+  "run": [
+   "status.json",
+   "run.log"
+  ],
+  "public": [
+   "results.json",
+   "report.md",
+   "conditions.csv",
+   "units.csv",
+   "reproduction.csv",
+   "SHA256SUMS"
+  ],
+  "restricted": [
+   "<run>_<model>_test_scores.csv",
+   "loso_values.csv",
+   "SHA256SUMS"
+  ]
+ },
+ "report": "report.md and results.json lead with what the coordinator asked to see: the two ACER gaps (ordinary and re-estimated BN, patience 4, threshold 0.5) with their subject intervals, their contrast with the subject interval and its reading, the conclusion of PROTOCOL.md §6 quoted, then the per-seed results apart; then the checks requested by the coordinator, APCER and BPCER of the primary analysis, the eight conditions, the comparisons between conditions, the subject sensitivity in aggregate form, the one-class counts on the dev, the earlier \"degenerate\" count apart, the dev reproduction, the time and the machine; ACER, APCER and BPCER are written as proportions between 0 and 1, with the number of subjects of the bootstrap and of valid resamples; the conclusion is quoted from PROTOCOL.md §6 with the alternative resolved",
+ "choices_of_the_author": {
+  "primary_check_where": "the two places of the check requested by the coordinator and how the effective threshold is read (primary_check.where, primary_check.effective_threshold)",
+  "condition_checks": "the same completeness check on the six secondary conditions and the threshold check on the four fixed-threshold conditions (condition_checks)",
+  "bn_state_at_test": "the statistics saved by the run re-installed, not re-estimated (bn_states.re_estimated)",
+  "dev_reproduction": "the dev reproduced in both BN states for all 48 models before the test, with the tolerances of the runner and the MISMATCH outcome (dev_reproduction)",
+  "thresholds_source": "the thresholds from the dev scores saved by the run, checked against its threshold column (thresholds)",
+  "missing_class": "a dev without one class stops the evaluation before the test instead of leaving the EER conditions without a threshold (thresholds)",
+  "test_scoring": "the fold schema loaded after the dev reproductions, the test of a fold assembled once, the scores without labels, the counts and the disjointness checked (test_scoring)",
+  "pairs": "the 12 pairs of conditions that differ in one factor and the direction of their contrasts (comparisons.rule)",
+  "conclusions": "the two conclusions quoted from PROTOCOL.md with the alternative resolved (conclusions.rule)",
+  "cap": "the cap of 3.5 hours of wall time derived from the plan (cap.derivation)",
+  "after_stop": "no automatic resume (after_stop)",
+  "attempts": "the attempt rule, the unofficial output root and the command recorded with every argument (attempts)",
+  "official_runs": "an official evaluation (results/archeval) accepts only official PASS runs inside results/archrun; an unofficial evaluation (--unofficial-out-root, tests of the command) does not read an official run nor a folder of the official run root results/archrun (identity of the files), and does not use the repository as its input root; check-inputs, which reads no test, accepts both; declared limits (attempts): a copy of an official run folder and of the restricted data outside the repository, with official edited in the status.json of the copy, is not detected, nor an input root outside the repository that holds the real inputs (copied, or reached through symbolic links), with unofficial runs made on them",
+  "public_subject_sensitivity": "the leave-one-subject-out analysis published only in the aggregate public form of N1 (PR #10): per condition the mean ACER gap with all subjects, minimum, maximum, exclusions changing the sign, NA and the ranges of the denominators per class summed over the units; the value of each exclusion, with its subject, in restricted/loso_values.csv",
+  "fail_after_test_read": "any FAIL after the test is read removes every result file, the restricted per-frame test scores included (all or nothing); status.json says what was written and removed (late_failures)",
+  "secondary_incomplete": "an incomplete secondary condition at point (b) stops the command and discards a primary analysis already computed (all or nothing)",
+  "re_verification_before_test": "the re-verification of configurations, code pins and run folders done immediately before the test lists, and again before the results (run_checks)",
+  "degenerate_apart": "the earlier degenerate count computed with the rule of the group ten of PR #27 (degenerate_apart)",
+  "outputs": "the names and columns of the public and restricted files, exact fractions written as p/q, the run id YYYYMMDD-ARCHEVAL-<commit>[-r<k>] and the folder results/archeval"
+ },
+ "test": "the NUAA test is read once, by evaluate, after every check that does not need it. What each command reads. check-inputs: this configuration; PROTOCOL.md and plan/run_plan.csv of the pre-registration (each equal to its line of the SHA256SUMS of the delivered package); the configuration of the two runs (validated by pad_arch_run.load_config) and what pad_arch_run.load_pins reads with it (the configuration of the pre-registration, the code, the status.json and trial.json of the official trial and the package SHA256SUMS, run_order.csv and run_caps.csv, the configurations of PRs #27 and #28); the code files pinned here and this file; what pad_arch_comparison.load_inputs reads (its TEST_READ: the five M2 manifests, read to index the cache, the cache and the extracted frames file, loaded whole, which also hold frames of the held-out subjects, the cells run, the folds run without its public files, the LivenessNet architecture file, the status.json and restricted SHA256SUMS of the two accepted runs and one training card); with --run-p4 and --run-p12, of each run folder: status.json, run.log (bytes, for its SHA-256), the public SHA256SUMS and every file it lists (summary.json and one_class.csv parsed, the others as bytes), the restricted SHA256SUMS and every file it lists (the checkpoints and the phase-1 dev scores as bytes, for the SHA-256; per model the card, the BN statistics and the two dev score files parsed); no fold schema, no test frame, TensorFlow not imported, nothing written. evaluate, in this order: the same files; the dev frames of each fold assembled (no other role) and every checkpoint loaded and scored on the dev in both BN states; only after the 48 dev reproductions have passed and after a re-verification (this configuration; the configuration of the runs and the files it pins, through pad_arch_run.final_checks; the code; PROTOCOL.md and run_plan.csv; of each run folder status.json, run.log, the two SHA256SUMS and every file they list; the inputs of pad_arch_comparison.load_inputs, already in memory, are not read again), the fold schema of the accepted folds run (fold<k>_fitting.csv, fold<k>_dev.csv and fold<k>_test.csv, loaded and checked as nuaa_bn_test.load_inputs does: every fold 1..k, the approved schema configuration, every row found once in the cache or in the extracted frames) and then, fold by fold, the test frames of the fold assembled once (every frame of its held-out subjects, from the cache and the extracted frames, in key order) and scored by the 12 models of the fold in the two BN states (attack probabilities and logits only: no test metric is computed while scoring); then the same re-verification is repeated, the checks requested by the coordinator are applied to the units, and only then the test metrics are computed, the primary analysis first. No aggregate.json, run_record.json or <model>_test_scores.csv of any earlier run is opened"
+}

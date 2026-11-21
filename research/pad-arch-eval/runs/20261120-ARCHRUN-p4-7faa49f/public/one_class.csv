@@ -1,0 +1,5 @@
+network,patience,bn_state,one_class,evaluable,not_evaluable,all_bona_fide,all_attack,text
+LivenessNet,4,ordinary,2,12,0,0,2,2 of 12 evaluable
+LivenessNet,4,re-estimated,0,12,0,0,0,0 of 12 evaluable
+ResNet-18,4,ordinary,0,12,0,0,0,0 of 12 evaluable
+ResNet-18,4,re-estimated,0,12,0,0,0,0 of 12 evaluable

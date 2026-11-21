@@ -1,0 +1,223 @@
+{
+ "schema": "pad-arch-comparison-config/2",
+ "task": "compare two PAD networks, LivenessNet and ResNet-18, both trained from scratch with the same recipe, the same subject splits, the same seeds and the same preprocessing, across patience 4 / 12, ordinary or fitting-re-estimated BatchNorm statistics, and the fixed threshold 0.5 or the EER threshold estimated on the source dev; this delivery fixes the operational definitions (code with tests), the table of the planned runs (generated from this configuration) and a short technical trial per network (NUAA, arm B, fold 1, seed 42, fitting and dev only, 3 epochs) to measure seconds per epoch and estimate the hours of the plan",
+ "authorisation": "the task is two comments of the coordinator on the C2 card, of 17 and 19 November 2026, and nothing else. Comment of 17 November 2026 (after merging PR #28): a short protocol and a table of the planned runs for LivenessNet and ResNet-18, both from scratch, same subject splits, seeds and preprocessing; patience 4/12, BN ordinary or re-estimated on the fitting set only, threshold 0.5 or the EER threshold estimated on the source dev; how to count the runs that at 0.5 assign the whole dev to one class when both are present; the network comparison by the ACER difference ResNet-18 minus LivenessNet, how to recognise a sign change, with ties, subject intervals, APCER and BPCER; a short technical trial per network on NUAA, arm B, fold 1, seed 42, fitting and dev only, a few epochs, with the command or configuration, the device, the batch, the seconds per epoch and the estimated hours of the full plan; tests and external runs follow the pre-registration and the confirmation of the accesses. Choices of the author, not requested by the coordinator: (i) a leave-one-subject-out sensitivity of the sign, in the form of the coordinator's N1 protocol of 24 October 2026 (N1 card; N1 delivery, PR #10); (ii) every training of the plan is new, the accepted LivenessNet runs being only the reference of a history reproduction check. The coordinator's comment on the C2 card of 19 November 2026 (on PR #29), requests of the coordinator: continue on the Apple M5 Pro; for the whole NUAA plan fix both the intra-op and the inter-op TensorFlow threads at 10; complete PR #29 as proposed by the author in the comment of 19 November; have the runner set and record the threads; correct first_differing_epoch with a test; repeat the official three-epoch trial on fitting and dev; verify that the runner reproduces the trial run with the 10 threads set through environment variables, and update the times in the protocol; add the check of the frame identifiers associated with the scores, both between the two networks and between the conditions, with a test for each case confirming that the comparison stops if the identifiers differ for the same subject and class; for the primary analysis fix patience 4 and threshold 0.5, compute the ACER gap (ResNet-18 minus LivenessNet) with ordinary BN and with BN re-estimated on the fitting data only, then subtract the first gap from the second, and report the per-seed results separately; signal the commit of the final pre-registration on the card; the 48 trainings start only after his verification, the merge and his go-ahead. Choices of the author in the final pre-registration, not requested by the coordinator: (iii) the reading rule of the primary contrast, its names and its reason field; (iv) the other six conditions (eight in all, two in the primary analysis) and every comparison between conditions stay secondary, descriptive analyses; (v) the per-seed reading (the rule of PR #21) as a secondary reading under its own name; (vi) units of the same split must hold the same frames in the same order (identifiers, subjects and labels), a frame identifier must belong to one split only, the units of one call must belong to one dataset, and a unit seed must be an integer among the seeds of the plan (42, 43, 44); (vii) the training order of the plan, its split into two runs (one per patience) and the rule of the caps; (viii) the compare-trials command, its rule and its optional reference conditions file; (ix) APCER and BPCER computed in the primary analysis next to ACER, the subject-bootstrap intervals of the two gaps and of the contrast, and the per-seed intervals, counts, signs and readings; (x) the threads applied to every TensorFlow command of the NUAA plan, trainings and evaluations (our reading of 'the whole NUAA plan'), and environment variables that contradict the configuration refused before any work",
+ "declarations": {
+  "no_test": "no test frame is assembled or evaluated and no test score or metric is read, computed or written in this delivery; as in the accepted runs the frame files (the cache and the extracted frames, which also hold frames of the held-out subjects) are hashed and loaded whole, but only the fitting and dev frames of arm B, fold 1 are assembled, and an explicit check refuses any other role; the fold schema (which holds the test role) is never loaded; no external dataset is touched",
+  "technical_trial": "the trial measures time and memory; the histories it records are technical outputs, not results, and no metric is computed from them; the LivenessNet history is compared with the accepted card only as a check of the copy of the trainer",
+  "cpu_only": "TensorFlow runs on the CPU only (the GPU is hidden before any operation: known tensorflow-metal defect that skips the ReLU after a Dense layer in graph mode), as in the accepted runs",
+  "no_checkpoint": "no checkpoint is saved by the trial: the models live in memory for the inference passes and are then released",
+  "threads": "requested by the coordinator on 19 November 2026: for the whole NUAA plan, the intra-op and the inter-op TensorFlow threads fixed at 10, set and recorded by the runner. Choice of the author: how. The runner sets the intra-op and inter-op values of tf.config.threading to 10 and 10 (training.threads) right after TensorFlow is imported and before any TensorFlow operation and reads them back from its getters; nothing else of the threading is set by the runner; 'effective' is the value read back from the getters of tf.config.threading, not a measured size of any thread pool; environment variables TF_NUM_INTRAOP_THREADS or TF_NUM_INTEROP_THREADS that contradict the configuration are refused before any work. The accepted runs did not set them and ran on an Apple M4 with 10 logical CPUs; on the Apple M5 Pro (15 logical CPUs) a trial with the TensorFlow defaults (20261118-ARCHTRIAL-0858ae7) did not reproduce the accepted LivenessNet history, while a trial with both values set to 10 through environment variables (20261119-ARCHTRIAL-b8e78b2, outside the repository) did. The requested and effective values, the environment variables found and the number of logical CPUs are recorded in status.json, trial.json and trial.md; the record of each network holds the values read back after that network, and they are checked also before it"
+ },
+ "parent_runs": {
+  "patience_4": {
+   "run_id": "20261106-SESSABLRUN-d999458",
+   "folder": "results/sessionablationrun/20261106-SESSABLRUN-d999458",
+   "config_path": "delivery/sessionablationrun/nuaa_session_ablation_run.json",
+   "config_sha256": "4c2d29d13dede8a48c3a8e74e1ca48379c5c7e7721eb0a1f55fececbc684e23b",
+   "restricted_sha256sums_sha256": "4ca502e0b07e556615c5042bb072770435c062d030e6d2a36d290c1481090fc2",
+   "early_stopping_patience": 4
+  },
+  "patience_12": {
+   "run_id": "20261109-SESSABLRUN-6a50265",
+   "folder": "results/sessionablationrun/20261109-SESSABLRUN-6a50265",
+   "config_path": "delivery/patienceverify/nuaa_session_ablation_run_patience12.json",
+   "config_sha256": "ca039df5d3114f9cb983c7256330aae671de54ae34d949ad4e9b9c80beb6aa43",
+   "restricted_sha256sums_sha256": "6787bc2bfb280fc0fa2d48323f1cdb15a84d754843bc8703e923098d6f2d2142",
+   "early_stopping_patience": 12
+  }
+ },
+ "code": {
+  "scripts/nuaa_folds_run.py": "82fed566cfa8ac0b280b55edbf430e7051dff1ae83d17a902d78157f2c72ffb2",
+  "scripts/nuaa_session_ablation_run.py": "9c45255199b87a41126b77867d5bbcf0da6f6ecf1684bf8fdd89185f463a276e",
+  "scripts/nuaa_bn_recalibration.py": "8c228ef400f5ef4337612477b23113fb6b8cac5364a5ff026e2c0ac8096734f5",
+  "scripts/nuaa_patience_verify.py": "edc839849ac76be9ce3149a3c217f35b6f1f430e352b471d03b78398093f4b9e",
+  "scripts/m2_writers.py": "22760abc368dede3aa0a690a241f6622afe1ba586940422497db8a33994ee34a",
+  "scripts/path_guard.py": "e5fa9c835c23745ff932e157a44d3104eb9713d86bbdecc9cdbbd3caa7a7ee34",
+  "scripts/package_rules.py": "96ec7ffab4b089bac71fd18918fcd32af72d15980cdfa1361cc84bb43e0e4c11",
+  "scripts/pad_arch_models.py": "72790b4fdc8a9f56e4ef5494c8f7fdd87cbfa3bf752eb471e531b524848a5832",
+  "scripts/pad_arch_definitions.py": "7bef6b62c9df355ca9ce1eb971dea142825b5aebb48c313d45087cbb899b5bff"
+ },
+ "architectures": {
+  "LivenessNet": {
+   "path": "src/livedetection/src/architectures.py",
+   "sha256": "a83c02b0788bd6f98262abf00f5fe970abed501f231edba348820482aea64d30",
+   "builder": "create_model('LivenessNet', input_shape=(256, 256, 3)).get_model() of the reference code, loaded as nuaa_folds_run.default_arch_loader does (the call of the accepted trainer, create_model('LivenessNet'), uses the same input shape as its default)",
+   "input_shape": [256, 256, 3],
+   "trainable_parameters": 8405778,
+   "non_trainable_parameters": 320,
+   "batchnorm_layers": 5
+  },
+  "ResNet-18": {
+   "module": "scripts/pad_arch_models.py",
+   "definition": "ResNet-18 of He, Zhang, Ren, Sun (CVPR 2016), post-activation (v1): the layout of the 18-layer column of Table 1 with projection shortcuts (option B, section 3.3), as in the torchvision reference implementation; the 18-layer results of the paper (Table 2) use option A (zero-padding shortcuts, section 4.1), option B being that of the 50/101/152-layer networks. Stem conv 7x7, 64 filters, stride 2 -> BN -> ReLU -> max-pool 3x3 stride 2; four stages of two basic blocks (conv 3x3 -> BN -> ReLU -> conv 3x3 -> BN, sum with the shortcut, ReLU) with 64, 128, 256, 512 filters; stride 2 in the first block of stages 2-4 with a projection shortcut conv 1x1 stride 2 followed by BN (the BN after the projection is deduced from section 3.4, 'BN right after each convolution', not written in Table 1); global average pooling; Dense(2, softmax, name output), column 1 = attack. Convolutions without bias, initialised with the Keras he_normal (truncated normal, fan in); the final Dense layer uses the default Keras initialiser (Glorot uniform, zero bias), as the output layer of LivenessNet; explicit symmetric ZeroPadding2D before the strided layers (spatial sides 256 -> 128 -> 64 -> 64, 32, 16, 8), padding same for the stride-1 3x3 convolutions; flat functional model with a stable name for every layer, no nested model, its topology checked against pad_arch_models.resnet18_topology; input float32 in [0, 1] (frames / 255) as LivenessNet. Trunk 11,176,512 parameters (convolutions and BN gamma/beta, as torchvision resnet18 without the classifier) + 1,026 of the Dense = 11,177,538 trainable, plus 9,600 moving statistics",
+   "batchnorm": "Keras 2.15 defaults (momentum 0.99, epsilon 0.001), the same as the five BatchNormalization layers of LivenessNet, which pass no argument (checked on the built model); 20 layers on the top level",
+   "input_shape": [256, 256, 3],
+   "trainable_parameters": 11177538,
+   "non_trainable_parameters": 9600,
+   "batchnorm_layers": 20
+  }
+ },
+ "training": {
+  "recipe": "the training of the accepted run at patience 4, equal to nuaa_folds_run.FROZEN_TRAINING (legacy Adam lr 0.001 clipnorm 1.0, categorical cross-entropy with one-hot labels, balanced class weights, batch 16, at most 12 epochs, EarlyStopping on val_loss with restore_best_weights, ReduceLROnPlateau factor 0.5 patience 2 min_lr 1e-6, augmentation on the fitting set only, shuffle(4096, seed), seeds for random, numpy and TensorFlow), for both networks",
+  "trial_overrides": {"max_epochs": 3},
+  "trainer": "pad_arch_comparison.trial_trainer: a declared copy of nuaa_folds_run.default_trainer (itself a declared copy of n1_trainer.train) with the model builder as a parameter; the only differences are the substitutions of TRAINER_SUBSTITUTIONS, checked by the test suite against the source of the original: no checkpoint saved, the timing callback inserted before the cap callback, the network named in the card, (card, model) returned; the callbacks of the accepted recipe (EarlyStopping, ReduceLROnPlateau, cap) are present",
+  "timing": "a callback that does not touch the training records per epoch: total seconds (monotonic clock, from the start to the end of the epoch), seconds of the validation on the dev only (on_test_begin / on_test_end), process CPU seconds over all threads (time.process_time), and the five history values of the epoch",
+  "checkpoint": "none saved in the trial",
+  "threads": {
+   "intra_op": 10,
+   "inter_op": 10,
+   "rule": "requested by the coordinator on 19 November 2026: for the whole NUAA plan, intra-op and inter-op threads of TensorFlow at 10, set and recorded by the runner. Choice of the author: the values apply to every TensorFlow command of the NUAA plan, trainings and evaluations (our reading of 'the whole NUAA plan'); pad_arch_comparison.set_threads sets them with tf.config.threading.set_intra_op_parallelism_threads and set_inter_op_parallelism_threads right after TensorFlow is imported and before any TensorFlow operation, reads them back with the getters and fails if they differ or if TensorFlow was already initialised; nothing else of the threading is set by the runner; TF_NUM_INTRAOP_THREADS and TF_NUM_INTEROP_THREADS, if present, must equal these values (otherwise the command fails before any work); requested, effective, the environment variables found and os.cpu_count() are recorded"
+  }
+ },
+ "trial": {
+  "dataset": "NUAA",
+  "arm": "arm_b",
+  "fold": 1,
+  "seed": 42,
+  "roles": ["fitting", "dev"],
+  "frames": {
+   "fitting": {"n": 1400, "bona_fide": 700, "attack": 700, "subjects": 4},
+   "dev": {"n": 400, "bona_fide": 200, "attack": 200, "subjects": 2}
+  },
+  "networks": ["LivenessNet", "ResNet-18"],
+  "inference_batch": 16,
+  "inference": "after the 3 epochs, one inference-only pass (batch 16, training=False, frames / 255 per batch) over the fitting set and one over the dev, timed with the monotonic clock and the process CPU time; the probabilities are checked and discarded",
+  "process": "one process for both networks, LivenessNet first: LivenessNet is then the first training of the process, as arm_b_fold1_seed42 was in the accepted run; the runs of the plan train many models in sequence in one process, as the accepted runs did; the inputs (about 2.5 GB of frames) are loaded and verified once; between the two networks the trainer calls clear_session and the previous model is released",
+  "wall_time_cap_minutes": 60,
+  "cap_unit": "minutes of wall time (elapsed real time, not CPU time)",
+  "cap_checks": "the 60-minute wall-time cap is checked before each network, at the end of every epoch (with its validation) and before each of the two inference passes; it can therefore be exceeded by at most: after the check before a network, the cost of a training outside its epochs (model building, data preparation) plus one epoch with its validation; after an end-of-epoch check, one epoch with its validation; after the check before a pass, one inference pass; a stop gives INCOMPLETE with the measured epochs and passes",
+  "estimate_minutes": 4,
+  "upper_estimate_minutes": 10,
+  "estimate": "these estimates precede the official trial and are not updated after it: the configuration stays frozen, and the measured times go only to the record of the trial, to the generated plan and to the protocol. Machine of the trial: Apple M5 Pro, 15 logical CPUs, 24 GB RAM, macOS 27.2.1, CPU only, 10 intra-op and 10 inter-op threads. Reference measured on the Apple M5 Pro with the two values set to 10 through environment variables and the machine otherwise idle (trial 20261119-ARCHTRIAL-b8e78b2, outside the repository): LivenessNet 13.6, 13.3, 13.6 s per epoch, ResNet-18 37.1, 36.9, 37.7 s per epoch, whole trial 180 s, peak RSS about 5.9 GB. Estimate: about 3 minutes, rounded up to 4; upper estimate 10 minutes (a busier machine); the 60-minute cap is unchanged. Memory: a peak of about 6 GB on 24 GB. The earlier trial of PR #29 ran on an Apple M4 with 10 logical CPUs and 16 GB RAM (20261118-ARCHTRIAL-3f059b7: 26.8, 26.4, 28.4 and 69.0, 70.0, 69.2 s per epoch)"
+ },
+ "baseline_check": {
+  "reference_run": "20261106-SESSABLRUN-d999458",
+  "model": "arm_b_fold1_seed42",
+  "card_sha256": "69b12f0762faea8f16f69a802b577f563e9c793465ac7b6e0bdca10dd613a07f",
+  "epochs": 3,
+  "fields": ["loss", "accuracy", "val_loss", "val_accuracy", "lr"],
+  "difference": 0,
+  "rule": "the shared-history rule of the project (nuaa_patience_verify.shared_history, criteria.shared_history_difference = 0 of nuaa_patience_verify.json): the five values of each of the first 3 epochs identical, difference 0, no tolerance, computed with one source, pad_arch_comparison.history_differences (a non-finite value, NaN or infinite, in the compared epochs stops the trial as FAIL with no outputs); per field the first epoch at which the two values differ (first_differing_epoch), the largest absolute difference (max_abs_difference) and the first epoch at which it is reached (epoch_of_max_abs_difference) are reported; in PR #29 the field first_differing_epoch held the epoch of the largest difference (our defect, corrected with a test on 19 November 2026)",
+  "source": "the rule with which the epochs in common between the accepted runs at patience 4 and 12 were found identical (shared_history_check of the patience-12 amendment, checked by nuaa_patience_verify: 36 of 36 models, largest absolute difference 0.0 in the five fields; delivery/patienceverify/CONCLUSION.md)",
+  "consequence": "the outcome is recorded and does not change the status of the trial; it is the first check of the copy of the trainer; in the plan the same check is repeated on every epoch of every one of the 24 LivenessNet trainings (against the accepted run at the same patience); if the history is not reproduced in the trial, the difference is reported and the pre-registration is not closed before it is explained"
+ },
+ "definitions": {
+  "one_class": "pad_arch_definitions.one_class_run and one_class_counts: for a trained model and a BN state (ordinary or re-estimated), on the dev of its fold, at the fixed threshold 0.5 with the rule of the project (attack if score > 0.5, tie = bona fide): if one of the two classes is absent from the dev labels the run is not evaluable (counted apart, outside the denominator); otherwise it is a one-class run if and only if the number of frames decided attack is 0 or equals the number of dev frames; reported as k of n evaluable per network x patience x BN state, with the class. Unlike the degenerate criterion (restored epoch 1 or 2 and card dev accuracy 0.5 within 1e-6, which on a balanced dev also includes exactly half wrong), it reads only the decisions at 0.5 of the BN state evaluated",
+  "comparison": "pad_arch_definitions.compare_condition: unit = (dataset, fold or split, seed); condition = (patience, BN state, threshold), 8 conditions; the EER threshold is nuaa_folds_run.eer_threshold on the dev of the fold with the scores of the model in the same BN state; per unit and condition delta = ACER(ResNet-18) - ACER(LivenessNet) on the same test frames (the same frame identifiers in the same order, see frame_ids), and the same for APCER and BPCER; a tie of a unit = the two ACER equal as exact fractions of the integer counts; per condition the mean delta over the units, the counts of units with delta < 0, delta > 0 and ties, the subject-bootstrap interval of the project (test subjects pooled over the folds, the same indices for both networks, statistic = mean over the units of the paired differences, a resample dropped if a metric is undefined in any unit, the valid resamples reported), and the same values for each seed separately; a condition is compared per dataset: the units of one call belong to one dataset",
+  "sign": "pad_arch_definitions.sign_of and compare_conditions: the sign of a condition is ResNet-18 lower if the ACER interval is entirely below zero, LivenessNet lower if entirely above, unresolved if it contains zero (a bound exactly at zero contains it) or cannot be computed; a sign change between two conditions is recognised only if both are resolved and of opposite sign; reported apart under other names: the inversion of the point estimate only (means of opposite sign with at least one unresolved condition), the paired contrast delta_c - delta_c' with its interval (same indices), and the number of units whose delta changes sign; no reading names a cause; next to the sign, under its own name, the per-seed reading (per_seed_reading); next to each sign a field sign_reason (pad_arch_definitions.interval_reason) tells an interval that contains zero from an interval that cannot be computed (fewer subjects than the minimum, or no valid resample), the names of the sign unchanged",
+  "subject_sensitivity": "pad_arch_definitions.leave_one_subject_out, a choice of the author (not requested by the coordinator) in the form of the definition of the coordinator's N1 protocol of 24 October 2026 (N1 card; N1 delivery, PR #10): for a condition, the mean delta ACER over the units recomputed excluding one test subject at a time from the computation of the metrics (over all units): the values (one per excluded subject), minimum and maximum, the number of exclusions whose point-estimate sign differs from the one with all subjects (zero is a sign of its own), and the denominators per class of each exclusion; if after an exclusion a class is absent from a unit the value is NA, never zero, and it is counted apart; a sensitivity analysis reported next to the sign, not part of the rule of the resolved sign or of the sign change",
+  "frame_ids": {
+   "field": "sample_id",
+   "rule": "requested by the coordinator on 19 November 2026: the check of the frame identifiers associated with the scores, between the two networks and between the conditions, with a test for each case confirming that the comparison stops if the identifiers differ for the same subject and class. Choice of the author, how: pad_arch_definitions.prepare_units (the single point of the checks, used by compare_condition, leave_one_subject_out and therefore by compare_conditions and primary_analysis) and same_frames: each network of each unit carries the identifier of each frame, one per score (field sample_id, the frame key of the score files of the accepted runs); missing, of another length than the scores, empty or duplicated within the unit -> the comparison stops; between the two networks of a unit: labels and subjects in the same order and, as a separate check, the same identifiers in the same order, otherwise it stops; between two conditions (compare_conditions, hence also the primary contrast): for every unit the same subjects and labels and, as a separate check, the same identifiers in the same order, otherwise it stops. Also choices of the author: units of the same split (different seeds) must hold the same frames, that is the same sequence of (identifier, subject, label); a frame identifier must belong to one split only; a condition is compared per dataset (the units of one call belong to one dataset); a unit seed must be an integer among the seeds of the plan. No message and no summary field holds a frame identifier: per unit only the number of frames and frame_ids_sha256, the SHA-256 of the sorted identifiers joined by newlines; exceptions, internal fields not to be published: the field prepared returned by compare_condition (frame and subject identifiers) and excluded_subject of leave_one_subject_out (subject identifiers, as delivered on 18 November 2026)"
+  },
+  "primary_analysis": {
+   "patience": 4,
+   "threshold": "fixed_0.5",
+   "ordinary": [4, "ordinary", "fixed_0.5"],
+   "re_estimated": [4, "re-estimated", "fixed_0.5"],
+   "contrast": "requested by the coordinator on 19 November 2026: at patience 4 and threshold 0.5, the ACER gap (ResNet-18 minus LivenessNet) with ordinary BN and with BN re-estimated on the fitting data only, then the first gap subtracted from the second: primary contrast = gap(re-estimated BN) minus gap(ordinary BN), with gap = delta = ACER(ResNet-18) - ACER(LivenessNet). Choice of the author, how (pad_arch_definitions.primary_analysis): per unit and as the mean over the units; the subject-bootstrap interval of the project for the two gaps and for the contrast, with the same resampling indices for the two conditions and the two networks; the function picks the two conditions itself and stops if one is missing; the same values also for APCER and BPCER",
+   "reading": "a choice of the author, not of the coordinator (pad_arch_definitions.contrast_reading): from the subject-bootstrap interval of the ACER contrast over the three seeds together: 'ACER difference (ResNet-18 - LivenessNet) lower with re-estimated BN' if it lies entirely below zero, 'ACER difference (ResNet-18 - LivenessNet) higher with re-estimated BN' if entirely above, 'unresolved' if it contains zero (a bound exactly at zero contains it) or cannot be computed; a negative contrast means that the signed difference ResNet-18 minus LivenessNet is algebraically lower with re-estimated BN than with ordinary BN; it does not say which network has the lower ACER in either BN state and names no cause; next to the reading a field reason (interval_reason) tells an interval that contains zero from an interval that cannot be computed",
+   "reading_names": ["ACER difference (ResNet-18 - LivenessNet) lower with re-estimated BN", "ACER difference (ResNet-18 - LivenessNet) higher with re-estimated BN", "unresolved"],
+   "per_seed": "requested by the coordinator: the per-seed results reported apart. Choice of the author, what they hold: for each seed (42, 43, 44) the two gaps and the contrast computed on the units of that seed alone, with their intervals, counts, signs and per-seed contrast readings under the same rule; they are reported apart and do not enter the primary reading, which is taken from the three seeds together (see reading)",
+   "secondary": "a choice of the author: the other six conditions, the eight conditions taken one at a time and every other comparison between conditions (sign, sign change, point-estimate inversion, contrasts, leave-one-subject-out, per-seed reading) are secondary, descriptive analyses, with the definitions delivered on 18 November 2026 unchanged"
+  },
+  "per_seed_reading": "pad_arch_definitions.per_seed_reading, promised in the protocol of PR #29: the rule of PR #21 (nuaa_session_ablation_run.reading_verdict, in the same form) applied to the ACER difference of a condition over the three seeds of the plan (42, 43, 44, pad_arch_definitions.PLAN_SEEDS; a seed without units counts as a missing value, so one or two seeds never give 'consistent'; the reason for a missing seed is 'a seed has no value' instead of 'a seed has no pooled value (incomplete run)'): 'consistent' only if the per-seed mean difference has the same non-zero sign for every seed AND the per-seed subject-bootstrap interval of every seed excludes zero on the side of that sign, with the direction ResNet-18 lower or LivenessNet lower; otherwise 'inconclusive' (also when a seed has no value, no difference or no interval); a secondary reading under its own name, reported next to the sign (field per_seed_reading of compare_condition); it enters neither the sign nor the sign change",
+  "fixed_threshold": 0.5,
+  "decision": "attack if score_attack > threshold (tie = bona fide)",
+  "eer_threshold": "eer, the M1 protocol: candidates = distinct dev scores plus nextafter(min, -inf) if >= 0; attack if score > value (tie = bona fide); minimum of |fp * n_attack - fn * n_bona_fide| on integers, ties to the highest value",
+  "bootstrap": {"resamples": 1000, "seed": 0, "percentiles": [2.5, 97.5], "min_subjects": 5},
+  "conditions": [[4, "ordinary", "fixed_0.5"], [4, "ordinary", "dev_eer"], [4, "re-estimated", "fixed_0.5"], [4, "re-estimated", "dev_eer"],
+                 [12, "ordinary", "fixed_0.5"], [12, "ordinary", "dev_eer"], [12, "re-estimated", "fixed_0.5"], [12, "re-estimated", "dev_eer"]]
+ },
+ "plan": {
+  "networks": ["LivenessNet", "ResNet-18"],
+  "patiences": [4, 12],
+  "bn_states": ["ordinary", "re-estimated"],
+  "thresholds": ["fixed_0.5", "dev_eer"],
+  "max_epochs": 12,
+  "order": "a choice of the author (pad_arch_comparison.plan_order and nuaa_runs): two NUAA runs, one process each, patience 4 first and then patience 12, as the accepted runs; in each run the 24 trainings in this order: for fold 1 to 4 and, within a fold, for seed 42, 43, 44 (the order of the accepted run, nuaa_session_ablation_run.training_order), LivenessNet then ResNet-18. In the accepted runs, which trained the 36 models in one process, each arm B model was followed by the arm A* model of the same fold and seed; with this order every LivenessNet training has, in its process, the position that the arm B model of the same fold and seed had in the accepted run (1, 3, 5, ..., 23; run_order.csv, reference_position), preceded by the same number of trainings, and the first training of each process is LivenessNet fold 1 seed 42, as in the trial; the training before each later LivenessNet is a ResNet-18 model instead of an arm A* LivenessNet model, a difference that the code cannot remove (arm A* is not part of this plan). Every training seeds random, NumPy and TensorFlow and clears the Keras session before building its model, as in the accepted runs. In the accepted runs (Apple M4, TensorFlow default threads, the same sequence of LivenessNet models in one process) the history of a model did not change when the models before it in the process trained for more epochs: 35 of the 36 models had at least one such predecessor at patience 12, and the shared epochs of the two runs are identical in 36 of 36 (training cards; delivery/patienceverify/CONCLUSION.md). Not measured: a ResNet-18 model before it, the Apple M5 Pro at 10 threads, another order or number of models, other operations between two trainings; in the plan the history check of every LivenessNet training against the accepted card is the direct measure",
+  "runs": [
+   {"name": "nuaa_patience_4", "dataset": "NUAA", "patience": 4,
+    "trainings": ["LivenessNet_fold1_seed42", "ResNet-18_fold1_seed42", "LivenessNet_fold1_seed43", "ResNet-18_fold1_seed43", "LivenessNet_fold1_seed44", "ResNet-18_fold1_seed44", "LivenessNet_fold2_seed42", "ResNet-18_fold2_seed42", "LivenessNet_fold2_seed43", "ResNet-18_fold2_seed43", "LivenessNet_fold2_seed44", "ResNet-18_fold2_seed44", "LivenessNet_fold3_seed42", "ResNet-18_fold3_seed42", "LivenessNet_fold3_seed43", "ResNet-18_fold3_seed43", "LivenessNet_fold3_seed44", "ResNet-18_fold3_seed44", "LivenessNet_fold4_seed42", "ResNet-18_fold4_seed42", "LivenessNet_fold4_seed43", "ResNet-18_fold4_seed43", "LivenessNet_fold4_seed44", "ResNet-18_fold4_seed44"]},
+   {"name": "nuaa_patience_12", "dataset": "NUAA", "patience": 12,
+    "trainings": ["LivenessNet_fold1_seed42", "ResNet-18_fold1_seed42", "LivenessNet_fold1_seed43", "ResNet-18_fold1_seed43", "LivenessNet_fold1_seed44", "ResNet-18_fold1_seed44", "LivenessNet_fold2_seed42", "ResNet-18_fold2_seed42", "LivenessNet_fold2_seed43", "ResNet-18_fold2_seed43", "LivenessNet_fold2_seed44", "ResNet-18_fold2_seed44", "LivenessNet_fold3_seed42", "ResNet-18_fold3_seed42", "LivenessNet_fold3_seed43", "ResNet-18_fold3_seed43", "LivenessNet_fold3_seed44", "ResNet-18_fold3_seed44", "LivenessNet_fold4_seed42", "ResNet-18_fold4_seed42", "LivenessNet_fold4_seed43", "ResNet-18_fold4_seed43", "LivenessNet_fold4_seed44", "ResNet-18_fold4_seed44"]}
+  ],
+  "caps": {
+   "rule": "for each NUAA run, from the rows of the plan with its patience (computed from the trial with the rule of costs): the estimated hours of wall time from the minimum to the maximum epochs, training and evaluation, summed over the two rows; cap = the maximum x wall_multiplier, rounded up to a multiple of round_up_hours; the estimate in CPU hours, minimum and maximum, is reported apart (wall hours x the CPU / wall ratio measured in the trial) and is not a cap; the margin of the cap covers what the estimate leaves out (loading the inputs once per process, saving the checkpoints, assembling the test) and a busier machine; a run that reaches its cap stops as INCOMPLETE and keeps its outcome",
+   "unit": "hours of wall time (elapsed real time, not CPU time)",
+   "wall_multiplier": 1.5,
+   "round_up_hours": 0.5
+  },
+  "machine_rule": "a declared rule, not checked by this code (plan and trial do not enforce it): every training and every evaluation of the NUAA plan runs on the same machine as the official trial (Apple M5 Pro, 15 logical CPUs, 24 GB RAM, macOS 27.2.1; the machine recorded in trial.json and printed in run_plan.md), CPU only, with the same threads (intra-op 10 and inter-op 10, training.threads, set by the runner), the same TensorFlow and Keras versions (environment); the runner of the 48 trainings will apply it and record machine, threads and versions; the hours of the plan are hours on that machine",
+  "datasets": [
+   {
+    "name": "NUAA",
+    "access": "available",
+    "official_source": "NUAA Photograph Imposter Database (Tan, Li, Liu, Jiang, ECCV 2010), the copy and official lists used since M2 (manifests official_train and official_test)",
+    "identity_split": "the four subject folds of the accepted fold schema (run 20261103-FOLDS-67b7f3d): four held-out test subjects per fold; arm B fitting and common dev of the fold from the cells run 20261104-SESSABL-5d89888",
+    "missing_access": null,
+    "unit_kind": "fold",
+    "splits": [1, 2, 3, 4],
+    "seeds": [42, 43, 44],
+    "frames_per_unit": {"fitting": 1400, "dev": 400, "test_per_split": [3242, 3114, 3439, 2819]},
+    "trainings": [
+     {"network": "LivenessNet", "patience": 4, "existing": 0, "new": 12, "reference_run": "20261106-SESSABLRUN-d999458"},
+     {"network": "LivenessNet", "patience": 12, "existing": 0, "new": 12, "reference_run": "20261109-SESSABLRUN-6a50265"},
+     {"network": "ResNet-18", "patience": 4, "existing": 0, "new": 12, "reference_run": null},
+     {"network": "ResNet-18", "patience": 12, "existing": 0, "new": 12, "reference_run": null}
+    ]
+   },
+   {
+    "name": "CelebA-Spoof",
+    "access": "access missing",
+    "official_source": "Zhang et al., CelebA-Spoof (ECCV 2020, DOI 10.1007/978-3-030-58610-2_5); repository https://github.com/ZhangYuanhan-AI/CelebA-Spoof, download folder linked from its README",
+    "identity_split": "the official training / validation / test split, ratio 8 : 1 : 1, with no overlap on subjects (paper, section 3.3), taken as one split; how the identity is encoded in the archive is not verified; fitting and dev subsampled to the NUAA arm B budget (proposal, to be fixed in the pre-registration with the frame sampling and the test size)",
+    "missing_access": "the official archive is not held (the local copy is one shard of an unofficial mirror with no identity column); according to the coordinator's D1 card as of 17 November 2026 the conditions of use were confirmed by the first author of the dataset on 8 October 2026 and the university channel is still to be agreed",
+    "unit_kind": "split",
+    "splits": [1],
+    "seeds": [42, 43, 44],
+    "frames_per_unit": {"fitting": 1400, "dev": 400, "test_per_split": null},
+    "trainings": [
+     {"network": "LivenessNet", "patience": 4, "existing": 0, "new": 3, "reference_run": null},
+     {"network": "LivenessNet", "patience": 12, "existing": 0, "new": 3, "reference_run": null},
+     {"network": "ResNet-18", "patience": 4, "existing": 0, "new": 3, "reference_run": null},
+     {"network": "ResNet-18", "patience": 12, "existing": 0, "new": 3, "reference_run": null}
+    ]
+   },
+   {
+    "name": "Replay-Attack",
+    "access": "access missing",
+    "official_source": "Chingovska, Anjos, Marcel, Replay-Attack (BIOSIG 2012); Idiap, https://www.idiap.ch/en/scientific-research/data/replayattack, distributed through Zenodo, DOI 10.34777/cwcg-7r82",
+    "identity_split": "the official train / devel / test sets, whose identities do not overlap (paper, section III; 15 devel and 20 test clients, 15 train clients by difference), taken as one split; fitting and dev frames sampled from the train and devel videos to the NUAA arm B budget (proposal, to be fixed in the pre-registration with the frame sampling, the per-video aggregation and the test size)",
+    "missing_access": "no copy is held; the Zenodo record is restricted and access depends on an End-User License Agreement signed for the university by a signatory in a permanent position; according to the coordinator's D1 card as of 17 November 2026 no new agreement or access is confirmed",
+    "unit_kind": "split",
+    "splits": [1],
+    "seeds": [42, 43, 44],
+    "frames_per_unit": {"fitting": 1400, "dev": 400, "test_per_split": null},
+    "trainings": [
+     {"network": "LivenessNet", "patience": 4, "existing": 0, "new": 3, "reference_run": null},
+     {"network": "LivenessNet", "patience": 12, "existing": 0, "new": 3, "reference_run": null},
+     {"network": "ResNet-18", "patience": 4, "existing": 0, "new": 3, "reference_run": null},
+     {"network": "ResNet-18", "patience": 12, "existing": 0, "new": 3, "reference_run": null}
+    ]
+   }
+  ],
+  "costs": {
+   "rates": "from the trial.json of a trial produced with this configuration and this code, per network: training seconds per 1,000 fitting frames per epoch = mean over the measured epochs, the first included (it includes the graph tracing: a cautious estimate), of (epoch seconds - validation seconds) / fitting frames x 1,000; validation seconds per 1,000 dev frames (same mean); inference seconds per 1,000 frames from the two inference passes; seconds per training outside the epochs (the whole trainer minus the sum of its epochs: model building, data preparation before the fit, time between and after the epochs); CPU / wall ratio of all of these",
+   "training": "per row: new trainings x (epochs x (training rate x fitting frames + validation rate x dev frames) / 1,000 + seconds per training outside the epochs); minimum epochs min(patience + 1, 12) (best epoch 1, then patience epochs without improvement), maximum 12",
+   "evaluation": "per training (all trainings of a row are evaluated): inference rate x ((BN layers + 1) x fitting frames + 2 x dev frames + 2 x test frames of its split) / 1,000; (BN layers + 1) full passes is an upper bound (at most): the PR #27 re-estimation makes one pass per BN layer truncated at the input of that layer, plus one consistency pass; the test and the dev are scored in the two BN states; the two thresholds add no pass",
+   "totals": "hours of wall time on the machine of the trial, interval from the minimum to the maximum epochs; CPU hours apart, wall hours x the measured CPU / wall ratio; a row with a value not fixed in the configuration, or without a trial measurement, has no number and is left out of the totals (the totals state how many rows they include); outside the estimate: saving the checkpoints, assembling the test, loading the inputs (once per process)"
+  }
+ },
+ "outputs": {
+  "trial": ["status.json", "run.log", "trial.json", "trial.md"],
+  "plan": ["run_plan.csv", "run_plan.md", "run_order.csv", "run_caps.csv"],
+  "compare_trials": ["trial_comparison.json", "trial_comparison.md"]
+ },
+ "environment": {
+  "tensorflow": "2.15.0",
+  "keras": "2.15.0"
+ },
+ "test": "no test frame is assembled or evaluated and no test score or metric is read, computed or written. check-inputs and trial read: the five M2 manifests (official_train, official_test, cnn_train, cnn_es and cnn_test: NUAA's official image lists and the cache order, read to index the cache and to check the rows of extracted_frames.csv against the official lists; official_test and cnn_test are not the test role of the folds); the cache, hashed whole with its label and subject members read (only trial loads its image arrays whole, in the frame store); the extracted frames file, loaded whole with the SHA-256 of every frame (both commands); these frame files also hold frames of the held-out subjects, but only the fitting and dev frames of arm B, fold 1 are assembled, by trial only (an explicit check refuses any other role); of the cells run status.json, the public and restricted SHA256SUMS, its configuration and the cell manifests of the arms and of the common dev; of the folds run status.json, the restricted SHA256SUMS and extracted_frames.csv (no public file opened); of the accepted run at patience 4 status.json, the restricted SHA256SUMS and one training card (arm_b_fold1_seed42); of the accepted run at patience 12 status.json and the restricted SHA256SUMS; the configurations of the two accepted runs and the LivenessNet architecture file; the fold schema (fold<k>_test.csv, the test role of the folds) is never loaded and no <model>_test_scores.csv, public aggregate or run record of any run is opened; plan reads only this configuration, the configurations of the two accepted runs, the code files pinned in this configuration and, if given, the status.json and trial.json of a trial; compare-trials reads only the status.json and trial.json of the two trials it compares and, if given, the reference conditions file"
+}

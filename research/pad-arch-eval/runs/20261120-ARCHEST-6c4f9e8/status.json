@@ -1,0 +1,168 @@
+{
+ "run_id": "20261120-ARCHEST-6c4f9e8",
+ "commit": "6c4f9e8",
+ "dirty": false,
+ "config_sha256": "0df7a2ddb16d436a7552169c5ff332e44759237020e8c466077986b92d0d734d",
+ "command": "check-estimator",
+ "command_line": "python -I -B scripts/pad_arch_run.py check-estimator --config delivery/archrun/pad_arch_run.json --out-root results/archrun --attempt 1 --i-am-authorized",
+ "official": true,
+ "attempt": {
+  "attempt": 1,
+  "previous": []
+ },
+ "status": "PASS",
+ "passed": true,
+ "started": "2026-11-20T19:01:05+0100",
+ "finished": "2026-11-20T19:26:50+0100",
+ "wall_seconds": 1544.5,
+ "process_cpu_seconds": 7502.4,
+ "stopped": null,
+ "threads": {
+  "requested": {
+   "intra_op": 10,
+   "inter_op": 10
+  },
+  "effective": {
+   "intra_op": 10,
+   "inter_op": 10
+  },
+  "set_by_this_runner": true,
+  "environment": {
+   "TF_NUM_INTRAOP_THREADS": null,
+   "TF_NUM_INTEROP_THREADS": null
+  },
+  "logical_cpus": 15
+ },
+ "machine_rule": {
+  "trial_run": "20261119-ARCHTRIAL-b8f7cca",
+  "machine": {
+   "processor": {
+    "trial": "Apple M5 Pro",
+    "now": "Apple M5 Pro",
+    "equal": true
+   },
+   "core_levels": {
+    "trial": [
+     {
+      "name": "Super",
+      "physical_cores": 5
+     },
+     {
+      "name": "Performance",
+      "physical_cores": 10
+     }
+    ],
+    "now": [
+     {
+      "name": "Super",
+      "physical_cores": 5
+     },
+     {
+      "name": "Performance",
+      "physical_cores": 10
+     }
+    ],
+    "equal": true
+   },
+   "ram_gb": {
+    "trial": 24.0,
+    "now": 24.0,
+    "equal": true
+   },
+   "os": {
+    "trial": "macOS 27.2.1",
+    "now": "macOS 27.2.1",
+    "equal": true
+   },
+   "logical_cpus": {
+    "trial": 15,
+    "now": 15,
+    "equal": true
+   },
+   "architecture": {
+    "trial": "arm64",
+    "now": "arm64",
+    "equal": true
+   }
+  },
+  "versions": {
+   "python": {
+    "trial": "3.11.16",
+    "now": "3.11.16",
+    "equal": true
+   },
+   "numpy": {
+    "trial": "1.26.4",
+    "now": "1.26.4",
+    "equal": true
+   },
+   "tensorflow_installed": {
+    "trial": "2.15.0",
+    "now": "2.15.0",
+    "equal": true
+   },
+   "keras": {
+    "trial": "2.15.0",
+    "now": "2.15.0",
+    "equal": true
+   },
+   "platform": {
+    "trial": "darwin",
+    "now": "darwin",
+    "equal": true
+   }
+  },
+  "equal": true
+ },
+ "cap_minutes": 240,
+ "cap_unit": "minutes of wall time (elapsed real time, not CPU time)",
+ "threads_rule": {
+  "fields": {
+   "requested": {
+    "trial": {
+     "intra_op": 10,
+     "inter_op": 10
+    },
+    "now": {
+     "intra_op": 10,
+     "inter_op": 10
+    },
+    "equal": true
+   },
+   "effective": {
+    "trial": {
+     "intra_op": 10,
+     "inter_op": 10
+    },
+    "now": {
+     "intra_op": 10,
+     "inter_op": 10
+    },
+    "equal": true
+   },
+   "environment": {
+    "trial": {
+     "TF_NUM_INTRAOP_THREADS": null,
+     "TF_NUM_INTEROP_THREADS": null
+    },
+    "now": {
+     "TF_NUM_INTRAOP_THREADS": null,
+     "TF_NUM_INTEROP_THREADS": null
+    },
+    "equal": true
+   },
+   "set_by_this_runner": {
+    "trial": true,
+    "now": true,
+    "equal": true
+   }
+  },
+  "equal": true,
+  "trial_run": "20261119-ARCHTRIAL-b8f7cca"
+ },
+ "models_checked": 36,
+ "models_reproduced": 36,
+ "estimator_check_json_sha256": "b8630a90b2a7e55bc14f03a21548b5270f3cd798e8d05cdfdb8cfefcb531469a",
+ "estimator_check_csv_sha256": "ad58654bf3e6b7e9316593a73713ef396e6cc744fb4e5b2a5c0bc01e9060c1dc",
+ "run_log_sha256": "3ad600984799998784d9742aed535f7b6ecf891d8524519a26c78438c5d57ab6"
+}

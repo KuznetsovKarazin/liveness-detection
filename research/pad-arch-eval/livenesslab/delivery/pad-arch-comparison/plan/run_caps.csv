@@ -1,0 +1,3 @@
+run,dataset,patience,trainings,wall_hours_min,wall_hours_max,cap_wall_hours,cpu_hours_min,cpu_hours_max
+nuaa_patience_4,NUAA,4,24,1.92,3.11,5.00,17.10,27.60
+nuaa_patience_12,NUAA,12,24,3.11,3.11,5.00,27.60,27.60

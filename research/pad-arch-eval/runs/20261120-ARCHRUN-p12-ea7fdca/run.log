@@ -1,0 +1,665 @@
+===== 2026-11-20T22:03:54+0100 run =====
+== NUAA run nuaa_patience_12 (20261120-ARCHRUN-p12-ea7fdca, attempt 1): configuration 0df7a2ddb16d, cap 5.00 hours of wall time (elapsed real time, not CPU time), pid 47904
+   TensorFlow threads set by this runner: requested intra-op 10 and inter-op 10, effective (read back from tf.config.threading) intra-op 10 and inter-op 10; environment variables: TF_NUM_INTRAOP_THREADS absent, TF_NUM_INTEROP_THREADS absent; logical CPUs 15.
+Epoch 1/12
+88/88 - 14s - loss: 0.0584 - accuracy: 0.9807 - val_loss: 7.0611 - val_accuracy: 0.5000 - lr: 0.0010 - 14s/epoch - 158ms/step
+Epoch 2/12
+88/88 - 14s - loss: 0.0299 - accuracy: 0.9886 - val_loss: 11.0871 - val_accuracy: 0.5000 - lr: 0.0010 - 14s/epoch - 158ms/step
+Epoch 3/12
+88/88 - 14s - loss: 0.0155 - accuracy: 0.9943 - val_loss: 25.2601 - val_accuracy: 0.5000 - lr: 0.0010 - 14s/epoch - 163ms/step
+Epoch 4/12
+88/88 - 15s - loss: 0.0144 - accuracy: 0.9957 - val_loss: 70.4209 - val_accuracy: 0.5000 - lr: 5.0000e-04 - 15s/epoch - 166ms/step
+Epoch 5/12
+88/88 - 15s - loss: 0.0187 - accuracy: 0.9929 - val_loss: 57.9626 - val_accuracy: 0.5000 - lr: 5.0000e-04 - 15s/epoch - 165ms/step
+Epoch 6/12
+88/88 - 14s - loss: 0.0058 - accuracy: 0.9993 - val_loss: 15.9223 - val_accuracy: 0.6400 - lr: 2.5000e-04 - 14s/epoch - 164ms/step
+Epoch 7/12
+88/88 - 14s - loss: 0.0047 - accuracy: 0.9993 - val_loss: 3.0515 - val_accuracy: 0.8150 - lr: 2.5000e-04 - 14s/epoch - 161ms/step
+Epoch 8/12
+88/88 - 15s - loss: 0.0053 - accuracy: 0.9993 - val_loss: 0.3210 - val_accuracy: 0.9950 - lr: 2.5000e-04 - 15s/epoch - 168ms/step
+Epoch 9/12
+88/88 - 14s - loss: 0.0048 - accuracy: 0.9993 - val_loss: 0.2552 - val_accuracy: 0.9950 - lr: 2.5000e-04 - 14s/epoch - 164ms/step
+Epoch 10/12
+88/88 - 14s - loss: 0.0052 - accuracy: 0.9993 - val_loss: 0.0378 - val_accuracy: 0.9950 - lr: 2.5000e-04 - 14s/epoch - 163ms/step
+Epoch 11/12
+88/88 - 14s - loss: 0.0076 - accuracy: 0.9964 - val_loss: 0.8863 - val_accuracy: 0.9950 - lr: 2.5000e-04 - 14s/epoch - 165ms/step
+Epoch 12/12
+88/88 - 15s - loss: 0.0127 - accuracy: 0.9979 - val_loss: 0.7417 - val_accuracy: 0.9975 - lr: 2.5000e-04 - 15s/epoch - 166ms/step
+== LivenessNet seed 42: 12 epochs in 173s, restored epoch 10 (val_loss 0.037804)
+   LivenessNet_fold1_seed42: history against arm_b_fold1_seed42 of the accepted run: identical
+== LivenessNet_fold1_seed42: 12 epochs, restored epoch 10, val_loss 0.037804 recomputed on the dev
+Epoch 1/12
+88/88 - 39s - loss: 0.2267 - accuracy: 0.9479 - val_loss: 1.0073 - val_accuracy: 0.8225 - lr: 0.0010 - 39s/epoch - 446ms/step
+Epoch 2/12
+88/88 - 40s - loss: 0.0616 - accuracy: 0.9750 - val_loss: 0.3396 - val_accuracy: 0.8450 - lr: 0.0010 - 40s/epoch - 457ms/step
+Epoch 3/12
+88/88 - 41s - loss: 0.0439 - accuracy: 0.9836 - val_loss: 0.0019 - val_accuracy: 1.0000 - lr: 0.0010 - 41s/epoch - 465ms/step
+Epoch 4/12
+88/88 - 38s - loss: 0.0274 - accuracy: 0.9914 - val_loss: 0.4985 - val_accuracy: 0.8575 - lr: 0.0010 - 38s/epoch - 437ms/step
+Epoch 5/12
+88/88 - 39s - loss: 0.0170 - accuracy: 0.9971 - val_loss: 0.0054 - val_accuracy: 0.9975 - lr: 0.0010 - 39s/epoch - 439ms/step
+Epoch 6/12
+88/88 - 39s - loss: 0.0122 - accuracy: 0.9979 - val_loss: 0.0132 - val_accuracy: 0.9950 - lr: 5.0000e-04 - 39s/epoch - 442ms/step
+Epoch 7/12
+88/88 - 40s - loss: 0.0024 - accuracy: 0.9993 - val_loss: 0.0075 - val_accuracy: 0.9950 - lr: 5.0000e-04 - 40s/epoch - 451ms/step
+Epoch 8/12
+88/88 - 39s - loss: 0.0023 - accuracy: 0.9993 - val_loss: 0.0040 - val_accuracy: 0.9975 - lr: 2.5000e-04 - 39s/epoch - 438ms/step
+Epoch 9/12
+88/88 - 38s - loss: 0.0058 - accuracy: 0.9986 - val_loss: 0.0170 - val_accuracy: 0.9950 - lr: 2.5000e-04 - 38s/epoch - 437ms/step
+Epoch 10/12
+88/88 - 38s - loss: 0.0024 - accuracy: 1.0000 - val_loss: 0.0830 - val_accuracy: 0.9700 - lr: 1.2500e-04 - 38s/epoch - 437ms/step
+Epoch 11/12
+88/88 - 39s - loss: 0.0049 - accuracy: 0.9993 - val_loss: 0.0041 - val_accuracy: 0.9975 - lr: 1.2500e-04 - 39s/epoch - 438ms/step
+Epoch 12/12
+88/88 - 41s - loss: 0.0038 - accuracy: 0.9993 - val_loss: 0.0068 - val_accuracy: 0.9975 - lr: 6.2500e-05 - 41s/epoch - 468ms/step
+== ResNet-18 seed 42: 12 epochs in 472s, restored epoch 3 (val_loss 0.001874)
+== ResNet-18_fold1_seed42: 12 epochs, restored epoch 3, val_loss 0.001874 recomputed on the dev
+Epoch 1/12
+88/88 - 17s - loss: 0.0923 - accuracy: 0.9714 - val_loss: 89.0806 - val_accuracy: 0.5000 - lr: 0.0010 - 17s/epoch - 193ms/step
+Epoch 2/12
+88/88 - 16s - loss: 0.0242 - accuracy: 0.9943 - val_loss: 83.9950 - val_accuracy: 0.5000 - lr: 0.0010 - 16s/epoch - 182ms/step
+Epoch 3/12
+88/88 - 15s - loss: 0.0368 - accuracy: 0.9886 - val_loss: 23.2996 - val_accuracy: 0.5000 - lr: 0.0010 - 15s/epoch - 173ms/step
+Epoch 4/12
+88/88 - 16s - loss: 0.0208 - accuracy: 0.9907 - val_loss: 6.7249 - val_accuracy: 0.6575 - lr: 0.0010 - 16s/epoch - 180ms/step
+Epoch 5/12
+88/88 - 15s - loss: 0.0315 - accuracy: 0.9914 - val_loss: 0.5578 - val_accuracy: 0.9500 - lr: 0.0010 - 15s/epoch - 174ms/step
+Epoch 6/12
+88/88 - 15s - loss: 0.0142 - accuracy: 0.9957 - val_loss: 0.5332 - val_accuracy: 0.7200 - lr: 0.0010 - 15s/epoch - 175ms/step
+Epoch 7/12
+88/88 - 15s - loss: 0.0205 - accuracy: 0.9943 - val_loss: 2.1234 - val_accuracy: 0.5275 - lr: 0.0010 - 15s/epoch - 169ms/step
+Epoch 8/12
+88/88 - 16s - loss: 0.0151 - accuracy: 0.9964 - val_loss: 1.1737 - val_accuracy: 0.8225 - lr: 0.0010 - 16s/epoch - 179ms/step
+Epoch 9/12
+88/88 - 15s - loss: 0.0047 - accuracy: 1.0000 - val_loss: 0.0116 - val_accuracy: 0.9950 - lr: 5.0000e-04 - 15s/epoch - 171ms/step
+Epoch 10/12
+88/88 - 15s - loss: 0.0055 - accuracy: 0.9993 - val_loss: 0.0173 - val_accuracy: 0.9950 - lr: 5.0000e-04 - 15s/epoch - 173ms/step
+Epoch 11/12
+88/88 - 15s - loss: 0.0112 - accuracy: 0.9964 - val_loss: 0.0056 - val_accuracy: 0.9975 - lr: 5.0000e-04 - 15s/epoch - 172ms/step
+Epoch 12/12
+88/88 - 16s - loss: 0.0058 - accuracy: 0.9993 - val_loss: 0.0538 - val_accuracy: 0.9950 - lr: 5.0000e-04 - 16s/epoch - 178ms/step
+== LivenessNet seed 43: 12 epochs in 188s, restored epoch 11 (val_loss 0.005580)
+   LivenessNet_fold1_seed43: history against arm_b_fold1_seed43 of the accepted run: identical
+== LivenessNet_fold1_seed43: 12 epochs, restored epoch 11, val_loss 0.005580 recomputed on the dev
+Epoch 1/12
+88/88 - 39s - loss: 0.2575 - accuracy: 0.9300 - val_loss: 285.2165 - val_accuracy: 0.5025 - lr: 0.0010 - 39s/epoch - 442ms/step
+Epoch 2/12
+88/88 - 38s - loss: 0.0650 - accuracy: 0.9779 - val_loss: 0.1351 - val_accuracy: 0.9625 - lr: 0.0010 - 38s/epoch - 432ms/step
+Epoch 3/12
+88/88 - 38s - loss: 0.0489 - accuracy: 0.9843 - val_loss: 0.1225 - val_accuracy: 0.9700 - lr: 0.0010 - 38s/epoch - 431ms/step
+Epoch 4/12
+88/88 - 38s - loss: 0.0365 - accuracy: 0.9850 - val_loss: 0.0213 - val_accuracy: 0.9950 - lr: 0.0010 - 38s/epoch - 436ms/step
+Epoch 5/12
+88/88 - 40s - loss: 0.0242 - accuracy: 0.9914 - val_loss: 0.4233 - val_accuracy: 0.8725 - lr: 0.0010 - 40s/epoch - 452ms/step
+Epoch 6/12
+88/88 - 38s - loss: 0.0224 - accuracy: 0.9943 - val_loss: 25.8935 - val_accuracy: 0.5100 - lr: 0.0010 - 38s/epoch - 436ms/step
+Epoch 7/12
+88/88 - 40s - loss: 0.0203 - accuracy: 0.9943 - val_loss: 0.0313 - val_accuracy: 0.9950 - lr: 5.0000e-04 - 40s/epoch - 456ms/step
+Epoch 8/12
+88/88 - 40s - loss: 0.0097 - accuracy: 0.9964 - val_loss: 0.1889 - val_accuracy: 0.9075 - lr: 5.0000e-04 - 40s/epoch - 450ms/step
+Epoch 9/12
+88/88 - 39s - loss: 0.0049 - accuracy: 0.9993 - val_loss: 0.0302 - val_accuracy: 0.9925 - lr: 2.5000e-04 - 39s/epoch - 446ms/step
+Epoch 10/12
+88/88 - 41s - loss: 0.0013 - accuracy: 1.0000 - val_loss: 0.0044 - val_accuracy: 0.9975 - lr: 2.5000e-04 - 41s/epoch - 468ms/step
+Epoch 11/12
+88/88 - 40s - loss: 0.0167 - accuracy: 0.9950 - val_loss: 0.0044 - val_accuracy: 0.9975 - lr: 2.5000e-04 - 40s/epoch - 459ms/step
+Epoch 12/12
+88/88 - 38s - loss: 0.0069 - accuracy: 0.9971 - val_loss: 0.0043 - val_accuracy: 0.9975 - lr: 2.5000e-04 - 38s/epoch - 436ms/step
+== ResNet-18 seed 43: 12 epochs in 471s, restored epoch 12 (val_loss 0.004290)
+== ResNet-18_fold1_seed43: 12 epochs, restored epoch 12, val_loss 0.004290 recomputed on the dev
+Epoch 1/12
+88/88 - 15s - loss: 0.1267 - accuracy: 0.9571 - val_loss: 20.0994 - val_accuracy: 0.5000 - lr: 0.0010 - 15s/epoch - 171ms/step
+Epoch 2/12
+88/88 - 15s - loss: 0.0255 - accuracy: 0.9936 - val_loss: 17.2676 - val_accuracy: 0.5000 - lr: 0.0010 - 15s/epoch - 167ms/step
+Epoch 3/12
+88/88 - 15s - loss: 0.0381 - accuracy: 0.9871 - val_loss: 89.6299 - val_accuracy: 0.5000 - lr: 0.0010 - 15s/epoch - 172ms/step
+Epoch 4/12
+88/88 - 15s - loss: 0.0142 - accuracy: 0.9964 - val_loss: 1.5134 - val_accuracy: 0.8600 - lr: 0.0010 - 15s/epoch - 172ms/step
+Epoch 5/12
+88/88 - 15s - loss: 0.0034 - accuracy: 1.0000 - val_loss: 71.5010 - val_accuracy: 0.5275 - lr: 0.0010 - 15s/epoch - 166ms/step
+Epoch 6/12
+88/88 - 15s - loss: 0.0151 - accuracy: 0.9957 - val_loss: 0.0298 - val_accuracy: 0.9950 - lr: 0.0010 - 15s/epoch - 167ms/step
+Epoch 7/12
+88/88 - 15s - loss: 0.0241 - accuracy: 0.9950 - val_loss: 1.0021 - val_accuracy: 0.6850 - lr: 0.0010 - 15s/epoch - 165ms/step
+Epoch 8/12
+88/88 - 14s - loss: 0.0167 - accuracy: 0.9936 - val_loss: 8.8095 - val_accuracy: 0.5100 - lr: 0.0010 - 14s/epoch - 164ms/step
+Epoch 9/12
+88/88 - 14s - loss: 0.0045 - accuracy: 1.0000 - val_loss: 0.7157 - val_accuracy: 0.9975 - lr: 5.0000e-04 - 14s/epoch - 160ms/step
+Epoch 10/12
+88/88 - 14s - loss: 0.0117 - accuracy: 0.9964 - val_loss: 0.0879 - val_accuracy: 0.9925 - lr: 5.0000e-04 - 14s/epoch - 160ms/step
+Epoch 11/12
+88/88 - 14s - loss: 0.0071 - accuracy: 0.9986 - val_loss: 0.0224 - val_accuracy: 0.9975 - lr: 2.5000e-04 - 14s/epoch - 161ms/step
+Epoch 12/12
+88/88 - 14s - loss: 0.0095 - accuracy: 0.9964 - val_loss: 0.3164 - val_accuracy: 0.9925 - lr: 2.5000e-04 - 14s/epoch - 161ms/step
+== LivenessNet seed 44: 12 epochs in 176s, restored epoch 11 (val_loss 0.022363)
+   LivenessNet_fold1_seed44: history against arm_b_fold1_seed44 of the accepted run: identical
+== LivenessNet_fold1_seed44: 12 epochs, restored epoch 11, val_loss 0.022363 recomputed on the dev
+Epoch 1/12
+88/88 - 38s - loss: 0.2050 - accuracy: 0.9393 - val_loss: 192.0775 - val_accuracy: 0.5000 - lr: 0.0010 - 38s/epoch - 432ms/step
+Epoch 2/12
+88/88 - 37s - loss: 0.0538 - accuracy: 0.9850 - val_loss: 5.5450 - val_accuracy: 0.5000 - lr: 0.0010 - 37s/epoch - 419ms/step
+Epoch 3/12
+88/88 - 37s - loss: 0.0581 - accuracy: 0.9871 - val_loss: 0.1017 - val_accuracy: 0.9950 - lr: 0.0010 - 37s/epoch - 418ms/step
+Epoch 4/12
+88/88 - 37s - loss: 0.0506 - accuracy: 0.9821 - val_loss: 0.0559 - val_accuracy: 0.9650 - lr: 0.0010 - 37s/epoch - 417ms/step
+Epoch 5/12
+88/88 - 37s - loss: 0.0136 - accuracy: 0.9964 - val_loss: 12.2315 - val_accuracy: 0.5000 - lr: 0.0010 - 37s/epoch - 421ms/step
+Epoch 6/12
+88/88 - 37s - loss: 0.0197 - accuracy: 0.9929 - val_loss: 36.4272 - val_accuracy: 0.5050 - lr: 0.0010 - 37s/epoch - 421ms/step
+Epoch 7/12
+88/88 - 37s - loss: 0.0139 - accuracy: 0.9943 - val_loss: 0.6812 - val_accuracy: 0.7150 - lr: 5.0000e-04 - 37s/epoch - 422ms/step
+Epoch 8/12
+88/88 - 37s - loss: 0.0096 - accuracy: 0.9964 - val_loss: 0.0115 - val_accuracy: 0.9950 - lr: 5.0000e-04 - 37s/epoch - 421ms/step
+Epoch 9/12
+88/88 - 37s - loss: 0.0151 - accuracy: 0.9957 - val_loss: 0.0053 - val_accuracy: 1.0000 - lr: 5.0000e-04 - 37s/epoch - 425ms/step
+Epoch 10/12
+88/88 - 38s - loss: 0.0024 - accuracy: 1.0000 - val_loss: 0.0061 - val_accuracy: 0.9975 - lr: 5.0000e-04 - 38s/epoch - 428ms/step
+Epoch 11/12
+88/88 - 38s - loss: 0.0214 - accuracy: 0.9936 - val_loss: 0.0180 - val_accuracy: 0.9950 - lr: 5.0000e-04 - 38s/epoch - 430ms/step
+Epoch 12/12
+88/88 - 38s - loss: 0.0120 - accuracy: 0.9964 - val_loss: 0.4731 - val_accuracy: 0.9250 - lr: 2.5000e-04 - 38s/epoch - 431ms/step
+== ResNet-18 seed 44: 12 epochs in 448s, restored epoch 9 (val_loss 0.005273)
+== ResNet-18_fold1_seed44: 12 epochs, restored epoch 9, val_loss 0.005273 recomputed on the dev
+Epoch 1/12
+88/88 - 15s - loss: 0.0747 - accuracy: 0.9779 - val_loss: 26.2285 - val_accuracy: 0.5000 - lr: 0.0010 - 15s/epoch - 168ms/step
+Epoch 2/12
+88/88 - 14s - loss: 0.0464 - accuracy: 0.9864 - val_loss: 2.2389 - val_accuracy: 0.5000 - lr: 0.0010 - 14s/epoch - 161ms/step
+Epoch 3/12
+88/88 - 14s - loss: 0.0099 - accuracy: 0.9986 - val_loss: 5.7689 - val_accuracy: 0.5000 - lr: 0.0010 - 14s/epoch - 162ms/step
+Epoch 4/12
+88/88 - 14s - loss: 0.0272 - accuracy: 0.9907 - val_loss: 7.2262 - val_accuracy: 0.4525 - lr: 0.0010 - 14s/epoch - 162ms/step
+Epoch 5/12
+88/88 - 14s - loss: 0.0188 - accuracy: 0.9936 - val_loss: 0.2429 - val_accuracy: 0.9250 - lr: 5.0000e-04 - 14s/epoch - 164ms/step
+Epoch 6/12
+88/88 - 14s - loss: 0.0109 - accuracy: 0.9971 - val_loss: 1.6688 - val_accuracy: 0.8050 - lr: 5.0000e-04 - 14s/epoch - 164ms/step
+Epoch 7/12
+88/88 - 14s - loss: 0.0129 - accuracy: 0.9964 - val_loss: 0.9026 - val_accuracy: 0.8800 - lr: 5.0000e-04 - 14s/epoch - 164ms/step
+Epoch 8/12
+88/88 - 17s - loss: 0.0048 - accuracy: 0.9993 - val_loss: 0.3244 - val_accuracy: 0.9250 - lr: 2.5000e-04 - 17s/epoch - 190ms/step
+Epoch 9/12
+88/88 - 15s - loss: 0.0057 - accuracy: 0.9986 - val_loss: 0.2308 - val_accuracy: 0.9475 - lr: 2.5000e-04 - 15s/epoch - 168ms/step
+Epoch 10/12
+88/88 - 16s - loss: 0.0064 - accuracy: 0.9993 - val_loss: 0.8642 - val_accuracy: 0.9575 - lr: 2.5000e-04 - 16s/epoch - 177ms/step
+Epoch 11/12
+88/88 - 14s - loss: 0.0054 - accuracy: 0.9993 - val_loss: 15.4193 - val_accuracy: 0.7525 - lr: 2.5000e-04 - 14s/epoch - 164ms/step
+Epoch 12/12
+88/88 - 14s - loss: 0.0074 - accuracy: 0.9971 - val_loss: 6.3635 - val_accuracy: 0.8675 - lr: 1.2500e-04 - 14s/epoch - 165ms/step
+== LivenessNet seed 42: 12 epochs in 178s, restored epoch 9 (val_loss 0.230775)
+   LivenessNet_fold2_seed42: history against arm_b_fold2_seed42 of the accepted run: identical
+== LivenessNet_fold2_seed42: 12 epochs, restored epoch 9, val_loss 0.230775 recomputed on the dev
+Epoch 1/12
+88/88 - 38s - loss: 0.2501 - accuracy: 0.9457 - val_loss: 1.7404 - val_accuracy: 0.8700 - lr: 0.0010 - 38s/epoch - 437ms/step
+Epoch 2/12
+88/88 - 39s - loss: 0.0556 - accuracy: 0.9807 - val_loss: 7.2377 - val_accuracy: 0.6400 - lr: 0.0010 - 39s/epoch - 442ms/step
+Epoch 3/12
+88/88 - 38s - loss: 0.0312 - accuracy: 0.9907 - val_loss: 1.3523 - val_accuracy: 0.7000 - lr: 0.0010 - 38s/epoch - 437ms/step
+Epoch 4/12
+88/88 - 38s - loss: 0.0466 - accuracy: 0.9814 - val_loss: 3.9721 - val_accuracy: 0.5075 - lr: 0.0010 - 38s/epoch - 436ms/step
+Epoch 5/12
+88/88 - 38s - loss: 0.0400 - accuracy: 0.9857 - val_loss: 249.7281 - val_accuracy: 0.5000 - lr: 0.0010 - 38s/epoch - 435ms/step
+Epoch 6/12
+88/88 - 38s - loss: 0.0149 - accuracy: 0.9936 - val_loss: 0.0158 - val_accuracy: 0.9975 - lr: 5.0000e-04 - 38s/epoch - 436ms/step
+Epoch 7/12
+88/88 - 38s - loss: 0.0216 - accuracy: 0.9950 - val_loss: 0.0265 - val_accuracy: 0.9975 - lr: 5.0000e-04 - 38s/epoch - 431ms/step
+Epoch 8/12
+88/88 - 38s - loss: 0.0041 - accuracy: 0.9986 - val_loss: 0.1157 - val_accuracy: 0.9575 - lr: 5.0000e-04 - 38s/epoch - 435ms/step
+Epoch 9/12
+88/88 - 38s - loss: 0.0088 - accuracy: 0.9971 - val_loss: 0.0420 - val_accuracy: 0.9975 - lr: 2.5000e-04 - 38s/epoch - 426ms/step
+Epoch 10/12
+88/88 - 37s - loss: 0.0022 - accuracy: 0.9993 - val_loss: 0.0147 - val_accuracy: 0.9950 - lr: 2.5000e-04 - 37s/epoch - 425ms/step
+Epoch 11/12
+88/88 - 37s - loss: 0.0088 - accuracy: 0.9971 - val_loss: 0.0434 - val_accuracy: 0.9750 - lr: 2.5000e-04 - 37s/epoch - 426ms/step
+Epoch 12/12
+88/88 - 38s - loss: 0.0041 - accuracy: 0.9993 - val_loss: 4.6644 - val_accuracy: 0.7075 - lr: 2.5000e-04 - 38s/epoch - 429ms/step
+== ResNet-18 seed 42: 12 epochs in 458s, restored epoch 10 (val_loss 0.014736)
+== ResNet-18_fold2_seed42: 12 epochs, restored epoch 10, val_loss 0.014736 recomputed on the dev
+Epoch 1/12
+88/88 - 14s - loss: 0.1074 - accuracy: 0.9607 - val_loss: 19.6904 - val_accuracy: 0.5000 - lr: 0.0010 - 14s/epoch - 163ms/step
+Epoch 2/12
+88/88 - 14s - loss: 0.0355 - accuracy: 0.9871 - val_loss: 31.4281 - val_accuracy: 0.5000 - lr: 0.0010 - 14s/epoch - 160ms/step
+Epoch 3/12
+88/88 - 14s - loss: 0.0352 - accuracy: 0.9893 - val_loss: 28.5338 - val_accuracy: 0.5000 - lr: 0.0010 - 14s/epoch - 161ms/step
+Epoch 4/12
+88/88 - 14s - loss: 0.0180 - accuracy: 0.9921 - val_loss: 20.8221 - val_accuracy: 0.5000 - lr: 5.0000e-04 - 14s/epoch - 164ms/step
+Epoch 5/12
+88/88 - 14s - loss: 0.0116 - accuracy: 0.9957 - val_loss: 9.9837 - val_accuracy: 0.6225 - lr: 5.0000e-04 - 14s/epoch - 161ms/step
+Epoch 6/12
+88/88 - 14s - loss: 0.0077 - accuracy: 0.9979 - val_loss: 7.0844 - val_accuracy: 0.7500 - lr: 5.0000e-04 - 14s/epoch - 162ms/step
+Epoch 7/12
+88/88 - 14s - loss: 0.0175 - accuracy: 0.9943 - val_loss: 0.0011 - val_accuracy: 1.0000 - lr: 5.0000e-04 - 14s/epoch - 162ms/step
+Epoch 8/12
+88/88 - 14s - loss: 0.0154 - accuracy: 0.9964 - val_loss: 0.0163 - val_accuracy: 1.0000 - lr: 5.0000e-04 - 14s/epoch - 162ms/step
+Epoch 9/12
+88/88 - 14s - loss: 0.0101 - accuracy: 0.9979 - val_loss: 0.0058 - val_accuracy: 0.9975 - lr: 5.0000e-04 - 14s/epoch - 162ms/step
+Epoch 10/12
+88/88 - 14s - loss: 0.0043 - accuracy: 0.9986 - val_loss: 0.0044 - val_accuracy: 1.0000 - lr: 2.5000e-04 - 14s/epoch - 161ms/step
+Epoch 11/12
+88/88 - 14s - loss: 0.0200 - accuracy: 0.9936 - val_loss: 0.0108 - val_accuracy: 0.9975 - lr: 2.5000e-04 - 14s/epoch - 162ms/step
+Epoch 12/12
+88/88 - 14s - loss: 0.0051 - accuracy: 0.9993 - val_loss: 0.0014 - val_accuracy: 1.0000 - lr: 1.2500e-04 - 14s/epoch - 162ms/step
+== LivenessNet seed 43: 12 epochs in 172s, restored epoch 7 (val_loss 0.001136)
+   LivenessNet_fold2_seed43: history against arm_b_fold2_seed43 of the accepted run: identical
+== LivenessNet_fold2_seed43: 12 epochs, restored epoch 7, val_loss 0.001136 recomputed on the dev
+Epoch 1/12
+88/88 - 38s - loss: 0.1942 - accuracy: 0.9579 - val_loss: 35.7691 - val_accuracy: 0.5850 - lr: 0.0010 - 38s/epoch - 434ms/step
+Epoch 2/12
+88/88 - 38s - loss: 0.0982 - accuracy: 0.9707 - val_loss: 0.5991 - val_accuracy: 0.8700 - lr: 0.0010 - 38s/epoch - 429ms/step
+Epoch 3/12
+88/88 - 38s - loss: 0.0376 - accuracy: 0.9871 - val_loss: 0.0115 - val_accuracy: 0.9950 - lr: 0.0010 - 38s/epoch - 427ms/step
+Epoch 4/12
+88/88 - 38s - loss: 0.0933 - accuracy: 0.9771 - val_loss: 0.2182 - val_accuracy: 0.9400 - lr: 0.0010 - 38s/epoch - 427ms/step
+Epoch 5/12
+88/88 - 38s - loss: 0.0477 - accuracy: 0.9843 - val_loss: 0.0732 - val_accuracy: 0.9775 - lr: 0.0010 - 38s/epoch - 427ms/step
+Epoch 6/12
+88/88 - 38s - loss: 0.0202 - accuracy: 0.9936 - val_loss: 0.2346 - val_accuracy: 0.9350 - lr: 5.0000e-04 - 38s/epoch - 427ms/step
+Epoch 7/12
+88/88 - 38s - loss: 0.0266 - accuracy: 0.9929 - val_loss: 0.0258 - val_accuracy: 0.9950 - lr: 5.0000e-04 - 38s/epoch - 427ms/step
+Epoch 8/12
+88/88 - 38s - loss: 0.0161 - accuracy: 0.9971 - val_loss: 0.0267 - val_accuracy: 0.9950 - lr: 2.5000e-04 - 38s/epoch - 427ms/step
+Epoch 9/12
+88/88 - 38s - loss: 0.0159 - accuracy: 0.9936 - val_loss: 0.0049 - val_accuracy: 0.9975 - lr: 2.5000e-04 - 38s/epoch - 427ms/step
+Epoch 10/12
+88/88 - 38s - loss: 0.0079 - accuracy: 0.9971 - val_loss: 0.0051 - val_accuracy: 0.9975 - lr: 2.5000e-04 - 38s/epoch - 427ms/step
+Epoch 11/12
+88/88 - 38s - loss: 0.0303 - accuracy: 0.9886 - val_loss: 1.1063 - val_accuracy: 0.8475 - lr: 2.5000e-04 - 38s/epoch - 431ms/step
+Epoch 12/12
+88/88 - 38s - loss: 0.0158 - accuracy: 0.9964 - val_loss: 0.6813 - val_accuracy: 0.9050 - lr: 1.2500e-04 - 38s/epoch - 427ms/step
+== ResNet-18 seed 43: 12 epochs in 453s, restored epoch 9 (val_loss 0.004940)
+== ResNet-18_fold2_seed43: 12 epochs, restored epoch 9, val_loss 0.004940 recomputed on the dev
+Epoch 1/12
+88/88 - 14s - loss: 0.1225 - accuracy: 0.9607 - val_loss: 22.1605 - val_accuracy: 0.5000 - lr: 0.0010 - 14s/epoch - 164ms/step
+Epoch 2/12
+88/88 - 14s - loss: 0.0381 - accuracy: 0.9879 - val_loss: 23.5339 - val_accuracy: 0.5000 - lr: 0.0010 - 14s/epoch - 162ms/step
+Epoch 3/12
+88/88 - 14s - loss: 0.0472 - accuracy: 0.9821 - val_loss: 34.8795 - val_accuracy: 0.5000 - lr: 0.0010 - 14s/epoch - 163ms/step
+Epoch 4/12
+88/88 - 14s - loss: 0.0207 - accuracy: 0.9943 - val_loss: 49.7476 - val_accuracy: 0.5000 - lr: 5.0000e-04 - 14s/epoch - 163ms/step
+Epoch 5/12
+88/88 - 14s - loss: 0.0081 - accuracy: 0.9986 - val_loss: 1.1821 - val_accuracy: 0.9450 - lr: 5.0000e-04 - 14s/epoch - 162ms/step
+Epoch 6/12
+88/88 - 14s - loss: 0.0052 - accuracy: 0.9993 - val_loss: 0.5052 - val_accuracy: 0.9400 - lr: 5.0000e-04 - 14s/epoch - 162ms/step
+Epoch 7/12
+88/88 - 14s - loss: 0.0083 - accuracy: 0.9986 - val_loss: 0.1885 - val_accuracy: 0.9750 - lr: 5.0000e-04 - 14s/epoch - 162ms/step
+Epoch 8/12
+88/88 - 14s - loss: 0.0104 - accuracy: 0.9957 - val_loss: 0.1911 - val_accuracy: 0.8900 - lr: 5.0000e-04 - 14s/epoch - 163ms/step
+Epoch 9/12
+88/88 - 14s - loss: 0.0172 - accuracy: 0.9950 - val_loss: 2.9133 - val_accuracy: 0.5125 - lr: 5.0000e-04 - 14s/epoch - 163ms/step
+Epoch 10/12
+88/88 - 14s - loss: 0.0223 - accuracy: 0.9921 - val_loss: 0.0030 - val_accuracy: 0.9975 - lr: 2.5000e-04 - 14s/epoch - 163ms/step
+Epoch 11/12
+88/88 - 14s - loss: 0.0133 - accuracy: 0.9964 - val_loss: 0.0152 - val_accuracy: 0.9975 - lr: 2.5000e-04 - 14s/epoch - 163ms/step
+Epoch 12/12
+88/88 - 14s - loss: 0.0139 - accuracy: 0.9971 - val_loss: 0.0044 - val_accuracy: 0.9975 - lr: 2.5000e-04 - 14s/epoch - 163ms/step
+== LivenessNet seed 44: 12 epochs in 172s, restored epoch 10 (val_loss 0.002952)
+   LivenessNet_fold2_seed44: history against arm_b_fold2_seed44 of the accepted run: identical
+== LivenessNet_fold2_seed44: 12 epochs, restored epoch 10, val_loss 0.002952 recomputed on the dev
+Epoch 1/12
+88/88 - 38s - loss: 0.2200 - accuracy: 0.9521 - val_loss: 57.0117 - val_accuracy: 0.5250 - lr: 0.0010 - 38s/epoch - 436ms/step
+Epoch 2/12
+88/88 - 38s - loss: 0.0433 - accuracy: 0.9814 - val_loss: 0.0267 - val_accuracy: 0.9975 - lr: 0.0010 - 38s/epoch - 436ms/step
+Epoch 3/12
+88/88 - 38s - loss: 0.0977 - accuracy: 0.9736 - val_loss: 4.3303 - val_accuracy: 0.6025 - lr: 0.0010 - 38s/epoch - 430ms/step
+Epoch 4/12
+88/88 - 38s - loss: 0.0315 - accuracy: 0.9914 - val_loss: 2.1263 - val_accuracy: 0.6000 - lr: 0.0010 - 38s/epoch - 429ms/step
+Epoch 5/12
+88/88 - 38s - loss: 0.0173 - accuracy: 0.9943 - val_loss: 0.0106 - val_accuracy: 0.9975 - lr: 5.0000e-04 - 38s/epoch - 429ms/step
+Epoch 6/12
+88/88 - 38s - loss: 0.0149 - accuracy: 0.9950 - val_loss: 1.1920 - val_accuracy: 0.8950 - lr: 5.0000e-04 - 38s/epoch - 429ms/step
+Epoch 7/12
+88/88 - 38s - loss: 0.0175 - accuracy: 0.9929 - val_loss: 2.3063 - val_accuracy: 0.8475 - lr: 5.0000e-04 - 38s/epoch - 428ms/step
+Epoch 8/12
+88/88 - 38s - loss: 0.0039 - accuracy: 0.9986 - val_loss: 1.4167 - val_accuracy: 0.8875 - lr: 2.5000e-04 - 38s/epoch - 429ms/step
+Epoch 9/12
+88/88 - 40s - loss: 0.0208 - accuracy: 0.9943 - val_loss: 2.0925 - val_accuracy: 0.8700 - lr: 2.5000e-04 - 40s/epoch - 450ms/step
+Epoch 10/12
+88/88 - 40s - loss: 0.0055 - accuracy: 0.9979 - val_loss: 0.6839 - val_accuracy: 0.9075 - lr: 1.2500e-04 - 40s/epoch - 459ms/step
+Epoch 11/12
+88/88 - 40s - loss: 0.0031 - accuracy: 0.9993 - val_loss: 0.0083 - val_accuracy: 0.9975 - lr: 1.2500e-04 - 40s/epoch - 456ms/step
+Epoch 12/12
+88/88 - 41s - loss: 0.0089 - accuracy: 0.9979 - val_loss: 0.0134 - val_accuracy: 0.9975 - lr: 1.2500e-04 - 41s/epoch - 463ms/step
+== ResNet-18 seed 44: 12 epochs in 465s, restored epoch 11 (val_loss 0.008344)
+== ResNet-18_fold2_seed44: 12 epochs, restored epoch 11, val_loss 0.008344 recomputed on the dev
+Epoch 1/12
+88/88 - 15s - loss: 0.0489 - accuracy: 0.9864 - val_loss: 9.0178 - val_accuracy: 0.5000 - lr: 0.0010 - 15s/epoch - 173ms/step
+Epoch 2/12
+88/88 - 15s - loss: 0.0338 - accuracy: 0.9893 - val_loss: 7.3608 - val_accuracy: 0.5000 - lr: 0.0010 - 15s/epoch - 174ms/step
+Epoch 3/12
+88/88 - 15s - loss: 0.0167 - accuracy: 0.9950 - val_loss: 4.6428 - val_accuracy: 0.5000 - lr: 0.0010 - 15s/epoch - 173ms/step
+Epoch 4/12
+88/88 - 15s - loss: 0.0139 - accuracy: 0.9971 - val_loss: 9.8747 - val_accuracy: 0.5000 - lr: 0.0010 - 15s/epoch - 174ms/step
+Epoch 5/12
+88/88 - 15s - loss: 0.0213 - accuracy: 0.9943 - val_loss: 7.5153 - val_accuracy: 0.5050 - lr: 0.0010 - 15s/epoch - 175ms/step
+Epoch 6/12
+88/88 - 16s - loss: 0.0113 - accuracy: 0.9964 - val_loss: 0.1412 - val_accuracy: 0.9350 - lr: 5.0000e-04 - 16s/epoch - 179ms/step
+Epoch 7/12
+88/88 - 15s - loss: 0.0076 - accuracy: 0.9986 - val_loss: 0.1126 - val_accuracy: 0.9450 - lr: 5.0000e-04 - 15s/epoch - 175ms/step
+Epoch 8/12
+88/88 - 16s - loss: 0.0040 - accuracy: 0.9993 - val_loss: 0.1991 - val_accuracy: 0.8775 - lr: 5.0000e-04 - 16s/epoch - 179ms/step
+Epoch 9/12
+88/88 - 16s - loss: 0.0129 - accuracy: 0.9950 - val_loss: 0.1024 - val_accuracy: 0.9775 - lr: 5.0000e-04 - 16s/epoch - 178ms/step
+Epoch 10/12
+88/88 - 15s - loss: 0.0202 - accuracy: 0.9936 - val_loss: 1.7409 - val_accuracy: 0.5150 - lr: 5.0000e-04 - 15s/epoch - 173ms/step
+Epoch 11/12
+88/88 - 15s - loss: 0.0221 - accuracy: 0.9943 - val_loss: 0.3420 - val_accuracy: 0.8525 - lr: 5.0000e-04 - 15s/epoch - 173ms/step
+Epoch 12/12
+88/88 - 16s - loss: 0.0331 - accuracy: 0.9929 - val_loss: 0.0168 - val_accuracy: 1.0000 - lr: 2.5000e-04 - 16s/epoch - 184ms/step
+== LivenessNet seed 42: 12 epochs in 186s, restored epoch 12 (val_loss 0.016773)
+   LivenessNet_fold3_seed42: history against arm_b_fold3_seed42 of the accepted run: identical
+== LivenessNet_fold3_seed42: 12 epochs, restored epoch 12, val_loss 0.016773 recomputed on the dev
+Epoch 1/12
+88/88 - 40s - loss: 0.1523 - accuracy: 0.9586 - val_loss: 41.7961 - val_accuracy: 0.5050 - lr: 0.0010 - 40s/epoch - 459ms/step
+Epoch 2/12
+88/88 - 41s - loss: 0.0347 - accuracy: 0.9886 - val_loss: 1.5661 - val_accuracy: 0.7550 - lr: 0.0010 - 41s/epoch - 468ms/step
+Epoch 3/12
+88/88 - 42s - loss: 0.0341 - accuracy: 0.9907 - val_loss: 1.0538 - val_accuracy: 0.5000 - lr: 0.0010 - 42s/epoch - 477ms/step
+Epoch 4/12
+88/88 - 42s - loss: 0.0725 - accuracy: 0.9786 - val_loss: 1.1034 - val_accuracy: 0.7175 - lr: 0.0010 - 42s/epoch - 477ms/step
+Epoch 5/12
+88/88 - 42s - loss: 0.0524 - accuracy: 0.9836 - val_loss: 555.0430 - val_accuracy: 0.5000 - lr: 0.0010 - 42s/epoch - 479ms/step
+Epoch 6/12
+88/88 - 41s - loss: 0.0205 - accuracy: 0.9950 - val_loss: 0.1242 - val_accuracy: 0.9150 - lr: 5.0000e-04 - 41s/epoch - 471ms/step
+Epoch 7/12
+88/88 - 42s - loss: 0.0145 - accuracy: 0.9950 - val_loss: 0.0298 - val_accuracy: 0.9950 - lr: 5.0000e-04 - 42s/epoch - 473ms/step
+Epoch 8/12
+88/88 - 41s - loss: 0.0115 - accuracy: 0.9964 - val_loss: 1.4558 - val_accuracy: 0.6550 - lr: 5.0000e-04 - 41s/epoch - 465ms/step
+Epoch 9/12
+88/88 - 41s - loss: 0.0111 - accuracy: 0.9964 - val_loss: 0.3328 - val_accuracy: 0.8925 - lr: 5.0000e-04 - 41s/epoch - 466ms/step
+Epoch 10/12
+88/88 - 41s - loss: 0.0096 - accuracy: 0.9979 - val_loss: 0.4549 - val_accuracy: 0.8300 - lr: 2.5000e-04 - 41s/epoch - 466ms/step
+Epoch 11/12
+88/88 - 41s - loss: 0.0210 - accuracy: 0.9964 - val_loss: 0.0263 - val_accuracy: 1.0000 - lr: 2.5000e-04 - 41s/epoch - 467ms/step
+Epoch 12/12
+88/88 - 41s - loss: 0.0172 - accuracy: 0.9936 - val_loss: 0.5169 - val_accuracy: 0.8025 - lr: 2.5000e-04 - 41s/epoch - 467ms/step
+== ResNet-18 seed 42: 12 epochs in 497s, restored epoch 11 (val_loss 0.026303)
+== ResNet-18_fold3_seed42: 12 epochs, restored epoch 11, val_loss 0.026303 recomputed on the dev
+Epoch 1/12
+88/88 - 16s - loss: 0.0785 - accuracy: 0.9714 - val_loss: 52.1752 - val_accuracy: 0.5000 - lr: 0.0010 - 16s/epoch - 177ms/step
+Epoch 2/12
+88/88 - 16s - loss: 0.0272 - accuracy: 0.9900 - val_loss: 30.7031 - val_accuracy: 0.5000 - lr: 0.0010 - 16s/epoch - 177ms/step
+Epoch 3/12
+88/88 - 16s - loss: 0.0324 - accuracy: 0.9936 - val_loss: 5.3512 - val_accuracy: 0.5000 - lr: 0.0010 - 16s/epoch - 179ms/step
+Epoch 4/12
+88/88 - 17s - loss: 0.0273 - accuracy: 0.9886 - val_loss: 2.4610 - val_accuracy: 0.5000 - lr: 0.0010 - 17s/epoch - 189ms/step
+Epoch 5/12
+88/88 - 16s - loss: 0.0410 - accuracy: 0.9879 - val_loss: 1.2473 - val_accuracy: 0.5100 - lr: 0.0010 - 16s/epoch - 178ms/step
+Epoch 6/12
+88/88 - 16s - loss: 0.0225 - accuracy: 0.9943 - val_loss: 0.1719 - val_accuracy: 0.9050 - lr: 0.0010 - 16s/epoch - 177ms/step
+Epoch 7/12
+88/88 - 16s - loss: 0.0288 - accuracy: 0.9907 - val_loss: 1.0644 - val_accuracy: 0.9500 - lr: 0.0010 - 16s/epoch - 178ms/step
+Epoch 8/12
+88/88 - 16s - loss: 0.0201 - accuracy: 0.9929 - val_loss: 0.9056 - val_accuracy: 0.7975 - lr: 0.0010 - 16s/epoch - 178ms/step
+Epoch 9/12
+88/88 - 16s - loss: 0.0032 - accuracy: 1.0000 - val_loss: 0.1345 - val_accuracy: 0.9000 - lr: 5.0000e-04 - 16s/epoch - 177ms/step
+Epoch 10/12
+88/88 - 16s - loss: 0.0066 - accuracy: 0.9986 - val_loss: 0.0531 - val_accuracy: 0.9925 - lr: 5.0000e-04 - 16s/epoch - 178ms/step
+Epoch 11/12
+88/88 - 16s - loss: 0.0082 - accuracy: 0.9964 - val_loss: 0.4781 - val_accuracy: 0.8125 - lr: 5.0000e-04 - 16s/epoch - 179ms/step
+Epoch 12/12
+88/88 - 16s - loss: 0.0040 - accuracy: 0.9993 - val_loss: 0.6777 - val_accuracy: 0.8800 - lr: 5.0000e-04 - 16s/epoch - 177ms/step
+== LivenessNet seed 43: 12 epochs in 189s, restored epoch 10 (val_loss 0.053055)
+   LivenessNet_fold3_seed43: history against arm_b_fold3_seed43 of the accepted run: identical
+== LivenessNet_fold3_seed43: 12 epochs, restored epoch 10, val_loss 0.053055 recomputed on the dev
+Epoch 1/12
+88/88 - 43s - loss: 0.1685 - accuracy: 0.9507 - val_loss: 10.0806 - val_accuracy: 0.5000 - lr: 0.0010 - 43s/epoch - 486ms/step
+Epoch 2/12
+88/88 - 41s - loss: 0.0316 - accuracy: 0.9914 - val_loss: 0.0120 - val_accuracy: 0.9950 - lr: 0.0010 - 41s/epoch - 471ms/step
+Epoch 3/12
+88/88 - 41s - loss: 0.0463 - accuracy: 0.9857 - val_loss: 0.0289 - val_accuracy: 0.9950 - lr: 0.0010 - 41s/epoch - 470ms/step
+Epoch 4/12
+88/88 - 41s - loss: 0.0275 - accuracy: 0.9914 - val_loss: 3.5135 - val_accuracy: 0.5775 - lr: 0.0010 - 41s/epoch - 470ms/step
+Epoch 5/12
+88/88 - 42s - loss: 0.0315 - accuracy: 0.9914 - val_loss: 0.1796 - val_accuracy: 0.9075 - lr: 5.0000e-04 - 42s/epoch - 474ms/step
+Epoch 6/12
+88/88 - 41s - loss: 0.0097 - accuracy: 0.9971 - val_loss: 0.0087 - val_accuracy: 0.9975 - lr: 5.0000e-04 - 41s/epoch - 468ms/step
+Epoch 7/12
+88/88 - 41s - loss: 0.0415 - accuracy: 0.9914 - val_loss: 0.0108 - val_accuracy: 1.0000 - lr: 5.0000e-04 - 41s/epoch - 466ms/step
+Epoch 8/12
+88/88 - 41s - loss: 0.0184 - accuracy: 0.9936 - val_loss: 3.4062 - val_accuracy: 0.8525 - lr: 5.0000e-04 - 41s/epoch - 465ms/step
+Epoch 9/12
+88/88 - 41s - loss: 0.0036 - accuracy: 0.9986 - val_loss: 0.0083 - val_accuracy: 1.0000 - lr: 2.5000e-04 - 41s/epoch - 464ms/step
+Epoch 10/12
+88/88 - 41s - loss: 0.0069 - accuracy: 0.9971 - val_loss: 0.3569 - val_accuracy: 0.8900 - lr: 2.5000e-04 - 41s/epoch - 466ms/step
+Epoch 11/12
+88/88 - 41s - loss: 0.0031 - accuracy: 0.9993 - val_loss: 0.0137 - val_accuracy: 1.0000 - lr: 2.5000e-04 - 41s/epoch - 466ms/step
+Epoch 12/12
+88/88 - 41s - loss: 0.0097 - accuracy: 0.9979 - val_loss: 0.0160 - val_accuracy: 1.0000 - lr: 1.2500e-04 - 41s/epoch - 465ms/step
+== ResNet-18 seed 43: 12 epochs in 496s, restored epoch 9 (val_loss 0.008257)
+== ResNet-18_fold3_seed43: 12 epochs, restored epoch 9, val_loss 0.008257 recomputed on the dev
+Epoch 1/12
+88/88 - 15s - loss: 0.0823 - accuracy: 0.9771 - val_loss: 4.3951 - val_accuracy: 0.5000 - lr: 0.0010 - 15s/epoch - 175ms/step
+Epoch 2/12
+88/88 - 15s - loss: 0.0275 - accuracy: 0.9900 - val_loss: 5.5560 - val_accuracy: 0.5000 - lr: 0.0010 - 15s/epoch - 173ms/step
+Epoch 3/12
+88/88 - 15s - loss: 0.0357 - accuracy: 0.9900 - val_loss: 3.2731 - val_accuracy: 0.2375 - lr: 0.0010 - 15s/epoch - 176ms/step
+Epoch 4/12
+88/88 - 15s - loss: 0.0127 - accuracy: 0.9971 - val_loss: 7.6232 - val_accuracy: 0.5000 - lr: 0.0010 - 15s/epoch - 175ms/step
+Epoch 5/12
+88/88 - 15s - loss: 0.0077 - accuracy: 0.9993 - val_loss: 28.5591 - val_accuracy: 0.5850 - lr: 0.0010 - 15s/epoch - 176ms/step
+Epoch 6/12
+88/88 - 15s - loss: 0.0033 - accuracy: 1.0000 - val_loss: 45.5708 - val_accuracy: 0.5500 - lr: 5.0000e-04 - 15s/epoch - 176ms/step
+Epoch 7/12
+88/88 - 15s - loss: 0.0044 - accuracy: 0.9986 - val_loss: 5.6269 - val_accuracy: 0.5975 - lr: 5.0000e-04 - 15s/epoch - 176ms/step
+Epoch 8/12
+88/88 - 15s - loss: 0.0039 - accuracy: 0.9986 - val_loss: 3.7304 - val_accuracy: 0.8000 - lr: 2.5000e-04 - 15s/epoch - 176ms/step
+Epoch 9/12
+88/88 - 16s - loss: 0.0041 - accuracy: 0.9986 - val_loss: 6.4302 - val_accuracy: 0.6300 - lr: 2.5000e-04 - 16s/epoch - 177ms/step
+Epoch 10/12
+88/88 - 16s - loss: 0.0059 - accuracy: 0.9986 - val_loss: 0.2894 - val_accuracy: 0.9300 - lr: 1.2500e-04 - 16s/epoch - 177ms/step
+Epoch 11/12
+88/88 - 16s - loss: 0.0028 - accuracy: 0.9993 - val_loss: 0.0119 - val_accuracy: 1.0000 - lr: 1.2500e-04 - 16s/epoch - 178ms/step
+Epoch 12/12
+88/88 - 16s - loss: 0.0029 - accuracy: 0.9986 - val_loss: 0.0153 - val_accuracy: 0.9975 - lr: 1.2500e-04 - 16s/epoch - 178ms/step
+== LivenessNet seed 44: 12 epochs in 187s, restored epoch 11 (val_loss 0.011897)
+   LivenessNet_fold3_seed44: history against arm_b_fold3_seed44 of the accepted run: identical
+== LivenessNet_fold3_seed44: 12 epochs, restored epoch 11, val_loss 0.011897 recomputed on the dev
+Epoch 1/12
+88/88 - 41s - loss: 0.3089 - accuracy: 0.9336 - val_loss: 10.7044 - val_accuracy: 0.5000 - lr: 0.0010 - 41s/epoch - 461ms/step
+Epoch 2/12
+88/88 - 41s - loss: 0.0379 - accuracy: 0.9886 - val_loss: 5.3819 - val_accuracy: 0.5000 - lr: 0.0010 - 41s/epoch - 468ms/step
+Epoch 3/12
+88/88 - 42s - loss: 0.0774 - accuracy: 0.9786 - val_loss: 0.9961 - val_accuracy: 0.5625 - lr: 0.0010 - 42s/epoch - 473ms/step
+Epoch 4/12
+88/88 - 41s - loss: 0.0154 - accuracy: 0.9971 - val_loss: 5.0425 - val_accuracy: 0.5675 - lr: 0.0010 - 41s/epoch - 468ms/step
+Epoch 5/12
+88/88 - 41s - loss: 0.0071 - accuracy: 0.9979 - val_loss: 1.5223 - val_accuracy: 0.8500 - lr: 0.0010 - 41s/epoch - 467ms/step
+Epoch 6/12
+88/88 - 41s - loss: 0.0109 - accuracy: 0.9986 - val_loss: 0.0375 - val_accuracy: 0.9950 - lr: 5.0000e-04 - 41s/epoch - 465ms/step
+Epoch 7/12
+88/88 - 41s - loss: 0.0056 - accuracy: 0.9986 - val_loss: 1.1162 - val_accuracy: 0.6700 - lr: 5.0000e-04 - 41s/epoch - 464ms/step
+Epoch 8/12
+88/88 - 41s - loss: 0.0058 - accuracy: 0.9986 - val_loss: 0.0713 - val_accuracy: 0.9675 - lr: 5.0000e-04 - 41s/epoch - 465ms/step
+Epoch 9/12
+88/88 - 41s - loss: 0.0026 - accuracy: 0.9993 - val_loss: 0.0195 - val_accuracy: 1.0000 - lr: 2.5000e-04 - 41s/epoch - 466ms/step
+Epoch 10/12
+88/88 - 41s - loss: 0.0105 - accuracy: 0.9971 - val_loss: 0.0191 - val_accuracy: 1.0000 - lr: 2.5000e-04 - 41s/epoch - 467ms/step
+Epoch 11/12
+88/88 - 41s - loss: 0.0020 - accuracy: 0.9993 - val_loss: 0.0099 - val_accuracy: 1.0000 - lr: 2.5000e-04 - 41s/epoch - 466ms/step
+Epoch 12/12
+88/88 - 41s - loss: 0.0034 - accuracy: 0.9986 - val_loss: 0.0216 - val_accuracy: 1.0000 - lr: 2.5000e-04 - 41s/epoch - 466ms/step
+== ResNet-18 seed 44: 12 epochs in 493s, restored epoch 11 (val_loss 0.009895)
+== ResNet-18_fold3_seed44: 12 epochs, restored epoch 11, val_loss 0.009895 recomputed on the dev
+Epoch 1/12
+88/88 - 15s - loss: 0.0312 - accuracy: 0.9886 - val_loss: 4.4734 - val_accuracy: 0.5000 - lr: 0.0010 - 15s/epoch - 175ms/step
+Epoch 2/12
+88/88 - 15s - loss: 0.0287 - accuracy: 0.9943 - val_loss: 6.5823 - val_accuracy: 0.5000 - lr: 0.0010 - 15s/epoch - 174ms/step
+Epoch 3/12
+88/88 - 15s - loss: 0.0168 - accuracy: 0.9943 - val_loss: 1.1820 - val_accuracy: 0.7025 - lr: 0.0010 - 15s/epoch - 174ms/step
+Epoch 4/12
+88/88 - 15s - loss: 0.0078 - accuracy: 0.9986 - val_loss: 16.0329 - val_accuracy: 0.5000 - lr: 0.0010 - 15s/epoch - 175ms/step
+Epoch 5/12
+88/88 - 15s - loss: 0.0148 - accuracy: 0.9964 - val_loss: 3.0807 - val_accuracy: 0.5050 - lr: 0.0010 - 15s/epoch - 176ms/step
+Epoch 6/12
+88/88 - 15s - loss: 0.0165 - accuracy: 0.9964 - val_loss: 0.0056 - val_accuracy: 1.0000 - lr: 5.0000e-04 - 15s/epoch - 176ms/step
+Epoch 7/12
+88/88 - 15s - loss: 0.0085 - accuracy: 0.9971 - val_loss: 0.4964 - val_accuracy: 0.9450 - lr: 5.0000e-04 - 15s/epoch - 176ms/step
+Epoch 8/12
+88/88 - 16s - loss: 0.0024 - accuracy: 1.0000 - val_loss: 0.2008 - val_accuracy: 0.9050 - lr: 5.0000e-04 - 16s/epoch - 176ms/step
+Epoch 9/12
+88/88 - 16s - loss: 0.0045 - accuracy: 0.9979 - val_loss: 8.8519e-04 - val_accuracy: 1.0000 - lr: 2.5000e-04 - 16s/epoch - 176ms/step
+Epoch 10/12
+88/88 - 16s - loss: 0.0048 - accuracy: 0.9979 - val_loss: 0.0060 - val_accuracy: 1.0000 - lr: 2.5000e-04 - 16s/epoch - 177ms/step
+Epoch 11/12
+88/88 - 16s - loss: 0.0088 - accuracy: 0.9979 - val_loss: 5.4232e-04 - val_accuracy: 1.0000 - lr: 2.5000e-04 - 16s/epoch - 177ms/step
+Epoch 12/12
+88/88 - 16s - loss: 0.0129 - accuracy: 0.9964 - val_loss: 7.4660e-04 - val_accuracy: 1.0000 - lr: 2.5000e-04 - 16s/epoch - 178ms/step
+== LivenessNet seed 42: 12 epochs in 187s, restored epoch 11 (val_loss 0.000542)
+   LivenessNet_fold4_seed42: history against arm_b_fold4_seed42 of the accepted run: identical
+== LivenessNet_fold4_seed42: 12 epochs, restored epoch 11, val_loss 0.000542 recomputed on the dev
+Epoch 1/12
+88/88 - 41s - loss: 0.1578 - accuracy: 0.9686 - val_loss: 4.4412 - val_accuracy: 0.8375 - lr: 0.0010 - 41s/epoch - 466ms/step
+Epoch 2/12
+88/88 - 41s - loss: 0.0497 - accuracy: 0.9907 - val_loss: 1.3168 - val_accuracy: 0.5025 - lr: 0.0010 - 41s/epoch - 468ms/step
+Epoch 3/12
+88/88 - 41s - loss: 0.0427 - accuracy: 0.9879 - val_loss: 75.3241 - val_accuracy: 0.5000 - lr: 0.0010 - 41s/epoch - 468ms/step
+Epoch 4/12
+88/88 - 41s - loss: 0.0519 - accuracy: 0.9821 - val_loss: 8.5001 - val_accuracy: 0.5875 - lr: 0.0010 - 41s/epoch - 468ms/step
+Epoch 5/12
+88/88 - 41s - loss: 0.0110 - accuracy: 0.9964 - val_loss: 0.0039 - val_accuracy: 1.0000 - lr: 5.0000e-04 - 41s/epoch - 467ms/step
+Epoch 6/12
+88/88 - 41s - loss: 0.0150 - accuracy: 0.9950 - val_loss: 0.0079 - val_accuracy: 1.0000 - lr: 5.0000e-04 - 41s/epoch - 466ms/step
+Epoch 7/12
+88/88 - 41s - loss: 0.0131 - accuracy: 0.9964 - val_loss: 0.0826 - val_accuracy: 0.9650 - lr: 5.0000e-04 - 41s/epoch - 468ms/step
+Epoch 8/12
+88/88 - 41s - loss: 0.0125 - accuracy: 0.9993 - val_loss: 0.0102 - val_accuracy: 1.0000 - lr: 2.5000e-04 - 41s/epoch - 464ms/step
+Epoch 9/12
+88/88 - 41s - loss: 0.0048 - accuracy: 0.9979 - val_loss: 0.0038 - val_accuracy: 1.0000 - lr: 2.5000e-04 - 41s/epoch - 466ms/step
+Epoch 10/12
+88/88 - 41s - loss: 0.0040 - accuracy: 0.9986 - val_loss: 0.0013 - val_accuracy: 1.0000 - lr: 2.5000e-04 - 41s/epoch - 464ms/step
+Epoch 11/12
+88/88 - 41s - loss: 0.0125 - accuracy: 0.9957 - val_loss: 0.0606 - val_accuracy: 0.9950 - lr: 2.5000e-04 - 41s/epoch - 465ms/step
+Epoch 12/12
+88/88 - 41s - loss: 0.0199 - accuracy: 0.9964 - val_loss: 0.3576 - val_accuracy: 0.8275 - lr: 2.5000e-04 - 41s/epoch - 466ms/step
+== ResNet-18 seed 42: 12 epochs in 493s, restored epoch 10 (val_loss 0.001257)
+== ResNet-18_fold4_seed42: 12 epochs, restored epoch 10, val_loss 0.001257 recomputed on the dev
+Epoch 1/12
+88/88 - 16s - loss: 0.0814 - accuracy: 0.9714 - val_loss: 23.6278 - val_accuracy: 0.5000 - lr: 0.0010 - 16s/epoch - 177ms/step
+Epoch 2/12
+88/88 - 15s - loss: 0.0348 - accuracy: 0.9921 - val_loss: 96.5911 - val_accuracy: 0.5000 - lr: 0.0010 - 15s/epoch - 174ms/step
+Epoch 3/12
+88/88 - 15s - loss: 0.0361 - accuracy: 0.9921 - val_loss: 4.1716 - val_accuracy: 0.5000 - lr: 0.0010 - 15s/epoch - 175ms/step
+Epoch 4/12
+88/88 - 15s - loss: 0.0236 - accuracy: 0.9929 - val_loss: 4.5196 - val_accuracy: 0.7375 - lr: 0.0010 - 15s/epoch - 176ms/step
+Epoch 5/12
+88/88 - 16s - loss: 0.0229 - accuracy: 0.9929 - val_loss: 2.2557 - val_accuracy: 0.6300 - lr: 0.0010 - 16s/epoch - 176ms/step
+Epoch 6/12
+88/88 - 16s - loss: 0.0054 - accuracy: 0.9993 - val_loss: 0.0013 - val_accuracy: 1.0000 - lr: 0.0010 - 16s/epoch - 177ms/step
+Epoch 7/12
+88/88 - 16s - loss: 0.0210 - accuracy: 0.9943 - val_loss: 0.1575 - val_accuracy: 0.9375 - lr: 0.0010 - 16s/epoch - 181ms/step
+Epoch 8/12
+88/88 - 16s - loss: 0.0198 - accuracy: 0.9921 - val_loss: 0.0351 - val_accuracy: 0.9850 - lr: 0.0010 - 16s/epoch - 176ms/step
+Epoch 9/12
+88/88 - 16s - loss: 0.0066 - accuracy: 0.9986 - val_loss: 0.0216 - val_accuracy: 0.9975 - lr: 5.0000e-04 - 16s/epoch - 177ms/step
+Epoch 10/12
+88/88 - 16s - loss: 0.0014 - accuracy: 1.0000 - val_loss: 0.0133 - val_accuracy: 1.0000 - lr: 5.0000e-04 - 16s/epoch - 176ms/step
+Epoch 11/12
+88/88 - 16s - loss: 0.0122 - accuracy: 0.9979 - val_loss: 0.0032 - val_accuracy: 1.0000 - lr: 2.5000e-04 - 16s/epoch - 177ms/step
+Epoch 12/12
+88/88 - 16s - loss: 0.0039 - accuracy: 0.9986 - val_loss: 7.2436e-04 - val_accuracy: 1.0000 - lr: 2.5000e-04 - 16s/epoch - 177ms/step
+== LivenessNet seed 43: 12 epochs in 187s, restored epoch 12 (val_loss 0.000724)
+   LivenessNet_fold4_seed43: history against arm_b_fold4_seed43 of the accepted run: identical
+== LivenessNet_fold4_seed43: 12 epochs, restored epoch 12, val_loss 0.000724 recomputed on the dev
+Epoch 1/12
+88/88 - 41s - loss: 0.1761 - accuracy: 0.9564 - val_loss: 2.0733 - val_accuracy: 0.7750 - lr: 0.0010 - 41s/epoch - 463ms/step
+Epoch 2/12
+88/88 - 41s - loss: 0.0141 - accuracy: 0.9936 - val_loss: 1.9303 - val_accuracy: 0.6500 - lr: 0.0010 - 41s/epoch - 468ms/step
+Epoch 3/12
+88/88 - 41s - loss: 0.0574 - accuracy: 0.9850 - val_loss: 6.2519 - val_accuracy: 0.5000 - lr: 0.0010 - 41s/epoch - 468ms/step
+Epoch 4/12
+88/88 - 41s - loss: 0.0758 - accuracy: 0.9786 - val_loss: 21.8903 - val_accuracy: 0.5000 - lr: 0.0010 - 41s/epoch - 466ms/step
+Epoch 5/12
+88/88 - 41s - loss: 0.0344 - accuracy: 0.9921 - val_loss: 8.6922 - val_accuracy: 0.5025 - lr: 5.0000e-04 - 41s/epoch - 467ms/step
+Epoch 6/12
+88/88 - 41s - loss: 0.0172 - accuracy: 0.9964 - val_loss: 0.0047 - val_accuracy: 1.0000 - lr: 5.0000e-04 - 41s/epoch - 469ms/step
+Epoch 7/12
+88/88 - 41s - loss: 0.0279 - accuracy: 0.9950 - val_loss: 0.0842 - val_accuracy: 0.9725 - lr: 5.0000e-04 - 41s/epoch - 466ms/step
+Epoch 8/12
+88/88 - 41s - loss: 0.0115 - accuracy: 0.9971 - val_loss: 0.0165 - val_accuracy: 1.0000 - lr: 5.0000e-04 - 41s/epoch - 466ms/step
+Epoch 9/12
+88/88 - 41s - loss: 0.0064 - accuracy: 0.9993 - val_loss: 0.0132 - val_accuracy: 0.9975 - lr: 2.5000e-04 - 41s/epoch - 466ms/step
+Epoch 10/12
+88/88 - 41s - loss: 0.0014 - accuracy: 1.0000 - val_loss: 0.0335 - val_accuracy: 0.9975 - lr: 2.5000e-04 - 41s/epoch - 464ms/step
+Epoch 11/12
+88/88 - 41s - loss: 0.0086 - accuracy: 0.9979 - val_loss: 0.1448 - val_accuracy: 0.9250 - lr: 1.2500e-04 - 41s/epoch - 464ms/step
+Epoch 12/12
+88/88 - 41s - loss: 0.0076 - accuracy: 0.9986 - val_loss: 0.0041 - val_accuracy: 1.0000 - lr: 1.2500e-04 - 41s/epoch - 467ms/step
+== ResNet-18 seed 43: 12 epochs in 493s, restored epoch 12 (val_loss 0.004124)
+== ResNet-18_fold4_seed43: 12 epochs, restored epoch 12, val_loss 0.004124 recomputed on the dev
+Epoch 1/12
+88/88 - 16s - loss: 0.0827 - accuracy: 0.9729 - val_loss: 16.5100 - val_accuracy: 0.5000 - lr: 0.0010 - 16s/epoch - 181ms/step
+Epoch 2/12
+88/88 - 15s - loss: 0.0204 - accuracy: 0.9943 - val_loss: 2.3605 - val_accuracy: 0.5000 - lr: 0.0010 - 15s/epoch - 175ms/step
+Epoch 3/12
+88/88 - 15s - loss: 0.0222 - accuracy: 0.9943 - val_loss: 3.4588 - val_accuracy: 0.4800 - lr: 0.0010 - 15s/epoch - 175ms/step
+Epoch 4/12
+88/88 - 16s - loss: 0.0205 - accuracy: 0.9921 - val_loss: 14.4836 - val_accuracy: 0.5200 - lr: 0.0010 - 16s/epoch - 176ms/step
+Epoch 5/12
+88/88 - 16s - loss: 0.0105 - accuracy: 0.9971 - val_loss: 4.2046 - val_accuracy: 0.5150 - lr: 5.0000e-04 - 16s/epoch - 180ms/step
+Epoch 6/12
+88/88 - 16s - loss: 0.0051 - accuracy: 0.9979 - val_loss: 4.6114 - val_accuracy: 0.8150 - lr: 5.0000e-04 - 16s/epoch - 178ms/step
+Epoch 7/12
+88/88 - 16s - loss: 0.0050 - accuracy: 0.9993 - val_loss: 0.7848 - val_accuracy: 0.9575 - lr: 2.5000e-04 - 16s/epoch - 177ms/step
+Epoch 8/12
+88/88 - 16s - loss: 0.0089 - accuracy: 0.9979 - val_loss: 0.0580 - val_accuracy: 0.9900 - lr: 2.5000e-04 - 16s/epoch - 177ms/step
+Epoch 9/12
+88/88 - 16s - loss: 0.0066 - accuracy: 0.9993 - val_loss: 0.2117 - val_accuracy: 0.9100 - lr: 2.5000e-04 - 16s/epoch - 178ms/step
+Epoch 10/12
+88/88 - 16s - loss: 0.0069 - accuracy: 0.9979 - val_loss: 0.3079 - val_accuracy: 0.8775 - lr: 2.5000e-04 - 16s/epoch - 178ms/step
+Epoch 11/12
+88/88 - 16s - loss: 0.0041 - accuracy: 0.9993 - val_loss: 0.0262 - val_accuracy: 0.9925 - lr: 1.2500e-04 - 16s/epoch - 178ms/step
+Epoch 12/12
+88/88 - 16s - loss: 0.0090 - accuracy: 0.9993 - val_loss: 0.0526 - val_accuracy: 0.9650 - lr: 1.2500e-04 - 16s/epoch - 178ms/step
+== LivenessNet seed 44: 12 epochs in 189s, restored epoch 11 (val_loss 0.026231)
+   LivenessNet_fold4_seed44: history against arm_b_fold4_seed44 of the accepted run: identical
+== LivenessNet_fold4_seed44: 12 epochs, restored epoch 11, val_loss 0.026231 recomputed on the dev
+Epoch 1/12
+88/88 - 40s - loss: 0.2221 - accuracy: 0.9507 - val_loss: 0.0185 - val_accuracy: 0.9975 - lr: 0.0010 - 40s/epoch - 460ms/step
+Epoch 2/12
+88/88 - 41s - loss: 0.0468 - accuracy: 0.9864 - val_loss: 8.3026e-05 - val_accuracy: 1.0000 - lr: 0.0010 - 41s/epoch - 469ms/step
+Epoch 3/12
+88/88 - 41s - loss: 0.0535 - accuracy: 0.9871 - val_loss: 0.3005 - val_accuracy: 0.9500 - lr: 0.0010 - 41s/epoch - 466ms/step
+Epoch 4/12
+88/88 - 41s - loss: 0.0300 - accuracy: 0.9921 - val_loss: 15.2061 - val_accuracy: 0.5000 - lr: 0.0010 - 41s/epoch - 466ms/step
+Epoch 5/12
+88/88 - 40s - loss: 0.0220 - accuracy: 0.9957 - val_loss: 3.9675 - val_accuracy: 0.5075 - lr: 5.0000e-04 - 40s/epoch - 458ms/step
+Epoch 6/12
+88/88 - 38s - loss: 0.0052 - accuracy: 0.9986 - val_loss: 0.0020 - val_accuracy: 1.0000 - lr: 5.0000e-04 - 38s/epoch - 435ms/step
+Epoch 7/12
+88/88 - 38s - loss: 0.0071 - accuracy: 0.9986 - val_loss: 0.0034 - val_accuracy: 0.9975 - lr: 2.5000e-04 - 38s/epoch - 435ms/step
+Epoch 8/12
+88/88 - 39s - loss: 0.0076 - accuracy: 0.9986 - val_loss: 0.0028 - val_accuracy: 1.0000 - lr: 2.5000e-04 - 39s/epoch - 446ms/step
+Epoch 9/12
+88/88 - 41s - loss: 0.0015 - accuracy: 0.9993 - val_loss: 0.0055 - val_accuracy: 1.0000 - lr: 1.2500e-04 - 41s/epoch - 461ms/step
+Epoch 10/12
+88/88 - 40s - loss: 0.0017 - accuracy: 1.0000 - val_loss: 0.0021 - val_accuracy: 1.0000 - lr: 1.2500e-04 - 40s/epoch - 452ms/step
+Epoch 11/12
+88/88 - 40s - loss: 0.0096 - accuracy: 0.9986 - val_loss: 0.0040 - val_accuracy: 0.9975 - lr: 6.2500e-05 - 40s/epoch - 459ms/step
+Epoch 12/12
+88/88 - 40s - loss: 0.0044 - accuracy: 0.9986 - val_loss: 0.0045 - val_accuracy: 0.9975 - lr: 6.2500e-05 - 40s/epoch - 459ms/step
+== ResNet-18 seed 44: 12 epochs in 482s, restored epoch 2 (val_loss 0.000083)
+== ResNet-18_fold4_seed44: 12 epochs, restored epoch 2, val_loss 0.000083 recomputed on the dev
+== LivenessNet_fold1_seed42: dev EER threshold ordinary 0.000768, re-estimated 0.000799; evaluator agreement yes
+== ResNet-18_fold1_seed42: dev EER threshold ordinary 0.485716, re-estimated 0.788562; evaluator agreement yes
+== LivenessNet_fold1_seed43: dev EER threshold ordinary 0.542399, re-estimated 0.516693; evaluator agreement yes
+== ResNet-18_fold1_seed43: dev EER threshold ordinary 0.293295, re-estimated 0.170445; evaluator agreement yes
+== LivenessNet_fold1_seed44: dev EER threshold ordinary 0.998644, re-estimated 0.012823; evaluator agreement yes
+== ResNet-18_fold1_seed44: dev EER threshold ordinary 0.326342, re-estimated 0.924811; evaluator agreement yes
+== LivenessNet_fold2_seed42: dev EER threshold ordinary 0.920426, re-estimated 0.009805; evaluator agreement yes
+== ResNet-18_fold2_seed42: dev EER threshold ordinary 0.263727, re-estimated 0.058028; evaluator agreement yes
+== LivenessNet_fold2_seed43: dev EER threshold ordinary 0.046983, re-estimated 0.001650; evaluator agreement yes
+== ResNet-18_fold2_seed43: dev EER threshold ordinary 0.837763, re-estimated 0.092863; evaluator agreement yes
+== LivenessNet_fold2_seed44: dev EER threshold ordinary 0.578237, re-estimated 0.002602; evaluator agreement yes
+== ResNet-18_fold2_seed44: dev EER threshold ordinary 0.817033, re-estimated 0.383225; evaluator agreement yes
+== LivenessNet_fold3_seed42: dev EER threshold ordinary 0.381979, re-estimated 0.194226; evaluator agreement yes
+== ResNet-18_fold3_seed42: dev EER threshold ordinary 0.359764, re-estimated 0.031843; evaluator agreement yes
+== LivenessNet_fold3_seed43: dev EER threshold ordinary 0.031980, re-estimated 0.017807; evaluator agreement yes
+== ResNet-18_fold3_seed43: dev EER threshold ordinary 0.048411, re-estimated 0.005191; evaluator agreement yes
+== LivenessNet_fold3_seed44: dev EER threshold ordinary 0.203914, re-estimated 0.227202; evaluator agreement yes
+== ResNet-18_fold3_seed44: dev EER threshold ordinary 0.176968, re-estimated 0.068312; evaluator agreement yes
+== LivenessNet_fold4_seed42: dev EER threshold ordinary 0.016334, re-estimated 0.001697; evaluator agreement yes
+== ResNet-18_fold4_seed42: dev EER threshold ordinary 0.132695, re-estimated 0.481099; evaluator agreement yes
+== LivenessNet_fold4_seed43: dev EER threshold ordinary 0.012818, re-estimated 0.084566; evaluator agreement yes
+== ResNet-18_fold4_seed43: dev EER threshold ordinary 0.059742, re-estimated 0.627932; evaluator agreement yes
+== LivenessNet_fold4_seed44: dev EER threshold ordinary 0.759310, re-estimated 0.295633; evaluator agreement yes
+== ResNet-18_fold4_seed44: dev EER threshold ordinary 0.011534, re-estimated 0.047052; evaluator agreement yes
+run folder: 20261120-ARCHRUN-p12-ea7fdca, elapsed 10160 s (2.82 h of the 5.00-hour cap), process CPU 88270 s
+RESULT: PASS (run nuaa_patience_12)
