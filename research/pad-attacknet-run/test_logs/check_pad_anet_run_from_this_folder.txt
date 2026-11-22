@@ -1,0 +1,20 @@
+# macOS, Python 3.11.16, NumPy 1.26.4, TensorFlow 2.15.0, started 2026-11-22 13:21 CET; from livenesslab/ of this folder; as check_pad_anet_run.txt; the files are identified by the SHA-256 below, not by the state of the work tree
+# SHA-256 b8229c231ddd9d54aa01ba9b7287f696009930243081787e9d7c2c2d9d38a3cc  scripts/pad_anet_run.py
+# SHA-256 7a7daf930592ad7b829e5857c5432f265c564079e6c73d195d51675c94b2dca1  scripts/check_pad_anet_run.py
+# SHA-256 731a910f910706e6a3fc8b433208236451f3f20a2a37fd16446eb2541d675e5e  scripts/check_pad_anet_run_mutations.py
+# SHA-256 44b4deee427fa0ffa100feaa12eebb54614b5694c8132e64d4b887a1d86bca8d  delivery/anetrun/pad_anet_run.json
+# SHA-256 3fe7bd06d96adf5090fab6873e0961bba542065ef1a480ba18223badf75466e6  delivery/anetrun/launch.zsh
+# SHA-256 4f6e4324bf6f4bf1971e6b8797e0763bfbb308fe792c11a35365da667b72cb10  scripts/pad_anet_comparison.py
+# SHA-256 8e17acd107ffc7e09072d81e6247fe2c476381dd1508673178d789a70f5531b5  scripts/pad_anet_definitions.py
+# SHA-256 cbdc735b2fca528d776cf1dc846a0ffbf6db2af85f1f1e3715d4c7fa709f403b  scripts/pad_anet_models.py
+# SHA-256 6f5297d08d4913ff8e84127c6c0e0852bc1fbecc3a821065a3d3290f242fea66  delivery/anetcmp/pad_anet_comparison.json
+# command: python -I -B scripts/check_pad_anet_run.py
+...................................................................
+----------------------------------------------------------------------
+Ran 67 tests in 23.550s
+
+OK
+tests run: 67, failures: 0, errors: 0, skipped: 0
+RESULT: PASS
+exit 0
+# finished 2026-11-22 13:22 CET, wall 24 s
