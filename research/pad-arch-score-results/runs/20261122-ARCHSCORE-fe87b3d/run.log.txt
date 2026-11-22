@@ -1,0 +1,7 @@
+== check_synthetic.py
+96 checkpoint-state summaries. Outputs contain aggregate measurements only.
+Synthetic end-to-end check passed.
+== score_analysis.py
+96 checkpoint-state summaries. Outputs contain aggregate measurements only.
+exit code: 0
+fork ancora pulito

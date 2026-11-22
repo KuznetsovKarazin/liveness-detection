@@ -1,0 +1,8 @@
+run: 20261122-ARCHSCORE-fe87b3d
+fork commit: fe87b3d0012f0de7c59528caa6bfe4bd1e3e27f0 (2026-11-22T09:54:46+01:00)
+private commit: 9c31a3fd3203d0f179ca904c06a14918a34778f3
+package SHA256SUMS sha256: 1c63714ee74f4dabc31f675a875122a06aa7e12f9690fb8d19257c6ac7b5974b
+manifests: evaluation, patience 4 and patience 12 restricted SHA256SUMS validated
+python 3.11.16 | numpy 1.26.4 | scipy 1.16.1 | matplotlib 3.11.2 | arm64 Darwin 27.2.0
+started: 2026-11-22T09:58:30+0100
+finished: 2026-11-22T09:58:33+0100 exit 0

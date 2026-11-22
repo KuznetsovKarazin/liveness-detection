@@ -1,0 +1,76 @@
+{
+  "pooled": {
+    "method": "pooled identifiers",
+    "attempted": 10000,
+    "valid": 9076,
+    "invalid": 924,
+    "estimate_pp": 9.983325468515359,
+    "percentile_95_pp": [
+      2.5826750368773324,
+      16.292986576926427
+    ],
+    "BCa_95_pp": [
+      1.7668585913405694,
+      15.800581099228312
+    ]
+  },
+  "within_fold": {
+    "method": "identifiers resampled within original fold",
+    "attempted": 10000,
+    "valid": 9929,
+    "invalid": 71,
+    "estimate_pp": 9.983325468515359,
+    "percentile_95_pp": [
+      3.22769416278704,
+      16.013861122310903
+    ]
+  },
+  "omit_influential_unit": {
+    "method": "pooled, omit fold 3 seed 44",
+    "attempted": 10000,
+    "valid": 9076,
+    "invalid": 924,
+    "estimate_pp": 5.973303488247483,
+    "percentile_95_pp": [
+      -0.39587392239845004,
+      11.317218416709395
+    ]
+  },
+  "valid_identifier_deletions": 16,
+  "identifier_deletion_range_pp": [
+    8.096012887545607,
+    12.56674296123483
+  ],
+  "model_changes": {
+    "LivenessNet": {
+      "method": "pooled identifiers",
+      "attempted": 10000,
+      "valid": 9076,
+      "invalid": 924,
+      "estimate_pp": -7.072146907654364,
+      "percentile_95_pp": [
+        -13.295719557706041,
+        -0.8162101727645779
+      ],
+      "BCa_95_pp": [
+        -12.390907458481934,
+        0.35093686427993376
+      ]
+    },
+    "ResNet-18": {
+      "method": "pooled identifiers",
+      "attempted": 10000,
+      "valid": 9076,
+      "invalid": 924,
+      "estimate_pp": 2.911178560860996,
+      "percentile_95_pp": [
+        -1.7344607165882735,
+        6.74176712382352
+      ],
+      "BCa_95_pp": [
+        -1.0063318028780168,
+        7.732131886284227
+      ]
+    }
+  }
+}
