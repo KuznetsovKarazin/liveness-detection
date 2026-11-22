@@ -1,0 +1,12 @@
+# macOS, Python 3.11.16, NumPy 1.26.4, TensorFlow 2.15.0, started 2026-11-22 01:25 CET; from livenesslab/ of this folder; read only: the six plan files regenerated in memory from the configuration, the public C2 files and ../trial, and compared byte for byte with ../plan; uncommitted working files
+# SHA-256 4f6e4324bf6f4bf1971e6b8797e0763bfbb308fe792c11a35365da667b72cb10  scripts/pad_anet_comparison.py
+# SHA-256 8e17acd107ffc7e09072d81e6247fe2c476381dd1508673178d789a70f5531b5  scripts/pad_anet_definitions.py
+# SHA-256 cbdc735b2fca528d776cf1dc846a0ffbf6db2af85f1f1e3715d4c7fa709f403b  scripts/pad_anet_models.py
+# SHA-256 f266e2ec81f219683dc5f9aa38d0088ce51e2f786bcd266cba621feafd01f5dc  scripts/check_pad_anet_comparison.py
+# SHA-256 ec6541295258d7e67b3c5c7d7007c322a2a2f2229a81ce28e97ec2f3fd8c8838  scripts/check_pad_anet_comparison_mutations.py
+# SHA-256 6f5297d08d4913ff8e84127c6c0e0852bc1fbecc3a821065a3d3290f242fea66  delivery/anetcmp/pad_anet_comparison.json
+# command: python -I -B scripts/pad_anet_comparison.py check-plan --plan-dir ../plan --trial-run ../trial
+check-plan: 6 files equal byte for byte to the regenerated ones; run matrix 72 rows ({4: 36, 12: 36} per patience, 24 per network, 6 runs of 12), 48 reused cells; trial 20261122-ANETTRIAL-a951ed0
+RESULT: PASS (check-plan)
+exit 0
+# finished 2026-11-22 01:25 CET, wall 0 s

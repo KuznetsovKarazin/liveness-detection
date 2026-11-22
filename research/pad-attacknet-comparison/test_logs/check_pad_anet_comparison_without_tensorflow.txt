@@ -1,0 +1,40 @@
+# macOS, Python 3.11.16, NumPy 1.26.4, TensorFlow 2.15.0, started 2026-11-22 00:52 CET; TensorFlow hidden by tools/run_without_tensorflow.py (the TensorFlow tests are skipped with their declared reason); uncommitted working files
+# SHA-256 4f6e4324bf6f4bf1971e6b8797e0763bfbb308fe792c11a35365da667b72cb10  scripts/pad_anet_comparison.py
+# SHA-256 8e17acd107ffc7e09072d81e6247fe2c476381dd1508673178d789a70f5531b5  scripts/pad_anet_definitions.py
+# SHA-256 cbdc735b2fca528d776cf1dc846a0ffbf6db2af85f1f1e3715d4c7fa709f403b  scripts/pad_anet_models.py
+# SHA-256 f266e2ec81f219683dc5f9aa38d0088ce51e2f786bcd266cba621feafd01f5dc  scripts/check_pad_anet_comparison.py
+# SHA-256 ec6541295258d7e67b3c5c7d7007c322a2a2f2229a81ce28e97ec2f3fd8c8838  scripts/check_pad_anet_comparison_mutations.py
+# SHA-256 6f5297d08d4913ff8e84127c6c0e0852bc1fbecc3a821065a3d3290f242fea66  delivery/anetcmp/pad_anet_comparison.json
+# command: python -I -B delivery/pad-arch-comparison/livenesslab/tools/run_without_tensorflow.py scripts/check_pad_anet_comparison.py
+....ssss............................................................ssssssssssssssss................sss.
+----------------------------------------------------------------------
+Ran 104 tests in 45.278s
+
+OK (skipped=23)
+tests run: 104, failures: 0, errors: 0, skipped: 23
+skipped __main__.TestBModels.test_built_models_match_the_registry: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+skipped __main__.TestBModels.test_check_model_refusals: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+skipped __main__.TestBModels.test_topology_differs_with_the_same_names_and_counts: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+skipped __main__.TestBModels.test_v2_2_has_no_regularizer_even_with_l2: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+skipped __main__.TestNTrainerBehaviour.test_non_finite_weights_give_a_card_with_nulls: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+skipped __main__.TestNTrainerBehaviour.test_same_card_and_weights_as_the_original_on_a_finite_history: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+skipped __main__.TestOTrial.test_1_control_failed_then_pass_then_plan: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+skipped __main__.TestOTrial.test_2_not_evaluable_attacknet: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+skipped __main__.TestOTrial.test_3_discordant_scorer_fails_and_removes_the_outputs: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+skipped __main__.TestOTrial.test_4_installed_copy_different_fails: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+skipped __main__.TestOTrial.test_5_bn_check_failure_fails: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+skipped __main__.TestOTrial.test_6_c2_trial_history_differs_from_the_card: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+skipped __main__.TestOTrial.test_7_non_finite_dev_scores_are_not_evaluable: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+skipped __main__.TestOTrial.test_8_non_finite_statistics_are_not_evaluable: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+skipped __main__.TestOTrial.test_9_non_finite_fitting_scores_are_not_evaluable: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+skipped __main__.TestOTrial.test_9b_forbidden_text_in_the_log_never_after_a_pass: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+skipped __main__.TestOTrial.test_9c_another_machine_fails_the_control: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+skipped __main__.TestOTrial.test_9d_findings_survive_a_later_fail: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+skipped __main__.TestOTrial.test_9e_control_finding_before_the_after_threads_check: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+skipped __main__.TestOTrial.test_9f_not_evaluable_finding_before_the_after_threads_check: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+skipped __main__.TestRBnCheck.test_other_frame_count_fails_check_2: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+skipped __main__.TestRBnCheck.test_pass: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+skipped __main__.TestRBnCheck.test_states_that_do_not_differ_fail_check_5: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+RESULT: PASS
+exit 0
+# finished 2026-11-22 00:53 CET, wall 46 s

@@ -1,0 +1,19 @@
+# macOS, Python 3.11.16, NumPy 1.26.4, TensorFlow 2.15.0, started 2026-11-22 00:51 CET; synthetic suite only (8x8 frames; LivenessNet and the three AttackNets of the reference code trained for 3 epochs on the CPU in a temporary folder; the AttackNets built at 256x256 only to count their parameters; no real frame, checkpoint or score); uncommitted working files
+# SHA-256 4f6e4324bf6f4bf1971e6b8797e0763bfbb308fe792c11a35365da667b72cb10  scripts/pad_anet_comparison.py
+# SHA-256 8e17acd107ffc7e09072d81e6247fe2c476381dd1508673178d789a70f5531b5  scripts/pad_anet_definitions.py
+# SHA-256 cbdc735b2fca528d776cf1dc846a0ffbf6db2af85f1f1e3715d4c7fa709f403b  scripts/pad_anet_models.py
+# SHA-256 f266e2ec81f219683dc5f9aa38d0088ce51e2f786bcd266cba621feafd01f5dc  scripts/check_pad_anet_comparison.py
+# SHA-256 ec6541295258d7e67b3c5c7d7007c322a2a2f2229a81ce28e97ec2f3fd8c8838  scripts/check_pad_anet_comparison_mutations.py
+# SHA-256 6f5297d08d4913ff8e84127c6c0e0852bc1fbecc3a821065a3d3290f242fea66  delivery/anetcmp/pad_anet_comparison.json
+# command: python -I -B scripts/check_pad_anet_comparison.py
+......................................................................WARNING:tensorflow:5 out of the last 10 calls to <function Model.make_test_function.<locals>.test_function at 0x1582f9b20> triggered tf.function retracing. Tracing is expensive and the excessive number of tracings could be due to (1) creating @tf.function repeatedly in a loop, (2) passing tensors with different shapes, (3) passing Python objects instead of tensors. For (1), please define your @tf.function outside of the loop. For (2), @tf.function has reduce_retracing=True option that can avoid unnecessary retracing. For (3), please refer to https://www.tensorflow.org/guide/function#controlling_retracing and https://www.tensorflow.org/api_docs/python/tf/function for  more details.
+WARNING:tensorflow:5 out of the last 11 calls to <function Model.make_test_function.<locals>.test_function at 0x158523e20> triggered tf.function retracing. Tracing is expensive and the excessive number of tracings could be due to (1) creating @tf.function repeatedly in a loop, (2) passing tensors with different shapes, (3) passing Python objects instead of tensors. For (1), please define your @tf.function outside of the loop. For (2), @tf.function has reduce_retracing=True option that can avoid unnecessary retracing. For (3), please refer to https://www.tensorflow.org/guide/function#controlling_retracing and https://www.tensorflow.org/api_docs/python/tf/function for  more details.
+..................................
+----------------------------------------------------------------------
+Ran 104 tests in 102.223s
+
+OK
+tests run: 104, failures: 0, errors: 0, skipped: 0
+RESULT: PASS
+exit 0
+# finished 2026-11-22 00:52 CET, wall 103 s
