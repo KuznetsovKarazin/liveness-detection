@@ -1,0 +1,17 @@
+Conditions of the official trial 20261122-ANETTRIAL-a951ed0, written by the author around the trial (uptime, CPU usage, command, number of TF_NUM_ variables set, commit and number of lines of git status --short), not by the runner; copied unchanged below this line.
+== conditions before
+2026-11-22 01:12:45 +0100
+ 1:12  up 3 days,  4:03, 2 users, load averages: 2.50 2.16 2.30
+CPU usage: 3.7% user, 7.11% sys, 89.80% idle 
+== command
+caffeinate -dims .venv/bin/python -I -B scripts/pad_anet_comparison.py trial --attempt 1 --i-am-authorized --checkpoint-root <a folder outside the repository>
+== environment: number of TF_NUM_ variables set
+0
+== git
+a951ed0
+0
+trial exit 0
+== conditions after
+2026-11-22 01:20:10 +0100
+ 1:20  up 3 days,  4:10, 2 users, load averages: 6.83 6.88 4.80
+CPU usage: 6.39% user, 6.80% sys, 86.80% idle 

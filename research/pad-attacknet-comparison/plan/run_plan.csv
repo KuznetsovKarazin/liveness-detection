@@ -1,0 +1,7 @@
+network,patience,units,new_trainings,epochs_min,epochs_max,fitting_frames_per_unit,dev_frames_per_unit,seconds_per_epoch,seconds_outside_epochs,seconds_phase_2,training_wall_hours_min,training_wall_hours_max,test_scores,dev_reproductions,evaluation_wall_hours,cpu_over_wall,training_cpu_hours_min,training_cpu_hours_max,evaluation_cpu_hours
+AttackNetV1,4,12,12,5,12,1400,400,26.78,0.98,45.07,0.60,1.22,75684,9600,0.10,7.65,4.59,9.37,0.78
+AttackNetV1,12,12,12,12,12,1400,400,26.78,0.98,45.07,1.22,1.22,75684,9600,0.10,7.65,9.37,9.37,0.78
+AttackNetV2_1,4,12,12,5,12,1400,400,27.11,1.18,45.45,0.61,1.24,75684,9600,0.10,7.65,4.64,9.48,0.78
+AttackNetV2_1,12,12,12,12,12,1400,400,27.11,1.18,45.45,1.24,1.24,75684,9600,0.10,7.65,9.48,9.48,0.78
+AttackNetV2_2,4,12,12,5,12,1400,400,22.36,1.27,38.41,0.50,1.03,75684,9600,0.09,7.63,3.85,7.83,0.69
+AttackNetV2_2,12,12,12,12,12,1400,400,22.36,1.27,38.41,1.03,1.03,75684,9600,0.09,7.63,7.83,7.83,0.69

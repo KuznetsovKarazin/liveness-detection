@@ -1,0 +1,286 @@
+{
+ "schema": "nuaa-bn-recalibration-config/1",
+ "task": "re-estimate the moving statistics of the five BatchNormalization layers of the 36 patience-4 checkpoints of run 20261106-SESSABLRUN-d999458 on the fitting set of their arm and fold, and evaluate dev and fitting before and after; no training, no trained parameter changed, no test read",
+ "authorisation": "coordinator, C2 card, 13 November 2026: the control is approved on the 36 existing checkpoints, without new training and without reading the test; three points to be specified in the note before the run (estimator, baseline tolerances with the stop rule, limited conclusions); once the note is updated and the checks of the implementation and of the baseline are passed, the comparison may be run without a further approval or the merge",
+ "parent_run": {
+  "run_id": "20261106-SESSABLRUN-d999458",
+  "folder": "results/sessionablationrun/20261106-SESSABLRUN-d999458",
+  "config_path": "delivery/sessionablationrun/nuaa_session_ablation_run.json",
+  "config_sha256": "4c2d29d13dede8a48c3a8e74e1ca48379c5c7e7721eb0a1f55fececbc684e23b",
+  "public_sha256sums_sha256": "89cb13854a8c8133684da3e3b4b6d9931ecddd6ec08d4ac6ec14aa08ce31e04a",
+  "restricted_sha256sums_sha256": "4ca502e0b07e556615c5042bb072770435c062d030e6d2a36d290c1481090fc2",
+  "models": 36,
+  "used": "status.json, the public and restricted SHA256SUMS, the public aggregate.json only as bytes for its SHA-256 (never parsed: it holds test metrics), and per model card.json, dev_scores.csv, threshold.json and LivenessNet.keras; <model>_test_scores.csv is never opened; the fitting and dev frames come from the same cell manifests, cache and extracted frames as in the parent run (its configuration, validated by its runner); of the folds run only status.json, the restricted SHA256SUMS and extracted_frames.csv (no public file opened)"
+ },
+ "architecture": {
+  "name": "LivenessNet",
+  "path": "src/livedetection/src/architectures.py",
+  "sha256": "a83c02b0788bd6f98262abf00f5fe970abed501f231edba348820482aea64d30",
+  "input_shape": [
+   256,
+   256,
+   3
+  ],
+  "layers": [
+   [
+    "input_layer",
+    "InputLayer"
+   ],
+   [
+    "conv1_1",
+    "Conv2D"
+   ],
+   [
+    "relu1_1",
+    "Activation"
+   ],
+   [
+    "bn1_1",
+    "BatchNormalization"
+   ],
+   [
+    "conv1_2",
+    "Conv2D"
+   ],
+   [
+    "relu1_2",
+    "Activation"
+   ],
+   [
+    "bn1_2",
+    "BatchNormalization"
+   ],
+   [
+    "maxpool1",
+    "MaxPooling2D"
+   ],
+   [
+    "dropout1",
+    "Dropout"
+   ],
+   [
+    "conv2_1",
+    "Conv2D"
+   ],
+   [
+    "relu2_1",
+    "Activation"
+   ],
+   [
+    "bn2_1",
+    "BatchNormalization"
+   ],
+   [
+    "conv2_2",
+    "Conv2D"
+   ],
+   [
+    "relu2_2",
+    "Activation"
+   ],
+   [
+    "bn2_2",
+    "BatchNormalization"
+   ],
+   [
+    "maxpool2",
+    "MaxPooling2D"
+   ],
+   [
+    "dropout2",
+    "Dropout"
+   ],
+   [
+    "flatten",
+    "Flatten"
+   ],
+   [
+    "dense1",
+    "Dense"
+   ],
+   [
+    "bn_dense",
+    "BatchNormalization"
+   ],
+   [
+    "dropout_dense",
+    "Dropout"
+   ],
+   [
+    "output",
+    "Dense"
+   ]
+  ],
+  "augmentation": "none inside the saved model: LivenessNet (src/architectures.py) has no augmentation, rescaling or preprocessing layer; the trainer's augmentation (nuaa_folds_run.default_trainer: RandomFlip, RandomRotation, RandomZoom, RandomTranslation, RandomBrightness, RandomContrast, GaussianNoise) is a separate tf.keras.Sequential mapped on the training dataset and is not saved; the runner refuses a saved model whose layers (names and classes, in order) differ from this list"
+ },
+ "batchnorm": {
+  "layers": [
+   "bn1_1",
+   "bn1_2",
+   "bn2_1",
+   "bn2_2",
+   "bn_dense"
+  ],
+  "kinds": {
+   "bn1_1": "conv",
+   "bn1_2": "conv",
+   "bn2_1": "conv",
+   "bn2_2": "conv",
+   "bn_dense": "dense"
+  },
+  "momentum": 0.99,
+  "epsilon": 0.001,
+  "inference": "y = gamma (x - moving_mean) / sqrt(moving_variance + epsilon) + beta, per channel (Keras 2.15, training=False)",
+  "running_variance_in_training": "recorded fact, not used: during training Keras 2.15 updated the moving variance with the Bessel-corrected batch variance for the four convolutional layers (fused kernel, factor n/(n-1), n = 16 x H x W) and with the biased batch variance for bn_dense; the population variance chosen here differs from an N/(N-1) version by the relative factor 1/(N-1): at most 1/933 for bn_dense (934 frames) and less than 1e-7 for the convolutional layers (N >= 934 x 128 x 128)"
+ },
+ "estimator": {
+  "statistics": "for each BatchNormalization layer, the per-channel global mean and variance of the layer INPUT over the whole fitting set of the model's arm and fold (1,400 frames for B and A*, 934 for B')",
+  "order": "layer by layer in network order (bn1_1, bn1_2, bn2_1, bn2_2, bn_dense): the input of a layer is computed with the earlier layers already carrying their re-estimated statistics (one pass over the fitting set per layer)",
+  "mode": "inference mode (training=False): dropout inactive, BatchNormalization layers with their moving statistics; no augmentation (frames / 255 as in scoring)",
+  "counts": "values per channel: frames x H x W for the four convolutional layers (256 x 256 for bn1_1 and bn1_2, 128 x 128 for bn2_1 and bn2_2), frames for bn_dense; batches of 16, the last one shorter (1,400 = 87 x 16 + 8; 934 = 58 x 16 + 6) and weighted by its own count; the accumulated count is checked against frames x H x W",
+  "variance": "population variance (divisor N) from the exact union of the batches in float64 (Chan et al.: per batch count, mean and sum of squared deviations), equal to sum of squares / N - mean^2 and to sum_b n_b (var_b + (mean_b - mean)^2) / N over the concatenated values, without the cancellation of the first form; not the mean of the batch variances, not the unweighted mean of the batch means",
+  "cast": "float32, round to nearest (numpy astype) of the float64 result; the float64 values are kept in the restricted statistics file",
+  "changed_tensors": [
+   "moving_mean",
+   "moving_variance"
+  ],
+  "copy": "an in-memory copy (clone_model and set_weights) of the checkpoint loaded from the parent file, SHA-256 verified just before loading; the file is never opened for writing and no recalibrated .keras is saved (the copy is reproducible from the statistics file); after the five layers every weight tensor of the copy is compared byte for byte with the original: exactly the 10 moving tensors differ, each equal to the installed float32 statistic, and every other tensor (kernels, biases, gamma, beta) is bit-identical; otherwise FAIL",
+  "consistency": "one multi-output pass over the fitting set with the final copy: the per-channel moments of the input of each BatchNormalization layer, recomputed with all five layers re-estimated, must equal the installed moving_mean and moving_variance within consistency_rel x |recomputed| + consistency_abs; a channel outside is an implementation failure (FAIL, no reading); the same pass gives the fitting accuracy and loss after"
+ },
+ "evaluation": {
+  "device": "CPU",
+  "batch": 16,
+  "input": "frames / 255 in float32, assembled in key order as in the parent run",
+  "mode": "inference (training=False), checkpoint loaded with compile=False as in the parent scorer",
+  "probability": "softmax output of the layer output, column 1 (attack); in the baseline also with the parent's own scorer (nuaa_folds_run.tf_scorer on the file)",
+  "logits": "z = h @ W + b in float64 from the input of the layer output (as tf_logits of the parent runner)",
+  "val_loss": "mean categorical cross-entropy from the logits as Keras 2.15 (logsumexp(z) - z[y], no clipping: nuaa_session_ablation_run.val_loss_logits); the same unweighted formula for the fitting loss",
+  "accuracy": "argmax of the probabilities against the label (Keras CategoricalAccuracy, tie = index 0), correct / n in float32; the accuracy at the 0.5 decision is also reported",
+  "auroc": "Mann-Whitney AUROC of the attack score, attack positive, ties 0.5 (nuaa_folds_run.auroc)",
+  "decision": "attack if score_attack > 0.5, tie = bona fide (for the discordant-decision check)"
+ },
+ "tolerances": {
+  "dev_probability_max_abs_diff": {
+   "value": 1e-05,
+   "source": "the tolerance of the coordinator's R2 replication package (1e-5 absolute, no discordant decision), used in the C1 crop check (research/c1-crop-check/README.md): there scores stored on the GPU one image at a time were reproduced within 8.9e-8 in those conditions and within 2.9e-6 on the CPU in batches of 16; here stored scores and baseline share file, CPU and batch 16; not measured before the run, since no inference precedes it; applied to the parent's scorer and to the evaluator of this script, frame by frame against the stored dev scores"
+  },
+  "dev_decisions_discordant_at_0_5": {
+   "value": 0,
+   "source": "same R2 criterion: no decision at 0.5 may change; measured on the stored files without inference: no stored dev score of the 36 models lies within 1e-3 of 0.5 (closest 1.03e-3)"
+  },
+  "val_loss_abs": {
+   "value": 0.001,
+   "source": "the absolute part of the parent runner's check (nuaa_folds_run.VAL_LOSS_TOL); its alternative 1 % branch is not used, since 1 % of the largest recorded value, 60.9868, is 0.61; measured on the stored cards without inference, the val_loss recomputed by the parent runner at run time differs from best_val_loss by at most 2.9e-6 absolute (arm_a_star_fold2_seed44, recorded 18.0934) and 2.5e-5 relative (arm_a_star_fold2_seed42, absolute 2.7e-9), two different models; the difference from val_loss_recomputed is reported, not binding"
+  },
+  "dev_accuracy_abs": {
+   "value": 1e-06,
+   "source": "the same number of correct dev frames (one frame = 0.0025 of 400; val_acc_at_best is the float32 of k/400); measured on the stored files without inference: the accuracy of the stored dev scores at the 0.5 decision equals val_acc_at_best for 36 of 36 models (difference 0 in float32)"
+  },
+  "softmax_of_logits_max_abs_diff": {
+   "value": 0.0001,
+   "source": "PROB_TOL of the parent runner (softmax of the float64 logits against the float32 probabilities); the same bound holds after the recalibration, on the dev and on the fitting, where a failure stops the run (FAIL)"
+  },
+  "consistency_rel": {
+   "value": 0.0001,
+   "source": "implementation check, not a baseline: the moments of the input of a layer depend only on the earlier layers, which are not changed after it, so the recomputed moments differ from the installed ones only by the float32 cast (relative 6e-8) and by the order of the float32 operations of the forward pass; 1e-4 relative is about 1,700 times the cast error and far below any change that would matter after normalisation"
+  },
+  "consistency_abs": {
+   "value": 1e-06,
+   "source": "absolute floor for channels whose mean or variance is zero or near zero (dead ReLU channels): 1e-6 is one thousandth of epsilon (0.001), which bounds the normalising denominator from below"
+  }
+ },
+ "stop_rule": "if any baseline check fails for at least one model, the run stops before any recalibration (status BASELINE_FAILED) and the discrepancy is documented without interpretation (public/baseline.csv, per model and per check: value, reference, difference, tolerance); no re-estimated statistic is computed and nothing is read from the recalibration. An error that prevents the evaluation itself (unexpected architecture, non-finite output, SHA-256 mismatch) is a FAIL with its reason in status.json and no table",
+ "recovery_criterion": {
+  "accuracy_min": 0.75,
+  "accuracy_min_inclusive": true,
+  "val_loss_max": 1.0,
+  "val_loss_max_inclusive": false,
+  "text": "dev accuracy >= 0.75 and val_loss < 1.0 (val_loss from the logits); the same thresholds read on the fitting set in inference mode (accuracy and unweighted loss)",
+  "source": "recovery criterion of the degenerate study (research/nuaa-degenerate-trainings/NOTE.md)"
+ },
+ "groups": {
+  "degenerate": {
+   "restored_epochs": [
+    1,
+    2
+   ],
+   "dev_accuracy": 0.5,
+   "within": 1e-06,
+   "source": "degenerate criterion of the degenerate study 20261107-DEGEN-a3b4dc0, applied to the parent cards"
+  },
+  "ten": {
+   "definition": "the degenerate checkpoints: restored epoch 1 or 2 with dev accuracy 0.5 (within 1e-6) in the parent card",
+   "expected": [
+    "arm_b_fold1_seed42",
+    "arm_a_star_fold2_seed43",
+    "arm_a_star_fold2_seed44",
+    "arm_a_star_fold3_seed42",
+    "arm_a_star_fold3_seed44",
+    "arm_b_fold4_seed44",
+    "arm_a_star_fold4_seed44",
+    "arm_b_prime_fold1_seed44",
+    "arm_b_prime_fold2_seed44",
+    "arm_b_prime_fold4_seed44"
+   ]
+  },
+  "apart": {
+   "definition": "not degenerate and outside the recovery criterion at its checkpoint (parent card): reported apart, not deciding",
+   "expected": [
+    "arm_b_fold3_seed44"
+   ]
+  },
+  "control": {
+   "definition": "every other checkpoint: not degenerate and meeting the recovery criterion at its checkpoint",
+   "expected_count": 25
+  }
+ },
+ "reading_rule": {
+  "primary": "primary: the number of the ten degenerate checkpoints that meet the recovery criterion on the dev after the re-estimation (dev accuracy >= 0.75 and val_loss < 1.0); applied mechanically by the script",
+  "all": "all ten ({k} of {n}) meet the recovery criterion on the dev after the re-estimation: on these checkpoints, re-estimating the statistics on the fitting set, every trained parameter unchanged, is sufficient to meet the criterion (the moving statistics, dropout and the augmentation of the fitting set, hypotheses 1-3, are not separated); the later saturated epochs, at residual <= 0.0704, are not examined. A recovery shows the effect of this recalibration on the examined checkpoints, not a single cause of the saturation",
+  "none": "none of the ten ({k} of {n}) meets the recovery criterion on the dev after the re-estimation: at the epoch-1/2 checkpoints this re-estimation is not sufficient to meet the criterion (other estimators, other checkpoints and the behaviour during training are not examined). A missing recovery does not, in general, exclude a role of BatchNormalization or dropout",
+  "some": "{k} of the {n} meet the recovery criterion on the dev after the re-estimation: the effect differs between checkpoints; no overall statement, each case reported. A recovery shows the effect of this recalibration on the examined checkpoints, not a single cause of the saturation, and a missing recovery does not, in general, exclude a role of BatchNormalization or dropout",
+  "controls": "secondary, not deciding: the controls (the 25 of the 26 meeting the criterion at their checkpoint); each one that no longer meets the criterion on the dev after the re-estimation is listed as a worsening",
+  "apart": "reported apart, not deciding: arm B fold 3 seed 44 (restored epoch 3, dev accuracy 0.2375, not degenerate, outside the criterion at its checkpoint), its dev values before and after",
+  "cells": {
+   "fitting_met_dev_met": "both",
+   "fitting_met_dev_not_met": "fitting only",
+   "fitting_not_met_dev_met": "dev after only",
+   "fitting_not_met_dev_not_met": "neither"
+  },
+  "worsening": "every worsening of every model is reported: criterion lost on the dev, fewer correct dev frames, higher dev val_loss, lower dev AUROC, fewer correct fitting frames, higher fitting loss; any change in that direction counts, however small, and aggregate.md gives its size (before -> after, difference) so that numerical noise can be recognised",
+  "limits": "each cell and each case states what is observed with these statistics on these checkpoints and names no cause; a recovery shows the effect of this recalibration on the examined checkpoints, not a single cause of the saturation; a missing recovery does not, in general, exclude a role of BatchNormalization or dropout; only the restored checkpoint of each training is examined, and it was selected on the same dev; small dev (2-3 subjects per fold); one estimator; the criteria were defined after the patience-4 run",
+  "report": "the report gives all 36 models, every worsening included, the fitting and dev values before and after, and the actual time against the estimate",
+  "cells_header": "fitting before (original statistics, inference mode) x dev after: each cell counts checkpoints, no cell names a cause"
+ },
+ "outputs": {
+  "public": [
+   "results.csv",
+   "baseline.csv",
+   "aggregate.json",
+   "aggregate.md",
+   "run_record.json",
+   "SHA256SUMS"
+  ],
+  "restricted": [
+   "<model>_scores.csv",
+   "<model>_bn_statistics.json",
+   "run_record.json",
+   "public_SHA256SUMS.sha256",
+   "SHA256SUMS"
+  ]
+ },
+ "budget": {
+  "wall_time_cap_minutes": 240,
+  "estimate_minutes": 32,
+  "upper_estimate_minutes": 140,
+  "estimate": "the note's derived estimate: about 32 minutes for the 36 models, upper estimate about 140 minutes (per model 5 recalibration and 2 evaluation passes over the fitting set, 2 over the dev); as implemented the same seven fitting passes (the pass after also gives the consistency check) and one more dev pass (the parent's scorer in the baseline); not priced: the reading of the frames, that extra dev pass, the float64 accumulation of the moments; cap 240 minutes",
+  "on_cap_exceeded": "INCOMPLETE: no further model; in the baseline phase no recalibration; in the recalibration phase the outputs of the complete models are kept and no reading is applied",
+  "voluntary_stop": "SIGUSR1 to the run's pid stops it at the next check, as INCOMPLETE"
+ },
+ "environment": {
+  "tensorflow": "2.15.0"
+ },
+ "note_path": "delivery/saturation-control/NOTE.md",
+ "note_sha256": "55ddd83901503286c31e7c5d352b9fcd3b62cc69f12872a0700663fc7f644af7",
+ "test": "the fold schema (fold<k>_test.csv, the test role of our folds) is never opened and no <model>_test_scores.csv is opened; the M2 manifests official_test and cnn_test (NUAA's official image lists, not the test role of our folds) are read only to index the cache; as in the parent run the frame files (cache and extracted frames) are hashed and loaded whole, but only fitting and dev frames are assembled; the public aggregate of the parent run, which holds test metrics, is read only as bytes for its SHA-256 and never parsed; no public file of the folds run is opened; no test frame is assembled or evaluated and no test score or metric is read, computed or written"
+}

@@ -1,0 +1,394 @@
+# macOS, Python 3.11.16, NumPy 1.26.4, TensorFlow 2.15.0, 22 November 2026; the complete mutation check run in thirteen batches, one at a time (--only), on the same code: the control and declared redundant mutations (c), the offline mutations with TensorFlow hidden, the TensorFlow mutations with the full synthetic suite; uncommitted working files
+# SHA-256 4f6e4324bf6f4bf1971e6b8797e0763bfbb308fe792c11a35365da667b72cb10  scripts/pad_anet_comparison.py
+# SHA-256 8e17acd107ffc7e09072d81e6247fe2c476381dd1508673178d789a70f5531b5  scripts/pad_anet_definitions.py
+# SHA-256 cbdc735b2fca528d776cf1dc846a0ffbf6db2af85f1f1e3715d4c7fa709f403b  scripts/pad_anet_models.py
+# SHA-256 f266e2ec81f219683dc5f9aa38d0088ce51e2f786bcd266cba621feafd01f5dc  scripts/check_pad_anet_comparison.py
+# SHA-256 ec6541295258d7e67b3c5c7d7007c322a2a2f2229a81ce28e97ec2f3fd8c8838  scripts/check_pad_anet_comparison_mutations.py
+
+# command: python -I -B scripts/check_pad_anet_comparison_mutations.py --only c
+unmutated copy (offline): scripts/check_pad_anet_comparison.py exit 0 (tests run: 104, failures: 0, errors: 0, skipped: 24)
+unmutated copy (offline): skipped __main__.TestBModels.test_built_models_match_the_registry: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestBModels.test_check_model_refusals: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestBModels.test_topology_differs_with_the_same_names_and_counts: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestBModels.test_v2_2_has_no_regularizer_even_with_l2: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestMPublicTexts.test_delivered_configuration: missing input: delivery/anetcmp/pad_anet_comparison.json or the files it pins are not present
+unmutated copy (offline): skipped __main__.TestNTrainerBehaviour.test_non_finite_weights_give_a_card_with_nulls: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestNTrainerBehaviour.test_same_card_and_weights_as_the_original_on_a_finite_history: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_1_control_failed_then_pass_then_plan: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_2_not_evaluable_attacknet: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_3_discordant_scorer_fails_and_removes_the_outputs: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_4_installed_copy_different_fails: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_5_bn_check_failure_fails: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_6_c2_trial_history_differs_from_the_card: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_7_non_finite_dev_scores_are_not_evaluable: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_8_non_finite_statistics_are_not_evaluable: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_9_non_finite_fitting_scores_are_not_evaluable: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_9b_forbidden_text_in_the_log_never_after_a_pass: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_9c_another_machine_fails_the_control: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_9d_findings_survive_a_later_fail: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_9e_control_finding_before_the_after_threads_check: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_9f_not_evaluable_finding_before_the_after_threads_check: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestRBnCheck.test_other_frame_count_fails_check_2: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestRBnCheck.test_pass: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestRBnCheck.test_states_that_do_not_differ_fail_check_5: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (tf): scripts/check_pad_anet_comparison.py exit 0 (tests run: 104, failures: 0, errors: 0, skipped: 1)
+unmutated copy (tf): skipped __main__.TestMPublicTexts.test_delivered_configuration: missing input: delivery/anetcmp/pad_anet_comparison.json or the files it pins are not present
+CONTROL   SURVIVED  control (must survive): a comment changed [offline] (tests run: 104, failures: 0, errors: 0, skipped: 24)
+CONTROL   SURVIVED  declared redundant (must survive): counts per patience, network and cell of the matrix [offline] (tests run: 104, failures: 0, errors: 0, skipped: 24)
+CONTROL   SURVIVED  declared redundant (must survive): existing run folder [offline] (tests run: 104, failures: 0, errors: 0, skipped: 24)
+CONTROL   SURVIVED  declared redundant (must survive): threshold domain in the guardian [offline] (tests run: 104, failures: 0, errors: 0, skipped: 24)
+CONTROL   SURVIVED  declared redundant (must survive): BN order against the graph in bn_check [tf] (tests run: 104, failures: 0, errors: 0, skipped: 1)
+CONTROL   SURVIVED  declared redundant (must survive): original unchanged in bn_check [tf] (tests run: 104, failures: 0, errors: 0, skipped: 1)
+CONTROL   SURVIVED  declared redundant (must survive): moving variables in bn_check [tf] (tests run: 104, failures: 0, errors: 0, skipped: 1)
+CONTROL   SURVIVED  declared redundant (must survive): variance changed in bn_check [tf] (tests run: 104, failures: 0, errors: 0, skipped: 1)
+mutations killed: 0/0 (selection of 0 of 113)
+control mutations survived: 8/8
+RESULT: PASS
+
+# command: python -I -B scripts/check_pad_anet_comparison_mutations.py --only 1,2,3,4,5,6,9,10,11,12,13,14,15,16,17
+unmutated copy (offline): scripts/check_pad_anet_comparison.py exit 0 (tests run: 104, failures: 0, errors: 0, skipped: 24)
+unmutated copy (offline): skipped __main__.TestBModels.test_built_models_match_the_registry: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestBModels.test_check_model_refusals: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestBModels.test_topology_differs_with_the_same_names_and_counts: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestBModels.test_v2_2_has_no_regularizer_even_with_l2: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestMPublicTexts.test_delivered_configuration: missing input: delivery/anetcmp/pad_anet_comparison.json or the files it pins are not present
+unmutated copy (offline): skipped __main__.TestNTrainerBehaviour.test_non_finite_weights_give_a_card_with_nulls: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestNTrainerBehaviour.test_same_card_and_weights_as_the_original_on_a_finite_history: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_1_control_failed_then_pass_then_plan: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_2_not_evaluable_attacknet: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_3_discordant_scorer_fails_and_removes_the_outputs: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_4_installed_copy_different_fails: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_5_bn_check_failure_fails: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_6_c2_trial_history_differs_from_the_card: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_7_non_finite_dev_scores_are_not_evaluable: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_8_non_finite_statistics_are_not_evaluable: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_9_non_finite_fitting_scores_are_not_evaluable: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_9b_forbidden_text_in_the_log_never_after_a_pass: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_9c_another_machine_fails_the_control: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_9d_findings_survive_a_later_fail: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_9e_control_finding_before_the_after_threads_check: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_9f_not_evaluable_finding_before_the_after_threads_check: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestRBnCheck.test_other_frame_count_fails_check_2: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestRBnCheck.test_pass: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestRBnCheck.test_states_that_do_not_differ_fail_check_5: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+KILLED      1 Add merge counted as a concatenation [offline] (tests run: 1, failures: 1, errors: 0, skipped: 0)
+KILLED      2 AttackNetV2_1 conv dropout at 0.25 [offline] (tests run: 3, failures: 1, errors: 0, skipped: 0)
+KILLED      3 BN gamma/beta counted once [offline] (tests run: 2, failures: 1, errors: 0, skipped: 0)
+KILLED      4 dense BN with spatial values [offline] (tests run: 1, failures: 1, errors: 0, skipped: 0)
+KILLED      5 recalibration count without the frames [offline] (tests run: 1, failures: 1, errors: 0, skipped: 0)
+KILLED      6 concatenation inputs swapped in the specification [offline] (tests run: 3, failures: 1, errors: 0, skipped: 0)
+KILLED      9 last minimum restored on ties [offline] (tests run: 10, failures: 1, errors: 0, skipped: 4)
+KILLED     10 infinite val_loss restorable [offline] (tests run: 13, failures: 0, errors: 1, skipped: 4)
+KILLED     11 no finite val_loss evaluable [offline] (tests run: 13, failures: 0, errors: 1, skipped: 4)
+KILLED     12 non-finite restored weights accepted [offline] (tests run: 14, failures: 1, errors: 0, skipped: 4)
+KILLED     13 non-finite statistics accepted [offline] (tests run: 9, failures: 1, errors: 0, skipped: 4)
+KILLED     14 re-estimated dev state not checked [offline] (tests run: 9, failures: 1, errors: 0, skipped: 4)
+KILLED     15 frame identifiers between networks not compared [offline] (tests run: 15, failures: 1, errors: 0, skipped: 4)
+KILLED     16 networks on other frames accepted [offline] (tests run: 17, failures: 1, errors: 0, skipped: 4)
+KILLED     17 duplicated unit accepted [offline] (tests run: 18, failures: 1, errors: 0, skipped: 4)
+mutations killed: 15/15 (selection of 15 of 113)
+RESULT: PASS
+
+# command: python -I -B scripts/check_pad_anet_comparison_mutations.py --only 18,19,20,21,22,23,24,25,26,27,28,29,30,31,32
+unmutated copy (offline): scripts/check_pad_anet_comparison.py exit 0 (tests run: 104, failures: 0, errors: 0, skipped: 24)
+unmutated copy (offline): skipped __main__.TestBModels.test_built_models_match_the_registry: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestBModels.test_check_model_refusals: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestBModels.test_topology_differs_with_the_same_names_and_counts: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestBModels.test_v2_2_has_no_regularizer_even_with_l2: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestMPublicTexts.test_delivered_configuration: missing input: delivery/anetcmp/pad_anet_comparison.json or the files it pins are not present
+unmutated copy (offline): skipped __main__.TestNTrainerBehaviour.test_non_finite_weights_give_a_card_with_nulls: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestNTrainerBehaviour.test_same_card_and_weights_as_the_original_on_a_finite_history: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_1_control_failed_then_pass_then_plan: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_2_not_evaluable_attacknet: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_3_discordant_scorer_fails_and_removes_the_outputs: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_4_installed_copy_different_fails: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_5_bn_check_failure_fails: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_6_c2_trial_history_differs_from_the_card: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_7_non_finite_dev_scores_are_not_evaluable: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_8_non_finite_statistics_are_not_evaluable: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_9_non_finite_fitting_scores_are_not_evaluable: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_9b_forbidden_text_in_the_log_never_after_a_pass: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_9c_another_machine_fails_the_control: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_9d_findings_survive_a_later_fail: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_9e_control_finding_before_the_after_threads_check: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_9f_not_evaluable_finding_before_the_after_threads_check: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestRBnCheck.test_other_frame_count_fails_check_2: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestRBnCheck.test_pass: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestRBnCheck.test_states_that_do_not_differ_fail_check_5: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+KILLED     18 seed outside the plan accepted [offline] (tests run: 18, failures: 1, errors: 0, skipped: 4)
+KILLED     19 required network not required [offline] (tests run: 18, failures: 1, errors: 0, skipped: 4)
+KILLED     20 units of a fold on other frames accepted [offline] (tests run: 21, failures: 1, errors: 0, skipped: 4)
+KILLED     21 identifier in two folds accepted [offline] (tests run: 16, failures: 1, errors: 0, skipped: 4)
+KILLED     22 BN states on other frames accepted [offline] (tests run: 19, failures: 1, errors: 0, skipped: 4)
+KILLED     23 subject in two folds accepted [offline] (tests run: 20, failures: 1, errors: 0, skipped: 4)
+KILLED     24 contrast with the LivenessNet term of the wrong sign [offline] (tests run: 23, failures: 1, errors: 0, skipped: 4)
+KILLED     25 variation reversed [offline] (tests run: 25, failures: 1, errors: 0, skipped: 4)
+KILLED     26 gap with ResNet-18 added [offline] (tests run: 23, failures: 1, errors: 0, skipped: 4)
+KILLED     27 unit values as floats [offline] (tests run: 23, failures: 1, errors: 0, skipped: 4)
+KILLED     28 bootstrap not paired across the units [offline] (tests run: 23, failures: 1, errors: 0, skipped: 4)
+KILLED     29 resample with an undefined unit counted [offline] (tests run: 22, failures: 0, errors: 1, skipped: 4)
+KILLED     30 pooled subjects not in ascending order [offline] (tests run: 23, failures: 1, errors: 0, skipped: 4)
+KILLED     31 contrast resolved with a zero upper bound [offline] (tests run: 29, failures: 1, errors: 0, skipped: 4)
+KILLED     32 contrast resolved with a zero lower bound [offline] (tests run: 29, failures: 1, errors: 0, skipped: 4)
+mutations killed: 15/15 (selection of 15 of 113)
+RESULT: PASS
+
+# command: python -I -B scripts/check_pad_anet_comparison_mutations.py --only 33,34,35,36,37,38,39,40,41,42,43,44,45,46,47
+unmutated copy (offline): scripts/check_pad_anet_comparison.py exit 0 (tests run: 104, failures: 0, errors: 0, skipped: 24)
+unmutated copy (offline): skipped __main__.TestBModels.test_built_models_match_the_registry: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestBModels.test_check_model_refusals: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestBModels.test_topology_differs_with_the_same_names_and_counts: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestBModels.test_v2_2_has_no_regularizer_even_with_l2: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestMPublicTexts.test_delivered_configuration: missing input: delivery/anetcmp/pad_anet_comparison.json or the files it pins are not present
+unmutated copy (offline): skipped __main__.TestNTrainerBehaviour.test_non_finite_weights_give_a_card_with_nulls: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestNTrainerBehaviour.test_same_card_and_weights_as_the_original_on_a_finite_history: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_1_control_failed_then_pass_then_plan: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_2_not_evaluable_attacknet: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_3_discordant_scorer_fails_and_removes_the_outputs: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_4_installed_copy_different_fails: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_5_bn_check_failure_fails: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_6_c2_trial_history_differs_from_the_card: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_7_non_finite_dev_scores_are_not_evaluable: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_8_non_finite_statistics_are_not_evaluable: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_9_non_finite_fitting_scores_are_not_evaluable: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_9b_forbidden_text_in_the_log_never_after_a_pass: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_9c_another_machine_fails_the_control: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_9d_findings_survive_a_later_fail: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_9e_control_finding_before_the_after_threads_check: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_9f_not_evaluable_finding_before_the_after_threads_check: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestRBnCheck.test_other_frame_count_fails_check_2: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestRBnCheck.test_pass: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestRBnCheck.test_states_that_do_not_differ_fail_check_5: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+KILLED     33 conclusion sides swapped [offline] (tests run: 29, failures: 1, errors: 0, skipped: 4)
+KILLED     34 threshold other than 0.5 accepted [offline] (tests run: 35, failures: 1, errors: 0, skipped: 4)
+KILLED     35 reused network incomplete accepted [offline] (tests run: 34, failures: 1, errors: 0, skipped: 4)
+KILLED     36 contrast on 11 pairs [offline] (tests run: 32, failures: 0, errors: 1, skipped: 4)
+KILLED     37 per-seed results on every unit [offline] (tests run: 23, failures: 1, errors: 0, skipped: 4)
+KILLED     38 ties ranked apart [offline] (tests run: 30, failures: 1, errors: 0, skipped: 4)
+KILLED     39 attack and bona fide denominators swapped [offline] (tests run: 24, failures: 1, errors: 0, skipped: 4)
+KILLED     40 percentage points with one decimal [offline] (tests run: 28, failures: 1, errors: 0, skipped: 4)
+KILLED     41 not evaluable run in the one-class denominator [offline] (tests run: 36, failures: 1, errors: 0, skipped: 4)
+KILLED     42 unknown configuration key accepted [offline] (tests run: 41, failures: 1, errors: 0, skipped: 4)
+KILLED     43 declaration phrases not checked [offline] (tests run: 41, failures: 1, errors: 0, skipped: 4)
+KILLED     44 pinned file SHA-256 not compared [offline] (tests run: 41, failures: 1, errors: 0, skipped: 4)
+KILLED     45 architecture file other than C2 accepted [offline] (tests run: 41, failures: 1, errors: 0, skipped: 4)
+KILLED     46 counts not compared with the registry [offline] (tests run: 41, failures: 1, errors: 0, skipped: 4)
+KILLED     47 BN names not compared with the registry [offline] (tests run: 41, failures: 1, errors: 0, skipped: 4)
+mutations killed: 15/15 (selection of 15 of 113)
+RESULT: PASS
+
+# command: python -I -B scripts/check_pad_anet_comparison_mutations.py --only 48,49,50,51,52,53,54,55,56,57,58,59,60,61,62
+unmutated copy (offline): scripts/check_pad_anet_comparison.py exit 0 (tests run: 104, failures: 0, errors: 0, skipped: 24)
+unmutated copy (offline): skipped __main__.TestBModels.test_built_models_match_the_registry: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestBModels.test_check_model_refusals: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestBModels.test_topology_differs_with_the_same_names_and_counts: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestBModels.test_v2_2_has_no_regularizer_even_with_l2: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestMPublicTexts.test_delivered_configuration: missing input: delivery/anetcmp/pad_anet_comparison.json or the files it pins are not present
+unmutated copy (offline): skipped __main__.TestNTrainerBehaviour.test_non_finite_weights_give_a_card_with_nulls: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestNTrainerBehaviour.test_same_card_and_weights_as_the_original_on_a_finite_history: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_1_control_failed_then_pass_then_plan: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_2_not_evaluable_attacknet: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_3_discordant_scorer_fails_and_removes_the_outputs: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_4_installed_copy_different_fails: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_5_bn_check_failure_fails: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_6_c2_trial_history_differs_from_the_card: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_7_non_finite_dev_scores_are_not_evaluable: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_8_non_finite_statistics_are_not_evaluable: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_9_non_finite_fitting_scores_are_not_evaluable: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_9b_forbidden_text_in_the_log_never_after_a_pass: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_9c_another_machine_fails_the_control: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_9d_findings_survive_a_later_fail: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_9e_control_finding_before_the_after_threads_check: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_9f_not_evaluable_finding_before_the_after_threads_check: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestRBnCheck.test_other_frame_count_fails_check_2: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestRBnCheck.test_pass: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestRBnCheck.test_states_that_do_not_differ_fail_check_5: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+KILLED     48 constructor not fixed [offline] (tests run: 41, failures: 1, errors: 0, skipped: 4)
+KILLED     49 threads other than C2 accepted [offline] (tests run: 41, failures: 1, errors: 0, skipped: 4)
+KILLED     50 trial unit not fixed [offline] (tests run: 41, failures: 1, errors: 0, skipped: 4)
+KILLED     51 test role accepted [offline] (tests run: 41, failures: 1, errors: 0, skipped: 4)
+KILLED     52 cap above 60 minutes accepted [offline] (tests run: 41, failures: 1, errors: 0, skipped: 4)
+KILLED     53 checkpoints inside the repository accepted [offline] (tests run: 41, failures: 1, errors: 0, skipped: 4)
+KILLED     54 runs in another order accepted [offline] (tests run: 41, failures: 1, errors: 0, skipped: 4)
+KILLED     55 reference cells not fixed [offline] (tests run: 41, failures: 1, errors: 0, skipped: 4)
+KILLED     56 caps multipliers below 1 accepted [offline] (tests run: 41, failures: 1, errors: 0, skipped: 4)
+KILLED     57 individual intervals not fixed [offline] (tests run: 41, failures: 1, errors: 0, skipped: 4)
+KILLED     58 causal wording accepted [offline] (tests run: 41, failures: 1, errors: 0, skipped: 4)
+KILLED     59 choice not declared accepted [offline] (tests run: 41, failures: 1, errors: 0, skipped: 4)
+KILLED     60 C2 trial SHA-256 not compared [offline] (tests run: 44, failures: 1, errors: 0, skipped: 4)
+KILLED     61 C2 trial of another configuration accepted [offline] (tests run: 45, failures: 1, errors: 0, skipped: 4)
+KILLED     62 C2 evaluation not required PASS and official [offline] (tests run: 45, failures: 1, errors: 0, skipped: 4)
+mutations killed: 15/15 (selection of 15 of 113)
+RESULT: PASS
+
+# command: python -I -B scripts/check_pad_anet_comparison_mutations.py --only 63,64,65,66,67,68,69,70,71,72,73,79,80,81,82
+unmutated copy (offline): scripts/check_pad_anet_comparison.py exit 0 (tests run: 104, failures: 0, errors: 0, skipped: 24)
+unmutated copy (offline): skipped __main__.TestBModels.test_built_models_match_the_registry: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestBModels.test_check_model_refusals: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestBModels.test_topology_differs_with_the_same_names_and_counts: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestBModels.test_v2_2_has_no_regularizer_even_with_l2: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestMPublicTexts.test_delivered_configuration: missing input: delivery/anetcmp/pad_anet_comparison.json or the files it pins are not present
+unmutated copy (offline): skipped __main__.TestNTrainerBehaviour.test_non_finite_weights_give_a_card_with_nulls: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestNTrainerBehaviour.test_same_card_and_weights_as_the_original_on_a_finite_history: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_1_control_failed_then_pass_then_plan: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_2_not_evaluable_attacknet: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_3_discordant_scorer_fails_and_removes_the_outputs: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_4_installed_copy_different_fails: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_5_bn_check_failure_fails: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_6_c2_trial_history_differs_from_the_card: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_7_non_finite_dev_scores_are_not_evaluable: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_8_non_finite_statistics_are_not_evaluable: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_9_non_finite_fitting_scores_are_not_evaluable: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_9b_forbidden_text_in_the_log_never_after_a_pass: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_9c_another_machine_fails_the_control: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_9d_findings_survive_a_later_fail: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_9e_control_finding_before_the_after_threads_check: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_9f_not_evaluable_finding_before_the_after_threads_check: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestRBnCheck.test_other_frame_count_fails_check_2: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestRBnCheck.test_pass: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestRBnCheck.test_states_that_do_not_differ_fail_check_5: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+KILLED     63 48 models not required in results.json [offline] (tests run: 45, failures: 1, errors: 0, skipped: 4)
+KILLED     64 restricted anchor not compared [offline] (tests run: 46, failures: 1, errors: 0, skipped: 4)
+KILLED     65 matrix row outside the plan accepted [offline] (tests run: 49, failures: 1, errors: 0, skipped: 4)
+KILLED     66 reference cell of the other patience accepted [offline] (tests run: 51, failures: 1, errors: 0, skipped: 4)
+KILLED     67 check-plan without the byte comparison [offline] (tests run: 50, failures: 1, errors: 0, skipped: 4)
+KILLED     68 cap without the anomaly factor [offline] (tests run: 48, failures: 1, errors: 0, skipped: 4)
+KILLED     69 trial of another configuration used by plan [offline] (tests run: 53, failures: 1, errors: 0, skipped: 4)
+KILLED     70 trial of other code used by plan [offline] (tests run: 53, failures: 1, errors: 0, skipped: 4)
+KILLED     71 hooks accepted with the delivered configuration [offline] (tests run: 63, failures: 1, errors: 0, skipped: 4)
+KILLED     72 dirty tree accepted [offline] (tests run: 61, failures: 1, errors: 0, skipped: 4)
+KILLED     73 checkpoint root inside the repository accepted [offline] (tests run: 59, failures: 1, errors: 0, skipped: 4)
+KILLED     79 SR hooks missing from the registry [offline] (tests run: 92, failures: 1, errors: 0, skipped: 21)
+KILLED     80 test values changed accepted [offline] (tests run: 86, failures: 1, errors: 0, skipped: 21)
+KILLED     81 official configuration by path string [offline] (tests run: 90, failures: 1, errors: 0, skipped: 21)
+KILLED     82 attempt number not compared [offline] (tests run: 57, failures: 1, errors: 0, skipped: 4)
+mutations killed: 15/15 (selection of 15 of 113)
+RESULT: PASS
+
+# command: python -I -B scripts/check_pad_anet_comparison_mutations.py --only 83,84,91,92,93,94,95,96,97,98,99,100,101,102,103
+unmutated copy (offline): scripts/check_pad_anet_comparison.py exit 0 (tests run: 104, failures: 0, errors: 0, skipped: 24)
+unmutated copy (offline): skipped __main__.TestBModels.test_built_models_match_the_registry: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestBModels.test_check_model_refusals: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestBModels.test_topology_differs_with_the_same_names_and_counts: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestBModels.test_v2_2_has_no_regularizer_even_with_l2: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestMPublicTexts.test_delivered_configuration: missing input: delivery/anetcmp/pad_anet_comparison.json or the files it pins are not present
+unmutated copy (offline): skipped __main__.TestNTrainerBehaviour.test_non_finite_weights_give_a_card_with_nulls: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestNTrainerBehaviour.test_same_card_and_weights_as_the_original_on_a_finite_history: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_1_control_failed_then_pass_then_plan: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_2_not_evaluable_attacknet: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_3_discordant_scorer_fails_and_removes_the_outputs: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_4_installed_copy_different_fails: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_5_bn_check_failure_fails: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_6_c2_trial_history_differs_from_the_card: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_7_non_finite_dev_scores_are_not_evaluable: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_8_non_finite_statistics_are_not_evaluable: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_9_non_finite_fitting_scores_are_not_evaluable: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_9b_forbidden_text_in_the_log_never_after_a_pass: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_9c_another_machine_fails_the_control: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_9d_findings_survive_a_later_fail: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_9e_control_finding_before_the_after_threads_check: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_9f_not_evaluable_finding_before_the_after_threads_check: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestRBnCheck.test_other_frame_count_fails_check_2: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestRBnCheck.test_pass: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestRBnCheck.test_states_that_do_not_differ_fail_check_5: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+KILLED     83 run id look-alike accepted [offline] (tests run: 57, failures: 1, errors: 0, skipped: 4)
+KILLED     84 machine comparison always equal [offline] (tests run: 85, failures: 1, errors: 0, skipped: 21)
+KILLED     91 epochs at least the patience [offline] (tests run: 55, failures: 1, errors: 0, skipped: 4)
+KILLED     92 cap with the whole anomaly factor [offline] (tests run: 48, failures: 1, errors: 0, skipped: 4)
+KILLED     93 test frames of another fold [offline] (tests run: 99, failures: 1, errors: 0, skipped: 21)
+KILLED     94 after outcome not checked [offline] (tests run: 41, failures: 1, errors: 0, skipped: 4)
+KILLED     95 control rule without the machine accepted [offline] (tests run: 41, failures: 1, errors: 0, skipped: 4)
+KILLED     96 every non-finite epoch recorded [offline] (tests run: 96, failures: 1, errors: 0, skipped: 21)
+KILLED     97 statistics of unknown finiteness accepted [offline] (tests run: 98, failures: 1, errors: 0, skipped: 21)
+KILLED     98 percentage points rounded half to even [offline] (tests run: 97, failures: 1, errors: 0, skipped: 21)
+KILLED     99 negated interval without the swap [offline] (tests run: 26, failures: 1, errors: 0, skipped: 4)
+KILLED    100 units out of order accepted [offline] (tests run: 100, failures: 1, errors: 0, skipped: 21)
+KILLED    101 EER conditions required at 0.5 [offline] (tests run: 95, failures: 0, errors: 1, skipped: 21)
+KILLED    102 descriptive conditions with readings [offline] (tests run: 95, failures: 1, errors: 0, skipped: 21)
+KILLED    103 missing descriptive condition accepted [offline] (tests run: 95, failures: 1, errors: 0, skipped: 21)
+mutations killed: 15/15 (selection of 15 of 113)
+RESULT: PASS
+
+# command: python -I -B scripts/check_pad_anet_comparison_mutations.py --only 110,112
+unmutated copy (offline): scripts/check_pad_anet_comparison.py exit 0 (tests run: 104, failures: 0, errors: 0, skipped: 24)
+unmutated copy (offline): skipped __main__.TestBModels.test_built_models_match_the_registry: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestBModels.test_check_model_refusals: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestBModels.test_topology_differs_with_the_same_names_and_counts: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestBModels.test_v2_2_has_no_regularizer_even_with_l2: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestMPublicTexts.test_delivered_configuration: missing input: delivery/anetcmp/pad_anet_comparison.json or the files it pins are not present
+unmutated copy (offline): skipped __main__.TestNTrainerBehaviour.test_non_finite_weights_give_a_card_with_nulls: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestNTrainerBehaviour.test_same_card_and_weights_as_the_original_on_a_finite_history: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_1_control_failed_then_pass_then_plan: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_2_not_evaluable_attacknet: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_3_discordant_scorer_fails_and_removes_the_outputs: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_4_installed_copy_different_fails: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_5_bn_check_failure_fails: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_6_c2_trial_history_differs_from_the_card: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_7_non_finite_dev_scores_are_not_evaluable: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_8_non_finite_statistics_are_not_evaluable: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_9_non_finite_fitting_scores_are_not_evaluable: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_9b_forbidden_text_in_the_log_never_after_a_pass: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_9c_another_machine_fails_the_control: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_9d_findings_survive_a_later_fail: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_9e_control_finding_before_the_after_threads_check: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestOTrial.test_9f_not_evaluable_finding_before_the_after_threads_check: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestRBnCheck.test_other_frame_count_fails_check_2: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestRBnCheck.test_pass: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+unmutated copy (offline): skipped __main__.TestRBnCheck.test_states_that_do_not_differ_fail_check_5: missing input: TensorFlow is not installed: the tests that build or train a Keras model are skipped
+KILLED    110 peak RSS not pinned [offline] (tests run: 91, failures: 1, errors: 0, skipped: 21)
+KILLED    112 check-machine passes on a difference [offline] (tests run: 85, failures: 1, errors: 0, skipped: 21)
+mutations killed: 2/2 (selection of 2 of 113)
+RESULT: PASS
+
+# command: python -I -B scripts/check_pad_anet_comparison_mutations.py --only 7,8,74,75,76
+unmutated copy (tf): scripts/check_pad_anet_comparison.py exit 0 (tests run: 104, failures: 0, errors: 0, skipped: 1)
+unmutated copy (tf): skipped __main__.TestMPublicTexts.test_delivered_configuration: missing input: delivery/anetcmp/pad_anet_comparison.json or the files it pins are not present
+KILLED      7 topology not compared [tf] (tests run: 7, failures: 1, errors: 0, skipped: 0)
+KILLED      8 dropout, alpha and regularizers not compared [tf] (tests run: 6, failures: 1, errors: 0, skipped: 0)
+KILLED     74 control reproduced without the C2 trial [tf] (tests run: 76, failures: 1, errors: 0, skipped: 1)
+KILLED     75 not evaluable model not recorded [tf] (tests run: 72, failures: 1, errors: 0, skipped: 1)
+KILLED     76 scorer and evaluator disagreement accepted [tf] (tests run: 73, failures: 1, errors: 0, skipped: 1)
+mutations killed: 5/5 (selection of 5 of 113)
+RESULT: PASS
+
+# command: python -I -B scripts/check_pad_anet_comparison_mutations.py --only 77,78,85,86,87
+unmutated copy (tf): scripts/check_pad_anet_comparison.py exit 0 (tests run: 104, failures: 0, errors: 0, skipped: 1)
+unmutated copy (tf): skipped __main__.TestMPublicTexts.test_delivered_configuration: missing input: delivery/anetcmp/pad_anet_comparison.json or the files it pins are not present
+KILLED     77 installed copy not compared [tf] (tests run: 74, failures: 1, errors: 0, skipped: 1)
+KILLED     78 BN check result not enforced [tf] (tests run: 75, failures: 1, errors: 0, skipped: 1)
+KILLED     85 control without the machine [tf] (tests run: 81, failures: 1, errors: 0, skipped: 1)
+KILLED     86 run.log not checked before the RESULT line [tf] (tests run: 80, failures: 1, errors: 0, skipped: 1)
+KILLED     87 non-finite fitting scores as FAIL [tf] (tests run: 79, failures: 1, errors: 0, skipped: 1)
+mutations killed: 5/5 (selection of 5 of 113)
+RESULT: PASS
+
+# command: python -I -B scripts/check_pad_anet_comparison_mutations.py --only 88,89,90,104,105
+unmutated copy (tf): scripts/check_pad_anet_comparison.py exit 0 (tests run: 104, failures: 0, errors: 0, skipped: 1)
+unmutated copy (tf): skipped __main__.TestMPublicTexts.test_delivered_configuration: missing input: delivery/anetcmp/pad_anet_comparison.json or the files it pins are not present
+KILLED     88 non-finite dev scores not checked [tf] (tests run: 77, failures: 1, errors: 0, skipped: 1)
+KILLED     89 non-finite statistics as FAIL [tf] (tests run: 78, failures: 1, errors: 0, skipped: 1)
+KILLED     90 equal dev scores in the two states accepted [tf] (tests run: 103, failures: 1, errors: 0, skipped: 1)
+KILLED    104 control finding not recorded [tf] (tests run: 82, failures: 0, errors: 1, skipped: 1)
+KILLED    105 not evaluable finding not recorded [tf] (tests run: 72, failures: 1, errors: 0, skipped: 1)
+mutations killed: 5/5 (selection of 5 of 113)
+RESULT: PASS
+
+# command: python -I -B scripts/check_pad_anet_comparison_mutations.py --only 106,107,108
+unmutated copy (tf): scripts/check_pad_anet_comparison.py exit 0 (tests run: 104, failures: 0, errors: 0, skipped: 1)
+unmutated copy (tf): skipped __main__.TestMPublicTexts.test_delivered_configuration: missing input: delivery/anetcmp/pad_anet_comparison.json or the files it pins are not present
+KILLED    106 control finding after the after-threads check [tf] (tests run: 83, failures: 0, errors: 1, skipped: 1)
+KILLED    107 not evaluable finding after the after-threads check [tf] (tests run: 84, failures: 1, errors: 0, skipped: 1)
+KILLED    108 findings not in the running status [tf] (tests run: 83, failures: 0, errors: 1, skipped: 1)
+mutations killed: 3/3 (selection of 3 of 113)
+RESULT: PASS
+
+# command: python -I -B scripts/check_pad_anet_comparison_mutations.py --only 109,111,113
+unmutated copy (tf): scripts/check_pad_anet_comparison.py exit 0 (tests run: 104, failures: 0, errors: 0, skipped: 1)
+unmutated copy (tf): skipped __main__.TestMPublicTexts.test_delivered_configuration: missing input: delivery/anetcmp/pad_anet_comparison.json or the files it pins are not present
+KILLED    109 finding without the running status [tf] (tests run: 83, failures: 0, errors: 1, skipped: 1)
+KILLED    111 findings not in the FAIL status [tf] (tests run: 82, failures: 0, errors: 1, skipped: 1)
+KILLED    113 values per channel not compared with the registry [tf] (tests run: 75, failures: 1, errors: 0, skipped: 1)
+mutations killed: 3/3 (selection of 3 of 113)
+RESULT: PASS
+
+# total over the thirteen batches: mutations killed: 113/113 (92 offline, 21 with TensorFlow); control mutations survived: 8/8 (1 control, 7 declared redundant)
