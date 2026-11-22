@@ -1,0 +1,80 @@
+# macOS, Python 3.11.16, NumPy 1.26.4, TensorFlow 2.15.0, started 2026-11-22 13:22 CET; the declared mutations and the check that every pattern occurs exactly once (no test run); the files are identified by the SHA-256 below, not by the state of the work tree
+# SHA-256 b8229c231ddd9d54aa01ba9b7287f696009930243081787e9d7c2c2d9d38a3cc  scripts/pad_anet_run.py
+# SHA-256 7a7daf930592ad7b829e5857c5432f265c564079e6c73d195d51675c94b2dca1  scripts/check_pad_anet_run.py
+# SHA-256 731a910f910706e6a3fc8b433208236451f3f20a2a37fd16446eb2541d675e5e  scripts/check_pad_anet_run_mutations.py
+# SHA-256 44b4deee427fa0ffa100feaa12eebb54614b5694c8132e64d4b887a1d86bca8d  delivery/anetrun/pad_anet_run.json
+# SHA-256 3fe7bd06d96adf5090fab6873e0961bba542065ef1a480ba18223badf75466e6  delivery/anetrun/launch.zsh
+# SHA-256 4f6e4324bf6f4bf1971e6b8797e0763bfbb308fe792c11a35365da667b72cb10  scripts/pad_anet_comparison.py
+# SHA-256 8e17acd107ffc7e09072d81e6247fe2c476381dd1508673178d789a70f5531b5  scripts/pad_anet_definitions.py
+# SHA-256 cbdc735b2fca528d776cf1dc846a0ffbf6db2af85f1f1e3715d4c7fa709f403b  scripts/pad_anet_models.py
+# SHA-256 6f5297d08d4913ff8e84127c6c0e0852bc1fbecc3a821065a3d3290f242fea66  delivery/anetcmp/pad_anet_comparison.json
+# command: python -I -B scripts/check_pad_anet_run_mutations.py --list
+  1 schema not checked  [scripts/pad_anet_run.py, offline]
+  2 runs in another order accepted  [scripts/pad_anet_run.py, offline]
+  3 estimator orders not checked  [scripts/pad_anet_run.py, offline]
+  4 BNRECAL models not checked  [scripts/pad_anet_run.py, offline]
+  5 choice of the author not required  [scripts/pad_anet_run.py, offline]
+  6 test sentence not required  [scripts/pad_anet_run.py, offline]
+  7 public outputs not checked  [scripts/pad_anet_run.py, offline]
+  8 PR A package not anchored  [scripts/pad_anet_run.py, offline]
+  9 plan files not compared with the regenerated ones  [scripts/pad_anet_run.py, offline]
+ 10 unofficial trial accepted  [scripts/pad_anet_run.py, offline]
+ 11 PR #27 configuration not that of PR A  [scripts/pad_anet_run.py, offline]
+ 12 positions checked only by number  [scripts/pad_anet_run.py, offline]
+ 13 cap from another column  [scripts/pad_anet_run.py, offline]
+ 14 machine rule skipped  [scripts/pad_anet_run.py, offline]
+ 15 thread environment of the trial not required  [scripts/pad_anet_run.py, offline]
+ 16 hooks not checked on an official root  [scripts/pad_anet_run.py, offline]
+ 17 hooks of this module not registered  [scripts/pad_anet_run.py, offline]
+ 18 rule (n) not applied  [scripts/pad_anet_run.py, offline]
+ 19 restored weights not checked  [scripts/pad_anet_run.py, offline]
+ 20 in-memory passes not made  [scripts/pad_anet_run.py, offline]
+ 21 not evaluable model saved  [scripts/pad_anet_run.py, offline]
+ 22 phase 2 for a not evaluable model  [scripts/pad_anet_run.py, offline]
+ 23 not evaluable in phase 2 not caught  [scripts/pad_anet_run.py, offline]
+ 24 card check without the finite minimum  [scripts/pad_anet_run.py, offline]
+ 25 val_loss not checked  [scripts/pad_anet_run.py, offline]
+ 26 evaluator mismatch ignored  [scripts/pad_anet_run.py, offline]
+ 27 dev frames not compared  [scripts/pad_anet_run.py, offline]
+ 28 attempt rule off  [scripts/pad_anet_run.py, offline]
+ 29 attempt not required  [scripts/pad_anet_run.py, offline]
+ 30 dirty tree accepted  [scripts/pad_anet_run.py, offline]
+ 31 estimator check not required  [scripts/pad_anet_run.py, offline]
+ 32 official run with an unofficial estimator check  [scripts/pad_anet_run.py, offline]
+ 33 estimator check of other code accepted  [scripts/pad_anet_run.py, offline]
+ 34 other output root without the flag  [scripts/pad_anet_run.py, offline]
+ 35 run.log not checked before the RESULT line  [scripts/pad_anet_run.py, offline]
+ 36 not evaluable models not in the final status  [scripts/pad_anet_run.py, offline]
+ 37 not evaluable status not given  [scripts/pad_anet_run.py, offline]
+ 38 threads read back not required  [scripts/pad_anet_run.py, offline]
+ 39 inputs not checked at the end  [scripts/pad_anet_run.py, offline]
+ 40 estimator outcome not computed  [scripts/pad_anet_run.py, offline]
+ 41 estimator statistics tolerance changed  [scripts/pad_anet_run.py, offline]
+ 42 re-estimated statistics not translated  [scripts/pad_anet_run.py, offline]
+ 43 reloaded model not checked  [scripts/pad_anet_run.py, offline]
+ 44 phase 2 order of another network  [scripts/pad_anet_run.py, offline]
+ 45 fitting not scored in memory  [scripts/pad_anet_run.py, offline]
+ 46 dev pass on the fitting frames  [scripts/pad_anet_run.py, offline]
+ 47 patience of the run not passed  [scripts/pad_anet_run.py, offline]
+ 48 cap in the wrong unit  [scripts/pad_anet_run.py, offline]
+ 49 model in progress not discarded at the cap  [scripts/pad_anet_run.py, offline]
+ 50 date accepted for an official root  [scripts/pad_anet_run.py, offline]
+ 51 hooks checked only for the official root  [scripts/pad_anet_run.py, offline]
+ 52 card counts not checked  [scripts/pad_anet_run.py, offline]
+ 53 not evaluable model without phase 1 recorded  [scripts/pad_anet_run.py, offline]
+ 54 not evaluable model without the threads after  [scripts/pad_anet_run.py, offline]
+ 55 restricted SHA256SUMS not written  [scripts/pad_anet_run.py, offline]
+ 56 keys not checked again before each training (seen by the copy comparison)  [scripts/pad_anet_run.py, offline]
+ 57 final check that no test frame was assembled removed (seen by the copy comparison)  [scripts/pad_anet_run.py, offline]
+ 58 keys of every unit not checked at the start (seen by the copy comparison)  [scripts/pad_anet_run.py, offline]
+ 59 reason not in the card of a not evaluable model  [scripts/pad_anet_run.py, offline]
+ 60 rule (n) record of the card not marked not evaluable  [scripts/pad_anet_run.py, offline]
+ 61 launch: the estimator check passed as one word  [delivery/anetrun/launch.zsh, offline]
+ 62 launch: nice not checked  [delivery/anetrun/launch.zsh, offline]
+ 63 launch: command launched after a failed check  [delivery/anetrun/launch.zsh, offline]
+ 64 launch: exit code of the command not propagated  [delivery/anetrun/launch.zsh, offline]
+ 65 phase 1 trainer of another network  [scripts/pad_anet_run.py, tf]
+    control (must survive): a comment changed  [scripts/pad_anet_run.py, offline] (must survive)
+65 mutations (64 offline, 1 with TensorFlow), 1 control mutation and 0 declared redundant, every pattern found exactly once
+exit 0
+# finished 2026-11-22 13:22 CET, wall 0 s

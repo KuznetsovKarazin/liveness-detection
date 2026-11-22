@@ -1,0 +1,7 @@
+run,network,patience,trainings,wall_hours_min,wall_hours_max,cap_wall_hours,cpu_hours_min,cpu_hours_max
+anet_v1_p4,AttackNetV1,4,12,0.60,1.22,2.50,4.59,9.37
+anet_v2_1_p4,AttackNetV2_1,4,12,0.61,1.24,2.50,4.64,9.48
+anet_v2_2_p4,AttackNetV2_2,4,12,0.50,1.03,2.00,3.85,7.83
+anet_v1_p12,AttackNetV1,12,12,1.22,1.22,2.50,9.37,9.37
+anet_v2_1_p12,AttackNetV2_1,12,12,1.24,1.24,2.50,9.48,9.48
+anet_v2_2_p12,AttackNetV2_2,12,12,1.03,1.03,2.00,7.83,7.83
