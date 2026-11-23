@@ -1,0 +1,22 @@
+{
+  "metrics_file": "research/pad-arch-score-results/runs/20261122-ARCHSCORE-fe87b3d/public/score_metrics.csv",
+  "metrics_sha256": "1397786e065efff2214757ae34c90f8984e1d926780593987756705d48331bdd",
+  "ps_file": "research/pad-arch-score-results/runs/20261122-ARCHSCORE-fe87b3d/public/paired_summary.csv",
+  "ps_sha256": "f59e52da1303ed3241b448a97dc53491116d7b3873c2b41cd0c4c67e4c7590c3",
+  "expected_counts": {
+    "file": "expected_counts.csv",
+    "sha256": "82df41efe96654ffc212f03069aab8539bc8ed2e9f5733e456e50bc785e2a51c"
+  },
+  "groups": {
+    "sessions 1-2": ["01", "02"],
+    "session 3": ["03"]
+  },
+  "targets": ["5pct", "10pct"],
+  "highlight": {
+    "patience": 4,
+    "target": "5pct",
+    "networks": ["LivenessNet", "ResNet-18"],
+    "bn_states": ["ordinary", "re-estimated"],
+    "metrics": ["apcer", "bpcer"]
+  }
+}

@@ -1,0 +1,13 @@
+Log of check_synthetic.py, run on 2026-11-23 01:49:50 +0100 on the files of this folder.
+Python 3.11.16; NumPy 1.26.4; Matplotlib 3.11.2; Darwin arm64
+SHA-256 of the files it ran on:
+6bde055de8d084019951304bb752c99c5dc2dd0a381226c2f73c487ee1b66b1e  session_compare.py
+c1a06ac95360448270eca344b4d7b48b7710080dbf855a066aa15e753f86da4c  session_summary.py
+2ac1f0dc2ad5fbbf84484f4c4c807c021fcb0096daace762c942bb0a77aefab9  check_synthetic.py
+516eaeaa2cba77f9e4f7855b80a13ac8a2288c1a89e42b8dbcd4435e091dd13c  check_mutations.py
+d86baca65f0415483bf7b37d2d1476ac9c30ae7757528e0f1bf20a59beada12d  session_config.json
+82df41efe96654ffc212f03069aab8539bc8ed2e9f5733e456e50bc785e2a51c  expected_counts.csv
+Command: python -I -B check_synthetic.py
+Output:
+Synthetic end-to-end check passed: 192 operating points, 16 combinations, table and figure, 41 stop cases.
+exit code: 0
