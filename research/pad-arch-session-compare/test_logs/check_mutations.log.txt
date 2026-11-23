@@ -1,0 +1,71 @@
+Log of check_mutations.py, run on 2026-11-23 01:50:04 +0100 on the files of this folder.
+Python 3.11.16; NumPy 1.26.4; Matplotlib 3.11.2; Darwin arm64
+SHA-256 of the files it ran on:
+6bde055de8d084019951304bb752c99c5dc2dd0a381226c2f73c487ee1b66b1e  session_compare.py
+c1a06ac95360448270eca344b4d7b48b7710080dbf855a066aa15e753f86da4c  session_summary.py
+2ac1f0dc2ad5fbbf84484f4c4c807c021fcb0096daace762c942bb0a77aefab9  check_synthetic.py
+516eaeaa2cba77f9e4f7855b80a13ac8a2288c1a89e42b8dbcd4435e091dd13c  check_mutations.py
+d86baca65f0415483bf7b37d2d1476ac9c30ae7757528e0f1bf20a59beada12d  session_config.json
+82df41efe96654ffc212f03069aab8539bc8ed2e9f5733e456e50bc785e2a51c  expected_counts.csv
+Command: python -I -B check_mutations.py
+Output:
+unmutated: check_synthetic.py passed
+mutation  1 (remove check C1): killed by its own stop case | Synthetic check FAILED: stop case 0 C1 (SHA-256 of score_metrics.csv) of session_compare.py: configuration sha256: ca663a88871dd80bd3a9f5de3b40adc4042255578aada3181cc7a178d5850bf0
+mutation  2 (remove check C2): killed by its own stop case | Synthetic check FAILED: stop case 3 C2 (test row metadata) of session_compare.py: configuration sha256: ac1c4ab29543ea33b742c4c6ed07954863d45916887c97055f9fa4148fe6196e
+mutation  3 (remove check C3): killed by its own stop case | Synthetic check FAILED: stop case 8 C3 (test frames, identifiers, labels or sessions differ) of session_compare.py: configuration sha256: ac1c4ab29543ea33b742c4c6ed07954863d45916887c97055f9fa4148fe619
+mutation  4 (remove check C4): killed by its own stop case | Synthetic check FAILED: stop case 12 C4 (different parent checkpoints) of session_compare.py: configuration sha256: ac1c4ab29543ea33b742c4c6ed07954863d45916887c97055f9fa4148fe6196e
+mutation  5 (remove check C5): killed by its own stop case | Synthetic check FAILED: stop case 15 C5 (differs from the session field) of session_compare.py: configuration sha256: ac1c4ab29543ea33b742c4c6ed07954863d45916887c97055f9fa4148fe6196e
+mutation  6 (remove check C6): killed by its own stop case | Synthetic check FAILED: stop case 22 C6 (frame or identifier count differs) of session_compare.py: configuration sha256: ef71029a1df9b658a395b008ee96e435dbbb615836362bfef915690ed04b78aa
+mutation  7 (remove check C7): killed by its own stop case | Synthetic check FAILED: stop case 26 C7 (recomputed development threshold) of session_compare.py: configuration sha256: 2fac0df794c97100f003cc39320bb2d63c83dac8941e82e7d24f8ae1928604a5
+mutation  8 (remove check C8): killed by its own stop case | Synthetic check FAILED: stop case 0 C8 (thresholds of the two groups) of session_summary.py: configuration sha256: ac1c4ab29543ea33b742c4c6ed07954863d45916887c97055f9fa4148fe6196e
+mutation  9 (remove check C9): killed by its own stop case | Synthetic check FAILED: stop case 29 C9 (pooled apcer differs from score_metrics.csv) of session_compare.py: configuration sha256: a695288930514c4000b9f34e9b04cf068b7612ab611c025f9a8d987a2d7a4669
+mutation 10 (remove check C10): killed by its own stop case | Synthetic check FAILED: stop case 30 C10 (input score file missing) of session_compare.py: configuration sha256: ac1c4ab29543ea33b742c4c6ed07954863d45916887c97055f9fa4148fe6196e
+mutation 11 (remove check C11): killed by its own stop case | Synthetic check FAILED: stop case 31 C11 (new or empty output directory) of session_compare.py: configuration sha256: ac1c4ab29543ea33b742c4c6ed07954863d45916887c97055f9fa4148fe6196e
+mutation 12 (remove check C12): killed by its own stop case | Synthetic check FAILED: stop case 32 C12 (twelve-unit mean of the pooled apcer) of session_compare.py: configuration sha256: 399ed7d17c9177be30c2c5993acbfce3dd2790e818b4ee9faf04a66f67f537f7
+mutation 13 (APCER with < instead of <=): killed | Synthetic check FAILED: session_compare.py failed on the invented inputs: configuration sha256: ac1c4ab29543ea33b742c4c6ed07954863d45916887c97055f9fa4148fe6196e
+mutation 14 (BPCER with >= instead of >): killed | Synthetic check FAILED: session_compare.py failed on the invented inputs: configuration sha256: ac1c4ab29543ea33b742c4c6ed07954863d45916887c97055f9fa4148fe6196e
+mutation 15 (threshold 0.5 instead of the one of score_metrics.csv): killed | Synthetic check FAILED: session_compare.py failed on the invented inputs: configuration sha256: ac1c4ab29543ea33b742c4c6ed07954863d45916887c97055f9fa4148fe6196e
+mutation 16 (threshold of session 3 taken from the other BN state): killed | Synthetic check FAILED: session_compare.py failed on the invented inputs: configuration sha256: ac1c4ab29543ea33b742c4c6ed07954863d45916887c97055f9fa4148fe6196e
+mutation 17 (threshold of session 3 taken from the other target): killed | Synthetic check FAILED: session_compare.py failed on the invented inputs: configuration sha256: ac1c4ab29543ea33b742c4c6ed07954863d45916887c97055f9fa4148fe6196e
+mutation 18 (sessions 1-2 and session 3 swapped): killed | Synthetic check FAILED: session_compare.py failed on the invented inputs: configuration sha256: ac1c4ab29543ea33b742c4c6ed07954863d45916887c97055f9fa4148fe6196e
+mutation 19 (session 03 read as sessions 1-2): killed | Synthetic check FAILED: session_compare.py failed on the invented inputs: configuration sha256: ac1c4ab29543ea33b742c4c6ed07954863d45916887c97055f9fa4148fe6196e
+mutation 20 (session 01 read as session 3): killed | Synthetic check FAILED: session_compare.py failed on the invented inputs: configuration sha256: ac1c4ab29543ea33b742c4c6ed07954863d45916887c97055f9fa4148fe6196e
+mutation 21 (frame-weighted mean instead of weight 1/12): killed | Synthetic check FAILED: apcer mean_difference differs from the independent value
+mutation 22 (development BPCER recomputed as (200 - k)/200): killed | Synthetic check FAILED: session_compare.py failed on the invented inputs: configuration sha256: ac1c4ab29543ea33b742c4c6ed07954863d45916887c97055f9fa4148fe6196e
+mutation 23 (difference sessions 1-2 minus session 3): killed | Synthetic check FAILED: apcer mean_difference differs from the independent value
+mutation 24 (unit with zero difference counted as up): killed | Synthetic check FAILED: apcer signs differ from the independent value
+mutation 25 (M1 table: group means swapped): killed | Synthetic check FAILED: session_table.md line 1 differs from the independent table
+mutation 26 (M2 table: no conversion x 100): killed | Synthetic check FAILED: session_table.md line 1 differs from the independent table
+mutation 27 (M3 table: rounding on the float): killed | Synthetic check FAILED: session_table.md line 1 differs from the independent table
+mutation 28 (M4 table: difference without sign): killed | Synthetic check FAILED: session_table.md line 1 differs from the independent table
+mutation 29 (M5 table: BN state labels swapped): killed | Synthetic check FAILED: session_table.md line 1 differs from the independent table
+mutation 30 (M6 table: APCER and BPCER columns swapped): killed | Synthetic check FAILED: session_table.md line 1 differs from the independent table
+mutation 31 (M7 table: units up and down swapped): killed | Synthetic check FAILED: session_table.md line 1 differs from the independent table
+mutation 32 (M8 table: groups swapped in the denominator note): killed | Synthetic check FAILED: denominator note of session_table.md
+mutation 33 (M9 figure: metric of the panel swapped): killed | Synthetic check FAILED: figure panel 1 points
+mutation 34 (M10 figure: offset by seed instead of fold): killed | Synthetic check FAILED: figure panel 1 points
+mutation 35 (M11 figure: mean dash at the session 3 mean): killed | Synthetic check FAILED: figure panel 1 means
+mutation 36 (M12 existing output files not refused): killed | Synthetic check FAILED: stop case 6 output (an output file already exists) of session_summary.py: configuration sha256: ac1c4ab29543ea33b742c4c6ed07954863d45916887c97055f9fa4148fe6196e
+mutation 37 (M13 units up and down swapped in the count): killed | Synthetic check FAILED: apcer signs differ from the independent value
+mutation 38 (M14 C5 identifier fields not checked): killed | Synthetic check FAILED: stop case 18 C5 (subject_id differs from the identifier fields) of session_compare.py: configuration sha256: ac1c4ab29543ea33b742c4c6ed07954863d45916887c97055f9fa4148fe6196e
+mutation 39 (M15 C5 class prefix not checked): killed | Synthetic check FAILED: stop case 17 C5 (class prefix) of session_compare.py: configuration sha256: ac1c4ab29543ea33b742c4c6ed07954863d45916887c97055f9fa4148fe6196e
+mutation 40 (M16 C5 form of sample_id not checked): killed | Synthetic check FAILED: stop case 16 C5 (not of the expected form) of session_compare.py: configuration sha256: ac1c4ab29543ea33b742c4c6ed07954863d45916887c97055f9fa4148fe6196e
+mutation 41 (M17 C6 identifier counts not checked): killed | Synthetic check FAILED: stop case 22 C6 (frame or identifier count differs) of session_compare.py: configuration sha256: ef71029a1df9b658a395b008ee96e435dbbb615836362bfef915690ed04b78aa
+mutation 42 (M18 C6 SHA-256 of expected_counts.csv not checked): killed | Synthetic check FAILED: stop case 25 C6 (SHA-256 of expected_counts.csv) of session_compare.py: configuration sha256: ac1c4ab29543ea33b742c4c6ed07954863d45916887c97055f9fa4148fe6196e
+mutation 43 (M19 C1 unique and expected keys not checked): killed | Synthetic check FAILED: stop case 2 C1 (does not have the 96 expected) of session_compare.py: configuration sha256: 66d45ad8eb4aa3b058c2a3a79f1b60d367561bfcda3aa96431df97247723ed13
+mutation 44 (M20 C2 third BN state not checked): killed | Synthetic check FAILED: stop case 4 C2 (unexpected BN state) of session_compare.py: configuration sha256: ac1c4ab29543ea33b742c4c6ed07954863d45916887c97055f9fa4148fe6196e
+mutation 45 (M21 C3 development pairing not checked): killed | Synthetic check FAILED: stop case 9 C3 (development frames, identifiers or labels differ) of session_compare.py: configuration sha256: ac1c4ab29543ea33b742c4c6ed07954863d45916887c97055f9fa4148fe6196e
+mutation 46 (M22 C4 one hash per state not checked): killed | Synthetic check FAILED: stop case 13 C4 (test and development checkpoint hashes differ) of session_compare.py: configuration sha256: ac1c4ab29543ea33b742c4c6ed07954863d45916887c97055f9fa4148fe6196e
+mutation 47 (M23 C7 development APCER not compared): killed | Synthetic check FAILED: stop case 27 C7 (recomputed development dev_apcer) of session_compare.py: configuration sha256: 37b42d41f9919824ae736825ae9a63626fcc6118487b9cfd198c005409b1489f
+mutation 48 (M24 C12 mean in (seed, fold) order): killed | Synthetic check FAILED: session_compare.py failed on the invented inputs: configuration sha256: ac1c4ab29543ea33b742c4c6ed07954863d45916887c97055f9fa4148fe6196e
+mutation 49 (M25 C12 mean as a plain sum): killed | Synthetic check FAILED: session_compare.py failed on the invented inputs: configuration sha256: ac1c4ab29543ea33b742c4c6ed07954863d45916887c97055f9fa4148fe6196e
+mutation 50 (M26 C2 scores up to 2 accepted): killed | Synthetic check FAILED: stop case 6 C2 (test score not finite or outside) of session_compare.py: configuration sha256: ac1c4ab29543ea33b742c4c6ed07954863d45916887c97055f9fa4148fe6196e
+mutation 51 (M27 thresholds of both groups from the other BN state): killed | Synthetic check FAILED: session_compare.py failed on the invented inputs: configuration sha256: ac1c4ab29543ea33b742c4c6ed07954863d45916887c97055f9fa4148fe6196e
+mutation 52 (M28 classes swapped): killed | Synthetic check FAILED: session_compare.py failed on the invented inputs: configuration sha256: ac1c4ab29543ea33b742c4c6ed07954863d45916887c97055f9fa4148fe6196e
+mutation 53 (M29 APCER and BPCER swapped in the rows): killed | Synthetic check FAILED: session_compare.py failed on the invented inputs: configuration sha256: ac1c4ab29543ea33b742c4c6ed07954863d45916887c97055f9fa4148fe6196e
+mutation 54 (M30 C7 selection with < instead of <=): killed | Synthetic check FAILED: session_compare.py failed on the invented inputs: configuration sha256: ac1c4ab29543ea33b742c4c6ed07954863d45916887c97055f9fa4148fe6196e
+mutation 55 (M31 C7 against the row of another seed): killed | Synthetic check FAILED: session_compare.py failed on the invented inputs: configuration sha256: ac1c4ab29543ea33b742c4c6ed07954863d45916887c97055f9fa4148fe6196e
+mutation 56 (C3 count of 400 development frames not checked): killed | Synthetic check FAILED: stop case 11 C3 (unexpected fit of the development and test) of session_compare.py: configuration sha256: ac1c4ab29543ea33b742c4c6ed07954863d45916887c97055f9fa4148fe6196e
+mutations killed: 56/56
+removal mutations killed by their own stop case: 12/12
+exit code: 0
