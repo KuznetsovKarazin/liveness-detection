@@ -1,0 +1,54 @@
+# macOS 27.2.1 on arm64; python3 is Python 3.14.7 without matplotlib; started 2026-11-24 14:25 CET; suite on the synthetic records, without matplotlib, with the records of the evaluation and of its runs
+# the files are identified by the SHA-256 below (paths relative to this folder), not by the state of the work tree
+# SHA-256 b93afaf1ec06c44ec322163c9e8cd4151351d11a6b1058273345b93dcf89d544  make_table_figure.py
+# SHA-256 7f338770fc0e3d4fb66bc049dea8563537be19c1ec2f2fbf8a7829fe174600a6  check_make_table_figure.py
+# SHA-256 11904017b5dfd0385b32d0c1e9629e76d4e32f401fb57cc039841ee8167ee635  check_make_table_figure_mutations.py
+# SHA-256 642f134145993f056ba50417d8a1e40b7e1d85561259ff4bf9f1c45fe4275335  README.md
+# SHA-256 151b2dd2cd13953ca0b4dc6760dbb8594a0d025e00718b8ac50a12d1000d528d  NOTE.md
+# SHA-256 c152eb2b763dce52aa27e8d2852ee5d9635371b1e89c4086f1c74d175bffc635  outputs/aggregate.csv
+# SHA-256 8b83e24c2b2d94ab07aa96e34146c16f570087793c0d665fd6ba625cd2ede4f9  outputs/appendix_per_seed.md
+# SHA-256 a21eec49d35dad02f79c0e28d59c34381158b3cb1749274107aa69af8e4e1e1e  outputs/appendix_single_class.md
+# SHA-256 b1b539ea934fe94d58d49e1fadf394e90581fbdedbaf0b094f6701c8cfac69e1  outputs/descriptive.md
+# SHA-256 f8f85d206aadcf8630c61bc954111d26ab6554b91235e84ca8dae8a682c82b51  outputs/figure_acer_variations.pdf
+# SHA-256 08b847d5ffa64fdb2035d1eecf19d03a2a72f402681507974e5e158ba68b7fc3  outputs/figure_acer_variations.png
+# SHA-256 2db7bea520e3278a0152b9c3932426f23b5acf9d55e33eca21b035385a609d16  outputs/primary_table.md
+# SHA-256 1f0d5380e9f44384b23eff3920721d5453d821c5fb08aa7665e2d3884fb88d3e  outputs/primary_table.tex
+# SHA-256 3a8ccacebb3ce68482be27d3079eea32c7bbc29c57c91621221a97d8a1874f9a  outputs/single_class.csv
+# SHA-256 4a1a044fba7da7676b44b09e33da70985639a7764468c1026680ed86f2b0c18c  ../pad-attacknet-eval-results/runs/20261124-ANETEVAL-7c22b1a/status.json
+# SHA-256 1f6815b08c04b94f54f99863b260ffd16e86da8684a748d1c27e06403061a252  ../pad-attacknet-eval-results/runs/20261124-ANETEVAL-7c22b1a/public/SHA256SUMS
+# SHA-256 ff043d44dc8e9c9ae88fababcfdc83f06c6e86b67af8b2bf741cc63823109cd2  ../pad-attacknet-eval/runs/20261122-ANETRUN-v1-p4-b8e0b3c/status.json
+# SHA-256 c0429e839a322786e681c0358faf3db73811aada7292bd779eb07afe944f8109  ../pad-attacknet-eval/runs/20261122-ANETRUN-v1-p4-b8e0b3c/public/SHA256SUMS
+# SHA-256 9772afac352235d318384f81cf5890cef389c3c528c553d09403796858710921  ../pad-attacknet-eval/runs/20261122-ANETRUN-v2_1-p4-9dfca6b/status.json
+# SHA-256 7bcba142f6ee09738e978ee974997b1d56614525ca3dbd41e2823047e7e98dd4  ../pad-attacknet-eval/runs/20261122-ANETRUN-v2_1-p4-9dfca6b/public/SHA256SUMS
+# SHA-256 e999c1c57a7c1ef14d9a16b22739e49c4135bed396845e5804c17a10be0fd30b  ../pad-attacknet-eval/runs/20261122-ANETRUN-v2_2-p4-bd28e4b/status.json
+# SHA-256 352ca948ea35bd2139a918d0e059bec5eb8dd40647fd62f002799502927c2f6b  ../pad-attacknet-eval/runs/20261122-ANETRUN-v2_2-p4-bd28e4b/public/SHA256SUMS
+# SHA-256 755c7ddb2c4a1e03b8f74d9cd3b94a82fba8770fae87c78b850dd8205b2d75ef  ../pad-attacknet-eval/runs/20261123-ANETRUN-v1-p12-1ef418b/status.json
+# SHA-256 8b64cf31d8bb61a2a1b8995f2fd0ab1c792b11f0ddf336861db982e2782598c8  ../pad-attacknet-eval/runs/20261123-ANETRUN-v1-p12-1ef418b/public/SHA256SUMS
+# SHA-256 77b3c6f8d6d61494094fe1ce71a494ff3c1518f3ae7e5976866cc00149139a2c  ../pad-attacknet-eval/runs/20261123-ANETRUN-v2_1-p12-903e3c9/status.json
+# SHA-256 3b7d7b45dd9d1e622a8daba70e4535d3f915de1201d0f4b74370459468f0c908  ../pad-attacknet-eval/runs/20261123-ANETRUN-v2_1-p12-903e3c9/public/SHA256SUMS
+# SHA-256 a58448f12dc4a0e25352d24bb8ccb6edc08052faec07240986a1c01b48cac0ec  ../pad-attacknet-eval/runs/20261123-ANETRUN-v2_2-p12-b5c214a/status.json
+# SHA-256 b4b6c539b64ff3827b679a4966e9270bcf11a9ffceb525ef586f12565c5501c6  ../pad-attacknet-eval/runs/20261123-ANETRUN-v2_2-p12-b5c214a/public/SHA256SUMS
+# SHA-256 4e17325da5a9506153a280538bb64c74d1d00632981dd736b17d8bc5648bc0e2  ../pad-arch-eval/runs/20261120-ARCHRUN-p4-7faa49f/status.json
+# SHA-256 20dd40dff483bd472078b220b83262d407385365b8830e431577a970f843f558  ../pad-arch-eval/runs/20261120-ARCHRUN-p4-7faa49f/public/SHA256SUMS
+# SHA-256 52a945cc85eae33507736896085058048ec9e31c283ec9fd9ea14a788de4c4e2  ../pad-arch-eval/runs/20261120-ARCHRUN-p12-ea7fdca/status.json
+# SHA-256 1894e2e8d7bfc76e853ac9534a7a4a4550c0ebcfd7b08aa2f7d7261ffee46c56  ../pad-arch-eval/runs/20261120-ARCHRUN-p12-ea7fdca/public/SHA256SUMS
+# command: python3 -I -B check_make_table_figure.py
+s...........s....................................................................................................................................ss...sss.................sss...
+----------------------------------------------------------------------
+Ran 176 tests in 21.346s
+
+OK (skipped=10)
+tests run: 176, failures: 0, errors: 0, skipped: 10
+skipped A2_NotComputedPrimary.test_figure_with_not_computed: missing input: matplotlib is not installed: the tests that need it (figure images, real build in the signal tests, machine state) are skipped
+skipped A_Numbers.test_figure_labels: missing input: matplotlib is not installed: the tests that need it (figure images, real build in the signal tests, machine state) are skipped
+skipped E_Check.test_full_check_passes: missing input: matplotlib is not installed: the tests that need it (figure images, real build in the signal tests, machine state) are skipped
+skipped E_Check.test_one_byte_in_each_image: missing input: matplotlib is not installed: the tests that need it (figure images, real build in the signal tests, machine state) are skipped
+skipped G_Determinism.test_images_without_dates_or_software: missing input: matplotlib is not installed: the tests that need it (figure images, real build in the signal tests, machine state) are skipped
+skipped G_Determinism.test_local_matplotlibrc_ignored: missing input: matplotlib is not installed: the tests that need it (figure images, real build in the signal tests, machine state) are skipped
+skipped G_Determinism.test_machine_state_does_not_change_outputs: missing input: matplotlib is not installed: the tests that need it (figure images, real build in the signal tests, machine state) are skipped
+skipped S_Signals.test_real_after_rename: missing input: matplotlib is not installed: the tests that need it (figure images, real build in the signal tests, machine state) are skipped
+skipped S_Signals.test_real_after_restore: missing input: matplotlib is not installed: the tests that need it (figure images, real build in the signal tests, machine state) are skipped
+skipped S_Signals.test_real_before_reservation: missing input: matplotlib is not installed: the tests that need it (figure images, real build in the signal tests, machine state) are skipped
+RESULT: PASS
+exit 0
+# finished 2026-11-24 14:25 CET, wall 22 s
