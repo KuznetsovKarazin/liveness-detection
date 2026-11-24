@@ -1,0 +1,431 @@
+{
+ "schema": "nuaa-session-ablation-run-config/1",
+ "task": "LivenessNet training run on NUAA with and without session 03 at fixed fitting subjects, authorised by the coordinator on 5 November 2026 on the C2 card after the protocol proposal (delivery/sessionablation/PROPOSAL.md): primary comparison A* against B, B' as secondary control, no A** and no dev-mix; the three arms, the comparisons and the reading rule fixed in this configuration before the run; for every primary metric the consistency condition must hold for all three seeds, each with its own bootstrap interval; test, preprocessing, recipe and common dev as proposed; input checks first, then 36 trainings with an overall cap of 360 minutes; if the time is not enough, stop and report the run as incomplete, keeping the logs and the results available; every outcome delivered as a proposal with a short conclusion on the comparisons.",
+ "authorisation": "coordinator, C2 card, comment of 5 November 2026: 'Procediamo con il confronto principale A* contro B, includendo B\u2032 come controllo secondario. Per ora non includiamo A** n\u00e9 dev-mix. Prima del run, fissi nella configurazione i tre bracci, i confronti e la regola di lettura dei risultati. Per ogni metrica primaria, la condizione di coerenza deve valere per tutti e tre i seed, ciascuno con il proprio intervallo bootstrap. Mantenga test, preprocessing, ricetta e dev comune come proposto. Pu\u00f2 predisporre il runner, eseguire i controlli sugli input e poi procedere: 36 training, con tetto complessivo di 360 minuti. Se il tempo non basta, si fermi e segnali il run incompleto, conservando log e risultati disponibili. Consegna come proposta, con tutti gli esiti e una breve conclusione sui confronti.'",
+ "cells_run": {
+  "run_id": "20261104-SESSABL-5d89888",
+  "folder": "results/sessionablation/20261104-SESSABL-5d89888",
+  "config_path": "delivery/sessionablation/nuaa_session_ablation.json",
+  "config_sha256": "2b86ef8e8cab3e9fac4ae9ca34471977c773bba34cc4990347f03b0ab38db015",
+  "restricted_sha256sums_sha256": "0904ee72546160eadb493a94d8489a8fb21687006cd8fe1970b26007c567723c",
+  "public_sha256sums_sha256": "45d125754a74e3cde5f5441fb1e02081630fb8e788032ed29f27dee787d5d77b"
+ },
+ "schema_run": {
+  "run_id": "20261103-FOLDS-67b7f3d",
+  "folder": "results/folds/20261103-FOLDS-67b7f3d/restricted",
+  "config_path": "delivery/folds/nuaa_subject_folds.json",
+  "config_sha256": "d1d43c148f762965c5ae367a0de1c59770324f7840034fd5a6c7fad0a14e73e8",
+  "restricted_sha256sums_sha256": "f3b30ae75a7167646544ef524225749bbded99e55d2249b9415eef2481e0d0f1"
+ },
+ "folds_run": {
+  "run_id": "20261103-FOLDSRUN-e174812",
+  "folder": "results/foldsrun/20261103-FOLDSRUN-e174812",
+  "config_sha256": "7aaf0be21356631e1541f233b6e483a41646aad2e43bbcd15bbefb8d2c09bf4f",
+  "public_sha256sums_sha256": "11abd9e88f997468e7d4b61f6b2ea9c2732998318742eb2bf7c04662b4269a86",
+  "restricted_sha256sums_sha256": "1204039d7391109caaf52aea28fbfda50c635e56521b0cc3170043aacac19d63",
+  "frames_file": {
+   "path": "data/processed/nuaa_folds_frames.20261103-FOLDSRUN-e174812.npz",
+   "sha256": "c3fd9903589b7b074c46880870ba87924763f244846c744b657f9aaa3ebeee77",
+   "n": 6614
+  }
+ },
+ "manifests": {
+  "folder": "results/m2/manifests",
+  "origin": "M2 package 20261006-M2-seed42-36c677a (accepted); the manifests are restricted; their SHA-256 and counts are those recorded in the accepted N1 and N2 configurations",
+  "files": {
+   "official_train": {
+    "file": "nuaa_official_train.csv",
+    "sha256": "2a7e8906f98b8e3cf0c42cd0a2cf10e15868750b1ac82e85b62a9e0b59aad648",
+    "rows": 3491,
+    "n_bona_fide": 1743,
+    "n_attack": 1748,
+    "n_subjects": 9,
+    "sessions": [
+     "01",
+     "02"
+    ]
+   },
+   "official_test": {
+    "file": "nuaa_official_test.csv",
+    "sha256": "2fad23ff295cb2c1d3d0be238deef02faad252aa717933c30588bd5a9c4106c7",
+    "rows": 9123,
+    "n_bona_fide": 3362,
+    "n_attack": 5761,
+    "n_subjects": 16,
+    "sessions": [
+     "03"
+    ]
+   },
+   "cnn_train": {
+    "file": "nuaa_cnn_train.csv",
+    "sha256": "6d46ec7da7bfc32b1cce9ed3e331f8ed4377e5fc2df31e1b77ac7f6a0c2bc33c",
+    "rows": 2507,
+    "n_bona_fide": 1345,
+    "n_attack": 1162,
+    "n_subjects": 7,
+    "sessions": [
+     "01",
+     "02"
+    ]
+   },
+   "cnn_es": {
+    "file": "nuaa_cnn_early_stopping.csv",
+    "sha256": "17282be8ef300e5e178ae87cd137ffd875786f1b353924e7cfb6eb14db1584c1",
+    "rows": 493,
+    "n_bona_fide": 155,
+    "n_attack": 338,
+    "n_subjects": 2,
+    "sessions": [
+     "01",
+     "02"
+    ]
+   },
+   "cnn_test": {
+    "file": "nuaa_cnn_test.csv",
+    "sha256": "ce9669dccae37041e778ff7bcba5f4cef08fa79f50d65be84806b084c5d95748",
+    "rows": 3000,
+    "n_bona_fide": 1500,
+    "n_attack": 1500,
+    "n_subjects": 16,
+    "sessions": [
+     "03"
+    ]
+   }
+  }
+ },
+ "images": {
+  "folder": "data/NUAA/images",
+  "layout": "images"
+ },
+ "schema_expected": {
+  "k": 4,
+  "n_subjects": 16,
+  "n_images": 12614,
+  "n_cache_frames": 6000,
+  "n_to_extract": 6614,
+  "fitting_per_fold": 2100,
+  "dev_per_fold": 600,
+  "test_per_fold": [
+   3242,
+   3114,
+   3439,
+   2819
+  ]
+ },
+ "cache": {
+  "path": "data/processed/nuaa_1500.npz",
+  "sha256": "dc286dc371e61d638da1842c062a38c5368a9ec4da07ccbc36b7fff6f3177920",
+  "per_class": 1500,
+  "members": {
+   "X_train": {
+    "dtype": "|u1",
+    "shape": [
+     3000,
+     256,
+     256,
+     3
+    ]
+   },
+   "y_train": {
+    "dtype": "<i8",
+    "shape": [
+     3000
+    ]
+   },
+   "s_train": {
+    "dtype": "<U4",
+    "shape": [
+     3000
+    ]
+   },
+   "X_test": {
+    "dtype": "|u1",
+    "shape": [
+     3000,
+     256,
+     256,
+     3
+    ]
+   },
+   "y_test": {
+    "dtype": "<i8",
+    "shape": [
+     3000
+    ]
+   },
+   "s_test": {
+    "dtype": "<U4",
+    "shape": [
+     3000
+    ]
+   }
+  },
+  "order": "X_train = spread per class of the official training list (bona fide first) = cnn_train + cnn_es; X_test = spread of the official test list = cnn_test (M2 rule); the position of every cache frame follows this order, as in the folds run; the cache was reproduced bit for bit from the originals in N2 and again by the folds run (no new check here)"
+ },
+ "arms": {
+  "arm_b": {
+   "label": "B",
+   "file": "armB_fitting_fold{k}.csv",
+   "role": "arm_b_fitting",
+   "cells": {
+    "01/bona_fide": 350,
+    "01/attack": 350,
+    "02/bona_fide": 350,
+    "02/attack": 350
+   },
+   "total": 1400,
+   "description": "without session 03: sessions 01-02 of the S12 subjects (the fitting subjects with frames in sessions 01-02), equal to the session 01-02 part of the fitting set of the fold schema"
+  },
+  "arm_a_star": {
+   "label": "A*",
+   "file": "armAstar_fitting_fold{k}.csv",
+   "role": "arm_a_star_fitting",
+   "cells": {
+    "01/bona_fide": 234,
+    "01/attack": 233,
+    "02/bona_fide": 233,
+    "02/attack": 234,
+    "03/bona_fide": 233,
+    "03/attack": 233
+   },
+   "total": 1400,
+   "description": "with session 03: sessions 01-03 of the same S12 subjects, same total as B; session 01-02 cells nested in B, session 03 cells spread over the S12 frames"
+  },
+  "arm_b_prime": {
+   "label": "B'",
+   "file": "armBprime_fitting_fold{k}.csv",
+   "role": "arm_b_prime_fitting_optional",
+   "cells": {
+    "01/bona_fide": 234,
+    "01/attack": 233,
+    "02/bona_fide": 233,
+    "02/attack": 234
+   },
+   "total": 934,
+   "description": "secondary control of the per-cell size: sessions 01-02 of S12 at the per-cell counts of A*, equal to the session 01-02 part of A* (role name of the cells run: arm_b_prime_fitting_optional)"
+  }
+ },
+ "dev": {
+  "file": "dev_fold{k}.csv",
+  "role": "dev_common",
+  "cells": {
+   "01/bona_fide": 100,
+   "01/attack": 100,
+   "02/bona_fide": 100,
+   "02/attack": 100
+  },
+  "total": 400,
+  "rule": "common to the three arms: sessions 01-02 of the dev-fold subjects (fold k mod 4 + 1), 100 per cell, equal to the session 01-02 part of the dev of the fold schema; drives early stopping, ReduceLROnPlateau, the restored epoch and the EER threshold; no session-03 frame"
+ },
+ "nesting": {
+  "rule": "checked for every fold before the run: arm B = the session 01-02 rows of the schema fitting set; the session 01-02 rows of A* and all rows of B' inside B; B' = the session 01-02 rows of A*; the subjects of A* and B' inside the S12 subjects of B; the common dev = the session 01-02 rows of the schema dev (no session 03); fitting, dev and test subjects disjoint; every row equal to the official lists and its in_cache flag equal to the cache membership"
+ },
+ "excluded": {
+  "arm_a_star_star": "not included by the coordinator (5 November 2026): no manifest exists and none is read",
+  "dev_mix": "not included by the coordinator (5 November 2026): devmix_fold<k>.csv of the cells run is never read"
+ },
+ "test": {
+  "source": "fold<k>_test.csv of the fold schema run 20261103-FOLDS-67b7f3d (restricted SHA256SUMS anchored): every frame of the held-out subjects, unchanged; strata 01, 02, 03 and all",
+  "per_fold": [
+   3242,
+   3114,
+   3439,
+   2819
+  ]
+ },
+ "training_order": [
+  "arm_b_fold1_seed42",
+  "arm_a_star_fold1_seed42",
+  "arm_b_fold1_seed43",
+  "arm_a_star_fold1_seed43",
+  "arm_b_fold1_seed44",
+  "arm_a_star_fold1_seed44",
+  "arm_b_fold2_seed42",
+  "arm_a_star_fold2_seed42",
+  "arm_b_fold2_seed43",
+  "arm_a_star_fold2_seed43",
+  "arm_b_fold2_seed44",
+  "arm_a_star_fold2_seed44",
+  "arm_b_fold3_seed42",
+  "arm_a_star_fold3_seed42",
+  "arm_b_fold3_seed43",
+  "arm_a_star_fold3_seed43",
+  "arm_b_fold3_seed44",
+  "arm_a_star_fold3_seed44",
+  "arm_b_fold4_seed42",
+  "arm_a_star_fold4_seed42",
+  "arm_b_fold4_seed43",
+  "arm_a_star_fold4_seed43",
+  "arm_b_fold4_seed44",
+  "arm_a_star_fold4_seed44",
+  "arm_b_prime_fold1_seed42",
+  "arm_b_prime_fold1_seed43",
+  "arm_b_prime_fold1_seed44",
+  "arm_b_prime_fold2_seed42",
+  "arm_b_prime_fold2_seed43",
+  "arm_b_prime_fold2_seed44",
+  "arm_b_prime_fold3_seed42",
+  "arm_b_prime_fold3_seed43",
+  "arm_b_prime_fold3_seed44",
+  "arm_b_prime_fold4_seed42",
+  "arm_b_prime_fold4_seed43",
+  "arm_b_prime_fold4_seed44"
+ ],
+ "environment": {
+  "opencv": "4.11.0",
+  "tensorflow": "2.15.0"
+ },
+ "architecture": {
+  "name": "LivenessNet",
+  "path": "src/livedetection/src/architectures.py",
+  "sha256": "a83c02b0788bd6f98262abf00f5fe970abed501f231edba348820482aea64d30",
+  "chosen": "as in the folds run (create_model('LivenessNet').get_model() of the reference code, unchanged)"
+ },
+ "detector": "not used: no frame is extracted (the cache and the frames extracted by the folds run are reused, verified by SHA-256 and per-frame SHA-256), so the detector resources and the frozen extractor are not inputs of this run",
+ "train_seeds": [
+  42,
+  43,
+  44
+ ],
+ "training": {
+  "recipe": "N1 part 2 (n1_nuaa_stability.json, study 20261024-N1-LivenessNet-fb93496), unchanged",
+  "max_epochs": 12,
+  "batch": 16,
+  "initial_learning_rate": 0.001,
+  "early_stopping_patience": 4,
+  "checkpoint": "weights of the epoch with minimum val_loss on the dev frames (EarlyStopping restore_best_weights; set_weights when the epochs end first)",
+  "optimizer": "tf.keras.optimizers.legacy.Adam(learning_rate=initial_learning_rate, clipnorm=1.0)",
+  "loss": "CategoricalCrossentropy, one-hot labels (index 0 bona fide, 1 attack)",
+  "class_weight": "balanced on the fitting set: n / (2 * n_class)",
+  "augmentation": "RandomFlip(horizontal), RandomRotation(0.03), RandomZoom(0.12, 0.12), RandomTranslation(0.06, 0.06), RandomBrightness(0.15, value_range=(0, 1)), RandomContrast(0.2), GaussianNoise(0.02); fitting set only",
+  "scheduler": "ReduceLROnPlateau(monitor=val_loss, factor=0.5, patience=2, min_lr=1e-6)",
+  "shuffle": "tf.data shuffle(4096, seed=train_seed)",
+  "seeds": "train_seed for random, numpy and TensorFlow (weight initialisation, augmentation, batch order); no split seed: the folds and the samples are deterministic",
+  "device": "CPU"
+ },
+ "threshold": {
+  "set": "common dev of the fold only (dev_fold<k>.csv: sessions 01-02 of the dev-fold subjects)",
+  "criterion": "eer, the M1 protocol: candidates = distinct dev scores plus nextafter(min, -inf) if >= 0; attack if score > value (tie = bona fide); minimum of |fp * n_attack - fn * n_bona_fide| on integers, ties to the highest value",
+  "frozen_before_test": "written to <arm>_fold<k>_seed<s>_threshold.json from the dev scores, read back, SHA-256 recorded in every test score row; the test frames are assembled and scored only afterwards (card: test_scored_after_threshold)",
+  "also_reported": "the fixed threshold 0.5, labelled 05",
+  "dev_reuse_declared": "the common dev drives early stopping, learning-rate reduction, the restored epoch and the threshold; without session 03 it calibrates both arms on the session 01-02 distribution, which can penalise A* in stratum 03 at the dev threshold (AUROC, threshold-free, is the cleaner reading)",
+  "val_loss_check": "before the threshold, the dev val_loss is recomputed with the saved checkpoint (CPU, batch 16, training=False) as Keras 2.15 computes it: logits z = h @ W + b of the output layer in float64 (h = input of the output layer, W and b its weights), mean of logsumexp(z) - z[y] (softmax cross-entropy from logits, no clipping); it must equal the recorded minimum val_loss within 1e-3 absolute or 1 % relative, otherwise FAIL; the softmax of the logits must equal the scorer probabilities within 1e-4; the card records val_loss_recomputed (from the logits, compared), val_loss_recomputed_clipped (probabilities limited to [1e-7, 1 - 1e-7], informative only) and val_loss_check"
+ },
+ "scoring": {
+  "device": "CPU",
+  "batch": 16,
+  "batchnorm": "inference (training=False)",
+  "input": "frames / 255",
+  "score": "softmax output, column 1 (attack probability)"
+ },
+ "metrics": {
+  "strata": [
+   "01",
+   "02",
+   "03",
+   "all"
+  ],
+  "decision": "attack if score_attack > threshold (tie = bona fide)",
+  "keys": [
+   "apcer_05",
+   "bpcer_05",
+   "acer_05",
+   "apcer_dev",
+   "bpcer_dev",
+   "acer_dev",
+   "auroc"
+  ],
+  "per_unit": "per arm, fold, seed and session stratum of the held-out subjects (01, 02, 03 and all), NA where a class is absent: n_bona_fide, n_attack, accepted attacks, rejected bona fide, APCER, BPCER, ACER at 0.5 and at the dev threshold, AUROC (threshold-free)",
+  "per_subject": "the same per held-out subject and stratum, per arm (restricted per_subject.csv, column arm)",
+  "auroc": "Mann-Whitney U with ties counted 0.5, score_attack as the separator, attack positive",
+  "aggregation": "values of every arm, fold and seed; pooled over the four folds per arm and seed (every subject held out exactly once; the decisions at the dev threshold use the threshold of the fold of each frame); median and range over seeds of the pooled values; bootstrap over subjects per arm; no fold or seed selection",
+  "pre_commitment": "reported whatever the outcome; no change of arms, recipe, threshold criterion, comparisons, reading rule or counts after any score is read"
+ },
+ "comparisons": {
+  "list": [
+   {
+    "name": "a_star_minus_b",
+    "minuend": "arm_a_star",
+    "subtrahend": "arm_b",
+    "role": "primary"
+   },
+   {
+    "name": "b_prime_minus_b",
+    "minuend": "arm_b_prime",
+    "subtrahend": "arm_b",
+    "role": "secondary"
+   },
+   {
+    "name": "a_star_minus_b_prime",
+    "minuend": "arm_a_star",
+    "subtrahend": "arm_b_prime",
+    "role": "secondary"
+   }
+  ],
+  "pairing": "paired on the same test frames (the held-out subjects of the fold) and the same training seeds; nominal pairing: batch order and augmentation differ with the data; b_prime_minus_b isolates the per-cell count of sessions 01-02, a_star_minus_b_prime the added session at equal per-cell count",
+  "pooled": "per comparison, seed and stratum: difference of every metric on the pooled frames of the four folds, with a paired bootstrap over the held-out subjects of the stratum (same resampling indices for the two arms); per fold and seed: the differences only"
+ },
+ "bootstrap": {
+  "resamples": 1000,
+  "seed": 0,
+  "percentiles": [
+   2.5,
+   97.5
+  ],
+  "min_subjects": 5,
+  "recipe": "generator numpy.random.default_rng(0) (PCG64), restarted for every seed, comparison (or arm) and stratum; the held-out subjects of the stratum (pooled over the four folds) in ascending identifier order; at every resample integers(0, n, n) with n = the number of subjects; every metric computed on the pooled frames of the resampled subjects (through per-subject counts and pairwise Mann-Whitney counts, identical to recomputing it on the frames); the same subject indices for both arms of a comparison and for every metric; percentiles 2.5 and 97.5 with np.percentile, linear interpolation; a resample without a class does not count for the metrics that need it; no interval with fewer than 5 subjects"
+ },
+ "reading_rule": {
+  "primary_comparison": "a_star_minus_b",
+  "primary_stratum": "03",
+  "primary_metrics": [
+   "auroc",
+   "acer_dev"
+  ],
+  "rule": "for each comparison, stratum and metric, the pooled difference (minuend - subtrahend) is 'consistent' only if it has the same non-zero sign for all three seeds AND the paired bootstrap interval of every seed excludes 0 on the side of that sign; otherwise 'inconclusive' (also when a seed has no pooled value, no difference or no interval); a consistent verdict states the direction (for example 'consistent: A* higher AUROC than B'); primary: AUROC and ACER at the dev threshold in stratum 03 of a_star_minus_b; the same rule, labelled secondary, for the other strata, the other metrics and the two secondary comparisons; no statistical test; applied mechanically by the script; every verdict reported",
+  "verdicts": [
+   "consistent",
+   "inconclusive"
+  ],
+  "statistical_test": "none"
+ },
+ "reference_a": {
+  "source": "public/aggregate.json of the folds run 20261103-FOLDSRUN-e174812, anchored through its public SHA256SUMS (SHA-256 above)",
+  "label": "reference, different fitting frames and dev: indicative",
+  "use": "pooled values per seed and stratum (with their bootstrap intervals) copied unchanged into the aggregate; arm A is not rerun and not compared with a bootstrap"
+ },
+ "budget": {
+  "trainings": 36,
+  "estimate": "from the proposal (scaled from the folds run, 705.8-842.7 s per training on 2,700 frames): the 24 trainings of B and A* on 1,400 fitting + 400 dev frames take 470.5-561.8 s each; with their scoring (75,684 test + 9,600 dev frames, 10.3-12.7 min) 213.8-237.4 min; the 12 trainings of B' 80.6-89.6 min; total 294.4-327.0 min, under the cap of 360 min; plus the input checks and the loading of the frames (seconds, not minutes: 4-11 s measured on the real inputs); the estimate holds on an idle machine",
+  "wall_time_cap_minutes": 360,
+  "on_cap_exceeded": "status INCOMPLETE, not FAIL: the cap is checked before every training, at the end of every epoch, before every threshold and before every test scoring (elapsed time = the larger of the monotonic and the wall clock); when exceeded the model in progress is interrupted (neither saved nor evaluated: its files are removed), no other training starts, and the run goes on to the aggregate of the complete models, the final writes and status.json = INCOMPLETE with the lists of complete and missing trainings; logs and available results kept",
+  "on_failure": "status FAIL, exit code 1 (an error, a refused input or public file, SIGTERM or SIGHUP; Ctrl-C: exit code 130): the public folder, per_subject.csv and the files of the model in progress are removed; the five restricted files of every complete model are kept, with a restricted SHA256SUMS over them only, not aggregated; status.json lists kept_complete_models with the note 'public removed; restricted outputs of N complete models kept, not aggregated; no verdict'; with no complete model every output is removed, as in the folds run",
+  "voluntary_stop": "SIGUSR1 to the pid recorded in status.json while RUNNING is a voluntary stop treated as the cap: the request is recorded and the run stops at the next check (before a training, at the end of an epoch, before a threshold or a test scoring); the model in progress is discarded, the complete models are aggregated, status INCOMPLETE, exit code 2, stopped.cause = SIGUSR1",
+  "final_writes_after_cap": "the aggregation (bootstrap included) and the final writes run after the last model, also after the cap; run_record.json and status.json record final_writes_after_cap, true when the cap was already exceeded before the aggregation started (measured there, whatever stopped the run); they take a few seconds, measured 2-5 s at real scale (dry run at real scale with a stub trainer)"
+ },
+ "declarations": {
+  "pre_commitment": true,
+  "dev_reuse": true,
+  "cpu_only": true,
+  "all_outcomes_kept": true,
+  "cpu_nondeterminism": "the seeds fix the initialisation, the augmentation and the batch order; on the CPU parallel reductions may still give minimal differences between two runs with the same seed (N1); enable_op_determinism is not used",
+  "nominal_pairing": "the same seed in two arms does not give the same batch order or augmentation (the data differ): the pairing is on the test frames and the seed label, not on the training noise",
+  "diagnostic": "diagnostic, not causal: the design varies the session composition at fixed subjects and total; the per-cell count of sessions 01-02 changes too (A* 233-234, B 350) and B' separates it; arm A (folds run) is an indicative reference only",
+  "limits": "the session-03 bona fide cell of S12 comes from 1-2 subjects per fold; two dev cells rest on one subject; frames of one subject and session are correlated (n counts frames); three seeds give a range; the four folds are not independent (the dev of a fold is the test of the next one); the dev without session 03 calibrates early stopping and the EER threshold on the session 01-02 distribution for every arm; the pooled strata hold 9 (sessions 01, 02) or 16 (03, all) subjects; one dataset, one attack type (print)",
+  "question": "Does representing session 03 in training change the error on held-out subjects, at fixed fitting subjects, total count, test, preprocessing and recipe?"
+ },
+ "previous_attempt": {
+  "run_id": "20261106-SESSABLRUN-3b4021f",
+  "commit": "3b4021f",
+  "started": "2026-11-06 07:32:57+0100",
+  "outcome": "FAIL at model 7 of 36 (arm_b_fold2_seed42); six models complete",
+  "cause": "false alarm of the val_loss check: the runner recomputed the dev val_loss with the clipped crossentropy (probabilities limited to [1e-7, 1 - 1e-7], at most -ln 1e-7 = 16.118 per frame) while Keras records it from the logits without clipping; one dev frame had a loss above -ln 1e-7 (30.98), so the two values differed (0.1936 against 0.2308) although the checkpoint was the one of minimum val_loss (reproduced outside the repository: restored weights equal to the snapshot of the best epoch, loss from the logits 0.230775)",
+  "complete_models": "the six complete models stay in the folder of that run and are not used",
+  "results_read": "the run log of that attempt printed a one-line summary (test counts, ACER, AUROC) for each of the six complete models and the val_loss history of the seventh; those lines were seen while diagnosing the failure; nothing of the design, counts, recipe, threshold criterion, comparisons or reading rule was changed afterwards: only the checkpoint check was corrected; no aggregate, no comparison and no verdict were computed",
+  "relaunch": "from scratch with the corrected check (val_loss from the output-layer logits, as Keras); protocol, inputs, recipe, order and cap unchanged"
+ },
+ "outputs": {
+  "public": "aggregate.json, aggregate.md, run_record.json, SHA256SUMS: rules, counts, metrics per arm, fold, seed and stratum, pooled values with bootstrap intervals, paired comparisons with intervals, verdicts of the reading rule, reference A, training cards (epochs, restored epoch, val_loss, seconds, dev thresholds), timings, environment, SHA-256 of the inputs, complete or incomplete status; no subject identifier, no image key",
+  "restricted": "per model: card.json, threshold.json, dev_scores.csv, test_scores.csv, LivenessNet.keras; per_subject.csv (column arm), public_SHA256SUMS.sha256 (anchor of the public folder), SHA256SUMS; on FAIL after complete models only their five files per model and a SHA256SUMS over them remain (budget.on_failure)"
+ }
+}

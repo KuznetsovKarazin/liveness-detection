@@ -1,0 +1,34 @@
+Conditions of run anet_v2_1_p12, attempt 1, written by delivery/anetrun/launch.zsh (not by the runner).
+== conditions before
+2026-11-23 01:54:15 +0100
+ 1:54  up 4 days,  4:44, 2 users, load averages: 3.64 7.36 8.27
+CPU usage: 1.43% user, 6.74% sys, 91.82% idle 
+== system
+ProductName:  macOS
+ProductVersion:  27.2.1
+BuildVersion:  26B131
+== power (pmset -g: powermode, lowpowermode; pmset -g batt: power source)
+ powermode 0
+Now drawing from 'AC Power'
+== nice of the launching shell
+0
+== environment: number of TF_NUM_ variables set
+0
+== git (commit, lines of git status --porcelain)
+903e3c9
+0
+== check-machine
+check-machine: machine and versions equal to the C5 trial 20261122-ANETTRIAL-a951ed0 (11 fields); thread environment variables TF_NUM_INTRAOP_THREADS absent, TF_NUM_INTEROP_THREADS absent, as in the trial; TensorFlow not imported; nothing written
+RESULT: PASS (check-machine)
+check-machine exit 0
+== check-inputs
+CHECK-INPUTS: configuration 44b4deee427f; PR A configuration 6f5297d08d49; code pinned (15 files); hooks none set; trial 20261122-ANETTRIAL-a951ed0 PASS, accepted by pad_anet_comparison.load_trial and equal to the PR A package; run_matrix.csv, run_order.csv and run_caps.csv equal to the files regenerated from the PR A configuration, the C2 evaluation and the trial; anet_v1_p4: 12 positions, cap 2.50 h; anet_v2_1_p4: 12 positions, cap 2.50 h; anet_v2_2_p4: 12 positions, cap 2.00 h; anet_v1_p12: 12 positions, cap 2.50 h; anet_v2_1_p12: 12 positions, cap 2.50 h; anet_v2_2_p12: 12 positions, cap 2.00 h; machine model and versions equal to the C5 trial (processor, core_levels, ram_gb, os, logical_cpus, architecture, python, numpy, tensorflow_installed, keras, platform); environment variables TF_NUM_INTRAOP_THREADS absent, TF_NUM_INTEROP_THREADS absent; inputs of the pre-registration PASS; 24 reference cards with keys equal to the manifests (24 unit checks); estimator check 20261122-ANETEST-c882362 PASS (36 models, official); no test frame is assembled or evaluated, no test score or metric is read; no frame assembled; TensorFlow not imported; nothing written
+RESULT: PASS (check-inputs)
+check-inputs exit 0
+== command
+caffeinate -dims .venv/bin/python -I -B scripts/pad_anet_run.py run --run anet_v2_1_p12 --estimator-check results/anetrun/20261122-ANETEST-c882362 --attempt 1 --i-am-authorized
+run exit 0
+== conditions after
+2026-11-23 03:14:10 +0100
+ 3:14  up 4 days,  6:04, 2 users, load averages: 7.98 7.68 8.43
+CPU usage: 2.46% user, 5.74% sys, 91.78% idle 

@@ -1,0 +1,7 @@
+sequence,run,network,patience,trainings,process
+1,anet_v1_p4,AttackNetV1,4,12,one process (run 1 of 6)
+2,anet_v2_1_p4,AttackNetV2_1,4,12,one process (run 2 of 6)
+3,anet_v2_2_p4,AttackNetV2_2,4,12,one process (run 3 of 6)
+4,anet_v1_p12,AttackNetV1,12,12,one process (run 4 of 6)
+5,anet_v2_1_p12,AttackNetV2_1,12,12,one process (run 5 of 6)
+6,anet_v2_2_p12,AttackNetV2_2,12,12,one process (run 6 of 6)

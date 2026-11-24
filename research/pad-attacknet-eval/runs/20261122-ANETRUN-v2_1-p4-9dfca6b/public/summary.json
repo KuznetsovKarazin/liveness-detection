@@ -1,0 +1,1507 @@
+{
+ "schema": "pad-anet-run/1",
+ "run_id": "20261122-ANETRUN-v2_1-p4-9dfca6b",
+ "run": "anet_v2_1_p4",
+ "network": "AttackNetV2_1",
+ "commit": "9dfca6b",
+ "dirty": false,
+ "config_sha256": "44b4deee427fa0ffa100feaa12eebb54614b5694c8132e64d4b887a1d86bca8d",
+ "command": "python -I -B scripts/pad_anet_run.py run --config delivery/anetrun/pad_anet_run.json --out-root results/anetrun --run anet_v2_1_p4 --estimator-check results/anetrun/20261122-ANETEST-c882362 --attempt 1 --i-am-authorized",
+ "command_line": "python -I -B scripts/pad_anet_run.py run --config delivery/anetrun/pad_anet_run.json --out-root results/anetrun --run anet_v2_1_p4 --estimator-check results/anetrun/20261122-ANETEST-c882362 --attempt 1 --i-am-authorized",
+ "official": true,
+ "attempt": {
+  "attempt": 1,
+  "previous": []
+ },
+ "hooks": {
+  "official_configuration": true,
+  "set": [],
+  "changed": []
+ },
+ "status": "PASS",
+ "patience": 4,
+ "started": "2026-11-22T22:15:57+0100",
+ "finished": "2026-11-22T23:20:14+0100",
+ "wall_seconds": 3856.5,
+ "process_cpu_seconds": 31082.2,
+ "cap_hours": 2.5,
+ "cap_unit": "hours of wall time (elapsed real time, not CPU time)",
+ "stopped": null,
+ "positions": 12,
+ "complete_phase_1": 12,
+ "complete_phase_2": 12,
+ "not_evaluable": [],
+ "machine": {
+  "processor": "Apple M5 Pro",
+  "core_levels": [
+   {
+    "name": "Super",
+    "physical_cores": 5
+   },
+   {
+    "name": "Performance",
+    "physical_cores": 10
+   }
+  ],
+  "ram_gb": 24.0,
+  "os": "macOS 27.2.1",
+  "logical_cpus": 15,
+  "architecture": "arm64"
+ },
+ "environment": {
+  "python": "3.11.16",
+  "numpy": "1.26.4",
+  "platform": "darwin",
+  "tensorflow": "2.15.0",
+  "tensorflow-metal": "1.1.0",
+  "keras": "2.15.0",
+  "opencv": "4.11.0",
+  "tensorflow_installed": "2.15.0"
+ },
+ "machine_rule": {
+  "trial_run": "20261122-ANETTRIAL-a951ed0",
+  "machine": {
+   "processor": {
+    "trial": "Apple M5 Pro",
+    "now": "Apple M5 Pro",
+    "equal": true
+   },
+   "core_levels": {
+    "trial": [
+     {
+      "name": "Super",
+      "physical_cores": 5
+     },
+     {
+      "name": "Performance",
+      "physical_cores": 10
+     }
+    ],
+    "now": [
+     {
+      "name": "Super",
+      "physical_cores": 5
+     },
+     {
+      "name": "Performance",
+      "physical_cores": 10
+     }
+    ],
+    "equal": true
+   },
+   "ram_gb": {
+    "trial": 24.0,
+    "now": 24.0,
+    "equal": true
+   },
+   "os": {
+    "trial": "macOS 27.2.1",
+    "now": "macOS 27.2.1",
+    "equal": true
+   },
+   "logical_cpus": {
+    "trial": 15,
+    "now": 15,
+    "equal": true
+   },
+   "architecture": {
+    "trial": "arm64",
+    "now": "arm64",
+    "equal": true
+   }
+  },
+  "versions": {
+   "python": {
+    "trial": "3.11.16",
+    "now": "3.11.16",
+    "equal": true
+   },
+   "numpy": {
+    "trial": "1.26.4",
+    "now": "1.26.4",
+    "equal": true
+   },
+   "tensorflow_installed": {
+    "trial": "2.15.0",
+    "now": "2.15.0",
+    "equal": true
+   },
+   "keras": {
+    "trial": "2.15.0",
+    "now": "2.15.0",
+    "equal": true
+   },
+   "platform": {
+    "trial": "darwin",
+    "now": "darwin",
+    "equal": true
+   }
+  },
+  "equal": true
+ },
+ "threads": {
+  "requested": {
+   "intra_op": 10,
+   "inter_op": 10
+  },
+  "effective": {
+   "intra_op": 10,
+   "inter_op": 10
+  },
+  "set_by_this_runner": true,
+  "environment": {
+   "TF_NUM_INTRAOP_THREADS": null,
+   "TF_NUM_INTEROP_THREADS": null
+  },
+  "logical_cpus": 15
+ },
+ "threads_rule": {
+  "fields": {
+   "requested": {
+    "trial": {
+     "intra_op": 10,
+     "inter_op": 10
+    },
+    "now": {
+     "intra_op": 10,
+     "inter_op": 10
+    },
+    "equal": true
+   },
+   "effective": {
+    "trial": {
+     "intra_op": 10,
+     "inter_op": 10
+    },
+    "now": {
+     "intra_op": 10,
+     "inter_op": 10
+    },
+    "equal": true
+   },
+   "environment": {
+    "trial": {
+     "TF_NUM_INTRAOP_THREADS": null,
+     "TF_NUM_INTEROP_THREADS": null
+    },
+    "now": {
+     "TF_NUM_INTRAOP_THREADS": null,
+     "TF_NUM_INTEROP_THREADS": null
+    },
+    "equal": true
+   },
+   "set_by_this_runner": {
+    "trial": true,
+    "now": true,
+    "equal": true
+   }
+  },
+  "equal": true,
+  "trial_run": "20261122-ANETTRIAL-a951ed0"
+ },
+ "estimator_check": {
+  "run_id": "20261122-ANETEST-c882362",
+  "estimator_check_json_sha256": "b0f0eb30008b9f58bf13848ad5d27ecc98bdfc5f6ee37acc41452d0c239c83bc",
+  "models": 36,
+  "official": true
+ },
+ "training": {
+  "recipe": "N1 part 2 (n1_nuaa_stability.json, study 20261024-N1-LivenessNet-fb93496), unchanged",
+  "max_epochs": 12,
+  "batch": 16,
+  "initial_learning_rate": 0.001,
+  "early_stopping_patience": 4,
+  "checkpoint": "weights of the epoch with minimum val_loss on the dev frames (EarlyStopping restore_best_weights; set_weights when the epochs end first)",
+  "optimizer": "tf.keras.optimizers.legacy.Adam(learning_rate=initial_learning_rate, clipnorm=1.0)",
+  "loss": "CategoricalCrossentropy, one-hot labels (index 0 bona fide, 1 attack)",
+  "class_weight": "balanced on the fitting set: n / (2 * n_class)",
+  "augmentation": "RandomFlip(horizontal), RandomRotation(0.03), RandomZoom(0.12, 0.12), RandomTranslation(0.06, 0.06), RandomBrightness(0.15, value_range=(0, 1)), RandomContrast(0.2), GaussianNoise(0.02); fitting set only",
+  "scheduler": "ReduceLROnPlateau(monitor=val_loss, factor=0.5, patience=2, min_lr=1e-6)",
+  "shuffle": "tf.data shuffle(4096, seed=train_seed)",
+  "seeds": "train_seed for random, numpy and TensorFlow (weight initialisation, augmentation, batch order); no split seed: the folds and the samples are deterministic",
+  "device": "CPU"
+ },
+ "sequence": "phase 1, for each of the 12 positions in order: the fitting and dev frames of the unit assembled and their keys checked against the card of the accepted run; the training (pad_anet_comparison.anet_trainer, the model built with the registry); rule (n) on the history and on the restored weights; the in-memory dev scored; the checkpoint saved; the card; the dev scored with the saved checkpoint (nuaa_folds_run.tf_scorer), its logits and the val_loss checked against the card. Phase 2, after the 12 trainings, for each evaluable model: the checkpoint reloaded and checked against the registry; the ordinary dev; the BN statistics re-estimated on its fitting set (copy in memory); the consistency pass; the re-estimated dev; the checks of PR #27; the agreement with the phase-1 scores; thresholds, decisions and counts of both BN states. The sequence of pad_arch_run (C2) with the AttackNet trainer, the registry and rule (n)",
+ "non_evaluable": {
+  "rule": "rule (n) of the pre-registration (PROTOCOL.md \u00a76 (k)/(n), pad_anet_definitions.training_outcome): a non-finite value in the history does not stop the run; the quantity and the first non-finite epoch are recorded; the restored epoch is that of the smallest finite val_loss; without a finite val_loss, or with non-finite restored weights, the model is not evaluable: no checkpoint, no phase 2",
+  "in_memory_dev": "before the checkpoint is saved, the dev and the fitting are scored with the model in memory in the ordinary state (pad_anet_comparison.forward_checked, inference only: no state of the model, no seed and no recorded epoch time changes): non-finite scores or logits make the model not evaluable, without checkpoint",
+  "fitting_scores": "the fitting is scored in both BN states: in the ordinary state by the in-memory pass of phase 1 (non_evaluable.in_memory_dev), in the re-estimated state by the consistency pass of phase 2; non-finite scores or logits there, or on the dev in either BN state, make the model not evaluable",
+  "statistics": "non-finite re-estimated statistics (the message of nuaa_bn_recalibration) make the model not evaluable, before any output of its phase 2 is written",
+  "record": "a not evaluable model keeps its card in restricted/; a model found not evaluable in phase 2 keeps its checkpoint and phase-1 dev scores in restricted/, marked not evaluable in models.csv, and the evaluation does not score it on the test (amended PROTOCOL.md \u00a76 (k)/(n)); models.csv, summary.json and report.md give the status 'not evaluable' with the reason; it does not change the outcome of the run; no new attempt with the same seed for it"
+ },
+ "after_stop": "a choice of the author, recorded in the amended PROTOCOL.md \u00a76 (k)/(n) of this delivery, which replaces the pre-registered sentence 'resumed only for the missing trainings': a run stopped at its cap, by SIGUSR1, by a FAIL, a MISMATCH or an interruption is not resumed within its folder; it keeps its folder and outcome and, after its outcome has been reported on the C5 card, is repeated as a new attempt in a new folder from position 1, with the same seeds, code and configuration, before the evaluation, as in C2; the repetition retrains every position, those not evaluable included, and their outcome in the last attempt is the one evaluated; a run is never repeated because of a not evaluable model; the evaluation reads, for each of the six runs, only the last attempt, which must be PASS, with phase 1 complete for the 12 positions (not evaluable models included)",
+ "models": [
+  {
+   "position": 1,
+   "name": "AttackNetV2_1_fold1_seed42",
+   "network": "AttackNetV2_1",
+   "fold": 1,
+   "seed": 42,
+   "model_status": "complete",
+   "phase_1": true,
+   "phase_2": true,
+   "evaluable": true,
+   "reason": null,
+   "card": {
+    "epochs_run": 9,
+    "restored_epoch": 5,
+    "restored_by": "early stopping",
+    "best_val_loss": 0.03443843498826027,
+    "non_finite": []
+   },
+   "dev": {
+    "ordinary": {
+     "state": "ordinary",
+     "n": 400,
+     "n_attack": 200,
+     "n_bona_fide": 200,
+     "threshold_eer": 0.1659865826368332,
+     "eer_fp_rejected_bona_fide": 2,
+     "eer_fn_accepted_attacks": 2,
+     "decided_attack_05": 196,
+     "correct_05": 394,
+     "accuracy_05": 0.985,
+     "one_class_05": {
+      "n": 400,
+      "n_attack_labels": 200,
+      "n_bona_fide_labels": 200,
+      "n_decided_attack": 196,
+      "threshold": 0.5,
+      "evaluable": true,
+      "one_class": false,
+      "class": null
+     },
+     "decided_attack_eer": 200,
+     "correct_eer": 396,
+     "accuracy_eer": 0.99,
+     "n_frame_ids": 400,
+     "frame_ids_sha256": "b7b95d98eabe17c2b5658097d21ec54d72f7914e9aaf031bde74cfc90a08a477"
+    },
+    "re-estimated": {
+     "state": "re-estimated",
+     "n": 400,
+     "n_attack": 200,
+     "n_bona_fide": 200,
+     "threshold_eer": 0.6986560821533203,
+     "eer_fp_rejected_bona_fide": 1,
+     "eer_fn_accepted_attacks": 1,
+     "decided_attack_05": 208,
+     "correct_05": 390,
+     "accuracy_05": 0.975,
+     "one_class_05": {
+      "n": 400,
+      "n_attack_labels": 200,
+      "n_bona_fide_labels": 200,
+      "n_decided_attack": 208,
+      "threshold": 0.5,
+      "evaluable": true,
+      "one_class": false,
+      "class": null
+     },
+     "decided_attack_eer": 200,
+     "correct_eer": 398,
+     "accuracy_eer": 0.995,
+     "n_frame_ids": 400,
+     "frame_ids_sha256": "b7b95d98eabe17c2b5658097d21ec54d72f7914e9aaf031bde74cfc90a08a477"
+    }
+   },
+   "evaluator_agreement": {
+    "max_abs_diff": 0.0,
+    "discordant_05": 0,
+    "discordant_eer": 0,
+    "threshold_eer": 0.1659865826368332,
+    "tolerance": 1e-05,
+    "discordant_tolerance": 0,
+    "pass": true,
+    "reason": null
+   },
+   "threads_before": {
+    "intra_op": 10,
+    "inter_op": 10
+   },
+   "threads_after": {
+    "intra_op": 10,
+    "inter_op": 10
+   },
+   "seconds": {
+    "train_seconds": 247.95991091697942,
+    "train_cpu_seconds": 2072.496043,
+    "phase_1_seconds": 260.5149654580164,
+    "phase_2_seconds": 43.81316374999005
+   }
+  },
+  {
+   "position": 2,
+   "name": "AttackNetV2_1_fold1_seed43",
+   "network": "AttackNetV2_1",
+   "fold": 1,
+   "seed": 43,
+   "model_status": "complete",
+   "phase_1": true,
+   "phase_2": true,
+   "evaluable": true,
+   "reason": null,
+   "card": {
+    "epochs_run": 8,
+    "restored_epoch": 4,
+    "restored_by": "early stopping",
+    "best_val_loss": 0.22537380456924438,
+    "non_finite": []
+   },
+   "dev": {
+    "ordinary": {
+     "state": "ordinary",
+     "n": 400,
+     "n_attack": 200,
+     "n_bona_fide": 200,
+     "threshold_eer": 0.9995710253715515,
+     "eer_fp_rejected_bona_fide": 2,
+     "eer_fn_accepted_attacks": 2,
+     "decided_attack_05": 203,
+     "correct_05": 397,
+     "accuracy_05": 0.9925,
+     "one_class_05": {
+      "n": 400,
+      "n_attack_labels": 200,
+      "n_bona_fide_labels": 200,
+      "n_decided_attack": 203,
+      "threshold": 0.5,
+      "evaluable": true,
+      "one_class": false,
+      "class": null
+     },
+     "decided_attack_eer": 200,
+     "correct_eer": 396,
+     "accuracy_eer": 0.99,
+     "n_frame_ids": 400,
+     "frame_ids_sha256": "b7b95d98eabe17c2b5658097d21ec54d72f7914e9aaf031bde74cfc90a08a477"
+    },
+    "re-estimated": {
+     "state": "re-estimated",
+     "n": 400,
+     "n_attack": 200,
+     "n_bona_fide": 200,
+     "threshold_eer": 0.9917170405387878,
+     "eer_fp_rejected_bona_fide": 39,
+     "eer_fn_accepted_attacks": 39,
+     "decided_attack_05": 239,
+     "correct_05": 361,
+     "accuracy_05": 0.9025,
+     "one_class_05": {
+      "n": 400,
+      "n_attack_labels": 200,
+      "n_bona_fide_labels": 200,
+      "n_decided_attack": 239,
+      "threshold": 0.5,
+      "evaluable": true,
+      "one_class": false,
+      "class": null
+     },
+     "decided_attack_eer": 200,
+     "correct_eer": 322,
+     "accuracy_eer": 0.805,
+     "n_frame_ids": 400,
+     "frame_ids_sha256": "b7b95d98eabe17c2b5658097d21ec54d72f7914e9aaf031bde74cfc90a08a477"
+    }
+   },
+   "evaluator_agreement": {
+    "max_abs_diff": 0.0,
+    "discordant_05": 0,
+    "discordant_eer": 0,
+    "threshold_eer": 0.9995710253715515,
+    "tolerance": 1e-05,
+    "discordant_tolerance": 0,
+    "pass": true,
+    "reason": null
+   },
+   "threads_before": {
+    "intra_op": 10,
+    "inter_op": 10
+   },
+   "threads_after": {
+    "intra_op": 10,
+    "inter_op": 10
+   },
+   "seconds": {
+    "train_seconds": 223.47381116700126,
+    "train_cpu_seconds": 1850.794343,
+    "phase_1_seconds": 236.1203462079866,
+    "phase_2_seconds": 43.1886337500182
+   }
+  },
+  {
+   "position": 3,
+   "name": "AttackNetV2_1_fold1_seed44",
+   "network": "AttackNetV2_1",
+   "fold": 1,
+   "seed": 44,
+   "model_status": "complete",
+   "phase_1": true,
+   "phase_2": true,
+   "evaluable": true,
+   "reason": null,
+   "card": {
+    "epochs_run": 12,
+    "restored_epoch": 9,
+    "restored_by": "end of epochs (set_weights)",
+    "best_val_loss": 0.009106594137847424,
+    "non_finite": []
+   },
+   "dev": {
+    "ordinary": {
+     "state": "ordinary",
+     "n": 400,
+     "n_attack": 200,
+     "n_bona_fide": 200,
+     "threshold_eer": 0.7448738813400269,
+     "eer_fp_rejected_bona_fide": 0,
+     "eer_fn_accepted_attacks": 0,
+     "decided_attack_05": 201,
+     "correct_05": 399,
+     "accuracy_05": 0.9975,
+     "one_class_05": {
+      "n": 400,
+      "n_attack_labels": 200,
+      "n_bona_fide_labels": 200,
+      "n_decided_attack": 201,
+      "threshold": 0.5,
+      "evaluable": true,
+      "one_class": false,
+      "class": null
+     },
+     "decided_attack_eer": 200,
+     "correct_eer": 400,
+     "accuracy_eer": 1.0,
+     "n_frame_ids": 400,
+     "frame_ids_sha256": "b7b95d98eabe17c2b5658097d21ec54d72f7914e9aaf031bde74cfc90a08a477"
+    },
+    "re-estimated": {
+     "state": "re-estimated",
+     "n": 400,
+     "n_attack": 200,
+     "n_bona_fide": 200,
+     "threshold_eer": 0.9444735050201416,
+     "eer_fp_rejected_bona_fide": 2,
+     "eer_fn_accepted_attacks": 2,
+     "decided_attack_05": 202,
+     "correct_05": 398,
+     "accuracy_05": 0.995,
+     "one_class_05": {
+      "n": 400,
+      "n_attack_labels": 200,
+      "n_bona_fide_labels": 200,
+      "n_decided_attack": 202,
+      "threshold": 0.5,
+      "evaluable": true,
+      "one_class": false,
+      "class": null
+     },
+     "decided_attack_eer": 200,
+     "correct_eer": 396,
+     "accuracy_eer": 0.99,
+     "n_frame_ids": 400,
+     "frame_ids_sha256": "b7b95d98eabe17c2b5658097d21ec54d72f7914e9aaf031bde74cfc90a08a477"
+    }
+   },
+   "evaluator_agreement": {
+    "max_abs_diff": 0.0,
+    "discordant_05": 0,
+    "discordant_eer": 0,
+    "threshold_eer": 0.7448738813400269,
+    "tolerance": 1e-05,
+    "discordant_tolerance": 0,
+    "pass": true,
+    "reason": null
+   },
+   "threads_before": {
+    "intra_op": 10,
+    "inter_op": 10
+   },
+   "threads_after": {
+    "intra_op": 10,
+    "inter_op": 10
+   },
+   "seconds": {
+    "train_seconds": 329.9633322499576,
+    "train_cpu_seconds": 2765.84252,
+    "phase_1_seconds": 342.30937525001355,
+    "phase_2_seconds": 42.89095754199661
+   }
+  },
+  {
+   "position": 4,
+   "name": "AttackNetV2_1_fold2_seed42",
+   "network": "AttackNetV2_1",
+   "fold": 2,
+   "seed": 42,
+   "model_status": "complete",
+   "phase_1": true,
+   "phase_2": true,
+   "evaluable": true,
+   "reason": null,
+   "card": {
+    "epochs_run": 12,
+    "restored_epoch": 11,
+    "restored_by": "end of epochs (set_weights)",
+    "best_val_loss": 0.02505183406174183,
+    "non_finite": []
+   },
+   "dev": {
+    "ordinary": {
+     "state": "ordinary",
+     "n": 400,
+     "n_attack": 200,
+     "n_bona_fide": 200,
+     "threshold_eer": 0.614445686340332,
+     "eer_fp_rejected_bona_fide": 1,
+     "eer_fn_accepted_attacks": 1,
+     "decided_attack_05": 202,
+     "correct_05": 398,
+     "accuracy_05": 0.995,
+     "one_class_05": {
+      "n": 400,
+      "n_attack_labels": 200,
+      "n_bona_fide_labels": 200,
+      "n_decided_attack": 202,
+      "threshold": 0.5,
+      "evaluable": true,
+      "one_class": false,
+      "class": null
+     },
+     "decided_attack_eer": 200,
+     "correct_eer": 398,
+     "accuracy_eer": 0.995,
+     "n_frame_ids": 400,
+     "frame_ids_sha256": "16a1682525c6544b7db5125aad69681b5624132dad5a78e2cda08cebc433017c"
+    },
+    "re-estimated": {
+     "state": "re-estimated",
+     "n": 400,
+     "n_attack": 200,
+     "n_bona_fide": 200,
+     "threshold_eer": 0.12440671026706696,
+     "eer_fp_rejected_bona_fide": 1,
+     "eer_fn_accepted_attacks": 1,
+     "decided_attack_05": 197,
+     "correct_05": 395,
+     "accuracy_05": 0.9875,
+     "one_class_05": {
+      "n": 400,
+      "n_attack_labels": 200,
+      "n_bona_fide_labels": 200,
+      "n_decided_attack": 197,
+      "threshold": 0.5,
+      "evaluable": true,
+      "one_class": false,
+      "class": null
+     },
+     "decided_attack_eer": 200,
+     "correct_eer": 398,
+     "accuracy_eer": 0.995,
+     "n_frame_ids": 400,
+     "frame_ids_sha256": "16a1682525c6544b7db5125aad69681b5624132dad5a78e2cda08cebc433017c"
+    }
+   },
+   "evaluator_agreement": {
+    "max_abs_diff": 0.0,
+    "discordant_05": 0,
+    "discordant_eer": 0,
+    "threshold_eer": 0.614445686340332,
+    "tolerance": 1e-05,
+    "discordant_tolerance": 0,
+    "pass": true,
+    "reason": null
+   },
+   "threads_before": {
+    "intra_op": 10,
+    "inter_op": 10
+   },
+   "threads_after": {
+    "intra_op": 10,
+    "inter_op": 10
+   },
+   "seconds": {
+    "train_seconds": 328.27214695804287,
+    "train_cpu_seconds": 2762.145245999999,
+    "phase_1_seconds": 340.6182980000158,
+    "phase_2_seconds": 42.864752209046856
+   }
+  },
+  {
+   "position": 5,
+   "name": "AttackNetV2_1_fold2_seed43",
+   "network": "AttackNetV2_1",
+   "fold": 2,
+   "seed": 43,
+   "model_status": "complete",
+   "phase_1": true,
+   "phase_2": true,
+   "evaluable": true,
+   "reason": null,
+   "card": {
+    "epochs_run": 7,
+    "restored_epoch": 3,
+    "restored_by": "early stopping",
+    "best_val_loss": 0.030055657029151917,
+    "non_finite": []
+   },
+   "dev": {
+    "ordinary": {
+     "state": "ordinary",
+     "n": 400,
+     "n_attack": 200,
+     "n_bona_fide": 200,
+     "threshold_eer": 0.3734944462776184,
+     "eer_fp_rejected_bona_fide": 2,
+     "eer_fn_accepted_attacks": 2,
+     "decided_attack_05": 199,
+     "correct_05": 397,
+     "accuracy_05": 0.9925,
+     "one_class_05": {
+      "n": 400,
+      "n_attack_labels": 200,
+      "n_bona_fide_labels": 200,
+      "n_decided_attack": 199,
+      "threshold": 0.5,
+      "evaluable": true,
+      "one_class": false,
+      "class": null
+     },
+     "decided_attack_eer": 200,
+     "correct_eer": 396,
+     "accuracy_eer": 0.99,
+     "n_frame_ids": 400,
+     "frame_ids_sha256": "16a1682525c6544b7db5125aad69681b5624132dad5a78e2cda08cebc433017c"
+    },
+    "re-estimated": {
+     "state": "re-estimated",
+     "n": 400,
+     "n_attack": 200,
+     "n_bona_fide": 200,
+     "threshold_eer": 0.013326790183782578,
+     "eer_fp_rejected_bona_fide": 4,
+     "eer_fn_accepted_attacks": 4,
+     "decided_attack_05": 148,
+     "correct_05": 342,
+     "accuracy_05": 0.855,
+     "one_class_05": {
+      "n": 400,
+      "n_attack_labels": 200,
+      "n_bona_fide_labels": 200,
+      "n_decided_attack": 148,
+      "threshold": 0.5,
+      "evaluable": true,
+      "one_class": false,
+      "class": null
+     },
+     "decided_attack_eer": 200,
+     "correct_eer": 392,
+     "accuracy_eer": 0.98,
+     "n_frame_ids": 400,
+     "frame_ids_sha256": "16a1682525c6544b7db5125aad69681b5624132dad5a78e2cda08cebc433017c"
+    }
+   },
+   "evaluator_agreement": {
+    "max_abs_diff": 0.0,
+    "discordant_05": 0,
+    "discordant_eer": 0,
+    "threshold_eer": 0.3734944462776184,
+    "tolerance": 1e-05,
+    "discordant_tolerance": 0,
+    "pass": true,
+    "reason": null
+   },
+   "threads_before": {
+    "intra_op": 10,
+    "inter_op": 10
+   },
+   "threads_after": {
+    "intra_op": 10,
+    "inter_op": 10
+   },
+   "seconds": {
+    "train_seconds": 192.58841370802838,
+    "train_cpu_seconds": 1616.6422160000002,
+    "phase_1_seconds": 204.98879383405438,
+    "phase_2_seconds": 42.91233883303357
+   }
+  },
+  {
+   "position": 6,
+   "name": "AttackNetV2_1_fold2_seed44",
+   "network": "AttackNetV2_1",
+   "fold": 2,
+   "seed": 44,
+   "model_status": "complete",
+   "phase_1": true,
+   "phase_2": true,
+   "evaluable": true,
+   "reason": null,
+   "card": {
+    "epochs_run": 12,
+    "restored_epoch": 9,
+    "restored_by": "end of epochs (set_weights)",
+    "best_val_loss": 0.02378828451037407,
+    "non_finite": []
+   },
+   "dev": {
+    "ordinary": {
+     "state": "ordinary",
+     "n": 400,
+     "n_attack": 200,
+     "n_bona_fide": 200,
+     "threshold_eer": 0.9177647233009338,
+     "eer_fp_rejected_bona_fide": 1,
+     "eer_fn_accepted_attacks": 1,
+     "decided_attack_05": 202,
+     "correct_05": 398,
+     "accuracy_05": 0.995,
+     "one_class_05": {
+      "n": 400,
+      "n_attack_labels": 200,
+      "n_bona_fide_labels": 200,
+      "n_decided_attack": 202,
+      "threshold": 0.5,
+      "evaluable": true,
+      "one_class": false,
+      "class": null
+     },
+     "decided_attack_eer": 200,
+     "correct_eer": 398,
+     "accuracy_eer": 0.995,
+     "n_frame_ids": 400,
+     "frame_ids_sha256": "16a1682525c6544b7db5125aad69681b5624132dad5a78e2cda08cebc433017c"
+    },
+    "re-estimated": {
+     "state": "re-estimated",
+     "n": 400,
+     "n_attack": 200,
+     "n_bona_fide": 200,
+     "threshold_eer": 0.030054844915866852,
+     "eer_fp_rejected_bona_fide": 1,
+     "eer_fn_accepted_attacks": 1,
+     "decided_attack_05": 187,
+     "correct_05": 385,
+     "accuracy_05": 0.9625,
+     "one_class_05": {
+      "n": 400,
+      "n_attack_labels": 200,
+      "n_bona_fide_labels": 200,
+      "n_decided_attack": 187,
+      "threshold": 0.5,
+      "evaluable": true,
+      "one_class": false,
+      "class": null
+     },
+     "decided_attack_eer": 200,
+     "correct_eer": 398,
+     "accuracy_eer": 0.995,
+     "n_frame_ids": 400,
+     "frame_ids_sha256": "16a1682525c6544b7db5125aad69681b5624132dad5a78e2cda08cebc433017c"
+    }
+   },
+   "evaluator_agreement": {
+    "max_abs_diff": 0.0,
+    "discordant_05": 0,
+    "discordant_eer": 0,
+    "threshold_eer": 0.9177647233009338,
+    "tolerance": 1e-05,
+    "discordant_tolerance": 0,
+    "pass": true,
+    "reason": null
+   },
+   "threads_before": {
+    "intra_op": 10,
+    "inter_op": 10
+   },
+   "threads_after": {
+    "intra_op": 10,
+    "inter_op": 10
+   },
+   "seconds": {
+    "train_seconds": 330.4011710420018,
+    "train_cpu_seconds": 2782.3022039999996,
+    "phase_1_seconds": 342.7238859999925,
+    "phase_2_seconds": 43.152972167008556
+   }
+  },
+  {
+   "position": 7,
+   "name": "AttackNetV2_1_fold3_seed42",
+   "network": "AttackNetV2_1",
+   "fold": 3,
+   "seed": 42,
+   "model_status": "complete",
+   "phase_1": true,
+   "phase_2": true,
+   "evaluable": true,
+   "reason": null,
+   "card": {
+    "epochs_run": 6,
+    "restored_epoch": 2,
+    "restored_by": "early stopping",
+    "best_val_loss": 0.4415687322616577,
+    "non_finite": []
+   },
+   "dev": {
+    "ordinary": {
+     "state": "ordinary",
+     "n": 400,
+     "n_attack": 200,
+     "n_bona_fide": 200,
+     "threshold_eer": 0.7022184133529663,
+     "eer_fp_rejected_bona_fide": 39,
+     "eer_fn_accepted_attacks": 39,
+     "decided_attack_05": 263,
+     "correct_05": 263,
+     "accuracy_05": 0.6575,
+     "one_class_05": {
+      "n": 400,
+      "n_attack_labels": 200,
+      "n_bona_fide_labels": 200,
+      "n_decided_attack": 263,
+      "threshold": 0.5,
+      "evaluable": true,
+      "one_class": false,
+      "class": null
+     },
+     "decided_attack_eer": 200,
+     "correct_eer": 322,
+     "accuracy_eer": 0.805,
+     "n_frame_ids": 400,
+     "frame_ids_sha256": "f80acc54e514c98ee42219c7dfec0883cc4ed5bd87a1935cdee5f8a47b9929d6"
+    },
+    "re-estimated": {
+     "state": "re-estimated",
+     "n": 400,
+     "n_attack": 200,
+     "n_bona_fide": 200,
+     "threshold_eer": 0.09119618684053421,
+     "eer_fp_rejected_bona_fide": 43,
+     "eer_fn_accepted_attacks": 43,
+     "decided_attack_05": 168,
+     "correct_05": 330,
+     "accuracy_05": 0.825,
+     "one_class_05": {
+      "n": 400,
+      "n_attack_labels": 200,
+      "n_bona_fide_labels": 200,
+      "n_decided_attack": 168,
+      "threshold": 0.5,
+      "evaluable": true,
+      "one_class": false,
+      "class": null
+     },
+     "decided_attack_eer": 200,
+     "correct_eer": 314,
+     "accuracy_eer": 0.785,
+     "n_frame_ids": 400,
+     "frame_ids_sha256": "f80acc54e514c98ee42219c7dfec0883cc4ed5bd87a1935cdee5f8a47b9929d6"
+    }
+   },
+   "evaluator_agreement": {
+    "max_abs_diff": 0.0,
+    "discordant_05": 0,
+    "discordant_eer": 0,
+    "threshold_eer": 0.7022184133529663,
+    "tolerance": 1e-05,
+    "discordant_tolerance": 0,
+    "pass": true,
+    "reason": null
+   },
+   "threads_before": {
+    "intra_op": 10,
+    "inter_op": 10
+   },
+   "threads_after": {
+    "intra_op": 10,
+    "inter_op": 10
+   },
+   "seconds": {
+    "train_seconds": 165.86601537500974,
+    "train_cpu_seconds": 1394.6050460000006,
+    "phase_1_seconds": 178.17472499998985,
+    "phase_2_seconds": 43.23118187498767
+   }
+  },
+  {
+   "position": 8,
+   "name": "AttackNetV2_1_fold3_seed43",
+   "network": "AttackNetV2_1",
+   "fold": 3,
+   "seed": 43,
+   "model_status": "complete",
+   "phase_1": true,
+   "phase_2": true,
+   "evaluable": true,
+   "reason": null,
+   "card": {
+    "epochs_run": 9,
+    "restored_epoch": 5,
+    "restored_by": "early stopping",
+    "best_val_loss": 0.0170163344591856,
+    "non_finite": []
+   },
+   "dev": {
+    "ordinary": {
+     "state": "ordinary",
+     "n": 400,
+     "n_attack": 200,
+     "n_bona_fide": 200,
+     "threshold_eer": 0.045765869319438934,
+     "eer_fp_rejected_bona_fide": 1,
+     "eer_fn_accepted_attacks": 1,
+     "decided_attack_05": 200,
+     "correct_05": 398,
+     "accuracy_05": 0.995,
+     "one_class_05": {
+      "n": 400,
+      "n_attack_labels": 200,
+      "n_bona_fide_labels": 200,
+      "n_decided_attack": 200,
+      "threshold": 0.5,
+      "evaluable": true,
+      "one_class": false,
+      "class": null
+     },
+     "decided_attack_eer": 200,
+     "correct_eer": 398,
+     "accuracy_eer": 0.995,
+     "n_frame_ids": 400,
+     "frame_ids_sha256": "f80acc54e514c98ee42219c7dfec0883cc4ed5bd87a1935cdee5f8a47b9929d6"
+    },
+    "re-estimated": {
+     "state": "re-estimated",
+     "n": 400,
+     "n_attack": 200,
+     "n_bona_fide": 200,
+     "threshold_eer": 0.002945917658507824,
+     "eer_fp_rejected_bona_fide": 16,
+     "eer_fn_accepted_attacks": 16,
+     "decided_attack_05": 157,
+     "correct_05": 345,
+     "accuracy_05": 0.8625,
+     "one_class_05": {
+      "n": 400,
+      "n_attack_labels": 200,
+      "n_bona_fide_labels": 200,
+      "n_decided_attack": 157,
+      "threshold": 0.5,
+      "evaluable": true,
+      "one_class": false,
+      "class": null
+     },
+     "decided_attack_eer": 200,
+     "correct_eer": 368,
+     "accuracy_eer": 0.92,
+     "n_frame_ids": 400,
+     "frame_ids_sha256": "f80acc54e514c98ee42219c7dfec0883cc4ed5bd87a1935cdee5f8a47b9929d6"
+    }
+   },
+   "evaluator_agreement": {
+    "max_abs_diff": 0.0,
+    "discordant_05": 0,
+    "discordant_eer": 0,
+    "threshold_eer": 0.045765869319438934,
+    "tolerance": 1e-05,
+    "discordant_tolerance": 0,
+    "pass": true,
+    "reason": null
+   },
+   "threads_before": {
+    "intra_op": 10,
+    "inter_op": 10
+   },
+   "threads_after": {
+    "intra_op": 10,
+    "inter_op": 10
+   },
+   "seconds": {
+    "train_seconds": 247.7869380839984,
+    "train_cpu_seconds": 2083.057971,
+    "phase_1_seconds": 260.11703783395933,
+    "phase_2_seconds": 43.215807209024206
+   }
+  },
+  {
+   "position": 9,
+   "name": "AttackNetV2_1_fold3_seed44",
+   "network": "AttackNetV2_1",
+   "fold": 3,
+   "seed": 44,
+   "model_status": "complete",
+   "phase_1": true,
+   "phase_2": true,
+   "evaluable": true,
+   "reason": null,
+   "card": {
+    "epochs_run": 10,
+    "restored_epoch": 6,
+    "restored_by": "early stopping",
+    "best_val_loss": 0.08719916641712189,
+    "non_finite": []
+   },
+   "dev": {
+    "ordinary": {
+     "state": "ordinary",
+     "n": 400,
+     "n_attack": 200,
+     "n_bona_fide": 200,
+     "threshold_eer": 0.239744171500206,
+     "eer_fp_rejected_bona_fide": 0,
+     "eer_fn_accepted_attacks": 0,
+     "decided_attack_05": 171,
+     "correct_05": 371,
+     "accuracy_05": 0.9275,
+     "one_class_05": {
+      "n": 400,
+      "n_attack_labels": 200,
+      "n_bona_fide_labels": 200,
+      "n_decided_attack": 171,
+      "threshold": 0.5,
+      "evaluable": true,
+      "one_class": false,
+      "class": null
+     },
+     "decided_attack_eer": 200,
+     "correct_eer": 400,
+     "accuracy_eer": 1.0,
+     "n_frame_ids": 400,
+     "frame_ids_sha256": "f80acc54e514c98ee42219c7dfec0883cc4ed5bd87a1935cdee5f8a47b9929d6"
+    },
+    "re-estimated": {
+     "state": "re-estimated",
+     "n": 400,
+     "n_attack": 200,
+     "n_bona_fide": 200,
+     "threshold_eer": 0.004178760107606649,
+     "eer_fp_rejected_bona_fide": 3,
+     "eer_fn_accepted_attacks": 3,
+     "decided_attack_05": 152,
+     "correct_05": 352,
+     "accuracy_05": 0.88,
+     "one_class_05": {
+      "n": 400,
+      "n_attack_labels": 200,
+      "n_bona_fide_labels": 200,
+      "n_decided_attack": 152,
+      "threshold": 0.5,
+      "evaluable": true,
+      "one_class": false,
+      "class": null
+     },
+     "decided_attack_eer": 200,
+     "correct_eer": 394,
+     "accuracy_eer": 0.985,
+     "n_frame_ids": 400,
+     "frame_ids_sha256": "f80acc54e514c98ee42219c7dfec0883cc4ed5bd87a1935cdee5f8a47b9929d6"
+    }
+   },
+   "evaluator_agreement": {
+    "max_abs_diff": 0.0,
+    "discordant_05": 0,
+    "discordant_eer": 0,
+    "threshold_eer": 0.239744171500206,
+    "tolerance": 1e-05,
+    "discordant_tolerance": 0,
+    "pass": true,
+    "reason": null
+   },
+   "threads_before": {
+    "intra_op": 10,
+    "inter_op": 10
+   },
+   "threads_after": {
+    "intra_op": 10,
+    "inter_op": 10
+   },
+   "seconds": {
+    "train_seconds": 279.0320480420487,
+    "train_cpu_seconds": 2334.74841,
+    "phase_1_seconds": 292.00430008297553,
+    "phase_2_seconds": 43.550043166964315
+   }
+  },
+  {
+   "position": 10,
+   "name": "AttackNetV2_1_fold4_seed42",
+   "network": "AttackNetV2_1",
+   "fold": 4,
+   "seed": 42,
+   "model_status": "complete",
+   "phase_1": true,
+   "phase_2": true,
+   "evaluable": true,
+   "reason": null,
+   "card": {
+    "epochs_run": 7,
+    "restored_epoch": 3,
+    "restored_by": "early stopping",
+    "best_val_loss": 0.010352923534810543,
+    "non_finite": []
+   },
+   "dev": {
+    "ordinary": {
+     "state": "ordinary",
+     "n": 400,
+     "n_attack": 200,
+     "n_bona_fide": 200,
+     "threshold_eer": 0.8609651327133179,
+     "eer_fp_rejected_bona_fide": 0,
+     "eer_fn_accepted_attacks": 0,
+     "decided_attack_05": 202,
+     "correct_05": 398,
+     "accuracy_05": 0.995,
+     "one_class_05": {
+      "n": 400,
+      "n_attack_labels": 200,
+      "n_bona_fide_labels": 200,
+      "n_decided_attack": 202,
+      "threshold": 0.5,
+      "evaluable": true,
+      "one_class": false,
+      "class": null
+     },
+     "decided_attack_eer": 200,
+     "correct_eer": 400,
+     "accuracy_eer": 1.0,
+     "n_frame_ids": 400,
+     "frame_ids_sha256": "9621933d840c614dae6a58a702b0c3be0fa7f857d58c510bd42c6b8759aca8cc"
+    },
+    "re-estimated": {
+     "state": "re-estimated",
+     "n": 400,
+     "n_attack": 200,
+     "n_bona_fide": 200,
+     "threshold_eer": 0.9974440336227417,
+     "eer_fp_rejected_bona_fide": 6,
+     "eer_fn_accepted_attacks": 6,
+     "decided_attack_05": 212,
+     "correct_05": 384,
+     "accuracy_05": 0.96,
+     "one_class_05": {
+      "n": 400,
+      "n_attack_labels": 200,
+      "n_bona_fide_labels": 200,
+      "n_decided_attack": 212,
+      "threshold": 0.5,
+      "evaluable": true,
+      "one_class": false,
+      "class": null
+     },
+     "decided_attack_eer": 200,
+     "correct_eer": 388,
+     "accuracy_eer": 0.97,
+     "n_frame_ids": 400,
+     "frame_ids_sha256": "9621933d840c614dae6a58a702b0c3be0fa7f857d58c510bd42c6b8759aca8cc"
+    }
+   },
+   "evaluator_agreement": {
+    "max_abs_diff": 0.0,
+    "discordant_05": 0,
+    "discordant_eer": 0,
+    "threshold_eer": 0.8609651327133179,
+    "tolerance": 1e-05,
+    "discordant_tolerance": 0,
+    "pass": true,
+    "reason": null
+   },
+   "threads_before": {
+    "intra_op": 10,
+    "inter_op": 10
+   },
+   "threads_after": {
+    "intra_op": 10,
+    "inter_op": 10
+   },
+   "seconds": {
+    "train_seconds": 202.65924962499412,
+    "train_cpu_seconds": 1673.0995230000008,
+    "phase_1_seconds": 215.06287337496178,
+    "phase_2_seconds": 44.07538208301412
+   }
+  },
+  {
+   "position": 11,
+   "name": "AttackNetV2_1_fold4_seed43",
+   "network": "AttackNetV2_1",
+   "fold": 4,
+   "seed": 43,
+   "model_status": "complete",
+   "phase_1": true,
+   "phase_2": true,
+   "evaluable": true,
+   "reason": null,
+   "card": {
+    "epochs_run": 11,
+    "restored_epoch": 7,
+    "restored_by": "early stopping",
+    "best_val_loss": 0.023448025807738304,
+    "non_finite": []
+   },
+   "dev": {
+    "ordinary": {
+     "state": "ordinary",
+     "n": 400,
+     "n_attack": 200,
+     "n_bona_fide": 200,
+     "threshold_eer": 0.39881908893585205,
+     "eer_fp_rejected_bona_fide": 1,
+     "eer_fn_accepted_attacks": 1,
+     "decided_attack_05": 200,
+     "correct_05": 398,
+     "accuracy_05": 0.995,
+     "one_class_05": {
+      "n": 400,
+      "n_attack_labels": 200,
+      "n_bona_fide_labels": 200,
+      "n_decided_attack": 200,
+      "threshold": 0.5,
+      "evaluable": true,
+      "one_class": false,
+      "class": null
+     },
+     "decided_attack_eer": 200,
+     "correct_eer": 398,
+     "accuracy_eer": 0.995,
+     "n_frame_ids": 400,
+     "frame_ids_sha256": "9621933d840c614dae6a58a702b0c3be0fa7f857d58c510bd42c6b8759aca8cc"
+    },
+    "re-estimated": {
+     "state": "re-estimated",
+     "n": 400,
+     "n_attack": 200,
+     "n_bona_fide": 200,
+     "threshold_eer": 0.1444832980632782,
+     "eer_fp_rejected_bona_fide": 0,
+     "eer_fn_accepted_attacks": 0,
+     "decided_attack_05": 200,
+     "correct_05": 400,
+     "accuracy_05": 1.0,
+     "one_class_05": {
+      "n": 400,
+      "n_attack_labels": 200,
+      "n_bona_fide_labels": 200,
+      "n_decided_attack": 200,
+      "threshold": 0.5,
+      "evaluable": true,
+      "one_class": false,
+      "class": null
+     },
+     "decided_attack_eer": 200,
+     "correct_eer": 400,
+     "accuracy_eer": 1.0,
+     "n_frame_ids": 400,
+     "frame_ids_sha256": "9621933d840c614dae6a58a702b0c3be0fa7f857d58c510bd42c6b8759aca8cc"
+    }
+   },
+   "evaluator_agreement": {
+    "max_abs_diff": 0.0,
+    "discordant_05": 0,
+    "discordant_eer": 0,
+    "threshold_eer": 0.39881908893585205,
+    "tolerance": 1e-05,
+    "discordant_tolerance": 0,
+    "pass": true,
+    "reason": null
+   },
+   "threads_before": {
+    "intra_op": 10,
+    "inter_op": 10
+   },
+   "threads_after": {
+    "intra_op": 10,
+    "inter_op": 10
+   },
+   "seconds": {
+    "train_seconds": 303.1618772079819,
+    "train_cpu_seconds": 2551.0845929999996,
+    "phase_1_seconds": 315.4976623329567,
+    "phase_2_seconds": 43.766669625008944
+   }
+  },
+  {
+   "position": 12,
+   "name": "AttackNetV2_1_fold4_seed44",
+   "network": "AttackNetV2_1",
+   "fold": 4,
+   "seed": 44,
+   "model_status": "complete",
+   "phase_1": true,
+   "phase_2": true,
+   "evaluable": true,
+   "reason": null,
+   "card": {
+    "epochs_run": 12,
+    "restored_epoch": 11,
+    "restored_by": "end of epochs (set_weights)",
+    "best_val_loss": 0.09643234312534332,
+    "non_finite": []
+   },
+   "dev": {
+    "ordinary": {
+     "state": "ordinary",
+     "n": 400,
+     "n_attack": 200,
+     "n_bona_fide": 200,
+     "threshold_eer": 0.8768097162246704,
+     "eer_fp_rejected_bona_fide": 5,
+     "eer_fn_accepted_attacks": 5,
+     "decided_attack_05": 208,
+     "correct_05": 386,
+     "accuracy_05": 0.965,
+     "one_class_05": {
+      "n": 400,
+      "n_attack_labels": 200,
+      "n_bona_fide_labels": 200,
+      "n_decided_attack": 208,
+      "threshold": 0.5,
+      "evaluable": true,
+      "one_class": false,
+      "class": null
+     },
+     "decided_attack_eer": 200,
+     "correct_eer": 390,
+     "accuracy_eer": 0.975,
+     "n_frame_ids": 400,
+     "frame_ids_sha256": "9621933d840c614dae6a58a702b0c3be0fa7f857d58c510bd42c6b8759aca8cc"
+    },
+    "re-estimated": {
+     "state": "re-estimated",
+     "n": 400,
+     "n_attack": 200,
+     "n_bona_fide": 200,
+     "threshold_eer": 0.9900366067886353,
+     "eer_fp_rejected_bona_fide": 8,
+     "eer_fn_accepted_attacks": 8,
+     "decided_attack_05": 211,
+     "correct_05": 385,
+     "accuracy_05": 0.9625,
+     "one_class_05": {
+      "n": 400,
+      "n_attack_labels": 200,
+      "n_bona_fide_labels": 200,
+      "n_decided_attack": 211,
+      "threshold": 0.5,
+      "evaluable": true,
+      "one_class": false,
+      "class": null
+     },
+     "decided_attack_eer": 200,
+     "correct_eer": 384,
+     "accuracy_eer": 0.96,
+     "n_frame_ids": 400,
+     "frame_ids_sha256": "9621933d840c614dae6a58a702b0c3be0fa7f857d58c510bd42c6b8759aca8cc"
+    }
+   },
+   "evaluator_agreement": {
+    "max_abs_diff": 0.0,
+    "discordant_05": 0,
+    "discordant_eer": 0,
+    "threshold_eer": 0.8768097162246704,
+    "tolerance": 1e-05,
+    "discordant_tolerance": 0,
+    "pass": true,
+    "reason": null
+   },
+   "threads_before": {
+    "intra_op": 10,
+    "inter_op": 10
+   },
+   "threads_after": {
+    "intra_op": 10,
+    "inter_op": 10
+   },
+   "seconds": {
+    "train_seconds": 329.7161160840187,
+    "train_cpu_seconds": 2772.9980630000027,
+    "phase_1_seconds": 342.1032201249618,
+    "phase_2_seconds": 43.64220895798644
+   }
+  }
+ ],
+ "one_class": [
+  {
+   "network": "AttackNetV2_1",
+   "patience": 4,
+   "bn_state": "ordinary",
+   "one_class": 0,
+   "evaluable": 12,
+   "not_evaluable": 0,
+   "all_bona_fide": 0,
+   "all_attack": 0,
+   "text": "0 of 12 evaluable"
+  },
+  {
+   "network": "AttackNetV2_1",
+   "patience": 4,
+   "bn_state": "re-estimated",
+   "one_class": 0,
+   "evaluable": 12,
+   "not_evaluable": 0,
+   "all_bona_fide": 0,
+   "all_attack": 0,
+   "text": "0 of 12 evaluable"
+  }
+ ],
+ "dev_frames": {
+  "folds_compared": 4,
+  "models_compared": 12,
+  "folds": {
+   "fold1": {
+    "n_frames": 400,
+    "frame_ids_sha256": "b7b95d98eabe17c2b5658097d21ec54d72f7914e9aaf031bde74cfc90a08a477"
+   },
+   "fold2": {
+    "n_frames": 400,
+    "frame_ids_sha256": "16a1682525c6544b7db5125aad69681b5624132dad5a78e2cda08cebc433017c"
+   },
+   "fold3": {
+    "n_frames": 400,
+    "frame_ids_sha256": "f80acc54e514c98ee42219c7dfec0883cc4ed5bd87a1935cdee5f8a47b9929d6"
+   },
+   "fold4": {
+    "n_frames": 400,
+    "frame_ids_sha256": "9621933d840c614dae6a58a702b0c3be0fa7f857d58c510bd42c6b8759aca8cc"
+   }
+  }
+ },
+ "checks": {
+  "configuration_unchanged": true,
+  "code_unchanged": 16,
+  "pinned_inputs_unchanged": true,
+  "reference_cards_unchanged": 12
+ },
+ "code_sha256": {
+  "scripts/nuaa_folds_run.py": "82fed566cfa8ac0b280b55edbf430e7051dff1ae83d17a902d78157f2c72ffb2",
+  "scripts/nuaa_session_ablation_run.py": "9c45255199b87a41126b77867d5bbcf0da6f6ecf1684bf8fdd89185f463a276e",
+  "scripts/nuaa_bn_recalibration.py": "8c228ef400f5ef4337612477b23113fb6b8cac5364a5ff026e2c0ac8096734f5",
+  "scripts/nuaa_patience_verify.py": "edc839849ac76be9ce3149a3c217f35b6f1f430e352b471d03b78398093f4b9e",
+  "scripts/m2_writers.py": "22760abc368dede3aa0a690a241f6622afe1ba586940422497db8a33994ee34a",
+  "scripts/path_guard.py": "e5fa9c835c23745ff932e157a44d3104eb9713d86bbdecc9cdbbd3caa7a7ee34",
+  "scripts/package_rules.py": "96ec7ffab4b089bac71fd18918fcd32af72d15980cdfa1361cc84bb43e0e4c11",
+  "scripts/pad_arch_models.py": "72790b4fdc8a9f56e4ef5494c8f7fdd87cbfa3bf752eb471e531b524848a5832",
+  "scripts/pad_arch_definitions.py": "7bef6b62c9df355ca9ce1eb971dea142825b5aebb48c313d45087cbb899b5bff",
+  "scripts/pad_arch_comparison.py": "8f9a7c314acef2b6c00bd37b9d3089c94ea5c6acfc55b27b89ce8ddd6d8f7451",
+  "scripts/pad_arch_run.py": "c79a8eb834a1bee1e467513cee5cc548321ab5e7c0be007a5f7ad6240b9d503a",
+  "scripts/nuaa_bn_test.py": "909869a8b127ae96d0a184f6294ac1017bd28fbcec20c2d83355b9b370b7dfbb",
+  "scripts/pad_anet_models.py": "cbdc735b2fca528d776cf1dc846a0ffbf6db2af85f1f1e3715d4c7fa709f403b",
+  "scripts/pad_anet_definitions.py": "8e17acd107ffc7e09072d81e6247fe2c476381dd1508673178d789a70f5531b5",
+  "scripts/pad_anet_comparison.py": "4f6e4324bf6f4bf1971e6b8797e0763bfbb308fe792c11a35365da667b72cb10",
+  "scripts/pad_anet_run.py": "b8229c231ddd9d54aa01ba9b7287f696009930243081787e9d7c2c2d9d38a3cc"
+ },
+ "inputs_sha256": {
+  "comparison": "6f5297d08d4913ff8e84127c6c0e0852bc1fbecc3a821065a3d3290f242fea66",
+  "package_sums": "4e5fde80df4abe95cef56a9904608781b3fcded3f81ea2750a9057236581240b",
+  "trial_status": "5f696a58dcbe260148f02295dd39897b60ff3519e4ca5cd81e7dc7d27152ce2c",
+  "trial_json": "8f6724517ae846778d74fa284a919321ddf5c2d007266e4599f0bb2a7a222e1a",
+  "run_matrix": "95bcadb1a757f8178b8f1de4384f21eaf7f894cc0148c5e7338876c45c9b8874",
+  "run_order": "6df598392d9fa1eb60f402cae29473bdaf9cfa44a0edbcc94b42713c90ee6450",
+  "run_caps": "a9d9ba28d8131a44ab6f5849f71d5c2a3753bae1220ad88b4fe466a23603de98",
+  "bn_recalibration_config": "d97e2e7497fb038708f09613bab6b8602ddac53976a31d84f8771c87c3d52865",
+  "bn_test_config": "1d72956997fdab1f59ff472b98bd45b84b62b80096d9bee64433ebe163487bf1",
+  "configuration": "44b4deee427fa0ffa100feaa12eebb54614b5694c8132e64d4b887a1d86bca8d"
+ },
+ "peak_rss_mb": 7818.2,
+ "test_read": "no test frame is assembled or evaluated, no test score or metric is read. What each command reads. check-machine: this configuration and, through pad_anet_comparison.load_config, the configuration of PR A with the files it pins (no frame, no checkpoint); the trial record of PR A. check-inputs and run: this configuration; the configuration of PR A and what pad_anet_comparison.load_config and load_inputs read (the C2 pre-registration and the configurations it pins, the PR #27 configuration, the C2 trial record, the public status.json and results.json of the C2 evaluation, the architecture file, the code); the code files pinned here and this file; the status.json and trial.json of the official C5 trial and the SHA256SUMS of the PR A package that lists them; run_matrix.csv, run_order.csv and run_caps.csv, compared with the files regenerated from the configuration of PR A, the public files of the C2 evaluation and the trial; the PR #28 configuration (bytes, for its SHA-256); what pad_arch_comparison.load_inputs reads (its TEST_READ: the five M2 manifests, the cache hashed whole, the extracted frames file loaded whole, both frame files also holding frames of the held-out subjects, the cells and folds runs, the two accepted LivenessNet runs); the 12 training cards of arm B of each accepted run (keys of the fitting and dev frames); with --estimator-check, the status.json and estimator_check.json of a check-estimator record. run, in addition: the image arrays of the cache, loaded whole into the frame store; of all the frames it assembles only the fitting and dev frames of arm B (an explicit check refuses any other role); it reads back its own checkpoints. check-estimator: what pad_arch_run.cmd_check_estimator reads (the configurations of PRs #27 and #28, what nuaa_bn_recalibration.load_inputs and nuaa_bn_test.load_bnrecal read: the M2 manifests, cache and extracted frames file, the cells and folds runs, the parent run at patience 4 with per model card, dev scores, threshold and checkpoint, its aggregate.json only as bytes, the BNRECAL run with dev and fitting rows only); it assembles only fitting and dev frames. No command loads the fold schema (fold<k>_test.csv) or opens a <model>_test_scores.csv"
+}
