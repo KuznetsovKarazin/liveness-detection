@@ -1,0 +1,221 @@
+# macOS 27.2.1 on arm64; python3 is Python 3.11.16 with matplotlib 3.11.2; started 2026-11-24 14:25 CET; the complete mutation check (every mutation and the control mutation), one at a time, each on a copy of this folder without the records
+# the files are identified by the SHA-256 below (paths relative to this folder), not by the state of the work tree
+# SHA-256 b93afaf1ec06c44ec322163c9e8cd4151351d11a6b1058273345b93dcf89d544  make_table_figure.py
+# SHA-256 7f338770fc0e3d4fb66bc049dea8563537be19c1ec2f2fbf8a7829fe174600a6  check_make_table_figure.py
+# SHA-256 11904017b5dfd0385b32d0c1e9629e76d4e32f401fb57cc039841ee8167ee635  check_make_table_figure_mutations.py
+# SHA-256 642f134145993f056ba50417d8a1e40b7e1d85561259ff4bf9f1c45fe4275335  README.md
+# SHA-256 151b2dd2cd13953ca0b4dc6760dbb8594a0d025e00718b8ac50a12d1000d528d  NOTE.md
+# SHA-256 c152eb2b763dce52aa27e8d2852ee5d9635371b1e89c4086f1c74d175bffc635  outputs/aggregate.csv
+# SHA-256 8b83e24c2b2d94ab07aa96e34146c16f570087793c0d665fd6ba625cd2ede4f9  outputs/appendix_per_seed.md
+# SHA-256 a21eec49d35dad02f79c0e28d59c34381158b3cb1749274107aa69af8e4e1e1e  outputs/appendix_single_class.md
+# SHA-256 b1b539ea934fe94d58d49e1fadf394e90581fbdedbaf0b094f6701c8cfac69e1  outputs/descriptive.md
+# SHA-256 f8f85d206aadcf8630c61bc954111d26ab6554b91235e84ca8dae8a682c82b51  outputs/figure_acer_variations.pdf
+# SHA-256 08b847d5ffa64fdb2035d1eecf19d03a2a72f402681507974e5e158ba68b7fc3  outputs/figure_acer_variations.png
+# SHA-256 2db7bea520e3278a0152b9c3932426f23b5acf9d55e33eca21b035385a609d16  outputs/primary_table.md
+# SHA-256 1f0d5380e9f44384b23eff3920721d5453d821c5fb08aa7665e2d3884fb88d3e  outputs/primary_table.tex
+# SHA-256 3a8ccacebb3ce68482be27d3079eea32c7bbc29c57c91621221a97d8a1874f9a  outputs/single_class.csv
+# SHA-256 4a1a044fba7da7676b44b09e33da70985639a7764468c1026680ed86f2b0c18c  ../pad-attacknet-eval-results/runs/20261124-ANETEVAL-7c22b1a/status.json
+# SHA-256 1f6815b08c04b94f54f99863b260ffd16e86da8684a748d1c27e06403061a252  ../pad-attacknet-eval-results/runs/20261124-ANETEVAL-7c22b1a/public/SHA256SUMS
+# SHA-256 ff043d44dc8e9c9ae88fababcfdc83f06c6e86b67af8b2bf741cc63823109cd2  ../pad-attacknet-eval/runs/20261122-ANETRUN-v1-p4-b8e0b3c/status.json
+# SHA-256 c0429e839a322786e681c0358faf3db73811aada7292bd779eb07afe944f8109  ../pad-attacknet-eval/runs/20261122-ANETRUN-v1-p4-b8e0b3c/public/SHA256SUMS
+# SHA-256 9772afac352235d318384f81cf5890cef389c3c528c553d09403796858710921  ../pad-attacknet-eval/runs/20261122-ANETRUN-v2_1-p4-9dfca6b/status.json
+# SHA-256 7bcba142f6ee09738e978ee974997b1d56614525ca3dbd41e2823047e7e98dd4  ../pad-attacknet-eval/runs/20261122-ANETRUN-v2_1-p4-9dfca6b/public/SHA256SUMS
+# SHA-256 e999c1c57a7c1ef14d9a16b22739e49c4135bed396845e5804c17a10be0fd30b  ../pad-attacknet-eval/runs/20261122-ANETRUN-v2_2-p4-bd28e4b/status.json
+# SHA-256 352ca948ea35bd2139a918d0e059bec5eb8dd40647fd62f002799502927c2f6b  ../pad-attacknet-eval/runs/20261122-ANETRUN-v2_2-p4-bd28e4b/public/SHA256SUMS
+# SHA-256 755c7ddb2c4a1e03b8f74d9cd3b94a82fba8770fae87c78b850dd8205b2d75ef  ../pad-attacknet-eval/runs/20261123-ANETRUN-v1-p12-1ef418b/status.json
+# SHA-256 8b64cf31d8bb61a2a1b8995f2fd0ab1c792b11f0ddf336861db982e2782598c8  ../pad-attacknet-eval/runs/20261123-ANETRUN-v1-p12-1ef418b/public/SHA256SUMS
+# SHA-256 77b3c6f8d6d61494094fe1ce71a494ff3c1518f3ae7e5976866cc00149139a2c  ../pad-attacknet-eval/runs/20261123-ANETRUN-v2_1-p12-903e3c9/status.json
+# SHA-256 3b7d7b45dd9d1e622a8daba70e4535d3f915de1201d0f4b74370459468f0c908  ../pad-attacknet-eval/runs/20261123-ANETRUN-v2_1-p12-903e3c9/public/SHA256SUMS
+# SHA-256 a58448f12dc4a0e25352d24bb8ccb6edc08052faec07240986a1c01b48cac0ec  ../pad-attacknet-eval/runs/20261123-ANETRUN-v2_2-p12-b5c214a/status.json
+# SHA-256 b4b6c539b64ff3827b679a4966e9270bcf11a9ffceb525ef586f12565c5501c6  ../pad-attacknet-eval/runs/20261123-ANETRUN-v2_2-p12-b5c214a/public/SHA256SUMS
+# SHA-256 4e17325da5a9506153a280538bb64c74d1d00632981dd736b17d8bc5648bc0e2  ../pad-arch-eval/runs/20261120-ARCHRUN-p4-7faa49f/status.json
+# SHA-256 20dd40dff483bd472078b220b83262d407385365b8830e431577a970f843f558  ../pad-arch-eval/runs/20261120-ARCHRUN-p4-7faa49f/public/SHA256SUMS
+# SHA-256 52a945cc85eae33507736896085058048ec9e31c283ec9fd9ea14a788de4c4e2  ../pad-arch-eval/runs/20261120-ARCHRUN-p12-ea7fdca/status.json
+# SHA-256 1894e2e8d7bfc76e853ac9534a7a4a4550c0ebcfd7b08aa2f7d7261ffee46c56  ../pad-arch-eval/runs/20261120-ARCHRUN-p12-ea7fdca/public/SHA256SUMS
+# command: python3 -I -B check_make_table_figure_mutations.py
+unmutated copy: exit 0 (tests run: 176, failures: 0, errors: 0, skipped: 6)
+unmutated copy: skipped R_RealRecord.test_against_the_report_of_the_evaluator: missing input: the records of the evaluation and of its runs are not present: the tests against the real records are skipped
+unmutated copy: skipped R_RealRecord.test_against_the_table_of_the_evaluator: missing input: the records of the evaluation and of its runs are not present: the tests against the real records are skipped
+unmutated copy: skipped R_RealRecord.test_delivered_outputs: missing input: the records of the evaluation and of its runs are not present: the tests against the real records are skipped
+unmutated copy: skipped R_RealRecord.test_numbers_of_readme_and_note: missing input: the records of the evaluation and of its runs are not present: the tests against the real records are skipped
+unmutated copy: skipped R_RealRecord.test_pin_equals_sums_and_status: missing input: the records of the evaluation and of its runs are not present: the tests against the real records are skipped
+unmutated copy: skipped R_RealRecord.test_single_numbers_of_readme_and_note: missing input: the records of the evaluation and of its runs are not present: the tests against the real records are skipped
+EQUIVALENT SHA256SUMS decoded as UTF-8, not ASCII (not run, not counted): equivalent: a byte that is not UTF-8 raises the same UnicodeDecodeError, refused with the same message, and a non-ASCII UTF-8 character can only be in a line, which must match the ASCII pattern of a SHA-256 and a file name; the same SHA256SUMS is refused either way
+CONTROL   SURVIVED  control (must survive): a comment changed (tests run: 176, failures: 0, errors: 0, skipped: 6; first failing: none)
+KILLED      1 pin of public/SHA256SUMS not checked (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: B_Integrity.test_pin; declared: B_Integrity.test_pin)
+KILLED      2 listed file not checked against its line (tests run: 176, failures: 7, errors: 0, skipped: 6; first failing: B_Integrity.test_one_byte_in_each_listed_file; declared: B_Integrity.test_one_byte_in_each_listed_file)
+KILLED      3 final newline of SHA256SUMS not checked (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: B_Integrity.test_sums_rules; declared: B_Integrity.test_sums_rules)
+KILLED      4 duplicate line of SHA256SUMS accepted (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: B_Integrity.test_sums_rules; declared: B_Integrity.test_sums_rules)
+KILLED      5 files listed in SHA256SUMS not checked (tests run: 176, failures: 3, errors: 0, skipped: 6; first failing: B_Integrity.test_sums_rules; declared: B_Integrity.test_sums_rules)
+KILLED      6 inode re-check in read_regular dropped (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: B_Integrity.test_input_changed_while_opened; declared: B_Integrity.test_input_changed_while_opened)
+KILLED      7 the restricted folder of the record looked up (tests run: 176, failures: 2, errors: 0, skipped: 6; first failing: B_Integrity.test_restricted_never_opened; declared: B_Integrity.test_restricted_never_opened)
+KILLED      8 public_sha256sums_sha256 of status.json not compared (tests run: 176, failures: 2, errors: 0, skipped: 6; first failing: C_Status.test_status_fields; declared: C_Status.test_status_fields)
+KILLED      9 attempt of status.json not checked (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_Status.test_status_fields; declared: C_Status.test_status_fields)
+KILLED     10 not_evaluable of status.json not compared (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_Status.test_status_fields; declared: C_Status.test_status_fields)
+KILLED     11 schema and official of results.json not checked (tests run: 176, failures: 10, errors: 0, skipped: 6; first failing: C_Header.test_results_fields; declared: C_Header.test_results_fields)
+KILLED     12 second reading accepted in results.json (tests run: 176, failures: 6, errors: 0, skipped: 6; first failing: C_Header.test_results_fields; declared: C_Header.test_results_fields)
+KILLED     13 hooks not checked (tests run: 176, failures: 4, errors: 0, skipped: 6; first failing: C_Header.test_results_fields; declared: C_Header.test_results_fields)
+KILLED     14 C2 reproduction not required exact (tests run: 176, failures: 3, errors: 0, skipped: 6; first failing: C_Header.test_results_fields; declared: C_Header.test_results_fields)
+KILLED     15 C2 opposite flags not checked (tests run: 176, failures: 2, errors: 0, skipped: 6; first failing: C_Header.test_results_fields; declared: C_Header.test_results_fields)
+KILLED     16 test frames per fold not required positive (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_Header.test_frames_and_ids; declared: C_Header.test_frames_and_ids)
+KILLED     17 form of the frame identifier hashes not checked (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_Header.test_frame_ids_are_sha256; declared: C_Header.test_frame_ids_are_sha256)
+KILLED     18 C2 opposite: bounds not compared (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_Header.test_c2_opposite_values; declared: C_Header.test_c2_opposite_values)
+KILLED     19 C2 opposite: bounds compared without swapping (tests run: 176, failures: 113, errors: 0, skipped: 6; first failing: A2_NotComputedPrimary.test_figure_with_not_computed; declared: C_Header.test_valid_record_accepted)
+KILLED     20 C2 opposite: mean compared without the sign (tests run: 176, failures: 113, errors: 0, skipped: 6; first failing: A2_NotComputedPrimary.test_figure_with_not_computed; declared: C_Header.test_valid_record_accepted)
+KILLED     21 attack + bona fide = frames not checked (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_Denominators.test_attack_plus_bona; declared: C_Denominators.test_attack_plus_bona)
+KILLED     22 frames of the fold not compared with test_frames_per_fold (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_Denominators.test_frames_of_the_fold; declared: C_Denominators.test_frames_of_the_fold)
+KILLED     23 subjects of the folds not required to add up to 16 (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_Denominators.test_subjects_add_up; declared: C_Denominators.test_subjects_add_up)
+KILLED     24 totals over the units not checked (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_Denominators.test_totals; declared: C_Denominators.test_totals)
+KILLED     25 denominators not required equal in every condition (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_Denominators.test_same_in_every_condition; declared: C_Denominators.test_same_in_every_condition)
+KILLED     26 effective threshold 0.5 not checked (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_Units.test_threshold_half; declared: C_Units.test_threshold_half)
+KILLED     27 EER threshold form not checked (tests run: 176, failures: 4, errors: 0, skipped: 6; first failing: C_Units.test_dev_eer_threshold_form; declared: C_Units.test_dev_eer_threshold_form)
+KILLED     28 n_frames not compared with the fold (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_Units.test_n_frames; declared: C_Units.test_n_frames)
+KILLED     29 frame identifier hash not compared (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_Units.test_frame_ids; declared: C_Units.test_frame_ids)
+KILLED     30 fraction not written reduced accepted (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_Units.test_fractions; declared: C_Units.test_fractions)
+KILLED     31 rate outside [0, 1] accepted (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_Units.test_fractions; declared: C_Units.test_fractions)
+KILLED     32 ACER not checked as the mean of APCER and BPCER (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_Units.test_acer_is_the_mean; declared: C_Units.test_acer_is_the_mean)
+KILLED     33 APCER not checked as a count over the attack frames (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_Units.test_rate_is_a_count_of_the_fold; declared: C_Units.test_rate_is_a_count_of_the_fold)
+KILLED     34 BPCER not checked as a count over the bona fide frames (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_Units.test_bpcer_is_a_count_of_the_fold; declared: C_Units.test_bpcer_is_a_count_of_the_fold)
+KILLED     35 LivenessNet or ResNet-18 missing from a unit accepted (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_Units.test_reused_network_missing; declared: C_Units.test_reused_network_missing)
+KILLED     36 a network twice in a unit accepted (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_Units.test_network_twice; declared: C_Units.test_network_twice)
+KILLED     37 presence of an AttackNet not required equal in the four conditions (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_Units.test_presence_same_in_the_four_conditions; declared: C_Units.test_presence_same_in_the_four_conditions)
+KILLED     38 network outside the plan accepted (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_Units.test_condition_fold_network; declared: C_Units.test_condition_fold_network)
+KILLED     39 patience outside the plan accepted (tests run: 176, failures: 4, errors: 0, skipped: 6; first failing: C_Units.test_condition_fold_network; declared: C_Units.test_condition_fold_network)
+KILLED     40 seed outside the plan accepted (tests run: 176, failures: 2, errors: 0, skipped: 6; first failing: C_Units.test_condition_fold_network; declared: C_Units.test_condition_fold_network)
+KILLED     41 not_evaluable not compared with the models missing from units.csv (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_NotEvaluable.test_list_matches_units; declared: C_NotEvaluable.test_list_matches_units)
+KILLED     42 run of a not evaluable entry not checked (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_NotEvaluable.test_entry_form; declared: C_NotEvaluable.test_entry_form)
+KILLED     43 not evaluable entry listed twice accepted (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_NotEvaluable.test_entry_twice; declared: C_NotEvaluable.test_entry_twice)
+KILLED     44 guardian not compared (tests run: 176, failures: 3, errors: 0, skipped: 6; first failing: C_NotEvaluable.test_guardian; declared: C_NotEvaluable.test_guardian)
+KILLED     45 reason of the not evaluable models dropped from the guardian (tests run: 176, failures: 123, errors: 0, skipped: 6; first failing: A2_NotComputedPrimary.test_figure_with_not_computed; declared: C_Header.test_valid_record_accepted)
+KILLED     46 dev EER thresholds of the models not compared with units.csv (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_NotEvaluable.test_models_thresholds; declared: C_NotEvaluable.test_models_thresholds)
+KILLED     47 list of the models not compared (tests run: 176, failures: 4, errors: 0, skipped: 6; first failing: C_NotEvaluable.test_models_list; declared: C_NotEvaluable.test_models_list)
+KILLED     48 model absent from units.csv accepted (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_NotEvaluable.test_model_not_in_units; declared: C_NotEvaluable.test_model_not_in_units)
+KILLED     49 means not compared (tests run: 176, failures: 9, errors: 0, skipped: 6; first failing: C_Quantities.test_mean_each_metric; declared: C_Quantities.test_mean_each_metric)
+KILLED     50 means compared for ACER only (tests run: 176, failures: 7, errors: 0, skipped: 6; first failing: C_Quantities.test_mean_each_metric; declared: C_Quantities.test_mean_each_metric)
+KILLED     51 unit counts not compared (tests run: 176, failures: 5, errors: 0, skipped: 6; first failing: C_Quantities.test_counts; declared: C_Quantities.test_counts)
+KILLED     52 a zero unit value counted above zero (tests run: 176, failures: 135, errors: 0, skipped: 6; first failing: A2_NotComputedPrimary.test_figure_with_not_computed; declared: C_Header.test_valid_record_accepted)
+KILLED     53 interval low <= high not checked (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_Quantities.test_interval_low_high; declared: C_Quantities.test_interval_low_high)
+KILLED     54 mean outside its interval accepted (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_Quantities.test_interval_contains_mean; declared: C_Quantities.test_interval_contains_mean)
+KILLED     55 valid resamples not bounded (tests run: 176, failures: 2, errors: 0, skipped: 6; first failing: C_Quantities.test_interval_form; declared: C_Quantities.test_interval_form)
+KILLED     56 bounds without valid resamples accepted (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_Quantities.test_no_interval_without_resamples; declared: C_Quantities.test_no_interval_without_resamples)
+KILLED     57 a bound at zero excludes zero in the reading (tests run: 176, failures: 2, errors: 0, skipped: 6; first failing: A3_BoundAtZero.test_bound_at_zero_contains_zero; declared: A3_BoundAtZero.test_valid_record_accepted)
+KILLED     58 readings lower and higher swapped (tests run: 176, failures: 134, errors: 0, skipped: 6; first failing: A3_BoundAtZero.test_bound_at_zero_contains_zero; declared: C_Header.test_valid_record_accepted)
+KILLED     59 conclusion not checked (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_Quantities.test_conclusion; declared: C_Quantities.test_conclusion)
+KILLED     60 reading not checked per seed (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_Quantities.test_reading_rule_per_seed; declared: C_Quantities.test_reading_rule_per_seed)
+KILLED     61 extra seeds accepted in per_seed (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_Quantities.test_per_seed_keys; declared: C_Quantities.test_per_seed_keys)
+KILLED     62 n_subjects not checked per seed (tests run: 176, failures: 2, errors: 0, skipped: 6; first failing: C_Quantities.test_n_subjects; declared: C_Quantities.test_n_subjects)
+KILLED     63 order of the networks not checked (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_Quantities.test_network_order; declared: C_Quantities.test_network_order)
+KILLED     64 'not computed' block not checked (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_Quantities.test_not_computed_block; declared: C_Quantities.test_not_computed_block)
+KILLED     65 extra fields (a reading) accepted in a block (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_Quantities.test_reading_in_descriptive_refused; declared: C_Quantities.test_reading_in_descriptive_refused)
+KILLED     66 note on the individual intervals not checked (tests run: 176, failures: 3, errors: 0, skipped: 6; first failing: C_Quantities.test_notes; declared: C_Quantities.test_notes)
+KILLED     67 valid resamples not required uniform (tests run: 176, failures: 2, errors: 0, skipped: 6; first failing: C_Quantities.test_valid_resamples_uniform; declared: C_Quantities.test_valid_resamples_uniform)
+KILLED     68 float value of a unit row not compared (tests run: 176, failures: 2, errors: 0, skipped: 6; first failing: C_Rows.test_value_and_exact; declared: C_Rows.test_value_and_exact)
+KILLED     69 order of the unit rows not checked (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_Rows.test_order_and_keys; declared: C_Rows.test_order_and_keys)
+KILLED     70 quantities of a unit row not checked (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_Rows.test_order_and_keys; declared: C_Rows.test_order_and_keys)
+KILLED     71 table.csv not compared (tests run: 176, failures: 8, errors: 0, skipped: 6; first failing: C_OtherFiles.test_table_csv_each_field; declared: C_OtherFiles.test_table_csv_each_field)
+KILLED     72 row count of table.csv not checked (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_OtherFiles.test_table_csv_rows; declared: C_OtherFiles.test_table_csv_rows)
+KILLED     73 denominators of a network summed over units it does not have (tests run: 176, failures: 3, errors: 0, skipped: 6; first failing: A2_NotComputedPrimary.test_figure_with_not_computed; declared: A_Numbers.test_not_evaluable_and_not_computed)
+KILLED     74 subjects summed per unit, not per fold (tests run: 176, failures: 109, errors: 0, skipped: 6; first failing: A2_NotComputedPrimary.test_figure_with_not_computed; declared: C_Header.test_valid_record_accepted)
+KILLED     75 conditions.csv not compared (tests run: 176, failures: 11, errors: 0, skipped: 6; first failing: C_OtherFiles.test_conditions_csv_each_field; declared: C_OtherFiles.test_conditions_csv_each_field)
+KILLED     76 test_one_class not compared (tests run: 176, failures: 4, errors: 0, skipped: 6; first failing: C_OtherFiles.test_test_one_class; declared: C_OtherFiles.test_test_one_class)
+KILLED     77 models deciding every frame bona fide ignored (tests run: 176, failures: 85, errors: 0, skipped: 6; first failing: A2_NotComputedPrimary.test_figure_with_not_computed; declared: C_Header.test_valid_record_accepted)
+KILLED     78 rankings not compared (tests run: 176, failures: 4, errors: 0, skipped: 6; first failing: C_OtherFiles.test_rankings; declared: C_OtherFiles.test_rankings)
+KILLED     79 ties ranked apart by the network order (tests run: 176, failures: 81, errors: 0, skipped: 6; first failing: A2_NotComputedPrimary.test_figure_with_not_computed; declared: C_Header.test_valid_record_accepted)
+KILLED     80 sign of the variations reversed (tests run: 176, failures: 145, errors: 0, skipped: 6; first failing: A2_NotComputedPrimary.test_figure_with_not_computed; declared: C_Header.test_valid_record_accepted)
+KILLED     81 contrast computed against ResNet-18 (tests run: 176, failures: 132, errors: 0, skipped: 6; first failing: A2_NotComputedPrimary.test_figure_with_not_computed; declared: C_Header.test_valid_record_accepted)
+KILLED     82 BN states swapped in the rate tables (tests run: 176, failures: 5, errors: 0, skipped: 6; first failing: A2_NotComputedPrimary.test_not_computed_cells; declared: A_Numbers.test_rates_table)
+KILLED     83 Table 1 from patience 12 (tests run: 176, failures: 10, errors: 0, skipped: 6; first failing: A2_NotComputedPrimary.test_not_computed_cells; declared: A_Numbers.test_table_is_the_primary_condition)
+KILLED     84 attack and bona fide denominators swapped (tests run: 176, failures: 3, errors: 0, skipped: 6; first failing: A2_NotComputedPrimary.test_not_computed_cells; declared: A_Numbers.test_rates_table)
+KILLED     85 rounding half down (tests run: 176, failures: 2, errors: 0, skipped: 6; first failing: A_Numbers.test_rounding; declared: A_Numbers.test_rounding)
+KILLED     86 rounding from the binary value of a float, not from the exact fraction (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: A_Numbers.test_rounding_from_exact; declared: A_Numbers.test_rounding_from_exact)
+KILLED     87 rows of the rate tables not in the order of the protocol (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: A_Numbers.test_rows_order; declared: A_Numbers.test_rows_order)
+KILLED     88 reading and its reason swapped in the table (tests run: 176, failures: 2, errors: 0, skipped: 6; first failing: A3_BoundAtZero.test_bound_at_zero_contains_zero; declared: A_Numbers.test_contrasts_and_readings)
+KILLED     89 figure: mean drawn at the lower bound (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: A_Numbers.test_figure_values; declared: A_Numbers.test_figure_values)
+KILLED     90 figure: interval bounds swapped (tests run: 176, failures: 2, errors: 0, skipped: 6; first failing: A_Numbers.test_figure_labels; declared: A_Numbers.test_figure_values)
+KILLED     91 tables: interval bounds swapped (tests run: 176, failures: 5, errors: 0, skipped: 6; first failing: A3_BoundAtZero.test_bound_at_zero_contains_zero; declared: A_Numbers.test_variations)
+KILLED     92 aggregate: interval bounds swapped (tests run: 176, failures: 8, errors: 0, skipped: 6; first failing: A3_BoundAtZero.test_bound_at_zero_contains_zero; declared: A_Numbers.test_intervals_copied)
+KILLED     93 a cell not computed written as zero (tests run: 176, failures: 2, errors: 1, skipped: 6; first failing: A2_NotComputedPrimary.test_figure_with_not_computed; declared: A2_NotComputedPrimary.test_not_computed_cells)
+KILLED     94 sign dropped on values that round to 0.00 (tests run: 176, failures: 3, errors: 0, skipped: 6; first failing: A_Numbers.test_figure_labels; declared: A_Numbers.test_rounding)
+KILLED     95 values that round to zero not explained (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: A_Numbers.test_near_zero; declared: A_Numbers.test_near_zero)
+KILLED     96 unit points never stacked (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: A_Numbers.test_unit_levels; declared: A_Numbers.test_unit_levels)
+KILLED     97 valid resamples of ACER and APCER swapped in the text (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: A_Numbers.test_individual_intervals_declared; declared: A_Numbers.test_individual_intervals_declared)
+KILLED     98 intervals not declared individual (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: A_Numbers.test_individual_intervals_declared; declared: A_Numbers.test_individual_intervals_declared)
+KILLED     99 attack and bona fide frames of a fold swapped in the text (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: A_Numbers.test_denominators_text; declared: A_Numbers.test_denominators_text)
+KILLED    100 per-seed rates over every unit (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: A_Numbers.test_per_seed; declared: A_Numbers.test_per_seed)
+KILLED    101 readings printed per seed (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: A_Numbers.test_per_seed; declared: A_Numbers.test_per_seed)
+KILLED    102 descriptive conditions labelled primary (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: A_Numbers.test_descriptive_marked; declared: A_Numbers.test_descriptive_marked)
+KILLED    103 one-class counts written n of k (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: A_Numbers.test_single_class; declared: A_Numbers.test_single_class)
+KILLED    104 plus sign dropped from positive values (tests run: 176, failures: 11, errors: 0, skipped: 6; first failing: A3_BoundAtZero.test_bound_at_zero_contains_zero; declared: A_Numbers.test_variations)
+KILLED    105 ASCII hyphen as the minus sign in Markdown (tests run: 176, failures: 9, errors: 0, skipped: 6; first failing: A_Numbers.test_contrasts_and_readings; declared: A_Numbers.test_near_zero)
+KILLED    106 U+2212 in the .tex (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: A_Numbers.test_tex; declared: A_Numbers.test_tex)
+KILLED    107 per-unit table: ordinary columns from the re-estimated BN (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: A_Numbers.test_rates_by_hand; declared: A_Numbers.test_rates_by_hand)
+KILLED    108 per-unit table: contrast column filled with the variation (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: A_Numbers.test_per_unit_contrast_column; declared: A_Numbers.test_per_unit_contrast_column)
+KILLED    109 figure: unit points from APCER (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: A_Numbers.test_figure_values; declared: A_Numbers.test_figure_values)
+KILLED    110 figure from patience 12 (tests run: 176, failures: 3, errors: 0, skipped: 6; first failing: A2_NotComputedPrimary.test_not_computed_cells; declared: A_Numbers.test_figure_values)
+KILLED    111 .tex from another condition (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: A_Numbers.test_tex; declared: A_Numbers.test_tex)
+KILLED    112 per-seed intervals taken from all seeds (tests run: 176, failures: 2, errors: 0, skipped: 6; first failing: A_Numbers.test_intervals_copied; declared: A_Numbers.test_per_seed)
+KILLED    113 unit counts above and below swapped in the tables (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: A_Numbers.test_unit_counts_and_tie; declared: A_Numbers.test_unit_counts_and_tie)
+KILLED    114 attack and bona fide swapped in the test one-class table (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: A_Numbers.test_single_class; declared: A_Numbers.test_single_class)
+KILLED    115 unit rows of the contrasts computed as variations (tests run: 176, failures: 5, errors: 0, skipped: 6; first failing: A_Numbers.test_contrast_reference_is_livenessnet; declared: A_Numbers.test_contrast_reference_is_livenessnet)
+KILLED    116 gaps: BN states swapped in Appendix C (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: A_Numbers.test_descriptive_values; declared: A_Numbers.test_descriptive_values)
+KILLED    117 descriptive variations taken from the primary analysis (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: A_Numbers.test_descriptive_values; declared: A_Numbers.test_descriptive_values)
+KILLED    118 Appendix A from patience 12 (tests run: 176, failures: 4, errors: 0, skipped: 6; first failing: A2_NotComputedPrimary.test_not_computed_cells; declared: A_Numbers.test_per_seed)
+KILLED    119 figure labels with the bounds swapped (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: A_Numbers.test_figure_labels; declared: A_Numbers.test_figure_labels)
+KILLED    120 thousands separator dropped in the tables (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: A_Numbers.test_thousands; declared: A_Numbers.test_thousands)
+KILLED    121 distinct test frames counted once per unit (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: A_Numbers.test_denominators_text; declared: A_Numbers.test_denominators_text)
+KILLED    122 pin of a run status not checked (every run) (tests run: 176, failures: 2, errors: 0, skipped: 6; first failing: C_Runs.test_c2_run_pin; declared: C_Runs.test_run_status_pin)
+KILLED    123 pin of a C2 run status not checked (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_Runs.test_c2_run_pin; declared: C_Runs.test_c2_run_pin)
+KILLED    124 runs entry of results.json not compared with status.json (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_Runs.test_runs_entry; declared: C_Runs.test_runs_entry)
+KILLED    125 public SHA256SUMS of a run not compared with its status (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_Runs.test_run_sums_against_status; declared: C_Runs.test_run_sums_against_status)
+KILLED    126 status of a run not required PASS (tests run: 176, failures: 6, errors: 0, skipped: 6; first failing: C_Runs.test_run_status_fields; declared: C_Runs.test_run_status_fields)
+KILLED    127 a CSV of a run not checked against its line (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_Runs.test_run_file_against_its_line; declared: C_Runs.test_run_file_against_its_line)
+KILLED    128 one_class = attack + bona fide not checked (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_Runs.test_one_class_rules; declared: C_Runs.test_one_class_rules)
+KILLED    129 one-class counts not cross-checked with models.csv (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_Runs.test_one_class_against_models; declared: C_Runs.test_one_class_against_models)
+KILLED    130 evaluable models not compared with units.csv (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_Runs.test_evaluable_against_units; declared: C_Runs.test_evaluable_against_units)
+KILLED    131 the restricted folder of a run looked up (tests run: 176, failures: 2, errors: 0, skipped: 6; first failing: B_Integrity.test_restricted_never_opened; declared: B_Integrity.test_restricted_never_opened)
+KILLED    132 output inside a directory of the runs accepted (tests run: 176, failures: 3, errors: 0, skipped: 6; first failing: D_Paths.test_output_inside_runs; declared: D_Paths.test_output_inside_runs)
+KILLED    133 text of one_class.csv not checked (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_Runs.test_one_class_rules; declared: C_Runs.test_one_class_rules)
+KILLED    134 evaluable + not_evaluable = 12 not checked (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_Runs.test_one_class_rules; declared: C_Runs.test_one_class_rules)
+KILLED    135 rows of one_class.csv not checked (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_Runs.test_one_class_rules; declared: C_Runs.test_one_class_rules)
+KILLED    136 network of the status.json of an AttackNet run not checked (tests run: 176, failures: 2, errors: 0, skipped: 6; first failing: C_Runs.test_run_status_fields; declared: C_Runs.test_run_status_fields)
+KILLED    137 dev and test one-class models not compared (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: A_Numbers.test_dev_same_text_only_when_equal; declared: A_Numbers.test_dev_same_text_only_when_equal)
+KILLED    138 dev counts: attack and bona fide swapped in the appendix (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: A_Numbers.test_single_class_dev; declared: A_Numbers.test_single_class_dev)
+KILLED    139 dev counts: patience 4 and 12 swapped (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: A_Numbers.test_single_class_dev; declared: A_Numbers.test_single_class_dev)
+KILLED    140 rounding note computed from the exact values (tests run: 176, failures: 1, errors: 1, skipped: 6; first failing: A_Numbers.test_aggregate_regenerates_tables; declared: A_Numbers.test_rounding_note)
+KILLED    141 leaving one unit out: the unit not left out (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: A_Numbers.test_leave_one_out; declared: A_Numbers.test_leave_one_out)
+KILLED    142 leaving one unit out: mean divided by 12 (tests run: 176, failures: 2, errors: 0, skipped: 6; first failing: A_Numbers.test_leave_one_out; declared: A_Numbers.test_leave_one_out)
+KILLED    143 per fold: the units of another fold (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: A_Numbers.test_per_fold; declared: A_Numbers.test_per_fold)
+KILLED    144 output inside the results package accepted (tests run: 176, failures: 2, errors: 0, skipped: 6; first failing: D_Paths.test_output_inside_record_or_results_package; declared: D_Paths.test_output_inside_record_or_results_package)
+KILLED    145 output inside the record accepted (tests run: 176, failures: 3, errors: 0, skipped: 6; first failing: D_Paths.test_output_inside_record_or_results_package; declared: D_Paths.test_output_inside_record_or_results_package)
+KILLED    146 output inside this package accepted (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: D_Paths.test_output_inside_this_package; declared: D_Paths.test_output_inside_this_package)
+KILLED    147 existing output accepted (tests run: 176, failures: 3, errors: 0, skipped: 6; first failing: D_Paths.test_error_after_pass_in_same_folder; declared: D_Paths.test_output_exists_or_symlink)
+KILLED    148 repeated options accepted (tests run: 176, failures: 4, errors: 0, skipped: 6; first failing: D_Paths.test_options; declared: D_Paths.test_options)
+KILLED    149 directory to check inside the record accepted (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: E_Check.test_against_refusals; declared: E_Check.test_against_refusals)
+KILLED    150 malformed structures not turned into a clean refusal (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_Header.test_malformed_structure_fails_cleanly; declared: C_Header.test_malformed_structure_fails_cleanly)
+KILLED    151 top level of a JSON file not checked (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_Header.test_json_parsing; declared: C_Header.test_json_parsing)
+KILLED    152 duplicate JSON keys accepted (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: C_Header.test_json_parsing; declared: C_Header.test_json_parsing)
+KILLED    153 output files not created exclusively (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: D_Paths.test_output_created_without_following_links; declared: D_Paths.test_output_created_without_following_links)
+KILLED    154 temporary directory left after a failure (tests run: 176, failures: 16, errors: 0, skipped: 6; first failing: D_Paths.test_cleanup_of_the_reservation_after_an_error; declared: D_Paths.test_failure_while_writing_leaves_nothing)
+KILLED    155 output directory left in mode 0700 (tests run: 176, failures: 18, errors: 0, skipped: 6; first failing: D_Paths.test_write_next_to_output_mode_and_handlers; declared: D_Paths.test_write_next_to_output_mode_and_handlers)
+KILLED    156 signal handlers not restored (tests run: 176, failures: 10, errors: 0, skipped: 6; first failing: D_Paths.test_write_next_to_output_mode_and_handlers; declared: D_Paths.test_write_next_to_output_mode_and_handlers)
+KILLED    157 temporary directory not next to the output (tests run: 176, failures: 2, errors: 0, skipped: 6; first failing: D_Paths.test_temporary_directory_of_another_process_never_removed; declared: D_Paths.test_write_next_to_output_mode_and_handlers)
+KILLED    158 signals not recorded (tests run: 176, failures: 18, errors: 0, skipped: 6; first failing: S_Signals.test_fake_after_mkdir; declared: S_Signals.test_fake_before_reservation)
+KILLED    159 output name not reserved before the rename (tests run: 176, failures: 36, errors: 4, skipped: 6; first failing: S_Signals.test_fake_after_restore; declared: D_Paths.test_two_runs_on_the_same_folder)
+KILLED    160 ENOTDIR and EISDIR not treated as the race (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: D_Paths.test_reserved_name_replaced_by_a_file; declared: D_Paths.test_reserved_name_replaced_by_a_file)
+KILLED    161 reservation not recognised by inode before the rename (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: D_Paths.test_reservation_replaced_by_another_empty_directory; declared: D_Paths.test_reservation_replaced_by_another_empty_directory)
+KILLED    162 completion decided without the inode of the output (tests run: 176, failures: 22, errors: 0, skipped: 6; first failing: D_Paths.test_cleanup_of_the_reservation_after_an_error; declared: D_Paths.test_temporary_directory_replaced_before_the_rename)
+KILLED    163 temporary directory removed by path, not by identity (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: D_Paths.test_temporary_directory_of_another_process_never_removed; declared: D_Paths.test_temporary_directory_of_another_process_never_removed)
+KILLED    164 no-signal failure reported without its message (tests run: 176, failures: 2, errors: 0, skipped: 6; first failing: D_Paths.test_output_moved_away_after_the_rename; declared: D_Paths.test_output_moved_away_after_the_rename)
+KILLED    165 signal received after completion not reported (tests run: 176, failures: 11, errors: 0, skipped: 6; first failing: S_Signals.test_fake_after_rename; declared: S_Signals.test_fake_after_rename)
+KILLED    166 own empty reservation not removed after an error (tests run: 176, failures: 4, errors: 0, skipped: 6; first failing: D_Paths.test_cleanup_of_the_reservation_after_an_error; declared: D_Paths.test_cleanup_of_the_reservation_after_an_error)
+KILLED    167 no check of the signals between the reservation and the rename (tests run: 176, failures: 6, errors: 0, skipped: 6; first failing: D_Paths.test_reservation_replaced_by_another_empty_directory; declared: S_Signals.test_fake_after_mkdir)
+KILLED    168 PNG structure not checked under --text-only (tests run: 176, failures: 2, errors: 0, skipped: 6; first failing: E_Check.test_text_only_checks_image_structure; declared: E_Check.test_text_only_checks_image_structure)
+KILLED    169 PDF structure not checked under --text-only (tests run: 176, failures: 2, errors: 0, skipped: 6; first failing: E_Check.test_text_only_checks_image_structure; declared: E_Check.test_text_only_checks_image_structure)
+KILLED    170 bytes after the PNG IEND chunk accepted (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: E_Check.test_text_only_checks_image_structure; declared: E_Check.test_text_only_checks_image_structure)
+KILLED    171 matplotlib defaults not restored (a local matplotlibrc changes the figure) (tests run: 176, failures: 1, errors: 0, skipped: 6; first failing: G_Determinism.test_local_matplotlibrc_ignored; declared: G_Determinism.test_local_matplotlibrc_ignored)
+KILLED    172 creation date written in the PDF (tests run: 176, failures: 6, errors: 0, skipped: 6; first failing: G_Determinism.test_images_without_dates_or_software; declared: G_Determinism.test_images_without_dates_or_software)
+mutations killed: 172/172
+control mutations survived: 1/1
+RESULT: PASS
+exit 0
+# finished 2026-11-24 16:16 CET, wall 6664 s
