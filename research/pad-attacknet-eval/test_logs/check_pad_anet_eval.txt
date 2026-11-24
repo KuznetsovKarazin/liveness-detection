@@ -1,0 +1,21 @@
+# macOS, Python 3.11.16, NumPy 1.26.4, TensorFlow 2.15.0, started 2026-11-24 03:08 CET; synthetic suite (fake C2 evaluation, the six runs written by pad_anet_run.py with its fakes, a fake scorer; no real frame, checkpoint or score); the files are identified by the SHA-256 below, not by the state of the work tree
+# SHA-256 3892b1b2439cb02511dcd22fe91bfb4bcc6df76cb052e90af979fd9ecb27993e  scripts/pad_anet_eval.py
+# SHA-256 f799ccf310e40e61261ccf86f9402edbe72c602bb86c3e070a30acd69902c2eb  scripts/check_pad_anet_eval.py
+# SHA-256 30cdccca6fce2660547f05d61bd3a913833bb37cd990af87323eeaccdc0ff116  scripts/check_pad_anet_eval_mutations.py
+# SHA-256 e5ea7902d665dfe82c68f78011609cd7f8b6c7ebde8f0642251b309e08949b28  delivery/aneteval/pad_anet_eval.json
+# SHA-256 d783e1bd5db4902a8bd9459240f303a444161056411696eae653a5d4c86c4656  delivery/aneteval/launch.zsh
+# SHA-256 ef3efd99d4666a92ed42313c2efe94100dc7e82fc67a26f60f0f665df6128081  delivery/aneteval/copy_run_records.py
+# SHA-256 fb2e56153a22bf76b9124f33767ee183b44847c43f151c8ccd946530dbc0c899  delivery/aneteval/make_config.py
+# SHA-256 b8229c231ddd9d54aa01ba9b7287f696009930243081787e9d7c2c2d9d38a3cc  scripts/pad_anet_run.py
+# SHA-256 8e17acd107ffc7e09072d81e6247fe2c476381dd1508673178d789a70f5531b5  scripts/pad_anet_definitions.py
+# SHA-256 44b4deee427fa0ffa100feaa12eebb54614b5694c8132e64d4b887a1d86bca8d  delivery/anetrun/pad_anet_run.json
+# command: python -I -B scripts/check_pad_anet_eval.py
+...........................................................
+----------------------------------------------------------------------
+Ran 59 tests in 263.890s
+
+OK
+tests run: 59, failures: 0, errors: 0, skipped: 0
+RESULT: PASS
+exit 0
+# finished 2026-11-24 03:12 CET, wall 264 s

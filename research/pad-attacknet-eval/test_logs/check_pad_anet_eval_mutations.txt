@@ -1,0 +1,95 @@
+# macOS, Python 3.11.16, NumPy 1.26.4, TensorFlow 2.15.0, started 2026-11-23 23:55 CET; the complete mutation check (every mutation and the control mutation), one at a time; the files are identified by the SHA-256 below, not by the state of the work tree
+# SHA-256 3892b1b2439cb02511dcd22fe91bfb4bcc6df76cb052e90af979fd9ecb27993e  scripts/pad_anet_eval.py
+# SHA-256 f799ccf310e40e61261ccf86f9402edbe72c602bb86c3e070a30acd69902c2eb  scripts/check_pad_anet_eval.py
+# SHA-256 30cdccca6fce2660547f05d61bd3a913833bb37cd990af87323eeaccdc0ff116  scripts/check_pad_anet_eval_mutations.py
+# SHA-256 e5ea7902d665dfe82c68f78011609cd7f8b6c7ebde8f0642251b309e08949b28  delivery/aneteval/pad_anet_eval.json
+# SHA-256 d783e1bd5db4902a8bd9459240f303a444161056411696eae653a5d4c86c4656  delivery/aneteval/launch.zsh
+# SHA-256 ef3efd99d4666a92ed42313c2efe94100dc7e82fc67a26f60f0f665df6128081  delivery/aneteval/copy_run_records.py
+# SHA-256 fb2e56153a22bf76b9124f33767ee183b44847c43f151c8ccd946530dbc0c899  delivery/aneteval/make_config.py
+# SHA-256 b8229c231ddd9d54aa01ba9b7287f696009930243081787e9d7c2c2d9d38a3cc  scripts/pad_anet_run.py
+# SHA-256 8e17acd107ffc7e09072d81e6247fe2c476381dd1508673178d789a70f5531b5  scripts/pad_anet_definitions.py
+# SHA-256 44b4deee427fa0ffa100feaa12eebb54614b5694c8132e64d4b887a1d86bca8d  delivery/anetrun/pad_anet_run.json
+# command: python -I -B scripts/check_pad_anet_eval_mutations.py
+unmutated copy (offline): scripts/check_pad_anet_eval.py exit 0 (tests run: 59, failures: 0, errors: 0, skipped: 4)
+unmutated copy (offline): skipped __main__.TestAConfig.test_delivered_configuration: missing input: delivery/aneteval/pad_anet_eval.json or the files it pins are not present
+unmutated copy (offline): skipped __main__.TestGPackage.test_every_log_cites_the_current_sha256_of_its_files: missing input: delivery/aneteval/pad_anet_eval.json or the files it pins are not present
+unmutated copy (offline): skipped __main__.TestGPackage.test_manifest_lists_every_file_but_itself: missing input: delivery/aneteval/pad_anet_eval.json or the files it pins are not present
+unmutated copy (offline): skipped __main__.TestGPackage.test_readme_lines: missing input: delivery/aneteval/pad_anet_eval.json or the files it pins are not present
+CONTROL   SURVIVED  control (must survive): a comment changed [offline] (tests run: 59, failures: 0, errors: 0, skipped: 4)
+KILLED      1 schema not checked [offline] (tests run: 3, failures: 1, errors: 0, skipped: 1; first FAIL: TestAConfig.test_refusals)
+KILLED      2 run ids not checked against their run [offline] (tests run: 3, failures: 1, errors: 0, skipped: 1; first FAIL: TestAConfig.test_refusals)
+KILLED      3 C2 evaluation run id not checked [offline] (tests run: 3, failures: 1, errors: 0, skipped: 1; first FAIL: TestAConfig.test_refusals)
+KILLED      4 public outputs not checked [offline] (tests run: 3, failures: 1, errors: 0, skipped: 1; first FAIL: TestAConfig.test_refusals)
+KILLED      5 choices not required of the author [offline] (tests run: 3, failures: 1, errors: 0, skipped: 1; first FAIL: TestAConfig.test_refusals)
+KILLED      6 C2 restricted SHA256SUMS not anchored [offline] (tests run: 7, failures: 1, errors: 0, skipped: 1; first FAIL: TestBC2.test_c2_files_checked)
+KILLED      7 C2 file not checked against its line [offline] (tests run: 7, failures: 1, errors: 0, skipped: 1; first FAIL: TestBC2.test_c2_files_checked)
+KILLED      8 C2 rows of another cell accepted [offline] (tests run: 9, failures: 1, errors: 0, skipped: 1; first FAIL: TestBC2.test_c2_rows_checked)
+KILLED      9 C2 primary analysis not compared [offline] (tests run: 6, failures: 1, errors: 0, skipped: 1; first FAIL: TestBC2.test_a_different_c2_number_fails)
+KILLED     10 C2 conditions not compared [offline] (tests run: 6, failures: 1, errors: 0, skipped: 1; first FAIL: TestBC2.test_a_different_c2_number_fails)
+KILLED     11 C2 units.csv not compared [offline] (tests run: 6, failures: 1, errors: 0, skipped: 1; first FAIL: TestBC2.test_a_different_c2_number_fails)
+KILLED     12 C2 reproduction after the test [offline] (tests run: 26, failures: 1, errors: 0, skipped: 1; first FAIL: TestDEvaluate.test_c2_not_reproduced_fails_before_any_test_frame)
+KILLED     13 C2 thresholds at 0.5 replaced by the EER [offline] (tests run: 15, failures: 1, errors: 0, skipped: 1; first FAIL: TestDDetails.test_a_dev_mismatch_attempt_is_not_a_reading)
+KILLED     14 not the last attempt evaluated [offline] (tests run: 12, failures: 1, errors: 0, skipped: 1; first FAIL: TestCRuns.test_only_the_last_attempt_is_evaluated)
+KILLED     15 status of a run not checked against the configuration [offline] (tests run: 14, failures: 1, errors: 0, skipped: 1; first FAIL: TestCRuns.test_status_recorded_in_the_configuration)
+KILLED     16 run file not checked against its line [offline] (tests run: 10, failures: 1, errors: 0, skipped: 1; first FAIL: TestCRuns.test_a_changed_run_file_stops)
+KILLED     17 official evaluation with unofficial runs [offline] (tests run: 11, failures: 1, errors: 0, skipped: 1; first FAIL: TestCRuns.test_official_evaluation_needs_official_runs)
+KILLED     18 not evaluable models scored [offline] (tests run: 33, failures: 1, errors: 0, skipped: 1; first FAIL: TestEGuardian.test_not_evaluable_attacknet_is_not_computed)
+KILLED     19 phase 1 not required complete [offline] (tests run: 20, failures: 1, errors: 0, skipped: 1; first FAIL: TestDDetails.test_phase_1_must_be_complete_for_the_12_positions)
+KILLED     20 dev mismatch ignored [offline] (tests run: 15, failures: 1, errors: 0, skipped: 1; first FAIL: TestDDetails.test_a_dev_mismatch_attempt_is_not_a_reading)
+KILLED     21 non-finite test scores ignored [offline] (tests run: 29, failures: 1, errors: 0, skipped: 1; first FAIL: TestDEvaluate.test_non_finite_test_scores_stop_before_the_analysis)
+KILLED     22 non-finite count dropped [offline] (tests run: 29, failures: 1, errors: 0, skipped: 1; first FAIL: TestDEvaluate.test_non_finite_test_scores_stop_before_the_analysis)
+KILLED     23 reference unit missing accepted [offline] (tests run: 16, failures: 0, errors: 1, skipped: 1; first ERROR: TestDDetails.test_a_new_unit_without_its_c2_reference_refused)
+KILLED     24 reasons of the not evaluable models not passed [offline] (tests run: 33, failures: 1, errors: 0, skipped: 1; first FAIL: TestEGuardian.test_not_evaluable_attacknet_is_not_computed)
+KILLED     25 descriptive analysis not computed [offline] (tests run: 30, failures: 1, errors: 0, skipped: 1; first FAIL: TestDEvaluate.test_pass_outputs_and_order)
+KILLED     26 opposite of C2 not required [offline] (tests run: 24, failures: 1, errors: 0, skipped: 1; first FAIL: TestDDetails.test_the_opposite_of_c2_confirmed_after_the_analysis)
+KILLED     27 opposite check with the bounds not swapped [offline] (tests run: 15, failures: 1, errors: 0, skipped: 1; first FAIL: TestDDetails.test_a_dev_mismatch_attempt_is_not_a_reading)
+KILLED     28 hooks not checked on an official root [offline] (tests run: 55, failures: 1, errors: 0, skipped: 1; first FAIL: TestFHooksAndCopies.test_official_out_root_checks_the_hooks)
+KILLED     29 attempt not required [offline] (tests run: 31, failures: 1, errors: 0, skipped: 1; first FAIL: TestDEvaluate.test_refusals_before_any_folder)
+KILLED     30 dirty tree accepted [offline] (tests run: 31, failures: 1, errors: 0, skipped: 1; first FAIL: TestDEvaluate.test_refusals_before_any_folder)
+KILLED     31 other output root without the flag [offline] (tests run: 31, failures: 1, errors: 0, skipped: 1; first FAIL: TestDEvaluate.test_refusals_before_any_folder)
+KILLED     32 authorisation not required [offline] (tests run: 31, failures: 1, errors: 0, skipped: 1; first FAIL: TestDEvaluate.test_refusals_before_any_folder)
+KILLED     33 after_stop not checked [offline] (tests run: 3, failures: 1, errors: 0, skipped: 1; first FAIL: TestAConfig.test_refusals)
+KILLED     34 second reading accepted without the option [offline] (tests run: 17, failures: 1, errors: 0, skipped: 1; first FAIL: TestDDetails.test_a_stop_after_the_reading_started_is_a_reading)
+KILLED     35 second reading option without a reading accepted [offline] (tests run: 23, failures: 1, errors: 0, skipped: 1; first FAIL: TestDDetails.test_second_reading_rule)
+KILLED     36 unreadable attempt not counted as a reading [offline] (tests run: 22, failures: 1, errors: 0, skipped: 1; first FAIL: TestDDetails.test_running_or_restricted_attempts_count_as_readings)
+KILLED     37 attempt left RUNNING not counted as a reading [offline] (tests run: 22, failures: 1, errors: 0, skipped: 1; first FAIL: TestDDetails.test_running_or_restricted_attempts_count_as_readings)
+KILLED     38 attempt with restricted scores not counted as a reading [offline] (tests run: 22, failures: 1, errors: 0, skipped: 1; first FAIL: TestDDetails.test_running_or_restricted_attempts_count_as_readings)
+KILLED     39 RUNNING status not rewritten when the reading starts [offline] (tests run: 17, failures: 1, errors: 0, skipped: 1; first FAIL: TestDDetails.test_a_stop_after_the_reading_started_is_a_reading)
+KILLED     40 second reading not recorded [offline] (tests run: 23, failures: 0, errors: 1, skipped: 1; first ERROR: TestDDetails.test_second_reading_rule)
+KILLED     41 restricted scores removed after the reading [offline] (tests run: 24, failures: 1, errors: 0, skipped: 1; first FAIL: TestDDetails.test_the_opposite_of_c2_confirmed_after_the_analysis)
+KILLED     42 opposite of C2 after the test only [offline] (tests run: 24, failures: 1, errors: 0, skipped: 1; first FAIL: TestDDetails.test_the_opposite_of_c2_confirmed_after_the_analysis)
+KILLED     43 C2 thresholds not compared with results.json [offline] (tests run: 18, failures: 1, errors: 0, skipped: 1; first FAIL: TestDDetails.test_c2_ids_and_thresholds_checked)
+KILLED     44 C2 identifiers not compared with the test keys [offline] (tests run: 18, failures: 1, errors: 0, skipped: 1; first FAIL: TestDDetails.test_c2_ids_and_thresholds_checked)
+KILLED     45 contrast mean of C2 read from the wrong key [offline] (tests run: 30, failures: 1, errors: 0, skipped: 1; first FAIL: TestDEvaluate.test_pass_outputs_and_order)
+KILLED     46 test one-class not counted [offline] (tests run: 32, failures: 1, errors: 0, skipped: 1; first FAIL: TestDOneClass.test_one_class_models_on_the_test_counted)
+KILLED     47 reasons of the other patience [offline] (tests run: 33, failures: 1, errors: 0, skipped: 1; first FAIL: TestEGuardian.test_not_evaluable_attacknet_is_not_computed)
+KILLED     48 table denominators of every unit [offline] (tests run: 33, failures: 1, errors: 0, skipped: 1; first FAIL: TestEGuardian.test_not_evaluable_attacknet_is_not_computed)
+KILLED     49 run records: folders not compared [offline] (tests run: 43, failures: 1, errors: 0, skipped: 1; first FAIL: TestERunRecords.test_a_missing_or_extra_record_stops)
+KILLED     50 run records: files of a copy not compared [offline] (tests run: 43, failures: 1, errors: 0, skipped: 1; first FAIL: TestERunRecords.test_a_missing_or_extra_record_stops)
+KILLED     51 run records: bytes not compared [offline] (tests run: 41, failures: 1, errors: 0, skipped: 1; first FAIL: TestERunRecords.test_a_changed_byte_stops)
+KILLED     52 run records: copies not scanned [offline] (tests run: 47, failures: 1, errors: 0, skipped: 1; first FAIL: TestERunRecords.test_evaluate_scans_the_copies_with_the_manifests)
+KILLED     53 run records: earlier attempts left out [offline] (tests run: 48, failures: 1, errors: 0, skipped: 1; first FAIL: TestERunRecords.test_every_attempt_is_a_record)
+KILLED     54 run records: conditions.txt not required [offline] (tests run: 43, failures: 1, errors: 0, skipped: 1; first FAIL: TestERunRecords.test_a_missing_or_extra_record_stops)
+KILLED     55 run records: check-estimator left out [offline] (tests run: 27, failures: 1, errors: 0, skipped: 1; first FAIL: TestDEvaluate.test_check_inputs)
+KILLED     56 run records: restricted/ published [offline] (tests run: 1, failures: 1, errors: 0, skipped: 0; first FAIL: TestA0RecordFiles.test_record_files_never_list_restricted)
+KILLED     57 run records: evaluate without the copies [offline] (tests run: 46, failures: 1, errors: 0, skipped: 1; first FAIL: TestERunRecords.test_evaluate_checks_the_copies)
+KILLED     58 copy of the records: a missing conditions file accepted [offline] (tests run: 50, failures: 0, errors: 1, skipped: 1; first ERROR: TestERunRecords.test_missing_conditions_file_and_labels)
+KILLED     59 copy of the records: a different copy rewritten without --force [offline] (tests run: 42, failures: 1, errors: 0, skipped: 1; first FAIL: TestERunRecords.test_a_different_copy_needs_force)
+KILLED     60 published configuration: a field other than runs admitted [offline] (tests run: 21, failures: 1, errors: 0, skipped: 1; first FAIL: TestDDetails.test_published_configuration_rule)
+KILLED     61 test one-class counted at 0.5 only [offline] (tests run: 30, failures: 1, errors: 0, skipped: 1; first FAIL: TestDEvaluate.test_pass_outputs_and_order)
+KILLED     62 run records: evaluate scans the copies without the manifests [offline] (tests run: 47, failures: 1, errors: 0, skipped: 1; first FAIL: TestERunRecords.test_evaluate_scans_the_copies_with_the_manifests)
+KILLED     63 run records: check-inputs without the copies [offline] (tests run: 44, failures: 1, errors: 0, skipped: 1; first FAIL: TestERunRecords.test_check_inputs_checks_the_copies)
+KILLED     64 launch: evaluate after a failed check [offline] (tests run: 34, failures: 1, errors: 0, skipped: 1; first FAIL: TestELaunch.test_a_failed_check_stops_evaluate)
+KILLED     65 launch: nice not checked [offline] (tests run: 40, failures: 1, errors: 0, skipped: 1; first FAIL: TestELaunch.test_nice_and_attempt_required)
+KILLED     66 launch: exit code not propagated [offline] (tests run: 37, failures: 1, errors: 0, skipped: 1; first FAIL: TestELaunch.test_evaluate_launched_after_both_checks_with_every_condition)
+KILLED     67 launch: log folder inside the repository accepted [offline] (tests run: 39, failures: 1, errors: 0, skipped: 1; first FAIL: TestELaunch.test_log_folder_inside_the_repository_refused)
+KILLED     68 launch: an existing conditions file overwritten [offline] (tests run: 35, failures: 1, errors: 0, skipped: 1; first FAIL: TestELaunch.test_an_existing_conditions_file_is_not_overwritten)
+KILLED     69 launch: attempt not required for evaluate [offline] (tests run: 40, failures: 1, errors: 0, skipped: 1; first FAIL: TestELaunch.test_nice_and_attempt_required)
+KILLED     70 launch: evaluate on battery [offline] (tests run: 38, failures: 1, errors: 0, skipped: 1; first FAIL: TestELaunch.test_evaluate_needs_the_power_adapter)
+KILLED     71 registry not used for the reloaded model [offline] (tests run: 51, failures: 1, errors: 0, skipped: 1; first FAIL: TestFHooksAndCopies.test_copies_differ_from_c2_only_as_declared)
+KILLED     72 C2 rows of another checkpoint accepted [offline] (tests run: 9, failures: 1, errors: 0, skipped: 1; first FAIL: TestBC2.test_c2_rows_checked)
+mutations killed: 72/72
+control mutations survived: 1/1
+RESULT: PASS
+exit 0
+# finished 2026-11-24 02:45 CET, wall 10179 s

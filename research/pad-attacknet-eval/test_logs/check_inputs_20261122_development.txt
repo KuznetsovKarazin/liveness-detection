@@ -1,0 +1,13 @@
+# macOS, Python 3.11.16, NumPy 1.26.4, TensorFlow 2.15.0, started 2026-11-22 14:57 CET; the real inputs of the author's repository, read only (the 48 C2 test score files read to reproduce C2): no frame assembled, TensorFlow not imported, nothing written; the files are identified by the SHA-256 below, not by the state of the work tree
+# SHA-256 882bd6a808213b48080b3d523f108aebd2b0e3267fcdf1453601481ea35c383b  scripts/pad_anet_eval.py
+# SHA-256 cb1d52306617da6a45491d572cc17c400a87151d08c2b18b6cbe5cdbb33e75d8  scripts/check_pad_anet_eval.py
+# SHA-256 e59441adac07ce9912374072ea5cfced8f7a6ec3a84e0d190542846e369ecbe0  scripts/check_pad_anet_eval_mutations.py
+# SHA-256 8700190c5af3fb404ed867ce2a622a03338cb8531195e3de707473110b2c2c6b  delivery/aneteval/pad_anet_eval.json
+# SHA-256 b8229c231ddd9d54aa01ba9b7287f696009930243081787e9d7c2c2d9d38a3cc  scripts/pad_anet_run.py
+# SHA-256 8e17acd107ffc7e09072d81e6247fe2c476381dd1508673178d789a70f5531b5  scripts/pad_anet_definitions.py
+# SHA-256 44b4deee427fa0ffa100feaa12eebb54614b5694c8132e64d4b887a1d86bca8d  delivery/anetrun/pad_anet_run.json
+# command: python -I -B scripts/pad_anet_eval.py check-inputs
+CHECK-INPUTS: configuration 8700190c5af3; configuration of the runs 44b4deee427f; PR A configuration 6f5297d08d49; code pinned (17 files); hooks none set; machine and versions equal to the C5 trial; 48 C2 test score files equal to the anchored restricted SHA256SUMS; C2 reproduced exactly (primary analysis, 8 conditions, units.csv); runs pending (recorded in the configuration after the six runs); no frame assembled; TensorFlow not imported; nothing written
+RESULT: PASS (check-inputs)
+exit 0
+# finished 2026-11-22 14:57 CET, wall 4 s

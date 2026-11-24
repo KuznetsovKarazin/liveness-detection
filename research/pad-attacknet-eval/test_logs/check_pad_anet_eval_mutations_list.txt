@@ -1,0 +1,88 @@
+# macOS, Python 3.11.16, NumPy 1.26.4, TensorFlow 2.15.0, started 2026-11-24 03:17 CET; the declared mutations and the check that every pattern occurs exactly once (no test run); the files are identified by the SHA-256 below, not by the state of the work tree
+# SHA-256 3892b1b2439cb02511dcd22fe91bfb4bcc6df76cb052e90af979fd9ecb27993e  scripts/pad_anet_eval.py
+# SHA-256 f799ccf310e40e61261ccf86f9402edbe72c602bb86c3e070a30acd69902c2eb  scripts/check_pad_anet_eval.py
+# SHA-256 30cdccca6fce2660547f05d61bd3a913833bb37cd990af87323eeaccdc0ff116  scripts/check_pad_anet_eval_mutations.py
+# SHA-256 e5ea7902d665dfe82c68f78011609cd7f8b6c7ebde8f0642251b309e08949b28  delivery/aneteval/pad_anet_eval.json
+# SHA-256 d783e1bd5db4902a8bd9459240f303a444161056411696eae653a5d4c86c4656  delivery/aneteval/launch.zsh
+# SHA-256 ef3efd99d4666a92ed42313c2efe94100dc7e82fc67a26f60f0f665df6128081  delivery/aneteval/copy_run_records.py
+# SHA-256 fb2e56153a22bf76b9124f33767ee183b44847c43f151c8ccd946530dbc0c899  delivery/aneteval/make_config.py
+# SHA-256 b8229c231ddd9d54aa01ba9b7287f696009930243081787e9d7c2c2d9d38a3cc  scripts/pad_anet_run.py
+# SHA-256 8e17acd107ffc7e09072d81e6247fe2c476381dd1508673178d789a70f5531b5  scripts/pad_anet_definitions.py
+# SHA-256 44b4deee427fa0ffa100feaa12eebb54614b5694c8132e64d4b887a1d86bca8d  delivery/anetrun/pad_anet_run.json
+# command: python -I -B scripts/check_pad_anet_eval_mutations.py --list
+  1 schema not checked  [scripts/pad_anet_eval.py, offline]
+  2 run ids not checked against their run  [scripts/pad_anet_eval.py, offline]
+  3 C2 evaluation run id not checked  [scripts/pad_anet_eval.py, offline]
+  4 public outputs not checked  [scripts/pad_anet_eval.py, offline]
+  5 choices not required of the author  [scripts/pad_anet_eval.py, offline]
+  6 C2 restricted SHA256SUMS not anchored  [scripts/pad_anet_eval.py, offline]
+  7 C2 file not checked against its line  [scripts/pad_anet_eval.py, offline]
+  8 C2 rows of another cell accepted  [scripts/pad_anet_eval.py, offline]
+  9 C2 primary analysis not compared  [scripts/pad_anet_eval.py, offline]
+ 10 C2 conditions not compared  [scripts/pad_anet_eval.py, offline]
+ 11 C2 units.csv not compared  [scripts/pad_anet_eval.py, offline]
+ 12 C2 reproduction after the test  [scripts/pad_anet_eval.py, offline]
+ 13 C2 thresholds at 0.5 replaced by the EER  [scripts/pad_anet_eval.py, offline]
+ 14 not the last attempt evaluated  [scripts/pad_anet_eval.py, offline]
+ 15 status of a run not checked against the configuration  [scripts/pad_anet_eval.py, offline]
+ 16 run file not checked against its line  [scripts/pad_anet_eval.py, offline]
+ 17 official evaluation with unofficial runs  [scripts/pad_anet_eval.py, offline]
+ 18 not evaluable models scored  [scripts/pad_anet_eval.py, offline]
+ 19 phase 1 not required complete  [scripts/pad_anet_eval.py, offline]
+ 20 dev mismatch ignored  [scripts/pad_anet_eval.py, offline]
+ 21 non-finite test scores ignored  [scripts/pad_anet_eval.py, offline]
+ 22 non-finite count dropped  [scripts/pad_anet_eval.py, offline]
+ 23 reference unit missing accepted  [scripts/pad_anet_eval.py, offline]
+ 24 reasons of the not evaluable models not passed  [scripts/pad_anet_eval.py, offline]
+ 25 descriptive analysis not computed  [scripts/pad_anet_eval.py, offline]
+ 26 opposite of C2 not required  [scripts/pad_anet_eval.py, offline]
+ 27 opposite check with the bounds not swapped  [scripts/pad_anet_eval.py, offline]
+ 28 hooks not checked on an official root  [scripts/pad_anet_eval.py, offline]
+ 29 attempt not required  [scripts/pad_anet_eval.py, offline]
+ 30 dirty tree accepted  [scripts/pad_anet_eval.py, offline]
+ 31 other output root without the flag  [scripts/pad_anet_eval.py, offline]
+ 32 authorisation not required  [scripts/pad_anet_eval.py, offline]
+ 33 after_stop not checked  [scripts/pad_anet_eval.py, offline]
+ 34 second reading accepted without the option  [scripts/pad_anet_eval.py, offline]
+ 35 second reading option without a reading accepted  [scripts/pad_anet_eval.py, offline]
+ 36 unreadable attempt not counted as a reading  [scripts/pad_anet_eval.py, offline]
+ 37 attempt left RUNNING not counted as a reading  [scripts/pad_anet_eval.py, offline]
+ 38 attempt with restricted scores not counted as a reading  [scripts/pad_anet_eval.py, offline]
+ 39 RUNNING status not rewritten when the reading starts  [scripts/pad_anet_eval.py, offline]
+ 40 second reading not recorded  [scripts/pad_anet_eval.py, offline]
+ 41 restricted scores removed after the reading  [scripts/pad_anet_eval.py, offline]
+ 42 opposite of C2 after the test only  [scripts/pad_anet_eval.py, offline]
+ 43 C2 thresholds not compared with results.json  [scripts/pad_anet_eval.py, offline]
+ 44 C2 identifiers not compared with the test keys  [scripts/pad_anet_eval.py, offline]
+ 45 contrast mean of C2 read from the wrong key  [scripts/pad_anet_eval.py, offline]
+ 46 test one-class not counted  [scripts/pad_anet_eval.py, offline]
+ 47 reasons of the other patience  [scripts/pad_anet_eval.py, offline]
+ 48 table denominators of every unit  [scripts/pad_anet_eval.py, offline]
+ 49 run records: folders not compared  [scripts/pad_anet_eval.py, offline]
+ 50 run records: files of a copy not compared  [scripts/pad_anet_eval.py, offline]
+ 51 run records: bytes not compared  [scripts/pad_anet_eval.py, offline]
+ 52 run records: copies not scanned  [scripts/pad_anet_eval.py, offline]
+ 53 run records: earlier attempts left out  [scripts/pad_anet_eval.py, offline]
+ 54 run records: conditions.txt not required  [scripts/pad_anet_eval.py, offline]
+ 55 run records: check-estimator left out  [scripts/pad_anet_eval.py, offline]
+ 56 run records: restricted/ published  [scripts/pad_anet_eval.py, offline]
+ 57 run records: evaluate without the copies  [scripts/pad_anet_eval.py, offline]
+ 58 copy of the records: a missing conditions file accepted  [delivery/aneteval/copy_run_records.py, offline]
+ 59 copy of the records: a different copy rewritten without --force  [delivery/aneteval/copy_run_records.py, offline]
+ 60 published configuration: a field other than runs admitted  [delivery/aneteval/make_config.py, offline]
+ 61 test one-class counted at 0.5 only  [scripts/pad_anet_eval.py, offline]
+ 62 run records: evaluate scans the copies without the manifests  [scripts/pad_anet_eval.py, offline]
+ 63 run records: check-inputs without the copies  [scripts/pad_anet_eval.py, offline]
+ 64 launch: evaluate after a failed check  [delivery/aneteval/launch.zsh, offline]
+ 65 launch: nice not checked  [delivery/aneteval/launch.zsh, offline]
+ 66 launch: exit code not propagated  [delivery/aneteval/launch.zsh, offline]
+ 67 launch: log folder inside the repository accepted  [delivery/aneteval/launch.zsh, offline]
+ 68 launch: an existing conditions file overwritten  [delivery/aneteval/launch.zsh, offline]
+ 69 launch: attempt not required for evaluate  [delivery/aneteval/launch.zsh, offline]
+ 70 launch: evaluate on battery  [delivery/aneteval/launch.zsh, offline]
+ 71 registry not used for the reloaded model  [scripts/pad_anet_eval.py, offline]
+ 72 C2 rows of another checkpoint accepted  [scripts/pad_anet_eval.py, offline]
+    control (must survive): a comment changed  [scripts/pad_anet_eval.py, offline] (must survive)
+72 mutations (72 offline, 0 with TensorFlow), 1 control mutation and 0 declared redundant, every pattern found exactly once
+exit 0
+# finished 2026-11-24 03:17 CET, wall 1 s

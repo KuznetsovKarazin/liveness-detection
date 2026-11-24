@@ -1,0 +1,142 @@
+{
+ "schema": "pad-anet-eval-config/1",
+ "task": "The evaluation on the NUAA test of the C5 comparison pre-registered in PR #34 (PROTOCOL.md §6, amended in PR #37): the evaluable new models of AttackNetV1, AttackNetV2_1 and AttackNetV2_2 of the six runs and the 48 C2 references (LivenessNet and ResNet-18, their test scores of the C2 evaluation 20261121-ARCHEVAL-332fbdf), with the definitions of PR A (pad_anet_definitions): primary analysis at patience 4 and threshold 0.5, descriptive conditions, rankings, denominators, descriptive comparison with ResNet-18, guardian per network",
+ "authorisation": "PROTOCOL.md §11: the evaluation code and configuration are published, with the link on the C5 card, before the NUAA test of the new models is read; evaluate runs once, after the six runs and after this configuration records them",
+ "operations": "after the six runs: copy_run_records.py --runs-root results/anetrun --conditions-dir <folder of the launch logs> copies the records of the runs into this package; make_config.py --runs-root results/anetrun records the last attempt of each run and stops if any other field differs from the reference configuration: that of the last commit (git show HEAD), or the file given with --reference (the configuration of the published head of this pull request, saved with git show <commit>:delivery/aneteval/pad_anet_eval.json); the comparison guarantees that only runs changed since the reference, not that the reference was published; commit; the completed configuration and package published (a commit of this pull request or a new pull request) and linked on the C5 card; only then check-inputs and evaluate, launched from a zsh with setopt nobgnice through delivery/aneteval/launch.zsh (ANETEVAL_LOG_DIR=<a folder outside the repository> [ANETEVAL_ATTEMPT=1] nohup zsh delivery/aneteval/launch.zsh check-inputs | evaluate > <a log file outside the repository> 2>&1 &), which writes a conditions file per command; the launch script stops without launching the command if it is not run from the root of the repository, if ANETEVAL_LOG_DIR is missing or inside the repository, if the command is neither check-inputs nor evaluate, if evaluate has no ANETEVAL_ATTEMPT, or if the conditions file of the same label already exists (exit 9); it also stops, with the reason in the conditions file, if its nice value is not 0, if pmset -g batt does not say AC Power (evaluate only), or if check-machine of the runs or check-inputs of the evaluation fails (exit 1); the launch script never passes --second-reading: a second reading, if ever needed, is launched by hand with --second-reading under after_stop; evaluate once; the config_sha256 and code_sha256 recorded by evaluate are those of the published files (PROTOCOL.md §11); one heavy process at a time",
+ "comparison": {
+  "path": "delivery/anetcmp/pad_anet_comparison.json",
+  "sha256": "6f5297d08d4913ff8e84127c6c0e0852bc1fbecc3a821065a3d3290f242fea66"
+ },
+ "run_configuration": {
+  "path": "delivery/anetrun/pad_anet_run.json",
+  "sha256": "44b4deee427fa0ffa100feaa12eebb54614b5694c8132e64d4b887a1d86bca8d"
+ },
+ "protocol": {
+  "path": "delivery/pad-attacknet-run/pr34_amended/PROTOCOL.md",
+  "sha256": "2b6bd6b1d8595047e3a6eb27caf746d59e4f413b9a6273bed29df68397b3f9f2"
+ },
+ "c2_evaluation": {
+  "run_id": "20261121-ARCHEVAL-332fbdf",
+  "units": {
+   "path": "delivery/pad-arch-eval-results/runs/20261121-ARCHEVAL-332fbdf/public/units.csv",
+   "sha256": "677f9ec889d417b52664f22f030e3920e034e3d3206d62a2a81b0ee0395adb86"
+  },
+  "restricted_folder": "results/archeval/20261121-ARCHEVAL-332fbdf/restricted",
+  "restricted_sha256sums_sha256": "d69c29e632a6fbe1cec42b166fa378e8ed38030353ae6c19c25ab7adbf0e42a7"
+ },
+ "code": {
+  "scripts/nuaa_folds_run.py": "82fed566cfa8ac0b280b55edbf430e7051dff1ae83d17a902d78157f2c72ffb2",
+  "scripts/nuaa_session_ablation_run.py": "9c45255199b87a41126b77867d5bbcf0da6f6ecf1684bf8fdd89185f463a276e",
+  "scripts/nuaa_bn_recalibration.py": "8c228ef400f5ef4337612477b23113fb6b8cac5364a5ff026e2c0ac8096734f5",
+  "scripts/nuaa_patience_verify.py": "edc839849ac76be9ce3149a3c217f35b6f1f430e352b471d03b78398093f4b9e",
+  "scripts/m2_writers.py": "22760abc368dede3aa0a690a241f6622afe1ba586940422497db8a33994ee34a",
+  "scripts/path_guard.py": "e5fa9c835c23745ff932e157a44d3104eb9713d86bbdecc9cdbbd3caa7a7ee34",
+  "scripts/package_rules.py": "96ec7ffab4b089bac71fd18918fcd32af72d15980cdfa1361cc84bb43e0e4c11",
+  "scripts/pad_arch_models.py": "72790b4fdc8a9f56e4ef5494c8f7fdd87cbfa3bf752eb471e531b524848a5832",
+  "scripts/pad_arch_definitions.py": "7bef6b62c9df355ca9ce1eb971dea142825b5aebb48c313d45087cbb899b5bff",
+  "scripts/pad_arch_comparison.py": "8f9a7c314acef2b6c00bd37b9d3089c94ea5c6acfc55b27b89ce8ddd6d8f7451",
+  "scripts/pad_arch_run.py": "c79a8eb834a1bee1e467513cee5cc548321ab5e7c0be007a5f7ad6240b9d503a",
+  "scripts/nuaa_bn_test.py": "909869a8b127ae96d0a184f6294ac1017bd28fbcec20c2d83355b9b370b7dfbb",
+  "scripts/pad_anet_models.py": "cbdc735b2fca528d776cf1dc846a0ffbf6db2af85f1f1e3715d4c7fa709f403b",
+  "scripts/pad_anet_definitions.py": "8e17acd107ffc7e09072d81e6247fe2c476381dd1508673178d789a70f5531b5",
+  "scripts/pad_anet_comparison.py": "4f6e4324bf6f4bf1971e6b8797e0763bfbb308fe792c11a35365da667b72cb10",
+  "scripts/pad_anet_run.py": "b8229c231ddd9d54aa01ba9b7287f696009930243081787e9d7c2c2d9d38a3cc",
+  "scripts/pad_arch_eval.py": "645db0e5461cecf5f2dece4d7e86ec7bb0e5613710cfe360e6426b57565cd52d"
+ },
+ "runs": {
+  "anet_v1_p4": {
+   "run_id": "20261122-ANETRUN-v1-p4-b8e0b3c",
+   "status_sha256": "ff043d44dc8e9c9ae88fababcfdc83f06c6e86b67af8b2bf741cc63823109cd2",
+   "public_sha256sums_sha256": "c0429e839a322786e681c0358faf3db73811aada7292bd779eb07afe944f8109",
+   "restricted_sha256sums_sha256": "ed3ddbc0e46581a23bb21bfe161c6a6647d643e6ad11eb1405ffe5ad04850ce5"
+  },
+  "anet_v2_1_p4": {
+   "run_id": "20261122-ANETRUN-v2_1-p4-9dfca6b",
+   "status_sha256": "9772afac352235d318384f81cf5890cef389c3c528c553d09403796858710921",
+   "public_sha256sums_sha256": "7bcba142f6ee09738e978ee974997b1d56614525ca3dbd41e2823047e7e98dd4",
+   "restricted_sha256sums_sha256": "274be4e3461aabfc545da405f7df471d65ab09f0cefac66f78d9cce4a3abb05d"
+  },
+  "anet_v2_2_p4": {
+   "run_id": "20261122-ANETRUN-v2_2-p4-bd28e4b",
+   "status_sha256": "e999c1c57a7c1ef14d9a16b22739e49c4135bed396845e5804c17a10be0fd30b",
+   "public_sha256sums_sha256": "352ca948ea35bd2139a918d0e059bec5eb8dd40647fd62f002799502927c2f6b",
+   "restricted_sha256sums_sha256": "cff7598f1c7010f5fe18e14332008ae909f7e7ccd8652c41faac808b87238b02"
+  },
+  "anet_v1_p12": {
+   "run_id": "20261123-ANETRUN-v1-p12-1ef418b",
+   "status_sha256": "755c7ddb2c4a1e03b8f74d9cd3b94a82fba8770fae87c78b850dd8205b2d75ef",
+   "public_sha256sums_sha256": "8b64cf31d8bb61a2a1b8995f2fd0ab1c792b11f0ddf336861db982e2782598c8",
+   "restricted_sha256sums_sha256": "18fb2213cbe58d12ca5f6e80c80323b38073131892be138ab4170faaa3c7043b"
+  },
+  "anet_v2_1_p12": {
+   "run_id": "20261123-ANETRUN-v2_1-p12-903e3c9",
+   "status_sha256": "77b3c6f8d6d61494094fe1ce71a494ff3c1518f3ae7e5976866cc00149139a2c",
+   "public_sha256sums_sha256": "3b7d7b45dd9d1e622a8daba70e4535d3f915de1201d0f4b74370459468f0c908",
+   "restricted_sha256sums_sha256": "f4360f854b97aec2bc4128af21792e3112b9fd430f31c164ad4c820eb75901af"
+  },
+  "anet_v2_2_p12": {
+   "run_id": "20261123-ANETRUN-v2_2-p12-b5c214a",
+   "status_sha256": "a58448f12dc4a0e25352d24bb8ccb6edc08052faec07240986a1c01b48cac0ec",
+   "public_sha256sums_sha256": "b4b6c539b64ff3827b679a4966e9270bcf11a9ffceb525ef586f12565c5501c6",
+   "restricted_sha256sums_sha256": "e634b8eee216145e50f1c16637793076406dd6dfe1de2e96dc001429adacfa31"
+  }
+ },
+ "run_records": {
+  "folder": "delivery/pad-attacknet-eval/runs",
+  "files": [
+   "status.json",
+   "run.log",
+   "public/",
+   "conditions.txt"
+  ],
+  "rule": "as for C2 (delivery/pad-arch-eval/runs/): the published records of every attempt of the six runs and of every check-estimator of the runs root, status.json, run.log and public/ (nothing of restricted/), with conditions.txt, the conditions file written by delivery/anetrun/launch.zsh, copied unchanged by delivery/aneteval/copy_run_records.py; check-inputs and evaluate check them byte for byte against the runs root and scan them for text a publishable output must not hold (check-inputs and copy_run_records.py without the manifests: personal paths and texts, not subject or frame identifiers; evaluate with the manifests loaded; for run.log and public/ the scan repeats that of the runner, made with the real inputs)"
+ },
+ "attempt_rule": "amended PROTOCOL.md §6 (k)/(n): for each of the six runs only the last attempt is evaluated, which must be PASS with phase 1 complete for the 12 positions; the configuration records its run id and the SHA-256 of its status.json and of its two SHA256SUMS, and evaluate checks that no later attempt exists in the runs root",
+ "after_stop": "a choice of the author, as in C2: no automatic resume; an evaluation that stops keeps its folder and outcome; test_read_started is recorded in status.json (false at the start, rewritten true before the fold schema and any test frame); a new attempt after an attempt with test_read_started, or one left RUNNING, or with a non-empty restricted/, or an unreadable one, is a second reading of the test, refused unless --second-reading, given only after the outcome has been reported on the C5 card and recorded in status.json and in the results; after the reading of the test the restricted test scores already computed are kept, with their SHA256SUMS, also for FAIL and INCOMPLETE",
+ "dev_reproduction": "before any test frame of the new models: each evaluable model reloaded (checkpoint SHA-256 checked) and checked against the registry, its dev scored in both BN states (the saved re-estimated statistics installed) and compared with the dev scores saved by the run (pad_arch_run.evaluator_agreement: tolerances of PR #27); one model out: MISMATCH, the test is not read",
+ "c2_reproduction": "before any test frame of the new models: from the 48 C2 test score files (each equal to the anchored restricted SHA256SUMS of the C2 evaluation) the primary analysis (pad_arch_definitions.primary_analysis), the 8 conditions and units.csv of C2 are recomputed and compared for exact equality with results.json and units.csv of the C2 evaluation (+0.0998 [0.0256, 0.1632], 926 valid resamples); a difference: FAIL; after the analysis the descriptive comparison of LivenessNet with ResNet-18 must be the exact opposite of the C2 gaps and contrast",
+ "test": "after every dev reproduction and a re-verification: test_read_started written to status.json; the fold schema; the frame identifiers of the 48 C2 files compared with the test keys of their fold; per fold the test frames assembled once and scored by its evaluable models in both BN states; the 48 C2 references are not re-evaluated (their saved test scores are used)",
+ "non_finite_test": "PROTOCOL.md §6 (n): a model with non-finite test scores in either BN state is reported with the count of such frames; the evaluation stops before the primary analysis (outcome NON_FINITE_TEST, the restricted test scores kept in restricted/ with their SHA256SUMS, no public result); no model is excluded after its test scores are computed; a new attempt is a second reading (after_stop)",
+ "analysis": "pad_anet_definitions.primary_analysis and descriptive_analysis on the units of the 8 conditions (the guardian inside: an AttackNet with fewer than 12 pairs evaluable in both BN states is 'not computed' with the reason of its not evaluable models)",
+ "cap": {
+  "hours": 2.0,
+  "unit": "hours of wall time (elapsed real time, not CPU time)",
+  "rule": "a choice of the author: three times the evaluation hours of plan/run_plan.md of PR A (0.59 h), rounded up to a multiple of 0.5 h; checked before the dev reproduction of each model, before the test assembly of each fold, before the test scoring of each model and before the analysis; at the cap or by SIGUSR1: INCOMPLETE, no result"
+ },
+ "outputs": {
+  "run": [
+   "status.json",
+   "run.log"
+  ],
+  "public": [
+   "results.json",
+   "report.md",
+   "table.csv",
+   "conditions.csv",
+   "units.csv",
+   "reproduction.csv",
+   "SHA256SUMS"
+  ],
+  "restricted": [
+   "<run>_<model>_test_scores.csv",
+   "SHA256SUMS"
+  ]
+ },
+ "choices_of_the_author": {
+  "thresholds_source": "a choice of the author: the thresholds of the new models from their saved dev scores (pad_arch_eval.load_dev), as in C2",
+  "c2_reproduction_gate": "a choice of the author: the reproduction of C2 from the 48 files compared for exact equality before the test (c2_reproduction)",
+  "c2_units_bytes": "a choice of the author: the units.csv of C2 recomputed and compared byte for byte",
+  "non_finite_test_outcome": "a choice of the author: the outcome name NON_FINITE_TEST (exit code 6) for the stop of PROTOCOL.md §6 (n)",
+  "reused_thresholds": "a choice of the author: the thresholds of the 48 references from their C2 test score files (threshold_dev_eer of the file)",
+  "units_order": "a choice of the author: the units of each condition in (fold, seed) order, the order of C2 units",
+  "cap": "a choice of the author: the cap of evaluate (cap.rule)",
+  "attempts": "a choice of the author: --attempt N required, a new attempt in a new folder; the official output root results/aneteval",
+  "outputs": "a choice of the author: the names and columns of the outputs; table.csv: per network and BN state the mean over the units of the per-unit APCER, BPCER and ACER of the primary condition, with units and denominators",
+  "runs_record": "a choice of the author: the six runs recorded after the runs by make_config.py --runs-root (RUNS_PENDING before)",
+  "second_reading": "a choice of the author: the option --second-reading and its rule (after_stop)",
+  "run_records": "a choice of the author: the records of the runs published in this package, as for C2, with conditions.txt (run_records)",
+  "launch_conditions": "a choice of the author: the launch script delivery/aneteval/launch.zsh and its conditions file, as for the runs (operations)",
+  "test_one_class": "a choice of the author: the form of the count of PROTOCOL.md §6 (f) on the test: per network x patience x BN state x threshold, the models (units) deciding one class for every test frame, in results.json (test_one_class)"
+ },
+ "test_read": "the NUAA test of the new models is read once, by evaluate, after every check that does not need it. check-inputs: this configuration; the PR A configuration and what it pins; the configuration of the runs (pad_anet_run.load_config and load_pins: the PR A package, the trial, the plan, the PR #27 and #28 configurations); the amended protocol of the PR B package; the public status.json, results.json and units.csv of the C2 evaluation 20261121-ARCHEVAL-332fbdf and its restricted SHA256SUMS with the 48 <p4|p12>_<network>_fold<k>_seed<s>_test_scores.csv it lists (the C2 test scores, already published as aggregates: read to reproduce C2 exactly); when the runs are recorded, their status.json, run.log, SHA256SUMS and the files they list. evaluate, in addition: what pad_arch_comparison.load_inputs reads (manifests, cache, extracted frames, cells and folds runs); the dev scores and BN statistics of each evaluable new model; its checkpoint; after the dev reproduction of every model, the fold schema and the test frames of each fold, assembled once"
+}
