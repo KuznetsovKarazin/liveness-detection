@@ -1,0 +1,16 @@
+privacy scan, 2026-11-24T12:20:39+01:00
+reference sets: 16 subject_id, 12614 sample_id, 24898 file names and stems
+per file: CSV fields compared; maximal digit runs not preceded by a decimal point compared with the subject_id; tokens and their file names compared with all three sets; absolute paths; PDF: raw bytes and decompressed streams
+README.md: csv fields 0, matches 0; digit runs 916, matches 0; token matches 0; absolute paths 0
+runs/20261124-ANETEVAL-7c22b1a/conditions.txt: csv fields 0, matches 0; digit runs 82, matches 0; token matches 0; absolute paths 0
+runs/20261124-ANETEVAL-7c22b1a/eval-check-inputs-20261124-084002-conditions.txt: csv fields 0, matches 0; digit runs 79, matches 0; token matches 0; absolute paths 0
+runs/20261124-ANETEVAL-7c22b1a/public/SHA256SUMS: csv fields 0, matches 0; digit runs 88, matches 0; token matches 0; absolute paths 0
+runs/20261124-ANETEVAL-7c22b1a/public/conditions.csv: csv fields 462, matches 0; digit runs 444, matches 0; token matches 0; absolute paths 0
+runs/20261124-ANETEVAL-7c22b1a/public/report.md: csv fields 0, matches 0; digit runs 56, matches 0; token matches 0; absolute paths 0
+runs/20261124-ANETEVAL-7c22b1a/public/reproduction.csv: csv fields 1885, matches 0; digit runs 2353, matches 0; token matches 0; absolute paths 0
+runs/20261124-ANETEVAL-7c22b1a/public/results.json: csv fields 0, matches 0; digit runs 20448, matches 0; token matches 0; absolute paths 0
+runs/20261124-ANETEVAL-7c22b1a/public/table.csv: csv fields 110, matches 0; digit runs 122, matches 0; token matches 0; absolute paths 0
+runs/20261124-ANETEVAL-7c22b1a/public/units.csv: csv fields 5772, matches 0; digit runs 13297, matches 0; token matches 0; absolute paths 0
+runs/20261124-ANETEVAL-7c22b1a/run.log: csv fields 0, matches 0; digit runs 943, matches 0; token matches 0; absolute paths 0
+runs/20261124-ANETEVAL-7c22b1a/status.json: csv fields 0, matches 0; digit runs 2673, matches 0; token matches 0; absolute paths 0
+files scanned: 12; identifier and path matches: 0

@@ -1,0 +1,36 @@
+Conditions of evaluate, attempt 1, written by delivery/aneteval/launch.zsh (not by the evaluation).
+== conditions before
+2026-11-24 11:12:15 +0100
+11:12  up 5 days, 14:02, 2 users, load averages: 2.14 1.84 2.02
+CPU usage: 4.78% user, 7.45% sys, 87.76% idle 
+Now drawing from 'AC Power'
+== system
+ProductName:  macOS
+ProductVersion:  27.2.1
+BuildVersion:  26B131
+== power (pmset -g: powermode, lowpowermode; pmset -g batt: power source)
+ powermode 0
+Now drawing from 'AC Power'
+== nice of the launching shell
+0
+== environment: number of TF_NUM_ variables set
+0
+== git (commit, lines of git status --porcelain)
+7c22b1a
+0
+== check-machine (of the runs)
+check-machine: machine and versions equal to the C5 trial 20261122-ANETTRIAL-a951ed0 (11 fields); thread environment variables TF_NUM_INTRAOP_THREADS absent, TF_NUM_INTEROP_THREADS absent, as in the trial; TensorFlow not imported; nothing written
+RESULT: PASS (check-machine)
+check-machine exit 0
+== check-inputs (of the evaluation)
+CHECK-INPUTS: configuration e5ea7902d665; configuration of the runs 44b4deee427f; PR A configuration 6f5297d08d49; code pinned (17 files); hooks none set; machine and versions equal to the C5 trial; 48 C2 test score files equal to the anchored restricted SHA256SUMS; C2 reproduced exactly (primary analysis, 8 conditions, units.csv; the 48 EER thresholds equal to results.json; the opposite of C2 on the C2 units); six runs PASS, last attempts, 72 evaluable models, 0 not evaluable; the records of 7 commands in the package equal to the runs root (46 files); no frame assembled; TensorFlow not imported; nothing written
+RESULT: PASS (check-inputs)
+check-inputs exit 0
+== command
+caffeinate -dims .venv/bin/python -I -B scripts/pad_anet_eval.py evaluate --attempt 1 --i-am-authorized
+evaluate exit 0
+== conditions after
+2026-11-24 11:50:09 +0100
+11:50  up 5 days, 14:40, 2 users, load averages: 9.20 11.27 10.51
+CPU usage: 3.0% user, 6.64% sys, 90.34% idle 
+Now drawing from 'AC Power'

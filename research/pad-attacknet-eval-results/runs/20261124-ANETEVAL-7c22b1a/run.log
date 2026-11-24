@@ -1,0 +1,150 @@
+===== 2026-11-24T11:12:29+0100 run =====
+== evaluation 20261124-ANETEVAL-7c22b1a (attempt 1): configuration e5ea7902d665, cap 2.00 hours of wall time (elapsed real time, not CPU time), pid 3581
+   C2 reproduced exactly from the 48 reused files (8 conditions, units.csv): before any test frame of the new models
+   TensorFlow threads set by this runner: requested intra-op 10 and inter-op 10, effective (read back from tf.config.threading) intra-op 10 and inter-op 10; environment variables: TF_NUM_INTRAOP_THREADS absent, TF_NUM_INTEROP_THREADS absent; logical CPUs 15.
+   dev reproduced anet_v1_p4_AttackNetV1_fold1_seed42: ordinary yes, re-estimated yes
+   dev reproduced anet_v1_p4_AttackNetV1_fold1_seed43: ordinary yes, re-estimated yes
+   dev reproduced anet_v1_p4_AttackNetV1_fold1_seed44: ordinary yes, re-estimated yes
+   dev reproduced anet_v1_p4_AttackNetV1_fold2_seed42: ordinary yes, re-estimated yes
+   dev reproduced anet_v1_p4_AttackNetV1_fold2_seed43: ordinary yes, re-estimated yes
+   dev reproduced anet_v1_p4_AttackNetV1_fold2_seed44: ordinary yes, re-estimated yes
+   dev reproduced anet_v1_p4_AttackNetV1_fold3_seed42: ordinary yes, re-estimated yes
+   dev reproduced anet_v1_p4_AttackNetV1_fold3_seed43: ordinary yes, re-estimated yes
+   dev reproduced anet_v1_p4_AttackNetV1_fold3_seed44: ordinary yes, re-estimated yes
+   dev reproduced anet_v1_p4_AttackNetV1_fold4_seed42: ordinary yes, re-estimated yes
+   dev reproduced anet_v1_p4_AttackNetV1_fold4_seed43: ordinary yes, re-estimated yes
+   dev reproduced anet_v1_p4_AttackNetV1_fold4_seed44: ordinary yes, re-estimated yes
+   dev reproduced anet_v2_1_p4_AttackNetV2_1_fold1_seed42: ordinary yes, re-estimated yes
+   dev reproduced anet_v2_1_p4_AttackNetV2_1_fold1_seed43: ordinary yes, re-estimated yes
+   dev reproduced anet_v2_1_p4_AttackNetV2_1_fold1_seed44: ordinary yes, re-estimated yes
+   dev reproduced anet_v2_1_p4_AttackNetV2_1_fold2_seed42: ordinary yes, re-estimated yes
+   dev reproduced anet_v2_1_p4_AttackNetV2_1_fold2_seed43: ordinary yes, re-estimated yes
+   dev reproduced anet_v2_1_p4_AttackNetV2_1_fold2_seed44: ordinary yes, re-estimated yes
+   dev reproduced anet_v2_1_p4_AttackNetV2_1_fold3_seed42: ordinary yes, re-estimated yes
+   dev reproduced anet_v2_1_p4_AttackNetV2_1_fold3_seed43: ordinary yes, re-estimated yes
+   dev reproduced anet_v2_1_p4_AttackNetV2_1_fold3_seed44: ordinary yes, re-estimated yes
+   dev reproduced anet_v2_1_p4_AttackNetV2_1_fold4_seed42: ordinary yes, re-estimated yes
+   dev reproduced anet_v2_1_p4_AttackNetV2_1_fold4_seed43: ordinary yes, re-estimated yes
+   dev reproduced anet_v2_1_p4_AttackNetV2_1_fold4_seed44: ordinary yes, re-estimated yes
+   dev reproduced anet_v2_2_p4_AttackNetV2_2_fold1_seed42: ordinary yes, re-estimated yes
+   dev reproduced anet_v2_2_p4_AttackNetV2_2_fold1_seed43: ordinary yes, re-estimated yes
+   dev reproduced anet_v2_2_p4_AttackNetV2_2_fold1_seed44: ordinary yes, re-estimated yes
+   dev reproduced anet_v2_2_p4_AttackNetV2_2_fold2_seed42: ordinary yes, re-estimated yes
+   dev reproduced anet_v2_2_p4_AttackNetV2_2_fold2_seed43: ordinary yes, re-estimated yes
+   dev reproduced anet_v2_2_p4_AttackNetV2_2_fold2_seed44: ordinary yes, re-estimated yes
+   dev reproduced anet_v2_2_p4_AttackNetV2_2_fold3_seed42: ordinary yes, re-estimated yes
+   dev reproduced anet_v2_2_p4_AttackNetV2_2_fold3_seed43: ordinary yes, re-estimated yes
+   dev reproduced anet_v2_2_p4_AttackNetV2_2_fold3_seed44: ordinary yes, re-estimated yes
+   dev reproduced anet_v2_2_p4_AttackNetV2_2_fold4_seed42: ordinary yes, re-estimated yes
+   dev reproduced anet_v2_2_p4_AttackNetV2_2_fold4_seed43: ordinary yes, re-estimated yes
+   dev reproduced anet_v2_2_p4_AttackNetV2_2_fold4_seed44: ordinary yes, re-estimated yes
+   dev reproduced anet_v1_p12_AttackNetV1_fold1_seed42: ordinary yes, re-estimated yes
+   dev reproduced anet_v1_p12_AttackNetV1_fold1_seed43: ordinary yes, re-estimated yes
+   dev reproduced anet_v1_p12_AttackNetV1_fold1_seed44: ordinary yes, re-estimated yes
+   dev reproduced anet_v1_p12_AttackNetV1_fold2_seed42: ordinary yes, re-estimated yes
+   dev reproduced anet_v1_p12_AttackNetV1_fold2_seed43: ordinary yes, re-estimated yes
+   dev reproduced anet_v1_p12_AttackNetV1_fold2_seed44: ordinary yes, re-estimated yes
+   dev reproduced anet_v1_p12_AttackNetV1_fold3_seed42: ordinary yes, re-estimated yes
+   dev reproduced anet_v1_p12_AttackNetV1_fold3_seed43: ordinary yes, re-estimated yes
+   dev reproduced anet_v1_p12_AttackNetV1_fold3_seed44: ordinary yes, re-estimated yes
+   dev reproduced anet_v1_p12_AttackNetV1_fold4_seed42: ordinary yes, re-estimated yes
+   dev reproduced anet_v1_p12_AttackNetV1_fold4_seed43: ordinary yes, re-estimated yes
+   dev reproduced anet_v1_p12_AttackNetV1_fold4_seed44: ordinary yes, re-estimated yes
+   dev reproduced anet_v2_1_p12_AttackNetV2_1_fold1_seed42: ordinary yes, re-estimated yes
+   dev reproduced anet_v2_1_p12_AttackNetV2_1_fold1_seed43: ordinary yes, re-estimated yes
+   dev reproduced anet_v2_1_p12_AttackNetV2_1_fold1_seed44: ordinary yes, re-estimated yes
+   dev reproduced anet_v2_1_p12_AttackNetV2_1_fold2_seed42: ordinary yes, re-estimated yes
+   dev reproduced anet_v2_1_p12_AttackNetV2_1_fold2_seed43: ordinary yes, re-estimated yes
+   dev reproduced anet_v2_1_p12_AttackNetV2_1_fold2_seed44: ordinary yes, re-estimated yes
+   dev reproduced anet_v2_1_p12_AttackNetV2_1_fold3_seed42: ordinary yes, re-estimated yes
+   dev reproduced anet_v2_1_p12_AttackNetV2_1_fold3_seed43: ordinary yes, re-estimated yes
+   dev reproduced anet_v2_1_p12_AttackNetV2_1_fold3_seed44: ordinary yes, re-estimated yes
+   dev reproduced anet_v2_1_p12_AttackNetV2_1_fold4_seed42: ordinary yes, re-estimated yes
+   dev reproduced anet_v2_1_p12_AttackNetV2_1_fold4_seed43: ordinary yes, re-estimated yes
+   dev reproduced anet_v2_1_p12_AttackNetV2_1_fold4_seed44: ordinary yes, re-estimated yes
+   dev reproduced anet_v2_2_p12_AttackNetV2_2_fold1_seed42: ordinary yes, re-estimated yes
+   dev reproduced anet_v2_2_p12_AttackNetV2_2_fold1_seed43: ordinary yes, re-estimated yes
+   dev reproduced anet_v2_2_p12_AttackNetV2_2_fold1_seed44: ordinary yes, re-estimated yes
+   dev reproduced anet_v2_2_p12_AttackNetV2_2_fold2_seed42: ordinary yes, re-estimated yes
+   dev reproduced anet_v2_2_p12_AttackNetV2_2_fold2_seed43: ordinary yes, re-estimated yes
+   dev reproduced anet_v2_2_p12_AttackNetV2_2_fold2_seed44: ordinary yes, re-estimated yes
+   dev reproduced anet_v2_2_p12_AttackNetV2_2_fold3_seed42: ordinary yes, re-estimated yes
+   dev reproduced anet_v2_2_p12_AttackNetV2_2_fold3_seed43: ordinary yes, re-estimated yes
+   dev reproduced anet_v2_2_p12_AttackNetV2_2_fold3_seed44: ordinary yes, re-estimated yes
+   dev reproduced anet_v2_2_p12_AttackNetV2_2_fold4_seed42: ordinary yes, re-estimated yes
+   dev reproduced anet_v2_2_p12_AttackNetV2_2_fold4_seed43: ordinary yes, re-estimated yes
+   dev reproduced anet_v2_2_p12_AttackNetV2_2_fold4_seed44: ordinary yes, re-estimated yes
+   test scored anet_v1_p4_AttackNetV1_fold1_seed42 (two BN states)
+   test scored anet_v1_p4_AttackNetV1_fold1_seed43 (two BN states)
+   test scored anet_v1_p4_AttackNetV1_fold1_seed44 (two BN states)
+   test scored anet_v2_1_p4_AttackNetV2_1_fold1_seed42 (two BN states)
+   test scored anet_v2_1_p4_AttackNetV2_1_fold1_seed43 (two BN states)
+   test scored anet_v2_1_p4_AttackNetV2_1_fold1_seed44 (two BN states)
+   test scored anet_v2_2_p4_AttackNetV2_2_fold1_seed42 (two BN states)
+   test scored anet_v2_2_p4_AttackNetV2_2_fold1_seed43 (two BN states)
+   test scored anet_v2_2_p4_AttackNetV2_2_fold1_seed44 (two BN states)
+   test scored anet_v1_p12_AttackNetV1_fold1_seed42 (two BN states)
+   test scored anet_v1_p12_AttackNetV1_fold1_seed43 (two BN states)
+   test scored anet_v1_p12_AttackNetV1_fold1_seed44 (two BN states)
+   test scored anet_v2_1_p12_AttackNetV2_1_fold1_seed42 (two BN states)
+   test scored anet_v2_1_p12_AttackNetV2_1_fold1_seed43 (two BN states)
+   test scored anet_v2_1_p12_AttackNetV2_1_fold1_seed44 (two BN states)
+   test scored anet_v2_2_p12_AttackNetV2_2_fold1_seed42 (two BN states)
+   test scored anet_v2_2_p12_AttackNetV2_2_fold1_seed43 (two BN states)
+   test scored anet_v2_2_p12_AttackNetV2_2_fold1_seed44 (two BN states)
+   test scored anet_v1_p4_AttackNetV1_fold2_seed42 (two BN states)
+   test scored anet_v1_p4_AttackNetV1_fold2_seed43 (two BN states)
+   test scored anet_v1_p4_AttackNetV1_fold2_seed44 (two BN states)
+   test scored anet_v2_1_p4_AttackNetV2_1_fold2_seed42 (two BN states)
+   test scored anet_v2_1_p4_AttackNetV2_1_fold2_seed43 (two BN states)
+   test scored anet_v2_1_p4_AttackNetV2_1_fold2_seed44 (two BN states)
+   test scored anet_v2_2_p4_AttackNetV2_2_fold2_seed42 (two BN states)
+   test scored anet_v2_2_p4_AttackNetV2_2_fold2_seed43 (two BN states)
+   test scored anet_v2_2_p4_AttackNetV2_2_fold2_seed44 (two BN states)
+   test scored anet_v1_p12_AttackNetV1_fold2_seed42 (two BN states)
+   test scored anet_v1_p12_AttackNetV1_fold2_seed43 (two BN states)
+   test scored anet_v1_p12_AttackNetV1_fold2_seed44 (two BN states)
+   test scored anet_v2_1_p12_AttackNetV2_1_fold2_seed42 (two BN states)
+   test scored anet_v2_1_p12_AttackNetV2_1_fold2_seed43 (two BN states)
+   test scored anet_v2_1_p12_AttackNetV2_1_fold2_seed44 (two BN states)
+   test scored anet_v2_2_p12_AttackNetV2_2_fold2_seed42 (two BN states)
+   test scored anet_v2_2_p12_AttackNetV2_2_fold2_seed43 (two BN states)
+   test scored anet_v2_2_p12_AttackNetV2_2_fold2_seed44 (two BN states)
+   test scored anet_v1_p4_AttackNetV1_fold3_seed42 (two BN states)
+   test scored anet_v1_p4_AttackNetV1_fold3_seed43 (two BN states)
+   test scored anet_v1_p4_AttackNetV1_fold3_seed44 (two BN states)
+   test scored anet_v2_1_p4_AttackNetV2_1_fold3_seed42 (two BN states)
+   test scored anet_v2_1_p4_AttackNetV2_1_fold3_seed43 (two BN states)
+   test scored anet_v2_1_p4_AttackNetV2_1_fold3_seed44 (two BN states)
+   test scored anet_v2_2_p4_AttackNetV2_2_fold3_seed42 (two BN states)
+   test scored anet_v2_2_p4_AttackNetV2_2_fold3_seed43 (two BN states)
+   test scored anet_v2_2_p4_AttackNetV2_2_fold3_seed44 (two BN states)
+   test scored anet_v1_p12_AttackNetV1_fold3_seed42 (two BN states)
+   test scored anet_v1_p12_AttackNetV1_fold3_seed43 (two BN states)
+   test scored anet_v1_p12_AttackNetV1_fold3_seed44 (two BN states)
+   test scored anet_v2_1_p12_AttackNetV2_1_fold3_seed42 (two BN states)
+   test scored anet_v2_1_p12_AttackNetV2_1_fold3_seed43 (two BN states)
+   test scored anet_v2_1_p12_AttackNetV2_1_fold3_seed44 (two BN states)
+   test scored anet_v2_2_p12_AttackNetV2_2_fold3_seed42 (two BN states)
+   test scored anet_v2_2_p12_AttackNetV2_2_fold3_seed43 (two BN states)
+   test scored anet_v2_2_p12_AttackNetV2_2_fold3_seed44 (two BN states)
+   test scored anet_v1_p4_AttackNetV1_fold4_seed42 (two BN states)
+   test scored anet_v1_p4_AttackNetV1_fold4_seed43 (two BN states)
+   test scored anet_v1_p4_AttackNetV1_fold4_seed44 (two BN states)
+   test scored anet_v2_1_p4_AttackNetV2_1_fold4_seed42 (two BN states)
+   test scored anet_v2_1_p4_AttackNetV2_1_fold4_seed43 (two BN states)
+   test scored anet_v2_1_p4_AttackNetV2_1_fold4_seed44 (two BN states)
+   test scored anet_v2_2_p4_AttackNetV2_2_fold4_seed42 (two BN states)
+   test scored anet_v2_2_p4_AttackNetV2_2_fold4_seed43 (two BN states)
+   test scored anet_v2_2_p4_AttackNetV2_2_fold4_seed44 (two BN states)
+   test scored anet_v1_p12_AttackNetV1_fold4_seed42 (two BN states)
+   test scored anet_v1_p12_AttackNetV1_fold4_seed43 (two BN states)
+   test scored anet_v1_p12_AttackNetV1_fold4_seed44 (two BN states)
+   test scored anet_v2_1_p12_AttackNetV2_1_fold4_seed42 (two BN states)
+   test scored anet_v2_1_p12_AttackNetV2_1_fold4_seed43 (two BN states)
+   test scored anet_v2_1_p12_AttackNetV2_1_fold4_seed44 (two BN states)
+   test scored anet_v2_2_p12_AttackNetV2_2_fold4_seed42 (two BN states)
+   test scored anet_v2_2_p12_AttackNetV2_2_fold4_seed43 (two BN states)
+   test scored anet_v2_2_p12_AttackNetV2_2_fold4_seed44 (two BN states)
+evaluation folder: 20261124-ANETEVAL-7c22b1a, wall 2259 s, process CPU 19427 s
+RESULT: PASS (evaluate)
