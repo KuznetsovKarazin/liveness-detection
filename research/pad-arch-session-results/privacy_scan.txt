@@ -1,0 +1,12 @@
+privacy scan, 2026-11-23T20:31:39+01:00
+reference sets: 16 subject_id, 12614 sample_id, 24898 file names and stems
+per file: CSV fields compared; maximal digit runs not preceded by a decimal point compared with the subject_id; tokens and their file names compared with all three sets; absolute paths; PDF: raw bytes and decompressed streams
+RESULTS.md: csv fields 0, matches 0; digit runs 1049, matches 0; token matches 0; absolute paths 0
+runs/20261123-ARCHSESS-356b041/conditions.txt: csv fields 0, matches 0; digit runs 117, matches 0; token matches 0; absolute paths 0
+runs/20261123-ARCHSESS-356b041/public/session_counts.csv: csv fields 5404, matches 0; digit runs 5115, matches 0; token matches 0; absolute paths 0
+runs/20261123-ARCHSESS-356b041/public/session_differences.pdf: csv fields 0, matches 0; digit runs 34326, matches 0; token matches 0; absolute paths 0; PDF streams decompressed 50
+runs/20261123-ARCHSESS-356b041/public/session_summary.csv: csv fields 408, matches 0; digit runs 350, matches 0; token matches 0; absolute paths 0
+runs/20261123-ARCHSESS-356b041/public/session_table.md: csv fields 0, matches 0; digit runs 279, matches 0; token matches 0; absolute paths 0
+runs/20261123-ARCHSESS-356b041/public_SHA256SUMS.txt: csv fields 0, matches 0; digit runs 61, matches 0; token matches 0; absolute paths 0
+runs/20261123-ARCHSESS-356b041/run.log.txt: csv fields 0, matches 0; digit runs 47, matches 0; token matches 0; absolute paths 0
+files scanned: 8; identifier and path matches: 0

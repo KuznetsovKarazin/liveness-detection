@@ -1,0 +1,12 @@
+run: 20261123-ARCHSESS-356b041
+fork commit: 356b0418b685fb2b7f8d4db81affa6ffe3f19be9 (2026-11-23T08:46:59+01:00)
+private commit: 842f1fd64a749b7e989710d799c9738f573cbd61
+trees: fork and private clean
+package SHA256SUMS sha256: 6d042d8aa73900c815ed5679ec184bdd6e4ee3c78cee38481e703926d158b069
+configuration sha256 (registered): d86baca65f0415483bf7b37d2d1476ac9c30ae7757528e0f1bf20a59beada12d
+score_metrics.csv sha256: 1397786e065efff2214757ae34c90f8984e1d926780593987756705d48331bdd
+paired_summary.csv sha256: f59e52da1303ed3241b448a97dc53491116d7b3873c2b41cd0c4c67e4c7590c3
+manifests: evaluation, patience 4 and patience 12 restricted SHA256SUMS validated
+python 3.11.16 | numpy 1.26.4 | matplotlib 3.11.2 | arm64 Darwin 27.2.0
+started: 2026-11-23T20:05:43+0100
+finished: 2026-11-23T20:05:54+0100 exit 0
