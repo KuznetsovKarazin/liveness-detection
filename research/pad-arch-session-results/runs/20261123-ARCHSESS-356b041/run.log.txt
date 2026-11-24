@@ -1,0 +1,11 @@
+== check_synthetic.py
+Synthetic end-to-end check passed: 192 operating points, 16 combinations, table and figure, 41 stop cases.
+== session_compare.py
+configuration sha256: d86baca65f0415483bf7b37d2d1476ac9c30ae7757528e0f1bf20a59beada12d
+192 operating points written to session_counts.csv; checks C1-C12 passed. Aggregate counts only.
+exit code: 0
+== session_summary.py
+configuration sha256: d86baca65f0415483bf7b37d2d1476ac9c30ae7757528e0f1bf20a59beada12d
+16 combinations summarised; session_summary.csv, session_table.md and session_differences.pdf written; checks C1, C6, C8, C9, C10 and C12 passed. Aggregate values only.
+exit code: 0
+fork still clean
