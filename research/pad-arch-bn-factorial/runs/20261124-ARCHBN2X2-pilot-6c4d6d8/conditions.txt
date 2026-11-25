@@ -1,0 +1,42 @@
+Conditions of trial, attempt 1, written by delivery/archbn2x2/launch.zsh (not by the trial).
+== conditions before
+2026-11-24 22:30:09 +0100
+load averages: 2.40 3.33 3.33
+CPU usage: 6.41% user, 8.85% sys, 84.73% idle 
+Now drawing from 'AC Power'
+powermode 0
+System-wide memory free percentage: 56%
+== system
+ProductName:  macOS
+ProductVersion:  27.2.1
+BuildVersion:  26B131
+== power (pmset -g: powermode, lowpowermode; pmset -g batt: power source)
+ powermode 0
+Now drawing from 'AC Power'
+== nice of the launching shell
+0
+== environment: number of TF_NUM_ variables set
+0
+== temporary folder (default of macOS: yes/no; views folders left; free GB)
+yes
+0
+397
+== git (commit, lines of git status --porcelain)
+6c4d6d8
+0
+== check-inputs
+CHECK-INPUTS: configuration 387e60764ba9; ARCHRUN configuration 0df7a2ddb16d and its pins; code pinned; recipe RandomFlip, RandomRotation, RandomZoom, RandomTranslation, RandomBrightness, RandomContrast, GaussianNoise equal to the training source; machine and versions equal to the trial; thread variables TF_NUM_INTRAOP_THREADS absent, TF_NUM_INTEROP_THREADS absent; parent runs 20261120-ARCHRUN-p4-7faa49f, 20261120-ARCHRUN-p12-ea7fdca PASS with anchored SHA256SUMS; 2 units (pilot) with their five files and keys; read guard on (1 forbidden folders, 2 allowlisted zones); no frame assembled; TensorFlow not imported; nothing written
+RESULT: PASS (check-inputs)
+check-inputs exit 0
+== command
+caffeinate -dims .venv/bin/python -I -B scripts/pad_arch_bn_factorial.py trial --attempt 1 --i-am-authorized
+trial exit 0
+== conditions after
+2026-11-25 00:27:48 +0100
+load averages: 9.22 9.44 9.53
+CPU usage: 9.84% user, 6.28% sys, 83.87% idle 
+Now drawing from 'AC Power'
+powermode 0
+System-wide memory free percentage: 54%
+== views folders left in TMPDIR
+0

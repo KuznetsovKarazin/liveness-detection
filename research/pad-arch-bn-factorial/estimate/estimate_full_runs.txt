@@ -1,0 +1,56 @@
+# macOS, Python 3.11.16, started 2026-11-25 00:57 CET; from the root of this folder; no data read, only the two public files below
+# SHA-256 6f6ab58d27afa5b9c346824472acd9d40bc79cef667b14e716e5e4af23d2f301  estimate/estimate_full_runs.py
+# SHA-256 62f15e7d0712317b58cbafe99a4e9573e7e335590d0b95d3154729a22417a364  runs/20261124-ARCHBN2X2-pilot-6c4d6d8/public/timing.csv
+# SHA-256 13756e1f75088c3d2ef9f1f41ab05321490c0082c644a627c495fbd264a9a0b2  runs/20261124-ARCHBN2X2-pilot-6c4d6d8/status.json
+# command: python -I -B estimate/estimate_full_runs.py
+rows of timing.csv of 20261124-ARCHBN2X2-pilot-6c4d6d8 for the views, each cell or control and each unit (wall s | CPU s):
+  fold1 | views | (views) | 28.7 | 64.3
+  p4_LivenessNet_fold1_seed42 | E00 | (re-estimation) | 16.3 | 98.6
+  p4_LivenessNet_fold1_seed42 | E00 chain | (control) | 17.3 | 107.7
+  p4_LivenessNet_fold1_seed42 | E10 | (cell) | 278.3 | 1133.3
+  p4_LivenessNet_fold1_seed42 | E01 | (cell) | 194.2 | 980.6
+  p4_LivenessNet_fold1_seed42 | E11 | (cell) | 245.2 | 994.8
+  p4_LivenessNet_fold1_seed42 | E01 explicit | (control) | 52.6 | 198.7
+  p4_LivenessNet_fold1_seed42 | E11 explicit | (control) | 75.5 | 201.8
+  p4_LivenessNet_fold1_seed42 | E10 101-104 | (cell) | 131.2 | 599.6
+  p4_LivenessNet_fold1_seed42 | E10 105-108 | (cell) | 134.6 | 596.0
+  p4_LivenessNet_fold1_seed42 | E01 101-104 | (cell) | 98.2 | 502.9
+  p4_LivenessNet_fold1_seed42 | E01 105-108 | (cell) | 98.8 | 506.0
+  p4_LivenessNet_fold1_seed42 | E11 101-104 | (cell) | 108.6 | 505.6
+  p4_LivenessNet_fold1_seed42 | E11 105-108 | (cell) | 118.2 | 508.6
+  p4_LivenessNet_fold1_seed42 | E11 repeat | (cell) | 241.1 | 979.7
+  p4_LivenessNet_fold1_seed42 | (unit) | (unit) | 1822.9 | 7965.3
+  p4_ResNet-18_fold1_seed42 | E00 | (re-estimation) | 128.0 | 1092.4
+  p4_ResNet-18_fold1_seed42 | E10 | (cell) | 1371.8 | 9205.0
+  p4_ResNet-18_fold1_seed42 | E01 explicit | (control) | 1027.6 | 8754.8
+  p4_ResNet-18_fold1_seed42 | E11 explicit | (control) | 1237.5 | 8352.0
+  p4_ResNet-18_fold1_seed42 | E10 101-104 | (cell) | 703.9 | 4703.4
+  p4_ResNet-18_fold1_seed42 | E10 105-108 | (cell) | 703.1 | 4708.5
+  p4_ResNet-18_fold1_seed42 | (unit) | (unit) | 5195.4 | 36987.6
+
+measured in 20261124-ARCHBN2X2-pilot-6c4d6d8 (timing.csv, status.json):
+  wall: views of one fold 28.7 s; outside the units and the views 7.9 s; run total 7054.9 s
+  wall: LivenessNet unit 1822.9 s, of which explicit duplicates 128.2 s, Monte Carlo halves 689.5 s, repetition of E11 241.1 s
+  wall: ResNet-18 unit 5195.4 s, of which explicit duplicates 2265.1 s, Monte Carlo halves 1407.0 s, repetition of E11 0.0 s
+  CPU: views of one fold 64.3 s; outside the units and the views 7.3 s; run total 45024.4 s
+  CPU: LivenessNet unit 7965.3 s, of which explicit duplicates 400.5 s, Monte Carlo halves 3218.8 s, repetition of E11 979.7 s
+  CPU: ResNet-18 unit 36987.6 s, of which explicit duplicates 17106.8 s, Monte Carlo halves 9411.9 s, repetition of E11 0.0 s
+
+unit costs used (wall s): network, first unit or not, duplicates, halves, repetition
+  p4-24: LivenessNet, first unit x 1: duplicates yes, halves yes, repetition yes: 1822.9 s each
+  p4-24: LivenessNet, other units x 11: duplicates no, halves yes, repetition no: 1453.6 s each
+  p4-24: ResNet-18, first unit x 1: duplicates yes, halves yes, repetition no: 5195.4 s each
+  p4-24: ResNet-18, other units x 11: duplicates no, halves yes, repetition no: 2930.3 s each
+  p12-24: LivenessNet, first unit x 1: duplicates yes, halves no, repetition yes: 1133.4 s each
+  p12-24: LivenessNet, other units x 11: duplicates no, halves no, repetition no: 764.1 s each
+  p12-24: ResNet-18, first unit x 1: duplicates yes, halves no, repetition no: 3788.4 s each
+  p12-24: ResNet-18, other units x 11: duplicates no, halves no, repetition no: 1523.3 s each
+
+scope | folds | wall s | wall h | wall min | cap min | wall / cap | CPU s | CPU h | synthetic estimate s (NOTE.md §8) | wall / synthetic
+pilot | 1 | 7054.9 | 1.96 | 117.6 | 200 | 0.588 | 45024.4 | 12.51 | 6009 | 1.174
+p4-24 | 4 | 55364.1 | 15.38 | 922.7 | 1500 | 0.615 | 336342.4 | 93.43 | 46716 | 1.185
+p12-24 | 4 | 30205.7 | 8.39 | 503.4 | 820 | 0.614 | 184774.8 | 51.33 | 25534 | 1.183
+
+check: the pilot recomposed from its parts is 7054.9 s against the measured 7054.9 s
+p4-24 + p12-24: 85569.8 s wall (23.77 h)
+exit 0

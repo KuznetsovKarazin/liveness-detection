@@ -1,0 +1,29 @@
+== 2x2 trial 20261124-ARCHBN2X2-pilot-6c4d6d8: configuration 387e60764ba9, scope pilot (2 units), cap 200 min, pid 69672
+   views of fold 1 generated: 8 x 1400 frames in 29 s
+   p4_LivenessNet_fold1_seed42: baseline reproduced (max |dp| 0.0e+00)
+   p4_LivenessNet_fold1_seed42: E00 reproduced (statistics identical: yes, max |dp| 0.0e+00)
+   p4_LivenessNet_fold1_seed42: E00 through the chain reproduced
+   p4_LivenessNet_fold1_seed42 E10: cell done in 278 s
+   p4_LivenessNet_fold1_seed42 E01: cell done in 194 s
+   p4_LivenessNet_fold1_seed42 E11: cell done in 245 s
+   p4_LivenessNet_fold1_seed42: explicit E01 within the reference tolerance
+   p4_LivenessNet_fold1_seed42: explicit E11 within the reference tolerance
+   p4_LivenessNet_fold1_seed42 E10 101-104: cell done in 131 s
+   p4_LivenessNet_fold1_seed42 E10 105-108: cell done in 135 s
+   p4_LivenessNet_fold1_seed42 E01 101-104: cell done in 98 s
+   p4_LivenessNet_fold1_seed42 E01 105-108: cell done in 99 s
+   p4_LivenessNet_fold1_seed42 E11 101-104: cell done in 109 s
+   p4_LivenessNet_fold1_seed42 E11 105-108: cell done in 118 s
+   p4_LivenessNet_fold1_seed42 E11 repeat: cell done in 241 s
+   p4_LivenessNet_fold1_seed42: repetition of E11 bit-identical
+== p4_LivenessNet_fold1_seed42: controls pass; cells E00, E10, E01, E11 with halves, duplicates checked, repetition identical
+   p4_ResNet-18_fold1_seed42: baseline reproduced (max |dp| 0.0e+00)
+   p4_ResNet-18_fold1_seed42: E00 reproduced (statistics identical: yes, max |dp| 0.0e+00)
+   p4_ResNet-18_fold1_seed42 E10: cell done in 1372 s
+   p4_ResNet-18_fold1_seed42: explicit E01 within the reference tolerance
+   p4_ResNet-18_fold1_seed42: explicit E11 within the reference tolerance
+   p4_ResNet-18_fold1_seed42 E10 101-104: cell done in 704 s
+   p4_ResNet-18_fold1_seed42 E10 105-108: cell done in 703 s
+== p4_ResNet-18_fold1_seed42: controls pass; cells E00, E10, E01, E11 with halves, duplicates checked
+run folder: 20261124-ARCHBN2X2-pilot-6c4d6d8, wall 7055 s, process CPU 45024 s, peak memory 5.43 GB
+RESULT: PASS (trial)

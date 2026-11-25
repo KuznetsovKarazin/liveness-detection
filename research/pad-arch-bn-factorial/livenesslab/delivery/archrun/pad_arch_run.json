@@ -1,0 +1,214 @@
+{
+ "schema": "pad-arch-run-config/1",
+ "task": "The two NUAA runs of the comparison of LivenessNet and ResNet-18 pre-registered in PR #29 (delivery/pad-arch-comparison/PROTOCOL.md): run nuaa_patience_4 and run nuaa_patience_12, one process each, 24 trainings each in the order of plan/run_order.csv (folds 1-4, seeds 42, 43, 44, LivenessNet then ResNet-18), arm B, fitting 1,400 and dev 400 frames per unit, the recipe and trainer of the technical trial, at most 12 epochs, the patience of the run; per model a checkpoint, a training card with the history, the history check of LivenessNet against the accepted card, the BN statistics re-estimated on the fitting set and, on the dev, in both BN states, the attack scores with the frame identifiers, the EER threshold and the counts. No test frame is assembled or evaluated, no test score or metric is read; the frame files, hashed and loaded whole, also hold frames of the held-out subjects, of which only the fitting and dev frames of arm B are assembled. The test is read later by an evaluation command published before.",
+ "authorisation": "The pre-registration says that the command of the two NUAA runs will be published, with its configuration, in a new pull request before the runs, and that it will apply and record the machine and thread rule (PROTOCOL.md §7, §11). The coordinator approved the pre-registration and gave the go-ahead for the two runs on the C2 card on 19 November 2026, after the merge of PR #29, on condition that this command and its configuration, with the check of the Apple M5 Pro and of the 10 intra-op and 10 inter-op threads, be published first in a new pull request and the link left on the card; --i-am-authorized is passed only after that publication.",
+ "operations": "results/ is versioned: after check-estimator, and after the first run, the work tree is not clean, and check-estimator and run, the only commands that check the work tree (check-inputs does not), refuse until a commit is made (check-estimator, commit, run nuaa_patience_4, commit, run nuaa_patience_12, commit); check-estimator and each run are launched from the repository root as nohup caffeinate -dims .venv/bin/python -I -B scripts/pad_arch_run.py <arguments> > <a log file outside the repository> 2>&1 &: nohup because SIGHUP and SIGTERM stop a command as FAIL; the output redirected outside the repository because otherwise nohup writes nohup.out in the current folder, the work tree is no longer clean and the command refuses; caffeinate because the cap counts elapsed real time, time asleep included; SIGUSR1 to the pid in status.json stops the command as INCOMPLETE at the next check; one heavy process at a time on the machine.",
+ "preregistration": {
+  "path": "delivery/archcmp/pad_arch_comparison.json",
+  "sha256": "5a83325e13d29d1a67dcda4f129838d19ec39b8f119f5de647693b68c5128b0a"
+ },
+ "trial_record": {
+  "run_id": "20261119-ARCHTRIAL-b8f7cca",
+  "folder": "results/archcmp/20261119-ARCHTRIAL-b8f7cca",
+  "status_sha256": "eabd17a7f2431cf792a29598002012e2431db75ef543c37474841805263fb094",
+  "trial_json_sha256": "d44a82c80bae0f5d54e3df8b07135993e79df75929b2eabd079b97547cf43c80",
+  "package_sums": {
+   "path": "delivery/pad-arch-comparison/SHA256SUMS",
+   "sha256": "8e6e9f26c0b91d08e875aed9ea41e7885de6c44a45f53f491ab154385050a4f4"
+  }
+ },
+ "plan_files": {
+  "run_order": {
+   "path": "delivery/pad-arch-comparison/plan/run_order.csv",
+   "sha256": "406fab6ce50f590950ad237f73b97fc993b4c00395b20b204f3996189ae11632"
+  },
+  "run_caps": {
+   "path": "delivery/pad-arch-comparison/plan/run_caps.csv",
+   "sha256": "a1228ddc0ef6b08ac8657eab0d83d0829c0f40ddac4cb3f2377e73b2240b8ef9"
+  }
+ },
+ "code": {
+  "scripts/nuaa_folds_run.py": "82fed566cfa8ac0b280b55edbf430e7051dff1ae83d17a902d78157f2c72ffb2",
+  "scripts/nuaa_session_ablation_run.py": "9c45255199b87a41126b77867d5bbcf0da6f6ecf1684bf8fdd89185f463a276e",
+  "scripts/nuaa_bn_recalibration.py": "8c228ef400f5ef4337612477b23113fb6b8cac5364a5ff026e2c0ac8096734f5",
+  "scripts/nuaa_patience_verify.py": "edc839849ac76be9ce3149a3c217f35b6f1f430e352b471d03b78398093f4b9e",
+  "scripts/m2_writers.py": "22760abc368dede3aa0a690a241f6622afe1ba586940422497db8a33994ee34a",
+  "scripts/path_guard.py": "e5fa9c835c23745ff932e157a44d3104eb9713d86bbdecc9cdbbd3caa7a7ee34",
+  "scripts/package_rules.py": "96ec7ffab4b089bac71fd18918fcd32af72d15980cdfa1361cc84bb43e0e4c11",
+  "scripts/pad_arch_models.py": "72790b4fdc8a9f56e4ef5494c8f7fdd87cbfa3bf752eb471e531b524848a5832",
+  "scripts/pad_arch_definitions.py": "7bef6b62c9df355ca9ce1eb971dea142825b5aebb48c313d45087cbb899b5bff",
+  "scripts/pad_arch_comparison.py": "8f9a7c314acef2b6c00bd37b9d3089c94ea5c6acfc55b27b89ce8ddd6d8f7451",
+  "scripts/nuaa_bn_test.py": "909869a8b127ae96d0a184f6294ac1017bd28fbcec20c2d83355b9b370b7dfbb"
+ },
+ "estimator_check": {
+  "bn_recalibration_config": {
+   "path": "delivery/bnrecal/nuaa_bn_recalibration.json",
+   "sha256": "d97e2e7497fb038708f09613bab6b8602ddac53976a31d84f8771c87c3d52865"
+  },
+  "bn_test_config": {
+   "path": "delivery/bntest/nuaa_bn_test.json",
+   "sha256": "1d72956997fdab1f59ff472b98bd45b84b62b80096d9bee64433ebe163487bf1"
+  },
+  "bnrecal_run_id": "20261114-BNRECAL-a10a082",
+  "models": 36,
+  "cap_minutes": 240,
+  "cap_unit": "minutes of wall time (elapsed real time, not CPU time)",
+  "cap_rule": "a choice of the author: the pre-registration fixes no cap for this check; the cap of check-estimator is the cap of the configuration of PR #27 (budget.wall_time_cap_minutes, 240 minutes of wall time), which covered the same re-estimation of the same 36 models plus a baseline; at the cap the check stops as INCOMPLETE and the runs are refused",
+  "rule": "PROTOCOL.md §3: the re-estimation 'must first reproduce the statistics of run 20261114-BNRECAL-a10a082 within the tolerance of PRs #27 and #28, otherwise the work stops'. check-estimator re-estimates, on an in-memory copy of each of the 36 accepted LivenessNet checkpoints at patience 4 (fitting and dev only), the statistics with the estimator of this command, applies the checks of PR #27 (copy equal before, only the moving tensors changed, consistency and counts per channel, softmax) and compares the statistics, and the dev probabilities after the re-estimation, with the BNRECAL run (nuaa_bn_test.recal_check); any model outside gives MISMATCH, the per-model table documents it, and run refuses to start without a PASS of check-estimator with the same configuration and code.",
+  "tolerances": "those of the configuration of PR #28 (delivery/bntest/nuaa_bn_test.json): recalibration_statistics_rel 1e-4 and recalibration_statistics_abs 1e-6 on every installed float32 statistic; recalibration_dev_probability_max_abs_diff 1e-5 and recalibration_dev_decisions_discordant_at_0_5 0 on the dev probabilities after the re-estimation",
+  "where": "a choice of the author: a command of its own (check-estimator), in its own process, before the two runs; not the first step of each run, so that no TensorFlow operation precedes the first training in the process of a run, as in the accepted runs; the run reads its record (status PASS, same configuration, same code, official for an official run, machine and thread rule met)"
+ },
+ "runs": [
+  "nuaa_patience_4",
+  "nuaa_patience_12"
+ ],
+ "machine_rule": {
+  "fields": [
+   "processor",
+   "core_levels",
+   "ram_gb",
+   "os",
+   "logical_cpus",
+   "architecture"
+  ],
+  "versions": [
+   "python",
+   "numpy",
+   "tensorflow_installed",
+   "keras",
+   "platform"
+  ],
+  "threads": [
+   "requested",
+   "effective",
+   "environment",
+   "set_by_this_runner"
+  ],
+  "consequence": "plan.machine_rule of the pre-registration requires the machine of the official trial 20261119-ARCHTRIAL-b8f7cca with the same threads and the same TensorFlow and Keras versions; as a choice of the author the comparison also covers Python, NumPy and the platform and the whole thread record of the trial (requested, effective, environment variables found, set by the runner); every field of the machine and of the versions, and the requested and effective threads, must be present and not null on both sides; the thread environment variables must be the same as in the trial, where both were absent ('absent' is recorded as null): this is stricter than training.threads.rule of the pre-registration, which admits the variables present and equal to the values, because the runs repeat the conditions of the official trial exactly. Before any folder is created, identically in check-inputs, check-estimator and run: a thread environment variable that contradicts training.threads or differs from the trial, and any difference of the machine or of the versions, stop the command with the reason printed; no folder and no status.json are written. After TensorFlow is imported, in the folder of the command, the threads are set and read back (pad_arch_comparison.set_threads): effective threads different from the requested 10 and 10 stop the work as FAIL before any training (run) or any re-estimation (check-estimator), with the values read back in the reason in status.json; the thread record is then compared with the trial's (threads_rule) and the comparison is recorded: after the earlier checks it cannot differ. The comparison of the machine and of the versions is recorded in the status.json of every command that created its folder, that of the threads once they have been set and read back as 10 and 10, and both in summary.json",
+  "scope": "a choice of the author: the rule compares the machine model (processor, core groups as named by the system, RAM, operating system, logical CPUs, architecture) and the versions, not the identity of the physical unit: another unit of the same model with the same fields and versions passes; the pre-registration does not say whether the machine of the official trial means the model or the unit"
+ },
+ "sequence": {
+  "phase_1": "for each of the 24 positions, in order: the fitting and dev frames of the unit assembled; the training (pad_arch_comparison.trial_trainer, the declared copy of the accepted trainer); the checkpoint saved; the training card; for LivenessNet the history check; the dev scored with the saved checkpoint (nuaa_folds_run.tf_scorer), its logits and the val_loss checked against the card; the card and the phase-1 dev scores written",
+  "phase_2": "after the 24 trainings, in the same order: for each model the checkpoint reloaded; the ordinary dev scored with the evaluator of PR #27; the agreement with the phase-1 scores checked; the BN statistics re-estimated on its fitting set (copy in memory); the checks of PR #27; the re-estimated dev scored with the same evaluator; the EER thresholds, decisions and counts of both BN states",
+  "reason": "a choice of the author: between two trainings the accepted runs (nuaa_session_ablation_run.train_one) scored the dev with the saved checkpoint (nuaa_folds_run.tf_scorer), computed the logits and checked the val_loss, selected the EER threshold, wrote threshold.json and read it back, wrote the dev scores, then assembled and scored the test, wrote the test scores and the card. Phase 1 keeps the same TensorFlow operations except the assembly and the scoring of the test, and keeps the writes of the dev scores (the phase-1 file _dev_scorer.csv) and of the card; it adds the read-back of the thread getters before and after each model and the history check; it leaves out the writing and read-back of threshold.json (the thresholds come from phase 2) and the writing of the test scores. The scoring of the two BN states and the BN re-estimation, which the accepted runs did not do between trainings, are moved after the 24 trainings, so that they add no TensorFlow operation between two trainings. Of the order, PROTOCOL.md §7 says only that 'a ResNet-18 model before it is not measured: the history check of every LivenessNet training is the direct measure'. With the re-estimation in phase 2, a stop in phase 1 leaves every model without its BN states evaluated. Alternatives not chosen: nothing between two trainings, or the re-estimation right after each training"
+ },
+ "checkpoint": {
+  "format": ".keras (model.save of Keras 2.15), the format of the accepted runs; read back with tf.keras.models.load_model(compile=False)",
+  "when": "saved by this runner right after the trainer returned: the weights restored by the trainer (EarlyStopping restore_best_weights, or set_weights when the epochs end first), model.save of Keras 2.15 to a .keras file, written to a temporary name and renamed, as nuaa_folds_run.default_trainer",
+  "file": "restricted/<network>_fold<k>_seed<s>.keras, with its SHA-256 in the training card and in the restricted SHA256SUMS"
+ },
+ "history_check": {
+  "fields": [
+   "loss",
+   "accuracy",
+   "val_loss",
+   "val_accuracy",
+   "lr"
+  ],
+  "difference": 0,
+  "reference": "the card of the arm B model with the same fold and seed in the accepted run at the same patience: 20261106-SESSABLRUN-d999458 for patience 4, 20261109-SESSABLRUN-6a50265 for patience 12; every card listed in the restricted SHA256SUMS of its run",
+  "rule": "per field, over the epochs present in both histories, pad_arch_comparison.history_differences: the first differing epoch, the largest absolute difference and the first epoch at which it is reached; no tolerance; the details per field and the two numbers of epochs are always reported",
+  "first_differing_epoch": "a choice of the author: the first differing epoch of a model is the first epoch at which the two histories differ in any field, an epoch present in one history only counting as differing (min(epochs) + 1 when the numbers of epochs differ); outcome identical only without a differing epoch, otherwise different",
+  "non_finite": "a choice of the author: a non-finite value (NaN or infinite) in the new history of a training, of either network, ends the run as FAIL right after the trainer returns, before the checkpoint is saved, with the field and the epoch as the reason; as for any FAIL the public outputs are removed and the files of the model in progress are discarded; the training card, which holds the history, could not be written anyway (pad_arch_comparison.json_text refuses non-finite values, as in the technical trial). PROTOCOL.md §7 says 'a differing history is reported per model with its first differing epoch; the model stays in the comparison': this covers finite differences, which a card can hold. A non-finite value in a reference card (the 24 reference cards of the accepted runs hold none) is reported as a difference of its field at its epoch, with the reason (field, history, epoch), and the run continues",
+  "consequence": "PROTOCOL.md §7: 'a differing history is reported per model with its first differing epoch; the model stays in the comparison'; for a finite difference the run continues and the model stays in the comparison (a non-finite value: history_check.non_finite)"
+ },
+ "estimator": {
+  "orders": {
+   "LivenessNet": [
+    "bn1_1",
+    "bn1_2",
+    "bn2_1",
+    "bn2_2",
+    "bn_dense"
+   ],
+   "ResNet-18": [
+    "bn1",
+    "layer1_block1_bn1",
+    "layer1_block1_bn2",
+    "layer1_block2_bn1",
+    "layer1_block2_bn2",
+    "layer2_block1_bn1",
+    "layer2_block1_bn2",
+    "layer2_block1_downsample_bn",
+    "layer2_block2_bn1",
+    "layer2_block2_bn2",
+    "layer3_block1_bn1",
+    "layer3_block1_bn2",
+    "layer3_block1_downsample_bn",
+    "layer3_block2_bn1",
+    "layer3_block2_bn2",
+    "layer4_block1_bn1",
+    "layer4_block1_bn2",
+    "layer4_block1_downsample_bn",
+    "layer4_block2_bn1",
+    "layer4_block2_bn2"
+   ]
+  },
+  "batch": 16,
+  "estimator": "the estimator of PR #27 (nuaa_bn_recalibration.recalibrate, unchanged): for each BatchNormalization layer, in the order given, the per-channel global mean and population variance of the layer input over the whole fitting set of the unit, in inference mode, with the earlier layers already re-estimated; exact union of the batches of 16 in float64, the last batch weighted by its count; values per channel frames x H x W for a convolutional input, frames for a dense one; cast to float32; only moving_mean and moving_variance assigned, on an in-memory copy; every other tensor checked bit-identical",
+  "order_rule": "a choice of the author: LivenessNet in network order (the order of PR #27); ResNet-18 in the order of its specification (pad_arch_models.resnet18_spec: stem, then per stage and block bn1, bn2 and, in the first block of stages 2-4, downsample_bn); the pre-registration does not fix the order in a network with branches; before the re-estimation the order is checked on the graph of the model: each layer after every BatchNormalization layer its input depends on; layers that do not feed each other (bn2 and downsample_bn of a block) may come in any order, and the test suite shows that the statistics do not change",
+  "consistency": "the checks of PR #27 with the tolerances of its configuration: the copy equal to the original before the re-estimation; only the moving tensors changed; one multi-output pass over the fitting set with the final copy, the moments of the input of every BatchNormalization layer equal to the installed statistics within consistency_rel 1e-4 x |value| + consistency_abs 1e-6, with the same counts per channel; the softmax of the logits within 1e-4 of the probabilities; any failure stops the run (FAIL)"
+ },
+ "dev_evaluation": {
+  "states": [
+   "ordinary",
+   "re-estimated"
+  ],
+  "threshold": "the EER threshold of the project (pad_arch_definitions.condition_threshold, that is nuaa_folds_run.eer_threshold) on the dev of the fold with the scores of the model in the same BN state; attack if score > threshold (a tie is bona fide), also at 0.5",
+  "one_class": "definition (a) of the pre-registration (pad_arch_definitions.one_class_run): per model and BN state, on the dev of its fold, at threshold 0.5: not evaluable if the dev lacks a class, otherwise one-class if and only if 0 or all frames are decided attack",
+  "frame_ids": "every dev score carries its frame identifier (sample_id) in the restricted per-frame files; with the functions of the pre-registration (pad_arch_definitions.prepare_units and same_frames) the identifiers, subjects and labels must be equal, in the same order, between the two networks of a unit, between the units of a fold and between the two BN states, otherwise the run fails; the public outputs hold only counts, the SHA-256 of the sorted identifiers and the number of comparisons made",
+  "evaluator": "a choice of the author, source PRs #27 and #28: thresholds, decisions, one-class counts and every comparison use the scores of one evaluator in both BN states, nuaa_bn_recalibration.evaluate (the evaluator of PR #27), computed in phase 2 on the reloaded checkpoint, before the re-estimation for the ordinary state and after it for the re-estimated state; both per-frame files are kept; phase 1 keeps the scorer of the accepted runs (nuaa_folds_run.tf_scorer) for the val_loss check, as the accepted runs did, and keeps its scores",
+  "agreement": "a choice of the author, with the rule of PRs #27 and #28 (configuration of PR #27: dev_probability_max_abs_diff 1e-5, dev_decisions_discordant_at_0_5 0): on the ordinary dev, the attack scores of the phase-1 scorer and of the evaluator must differ by at most 1e-5 per frame, with no discordant decision at 0.5 nor at the EER threshold of the ordinary state; otherwise the run does not interrupt the trainings but ends as MISMATCH (exit code 4): no public output of results, the discrepancy documented per model in status.json"
+ },
+ "cap": {
+  "source": "plan/run_caps.csv of the pre-registration, column cap_wall_hours of the run (5.00 hours for each run), read, not rewritten",
+  "unit": "hours of wall time (elapsed real time, not CPU time)",
+  "checks": "as in the trial: before every training, at the end of every epoch and before every inference pass (phase-1 dev scoring, phase 2 of each model, the ordinary dev, every layer of the re-estimation, the consistency pass, the re-estimated dev); SIGUSR1 stops the run at the next check",
+  "on_cap": "a run at its cap stops as INCOMPLETE: the files of the model in progress in phase 1 are removed and the model is marked 'discarded at the cap' (no epochs, history or times reported for it; neither saved nor evaluated, as in the accepted runs); no further step starts; with the re-estimation in phase 2, a stop in phase 1 leaves every model without its BN states evaluated; the complete models are kept and reported"
+ },
+ "after_stop": "a choice of the author: no automatic resume. A run that stops (INCOMPLETE at its cap or by SIGUSR1, MISMATCH, FAIL, or interrupted) keeps its folder and its outcome and is never continued. A new attempt is started only after the outcome has been reported to the coordinator on the C2 card, and is a new process that repeats the 24 positions from position 1 in a new folder; no checkpoint or result of an earlier attempt is reused, so that every training keeps its position in its process; every attempt is reported",
+ "attempts": "a choice of the author: in the output root the folders of the same run (any date and commit) are listed; --attempt must be the last attempt + 1 (1, without suffix, only if there is none; suffix -r<k> otherwise); status.json records the attempt and the earlier run ids with their status; the official output root is results/archrun; another root, outside the repository, only with --unofficial-out-root, and the run is then recorded as not official in status.json and in the outputs; the official root is recognised by the identity of the files (another spelling or a symbolic link included) and any other root inside the repository is refused; an entry of the output root that looks like a run id of the same run without its form stops the command; an official run needs an official check-estimator; the command recorded in status.json is built from the parsed arguments, every one of them, with paths inside the repository relative to its root and paths outside it by their last component only",
+ "outputs": {
+  "run": [
+   "status.json",
+   "run.log"
+  ],
+  "public": [
+   "models.csv",
+   "one_class.csv",
+   "summary.json",
+   "report.md",
+   "SHA256SUMS"
+  ],
+  "restricted": [
+   "<model>.keras",
+   "<model>_card.json",
+   "<model>_dev_scorer.csv",
+   "<model>_dev_ordinary.csv",
+   "<model>_dev_re-estimated.csv",
+   "<model>_bn_statistics.json",
+   "SHA256SUMS"
+  ]
+ },
+ "choices_of_the_author": {
+  "sequence": "the sequence between two trainings and the two phases (sequence.reason)",
+  "checkpoint": "the checkpoint saved by this runner right after pad_arch_comparison.trial_trainer returns, with the lines of the accepted trainer (checkpoint.when)",
+  "estimator_order": "the order of the re-estimation in ResNet-18 and its check on the graph (estimator.order_rule)",
+  "estimator_check_process": "check-estimator as a command of its own before the runs (estimator_check.where)",
+  "estimator_check_models": "the estimator check covers the 36 models of the BNRECAL run (arms B, A* and B'), not only the 12 of arm B, as PR #28 did, and both criteria of its recal_check (statistics and dev probabilities)",
+  "estimator_check_cap": "the cap of check-estimator, 240 minutes of wall time (estimator_check.cap_rule)",
+  "after_stop": "no automatic resume (after_stop)",
+  "attempts": "the attempt rule, the unofficial output root and the command recorded with every argument (attempts)",
+  "machine_versions": "Python, NumPy and the platform compared in addition to TensorFlow and Keras; tensorflow-metal and OpenCV not compared (the GPU is hidden; OpenCV is not used); every field required present and not null (machine_rule.consequence)",
+  "machine_scope": "the machine model and versions compared, not the physical unit (machine_rule.scope)",
+  "threads_record": "the whole thread record of the trial compared, environment variables included: they must be the same as in the official trial (both absent), checked before any folder in check-inputs, check-estimator and run; stricter than training.threads.rule of the pre-registration, which admits them present and equal to the values, so that the runs repeat the conditions of the official trial exactly (machine_rule.consequence)",
+  "evaluator": "one evaluator, nuaa_bn_recalibration.evaluate, for both BN states (dev_evaluation.evaluator)",
+  "evaluator_agreement": "the binding agreement between the phase-1 scorer and the evaluator, outcome MISMATCH (dev_evaluation.agreement)",
+  "history_outcome": "outcome different also when only the number of epochs differs (history_check.first_differing_epoch)",
+  "history_first_differing_epoch": "the first differing epoch of a model across the five fields, an epoch present in one history only counting as differing (history_check.first_differing_epoch)",
+  "history_non_finite": "a non-finite value in the new history ends the run as FAIL; one in a reference card is reported as a difference (history_check.non_finite)",
+  "dev_threshold_missing_class": "a dev without one class gives no EER threshold (NA) and a not-evaluable one-class result instead of a failure; the NUAA dev of every fold holds both classes",
+  "outputs": "the names and columns of the public and restricted files, the run id YYYYMMDD-ARCHRUN-p4|p12-<commit>[-r<k>] and the folder results/archrun"
+ },
+ "test": "no test frame is assembled or evaluated, no test score or metric is read. What each command reads. check-inputs and run: this configuration; the configuration of the pre-registration; the code files pinned here and this file; the status.json and trial.json of the official trial and the SHA256SUMS of the delivered package that lists them; run_order.csv and run_caps.csv; the configuration of PR #27 (validated) and the configuration of PR #28 (bytes, for its SHA-256); what pad_arch_comparison.load_inputs reads (its TEST_READ): the five M2 manifests (read to index the cache; official_test and cnn_test are NUAA's official lists, not the test role of the folds), the cache, hashed whole with its label and subject members read, the extracted frames file, loaded whole with the SHA-256 of every frame (both frame files also hold frames of the held-out subjects), the cells run (status.json, both SHA256SUMS, its configuration, the cell manifests of the arms and of the common dev), the folds run (status.json, restricted SHA256SUMS, extracted_frames.csv), the LivenessNet architecture file, the configurations, status.json and restricted SHA256SUMS of the two accepted runs and the card arm_b_fold1_seed42 of the run at patience 4; in addition the 12 training cards of arm B of each accepted run (history and keys of the fitting and dev frames); with --estimator-check, the status.json and estimator_check.json of a check-estimator record. run, in addition: the image arrays of the cache, loaded whole into the frame store; of all the frames it assembles only the fitting and dev frames of arm B (an explicit check refuses any other role); it reads back its own checkpoints. check-estimator: this configuration, the configuration of the pre-registration (for the threads) and, through pad_arch_comparison.load_config, the configurations of the two accepted runs, the code, the official trial record and the package SHA256SUMS, run_order.csv and run_caps.csv, the configurations of PRs #27 and #28 (both validated), what nuaa_bn_recalibration.load_inputs reads (the same M2 manifests, cache and extracted frames file, loaded whole, the cells run, the status.json, restricted SHA256SUMS and extracted_frames.csv of the folds run, the revised note of PR #27, the architecture file, and of the parent run at patience 4 status.json, both SHA256SUMS, its public aggregate.json only as bytes for the SHA-256 (it holds test metrics, never parsed), and per model card, dev scores, threshold and checkpoint), of the run 20261114-BNRECAL-a10a082 what nuaa_bn_test.load_bnrecal reads (status.json, both SHA256SUMS, public results.csv and run_record.json, restricted public_SHA256SUMS.sha256, per model _scores.csv and _bn_statistics.json, which hold dev and fitting rows only); it assembles only fitting and dev frames. No command loads the fold schema (fold<k>_test.csv) or opens a <model>_test_scores.csv"
+}

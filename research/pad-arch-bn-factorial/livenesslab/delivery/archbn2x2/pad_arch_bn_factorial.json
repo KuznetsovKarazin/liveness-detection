@@ -1,0 +1,332 @@
+{
+ "schema": "pad-arch-bn-factorial-config/1",
+ "task": "PROTOCOL.md \u00a74 of the registered C2 follow-up (delivery/pad-arch-score-followup/PROTOCOL.md): the 2x2 re-estimation of the BatchNormalization moving statistics of saved ARCHRUN checkpoints, augmentation off/on x upstream dropout off/on during the re-estimation only, on the fitting frames of each unit, every cell scored on the development frames with augmentation and dropout off; fitting and development only, no test frame, no gradient step, no trained weight changed.",
+ "authorisation": "The coordinator asked on 22 November 2026 to verify the 2x2 combination on fitting/dev with the saved checkpoints before any new test score, and to register the code and the configuration after the trial with the measured time. --i-am-authorized is passed only after NOTE.md has been frozen (analysis.sha256 set) in a private commit.",
+ "operations": "launched from the repository root as nohup caffeinate -dims .venv/bin/python -I -B scripts/pad_arch_bn_factorial.py trial --i-am-authorized > <a log file outside the repository> 2>&1 &, with a clean work tree and TMPDIR outside the repository; SIGUSR1 stops it as INCOMPLETE at the next check, SIGTERM and SIGHUP as FAIL; one heavy process at a time on the machine; results/ is versioned, so commit after the trial.",
+ "scope": {
+  "name": "pilot",
+  "units": [
+   {
+    "run": "nuaa_patience_4",
+    "network": "LivenessNet",
+    "fold": 1,
+    "seed": 42
+   },
+   {
+    "run": "nuaa_patience_4",
+    "network": "ResNet-18",
+    "fold": 1,
+    "seed": 42
+   }
+  ],
+  "rule": "the first unit of plan/run_order.csv (fold 1, seed 42) at patience 4, one checkpoint per network: a neutral rule fixed before any outcome, not chosen on results; the trial is followed by the public registration of code, configuration and measured time, then by the complete runs p4-24 and p12-24 on fitting/dev, then by the test",
+  "report_cell_metrics": true
+ },
+ "parent_config": {
+  "path": "delivery/archrun/pad_arch_run.json",
+  "sha256": "0df7a2ddb16d436a7552169c5ff332e44759237020e8c466077986b92d0d734d"
+ },
+ "parent_runs": {
+  "nuaa_patience_4": {
+   "run_id": "20261120-ARCHRUN-p4-7faa49f",
+   "folder": "results/archrun/20261120-ARCHRUN-p4-7faa49f",
+   "status_sha256": "4e17325da5a9506153a280538bb64c74d1d00632981dd736b17d8bc5648bc0e2",
+   "restricted_sha256sums_sha256": "a4366551c3ae6582617e0f253fbee7501cb5ca0b3540cd799b9a79b5c467c6c1"
+  },
+  "nuaa_patience_12": {
+   "run_id": "20261120-ARCHRUN-p12-ea7fdca",
+   "folder": "results/archrun/20261120-ARCHRUN-p12-ea7fdca",
+   "status_sha256": "52a945cc85eae33507736896085058048ec9e31c283ec9fd9ea14a788de4c4e2",
+   "restricted_sha256sums_sha256": "85e84294cfbe8d9f5465206cd1c418f3f6b298f14628516a9d64996777d1c111"
+  }
+ },
+ "code": {
+  "scripts/pad_arch_run.py": "c79a8eb834a1bee1e467513cee5cc548321ab5e7c0be007a5f7ad6240b9d503a"
+ },
+ "keras_functions": {
+  "module": "keras.src.layers.preprocessing.image_preprocessing",
+  "sha256": "f388f243a3ff77377bb06ba248ddba6a0728a18654761823f002096df376b306",
+  "functions": [
+   "transform",
+   "get_rotation_matrix",
+   "get_zoom_matrix",
+   "get_translation_matrix"
+  ]
+ },
+ "recipe": {
+  "source": "scripts/pad_arch_comparison.py",
+  "function": "trial_trainer",
+  "variable": "aug",
+  "operations": [
+   {
+    "class": "RandomFlip",
+    "args": [
+     "horizontal"
+    ],
+    "kwargs": {}
+   },
+   {
+    "class": "RandomRotation",
+    "args": [
+     0.03
+    ],
+    "kwargs": {}
+   },
+   {
+    "class": "RandomZoom",
+    "args": [
+     0.12,
+     0.12
+    ],
+    "kwargs": {}
+   },
+   {
+    "class": "RandomTranslation",
+    "args": [
+     0.06,
+     0.06
+    ],
+    "kwargs": {}
+   },
+   {
+    "class": "RandomBrightness",
+    "args": [
+     0.15
+    ],
+    "kwargs": {
+     "value_range": [
+      0.0,
+      1.0
+     ]
+    }
+   },
+   {
+    "class": "RandomContrast",
+    "args": [
+     0.2
+    ],
+    "kwargs": {}
+   },
+   {
+    "class": "GaussianNoise",
+    "args": [
+     0.02
+    ],
+    "kwargs": {}
+   }
+  ],
+  "applied_to": "the fitting frames as float32 divided by 255 once (as the training recipe and the estimator), before the network; the same operations in the same order, with the ranges derived from the recipe (recipe_ranges), fill mode reflect, bilinear interpolation, brightness clipped to [0, 1], contrast clipped to [0, 255] (its lower bound acts when the factor exceeds 1), noise not clipped",
+  "differences": "the random draws: per frame and view from a stateless counter-based NumPy Philox generator instead of the stateful Keras generators; the contrast factor is drawn per frame (Keras 2.15 draws one per batch of 16, whose composition was shuffled in training); same marginal distributions; the flip uses round(u) as the batched Keras flip"
+ },
+ "views": {
+  "seeds": [
+   101,
+   102,
+   103,
+   104,
+   105,
+   106,
+   107,
+   108
+  ],
+  "halves": [
+   [
+    101,
+    102,
+    103,
+    104
+   ],
+   [
+    105,
+    106,
+    107,
+    108
+   ]
+  ],
+  "order": "view outer, batch of 16 inner, frames in key order",
+  "storage": "memmap",
+  "value_bounds": [
+   -0.5,
+   1.7
+  ],
+  "free_space_margin_gb": 2.0,
+  "folder": "with storage memmap the eight views of a fold (8 x frames x 256 x 256 x 3 float32, 8.8 GB for 1,400 frames) are written to a new folder archbn2x2-views-* in the temporary folder of the process (TMPDIR), refused if inside the repository or the input root, after a check that the free space covers the views plus the margin; the folder is removed at the end of the fold and at every stop (signals included); a folder left by an earlier trial stops the start; the views hold values derived from restricted frames and are never published"
+ },
+ "seeds": {
+  "namespace": "pad-arch-bn-factorial/1",
+  "domains": [
+   "augmentation",
+   "dropout"
+  ],
+  "derivation": "NumPy Philox4x64 keyed by the first 128 bits (big-endian) of SHA-256('pad-arch-bn-factorial/1|<domain>|<view seed>|<SHA-256 hex of the frame key>|<operation name or Dropout layer name>'); one generator per draw; view seeds 101-108 (view v uses seed 100 + v)",
+  "publication": "no per-frame seed, parameter, view or mask is written to any output (the frame key identifies subject and file)"
+ },
+ "dropout": {
+  "networks": {
+   "LivenessNet": {
+    "layers": {
+     "dropout1": 0.25,
+     "dropout2": 0.25,
+     "dropout_dense": 0.5
+    },
+    "active": [
+     "dropout1",
+     "dropout2"
+    ]
+   },
+   "ResNet-18": {
+    "layers": {},
+    "active": []
+   }
+  },
+  "mask_frequency_sigma": 5.0,
+  "rule": "only the Dropout layers before at least one BatchNormalization are active (dropout1 upstream of bn2_1, bn2_2 and bn_dense; dropout2 upstream of bn_dense); dropout_dense follows the last BatchNormalization and is never active; every layer, BatchNormalization included, is called with training=False; the masks are element-wise (noise_shape None is checked); the GaussianNoise of the augmentation module is part of the augmentation factor, not of the dropout factor"
+ },
+ "cells": {
+  "E00": "unaugmented fitting frames, dropout off; the existing estimator (nuaa_bn_recalibration.recalibrate), one clean pass",
+  "E10": "augmented fitting frames, dropout off; eight views, seeds 101-108",
+  "E01": "unaugmented fitting frames, dropout on for the upstream Dropout layers only; eight views, seeds 101-108",
+  "E11": "augmented fitting frames, dropout on for the upstream Dropout layers only; eight views, seeds 101-108"
+ },
+ "reuse": {
+  "duplicate_check": "all",
+  "rule": "a layer whose active stochastic operations upstream are the same as in the reference cell (E01 -> E00, E11 -> E10) takes the reference statistics (PROTOCOL.md \u00a74: identical repeated views may be computed once; ResNet-18 duplicates may be reused); duplicate_check all/first computes those layers explicitly as well, for every unit or for the first unit of each network, and compares them within statistics_rel/abs (and the dev scores within 1e-5 when the whole cell is reusable); a duplicate outside the tolerance stops the command (FAIL)"
+ },
+ "monte_carlo": {
+  "runs": [
+   "nuaa_patience_4"
+  ],
+  "comparison": "two separate re-estimations per stochastic cell, views 101-104 and 105-108, each scored on the dev; effects per view half in effects.csv; montecarlo.csv: per run, network, metric and effect, H_u = effect(101-104) - effect(105-108), s_MC = sqrt(mean of H_u squared) / 2 without any reduction for the number of units, the mean H and |mean H| / 2, the ratio |effect| / s_MC and within_view_variability (|effect| <= 2 s_MC), for every unit and for the mean over the units (NOTE.md \u00a76.4)"
+ },
+ "determinism": {
+  "cell": "E11",
+  "networks": [
+   "LivenessNet"
+  ],
+  "units": "first"
+ },
+ "tolerances": {
+  "statistics_rel": 0.0001,
+  "statistics_abs": 1e-06,
+  "dev_probability_max_abs_diff": 1e-05,
+  "dev_decisions_discordant": 0,
+  "consistency_rel": 0.0001,
+  "consistency_abs": 1e-06,
+  "softmax_of_logits_max_abs_diff": 0.0001
+ },
+ "threshold": 0.5,
+ "estimator": {
+  "batch": 16,
+  "orders": {
+   "LivenessNet": [
+    "bn1_1",
+    "bn1_2",
+    "bn2_1",
+    "bn2_2",
+    "bn_dense"
+   ],
+   "ResNet-18": [
+    "bn1",
+    "layer1_block1_bn1",
+    "layer1_block1_bn2",
+    "layer1_block2_bn1",
+    "layer1_block2_bn2",
+    "layer2_block1_bn1",
+    "layer2_block1_bn2",
+    "layer2_block1_downsample_bn",
+    "layer2_block2_bn1",
+    "layer2_block2_bn2",
+    "layer3_block1_bn1",
+    "layer3_block1_bn2",
+    "layer3_block1_downsample_bn",
+    "layer3_block2_bn1",
+    "layer3_block2_bn2",
+    "layer4_block1_bn1",
+    "layer4_block1_bn2",
+    "layer4_block1_downsample_bn",
+    "layer4_block2_bn1",
+    "layer4_block2_bn2"
+   ]
+  },
+  "accumulation": "nuaa_bn_recalibration.Moments: exact union of the batches in float64, view outer and batch inner, population variance; count = views x frames x H x W (frames for the dense layer); cast to float32"
+ },
+ "evaluation": {
+  "dev": "nuaa_bn_recalibration.evaluate, unchanged: the clean dev frames / 255, batch 16, training=False (dropout and augmentation off), probabilities and logits; decisions attack if score > 0.5 (a tie is bona fide)",
+  "fitting_clean": true
+ },
+ "threads": {
+  "intra_op": 10,
+  "inter_op": 10,
+  "device": "CPU",
+  "rule": "pad_arch_comparison.set_threads right after the import of TensorFlow; the machine, versions and thread record must equal those of the official trial (pad_arch_run.machine_rule, thread_environment_rule, threads_rule)"
+ },
+ "cap": {
+  "wall_minutes": 200,
+  "unit": "minutes of wall time (elapsed real time, not CPU time)",
+  "rule": "checked before every layer, pass, dev scoring and view batch; at the cap, or with SIGUSR1, INCOMPLETE: the complete units are kept and reported, the unit in progress is not; set to about twice the estimate measured on synthetic arrays"
+ },
+ "memory": {
+  "peak_rss_limit_gb": 18.0,
+  "rule": "the peak resident memory of the process (getrusage, which on macOS includes the memmap pages read) is checked at every step; above the limit the command stops as FAIL with the value"
+ },
+ "ema": {
+  "updates_per_epoch": 88,
+  "fitting_frames": 1400,
+  "train_batch": 16,
+  "momentum": 0.99
+ },
+ "read_guard": {
+  "forbidden_paths": [
+   "results/archeval"
+  ],
+  "forbidden_name_patterns": [
+   "fold[0-9]*_test.csv",
+   "*_test_scores.csv",
+   "*scores_test*",
+   "*test*_scores*"
+  ],
+  "allowlisted_zones": [
+   "results",
+   "data"
+  ],
+  "outside_repository": "outside the repository and the input root only the Python installation, the system folders, the temporary folder, the Keras configuration folder, the folder of the configuration and (unofficial runs) the output root may be opened",
+  "rule": "an audit hook on every Python open (sys.addaudithook, event open) compares the opened file by identity (os.stat of the file and of every folder that contains it; names compared in lower case) and refuses: the forbidden folders of the repository and of the input root and any --forbid-outside folder; the forbidden names; any file with more than one hard link outside the Python installation and the system folders; under results/ and data/ any file that is not in a declared input or in the run folder; outside the repository and the input root anything not listed in outside_repository. Reads done outside Python (TensorFlow's C++ code, git) are not audited"
+ },
+ "stop_rules": {
+  "control_failure": "a failed control (topology, baseline, E00, E00 through the chain, tensors, consistency, counts, softmax, masks, views, duplicates, determinism, EMA facts, weights, memory, disk space) stops the command as FAIL with failed_check (check and values) in status.json; no stochastic cell is reported",
+  "cap": "INCOMPLETE at the wall-time cap or with SIGUSR1 (exit code 2)",
+  "signals": "SIGTERM and SIGHUP stop the command as FAIL; the views folder is removed",
+  "memory": "FAIL above memory.peak_rss_limit_gb",
+  "disk_space": "FAIL if the free space of the temporary folder is below the views plus views.free_space_margin_gb, or if the temporary folder is inside the repository or the input root",
+  "views": "FAIL if an augmented view holds a non-finite value or a value outside views.value_bounds",
+  "masks": "FAIL if the zero frequency of a mask is outside mask_frequency_sigma binomial standard deviations of its rate",
+  "determinism": "FAIL if the repeated cell is not bit-identical (statistics in float64 and float32, dev probabilities) or if the regenerated first batch of a view differs from the stored one",
+  "duplicates": "FAIL if an explicitly computed duplicate is outside the reference tolerance",
+  "topology": "FAIL if LivenessNet is not the declared chain, if its Dropout layers, rates or noise shapes differ, or if ResNet-18 holds a Dropout, noise or augmentation layer",
+  "after_stop": "no automatic resume: a new attempt is a new process in a new folder (--attempt), reported with the earlier one"
+ },
+ "outputs": {
+  "run": [
+   "status.json",
+   "run.log"
+  ],
+  "public": [
+   "controls.csv",
+   "cells.csv",
+   "effects.csv",
+   "montecarlo.csv",
+   "layers.csv",
+   "timing.csv",
+   "summary.json",
+   "report.md",
+   "SHA256SUMS"
+  ],
+  "restricted": "<run>_<network>_fold<k>_seed<s>_<cell>_<views>_dev.csv and _bn.json per cell and view set; sealed_cells.csv, sealed_effects.csv and sealed_montecarlo.csv when the cell metrics are not public; SHA256SUMS"
+ },
+ "analysis": {
+  "path": "delivery/archbn2x2/NOTE.md",
+  "sha256": "3b27c4995c0218910123dad2233b499331df2e97c8929de2333623d68b78c153",
+  "frozen_at": "NOTE.md (fixed choices; \u00a76, the analysis proposed for the registration, frozen at the registration before any test score) is committed privately before the trial; trial refuses a null analysis.sha256"
+ },
+ "test": "no test frame is assembled or evaluated and no test score or metric is read. check-inputs and trial read: this configuration; the configuration of the two ARCHRUN runs (delivery/archrun/pad_arch_run.json, pinned) and, through pad_arch_run.load_pins, the files it pins (the pre-registration configuration, the official trial record and the package SHA256SUMS, run_order.csv, run_caps.csv, the configurations of PRs #27 and #28, the code files); the source of pad_arch_comparison.py (the augmentation recipe, read with the AST) and of the Keras 2.15 preprocessing module (SHA-256); what pad_arch_comparison.load_inputs reads (the M2 manifests, the cache hashed whole, the extracted frames file loaded whole: both frame files also hold frames of the held-out subjects; the cells run, the folds run status, restricted SHA256SUMS and extracted_frames.csv, the LivenessNet architecture file, the status and restricted SHA256SUMS of the two accepted runs and one accepted card); of each ARCHRUN run its status.json and restricted SHA256SUMS and, per unit of the scope, only <unit>.keras, <unit>_card.json, <unit>_bn_statistics.json, <unit>_dev_ordinary.csv and <unit>_dev_re-estimated.csv (development rows only). trial, in addition: the image arrays of the cache, loaded whole into the frame store, of which only the fitting and development frames of arm B are assembled (an explicit check refuses any other role). No command loads the fold schema (fold<k>_test.csv), opens a test score file or anything under results/archeval: an audit hook on every Python open compares the opened file by identity and refuses the forbidden folders and names, any undeclared file under results/ and data/, and any file outside the repository other than the Python installation, the system folders, the temporary folder and the Keras configuration folder"
+}
