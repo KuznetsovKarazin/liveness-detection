@@ -1,0 +1,199 @@
+{
+ "schema": "pad-arch-bn-factorial/1",
+ "run_id": "20261124-ARCHBN2X2-pilot-6c4d6d8",
+ "commit": "6c4d6d8",
+ "dirty": false,
+ "config_sha256": "387e60764ba99a13d7cc155a489ae89c661a33889403d13ca9130bbc87cd1b7f",
+ "command": "trial",
+ "command_line": "python -I -B scripts/pad_arch_bn_factorial.py trial --config delivery/archbn2x2/pad_arch_bn_factorial.json --out-root results/archbn2x2 --attempt 1 --i-am-authorized",
+ "official": true,
+ "attempt": {
+  "attempt": 1,
+  "previous": []
+ },
+ "status": "PASS",
+ "passed": true,
+ "started": "2026-11-24T22:30:12+0100",
+ "finished": "2026-11-25T00:27:47+0100",
+ "wall_seconds": 7054.9,
+ "process_cpu_seconds": 45024.4,
+ "machine_rule": {
+  "trial_run": "20261119-ARCHTRIAL-b8f7cca",
+  "machine": {
+   "processor": {
+    "trial": "Apple M5 Pro",
+    "now": "Apple M5 Pro",
+    "equal": true
+   },
+   "core_levels": {
+    "trial": [
+     {
+      "name": "Super",
+      "physical_cores": 5
+     },
+     {
+      "name": "Performance",
+      "physical_cores": 10
+     }
+    ],
+    "now": [
+     {
+      "name": "Super",
+      "physical_cores": 5
+     },
+     {
+      "name": "Performance",
+      "physical_cores": 10
+     }
+    ],
+    "equal": true
+   },
+   "ram_gb": {
+    "trial": 24.0,
+    "now": 24.0,
+    "equal": true
+   },
+   "os": {
+    "trial": "macOS 27.2.1",
+    "now": "macOS 27.2.1",
+    "equal": true
+   },
+   "logical_cpus": {
+    "trial": 15,
+    "now": 15,
+    "equal": true
+   },
+   "architecture": {
+    "trial": "arm64",
+    "now": "arm64",
+    "equal": true
+   }
+  },
+  "versions": {
+   "python": {
+    "trial": "3.11.16",
+    "now": "3.11.16",
+    "equal": true
+   },
+   "numpy": {
+    "trial": "1.26.4",
+    "now": "1.26.4",
+    "equal": true
+   },
+   "tensorflow_installed": {
+    "trial": "2.15.0",
+    "now": "2.15.0",
+    "equal": true
+   },
+   "keras": {
+    "trial": "2.15.0",
+    "now": "2.15.0",
+    "equal": true
+   },
+   "platform": {
+    "trial": "darwin",
+    "now": "darwin",
+    "equal": true
+   }
+  },
+  "equal": true
+ },
+ "threads": {
+  "requested": {
+   "intra_op": 10,
+   "inter_op": 10
+  },
+  "effective": {
+   "intra_op": 10,
+   "inter_op": 10
+  },
+  "set_by_this_runner": true,
+  "environment": {
+   "TF_NUM_INTRAOP_THREADS": null,
+   "TF_NUM_INTEROP_THREADS": null
+  },
+  "logical_cpus": 15
+ },
+ "cap_minutes": 200,
+ "cap_unit": "minutes of wall time (elapsed real time, not CPU time)",
+ "read_guard": {
+  "forbidden_folders": 1,
+  "forbidden_name_patterns": [
+   "fold[0-9]*_test.csv",
+   "*_test_scores.csv",
+   "*scores_test*",
+   "*test*_scores*"
+  ],
+  "allowlisted_zones": 2,
+  "outside_allowed": 14
+ },
+ "scope": {
+  "name": "pilot",
+  "units": [
+   "p4_LivenessNet_fold1_seed42",
+   "p4_ResNet-18_fold1_seed42"
+  ]
+ },
+ "threads_rule": {
+  "fields": {
+   "requested": {
+    "trial": {
+     "intra_op": 10,
+     "inter_op": 10
+    },
+    "now": {
+     "intra_op": 10,
+     "inter_op": 10
+    },
+    "equal": true
+   },
+   "effective": {
+    "trial": {
+     "intra_op": 10,
+     "inter_op": 10
+    },
+    "now": {
+     "intra_op": 10,
+     "inter_op": 10
+    },
+    "equal": true
+   },
+   "environment": {
+    "trial": {
+     "TF_NUM_INTRAOP_THREADS": null,
+     "TF_NUM_INTEROP_THREADS": null
+    },
+    "now": {
+     "TF_NUM_INTRAOP_THREADS": null,
+     "TF_NUM_INTEROP_THREADS": null
+    },
+    "equal": true
+   },
+   "set_by_this_runner": {
+    "trial": true,
+    "now": true,
+    "equal": true
+   }
+  },
+  "equal": true,
+  "trial_run": "20261119-ARCHTRIAL-b8f7cca"
+ },
+ "views": {
+  "fold1": {
+   "min": -0.11406612396240234,
+   "max": 1.1861931085586548,
+   "values": 2202009600,
+   "bytes": 8808038400,
+   "storage": "memmap"
+  }
+ },
+ "stopped": null,
+ "complete_units": [
+  "p4_LivenessNet_fold1_seed42",
+  "p4_ResNet-18_fold1_seed42"
+ ],
+ "peak_rss_gb": 5.433,
+ "public_sha256sums_sha256": "f597727d2c8b822ecbf947d177a56c68cb0dc2449fbe3d56131f5ab720e85eb3",
+ "restricted_sha256sums_sha256": "7ad1e190cb54bba48b6eafae7469a4cf50788e66b811c21000912afef250acab",
+ "run_log_sha256": "cf2f161a87ad87b5143ceaf6acc56b10ab79f1a0cbd07c8ff829b1424ee404ee"
+}

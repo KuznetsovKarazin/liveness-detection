@@ -1,0 +1,149 @@
+# macOS, Python 3.11.16, NumPy 1.26.4, TensorFlow 2.15.0, git 2.50.1, started 2026-11-25 00:36 CET; from livenesslab/ of this folder: the declared mutations, every pattern found exactly once and every declared test present in the suite (no test run); the files are identified by the SHA-256 below, not by the state of the work tree
+# SHA-256 17412b40f95120a8d6d6f5ace6398cd68f22eca59c1e84222a5f4bb055d27c31  scripts/pad_arch_bn_factorial.py
+# SHA-256 52b4225aa5c2911309c91e20da3b63c080eb32c9df28e664cd466754c027a6a6  scripts/check_pad_arch_bn_factorial.py
+# SHA-256 64fd336b7df2fcf3ff17fd2b3d249adb7f7e5611ec515cfd90c3a7b8b3f97b28  scripts/check_pad_arch_bn_factorial_mutations.py
+# SHA-256 dd44652d27e0e90c52695024b3e08aefb9d3344cfe0d0c78f4503bb474391727  delivery/archbn2x2/make_config.py
+# SHA-256 015cb73544c413f151c110fad54e64e9dcd39f48bf30f6f71137f7fe52e6631f  delivery/archbn2x2/launch.zsh
+# SHA-256 3b27c4995c0218910123dad2233b499331df2e97c8929de2333623d68b78c153  delivery/archbn2x2/NOTE.md
+# SHA-256 387e60764ba99a13d7cc155a489ae89c661a33889403d13ca9130bbc87cd1b7f  delivery/archbn2x2/pad_arch_bn_factorial.json
+# SHA-256 0df7a2ddb16d436a7552169c5ff332e44759237020e8c466077986b92d0d734d  delivery/archrun/pad_arch_run.json
+# SHA-256 c79a8eb834a1bee1e467513cee5cc548321ab5e7c0be007a5f7ad6240b9d503a  scripts/pad_arch_run.py
+# SHA-256 8f9a7c314acef2b6c00bd37b9d3089c94ea5c6acfc55b27b89ce8ddd6d8f7451  scripts/pad_arch_comparison.py
+# SHA-256 8c228ef400f5ef4337612477b23113fb6b8cac5364a5ff026e2c0ac8096734f5  scripts/nuaa_bn_recalibration.py
+# SHA-256 bc3225e3940870f39a10c72241778e80c5ab729b48edc90a159d1f2e0b42981d  scripts/check_pad_arch_run.py
+# SHA-256 a83c02b0788bd6f98262abf00f5fe970abed501f231edba348820482aea64d30  src/livedetection/src/architectures.py
+# command: python -I -B scripts/check_pad_arch_bn_factorial_mutations.py --list
+GaussianNoise omitted from the augmentation  [scripts/pad_arch_bn_factorial.py] -> TestEAugmentation.test_augment_is_the_recipe_in_order
+contrast clip removed  [scripts/pad_arch_bn_factorial.py] -> TestEAugmentation.test_clips
+brightness not clipped  [scripts/pad_arch_bn_factorial.py] -> TestEAugmentation.test_clips
+rotation filled with constant zeros  [scripts/pad_arch_bn_factorial.py] -> TestEAugmentation.test_each_operation_equals_the_keras_layer
+zoom with nearest interpolation  [scripts/pad_arch_bn_factorial.py] -> TestEAugmentation.test_each_operation_equals_the_keras_layer
+zoom width and height swapped  [scripts/pad_arch_bn_factorial.py] -> TestEAugmentation.test_each_operation_equals_the_keras_layer
+translation width and height swapped  [scripts/pad_arch_bn_factorial.py] -> TestEAugmentation.test_each_operation_equals_the_keras_layer
+flip never drawn  [scripts/pad_arch_bn_factorial.py] -> TestCDraws.test_flip_and_independent_sides
+rotation range not multiplied by 2 pi  [scripts/pad_arch_bn_factorial.py] -> TestEAugmentation.test_draw_ranges_against_the_keras_layers_of_the_source
+zoom range 0.12 -> 0.08 in the recipe  [scripts/pad_arch_bn_factorial.py] -> TestBRecipe.test_real_source_equals_the_recipe
+zoom range narrowed in the derivation  [scripts/pad_arch_bn_factorial.py] -> TestBRecipe.test_ranges_follow_the_recipe
+brightness range 0.15 -> 0.10 in the derivation  [scripts/pad_arch_bn_factorial.py] -> TestEAugmentation.test_draw_ranges_against_the_keras_layers_of_the_source
+noise std 0.02 -> 0.03 in the recipe  [scripts/pad_arch_bn_factorial.py] -> TestBRecipe.test_real_source_equals_the_recipe
+noise std scaled in the draw  [scripts/pad_arch_bn_factorial.py] -> TestEAugmentation.test_draw_ranges_against_the_keras_layers_of_the_source
+frames divided by 255 twice  [scripts/pad_arch_bn_factorial.py] -> TestEAugmentation.test_identity_parameters_give_the_scaled_frames
+frames not divided by 255  [scripts/pad_arch_bn_factorial.py] -> TestEAugmentation.test_identity_parameters_give_the_scaled_frames
+contrast factor drawn per batch  [scripts/pad_arch_bn_factorial.py] -> TestCDraws.test_pure_function_of_its_arguments
+seeds by position instead of the frame key  [scripts/pad_arch_bn_factorial.py] -> TestCDraws.test_digests_from_the_keys
+view seeds 100-107 instead of 101-108  [scripts/pad_arch_bn_factorial.py] -> TestCDraws.test_view_seeds
+Monte Carlo halves 1-4 and 1-4  [scripts/pad_arch_bn_factorial.py] -> TestCDraws.test_view_seeds
+key without the view  [scripts/pad_arch_bn_factorial.py] -> TestCDraws.test_pure_function_of_its_arguments
+augmentation and dropout streams not separated  [scripts/pad_arch_bn_factorial.py] -> TestCDraws.test_domains_and_keys
+dropout_dense active  [scripts/pad_arch_bn_factorial.py] -> TestFDropoutStructure.test_livenessnet_chain_accepted
+BatchNormalization in training mode in the chain  [scripts/pad_arch_bn_factorial.py] -> TestGMoments.test_T3_bn_in_inference_and_only_upstream_dropout
+whole model called with training=True  [scripts/pad_arch_bn_factorial.py] -> TestGMoments.test_T1_e00_by_the_new_path_is_the_estimator
+dropout without the 1 / (1 - rate) scale  [scripts/pad_arch_bn_factorial.py] -> TestFDropoutStructure.test_dropout_equals_tf_stateless_dropout
+mask keeps u < rate  [scripts/pad_arch_bn_factorial.py] -> TestCDraws.test_masks_by_frame_view_layer
+masks per channel (noise_shape)  [scripts/pad_arch_bn_factorial.py] -> TestGMoments.test_T7_same_masks_for_clean_and_augmented_inputs
+noise_shape of the Dropout not checked  [scripts/pad_arch_bn_factorial.py] -> TestFDropoutStructure.test_structure_refusals
+dropout rate of the checkpoint not compared  [scripts/pad_arch_bn_factorial.py] -> TestFDropoutStructure.test_structure_refusals
+dropout active in E10  [scripts/pad_arch_bn_factorial.py] -> TestDGuardAndComparisons.test_reuse_rule
+GaussianNoise as the dropout factor (augmented input in E01)  [scripts/pad_arch_bn_factorial.py] -> TestZATrialPass.test_cells_effects_layers
+augmentation omitted in E11  [scripts/pad_arch_bn_factorial.py] -> TestZATrialPass.test_controls_pass
+augmented frames used for the dev scoring  [scripts/pad_arch_bn_factorial.py] -> TestZATrialPass.test_states_rebuilt_from_the_restricted_files
+gamma assigned instead of moving_variance  [scripts/pad_arch_bn_factorial.py] -> TestGMoments.test_T8_only_moving_tensors_change
+every layer reused  [scripts/pad_arch_bn_factorial.py] -> TestDGuardAndComparisons.test_reuse_rule
+E11 reuses E00  [scripts/pad_arch_bn_factorial.py] -> TestDGuardAndComparisons.test_reuse_rule
+halves use all eight views  [scripts/pad_arch_bn_factorial.py] -> TestZATrialPass.test_halves_use_four_views
+E11 halves reuse E10 on all views  [scripts/pad_arch_bn_factorial.py] -> TestZATrialPass.test_controls_pass
+EMA coefficient 0.99^e  [scripts/pad_arch_bn_factorial.py] -> TestZATrialPass.test_cells_effects_layers
+E00 tolerance on the dev scores widened  [scripts/pad_arch_bn_factorial.py] -> TestDGuardAndComparisons.test_score_compare
+EER threshold value not compared  [scripts/pad_arch_bn_factorial.py] -> TestDGuardAndComparisons.test_score_compare
+E00 control not binding  [scripts/pad_arch_bn_factorial.py] -> TestZBTrialStops.test_e00_not_reproduced
+stored moments not compared  [scripts/pad_arch_bn_factorial.py] -> TestZBTrialStops.test_stored_moments_differ
+E00 chain not binding  [scripts/pad_arch_bn_factorial.py] -> TestZBTrialStops.test_e00_chain_not_reproduced
+baseline control not binding  [scripts/pad_arch_bn_factorial.py] -> TestZBTrialStops.test_baseline_not_reproduced
+tensor check removed from the cells  [scripts/pad_arch_bn_factorial.py] -> TestZBTrialStops.test_trained_tensor_changed_in_a_cell
+consistency not binding  [scripts/pad_arch_bn_factorial.py] -> TestZBTrialStops.test_consistency
+softmax not binding  [scripts/pad_arch_bn_factorial.py] -> TestZBTrialStops.test_softmax
+memory limit not checked  [scripts/pad_arch_bn_factorial.py] -> TestZBTrialStops.test_memory
+mask frequency not binding  [scripts/pad_arch_bn_factorial.py] -> TestZBTrialStops.test_mask_frequency
+determinism not binding  [scripts/pad_arch_bn_factorial.py] -> TestZBTrialStops.test_determinism
+views not regenerated in the determinism control  [scripts/pad_arch_bn_factorial.py] -> TestZBTrialStops.test_views_not_regenerated_identically
+duplicates not binding  [scripts/pad_arch_bn_factorial.py] -> TestZBTrialStops.test_duplicates
+non-finite views accepted  [scripts/pad_arch_bn_factorial.py] -> TestZBTrialStops.test_non_finite_views
+view bounds not checked  [scripts/pad_arch_bn_factorial.py] -> TestEAugmentation.test_views_store_and_checks
+EMA facts not checked  [scripts/pad_arch_bn_factorial.py] -> TestZBTrialStops.test_ema_facts
+original model not checked at the end  [scripts/pad_arch_bn_factorial.py] -> TestZBTrialStops.test_model_or_checkpoint_changed_at_the_end
+checkpoint file not checked at the end  [scripts/pad_arch_bn_factorial.py] -> TestZBTrialStops.test_model_or_checkpoint_changed_at_the_end
+tie at 0.5 decided attack  [scripts/pad_arch_bn_factorial.py] -> TestDGuardAndComparisons.test_rates_at_05_and_ties
+free space not checked  [scripts/pad_arch_bn_factorial.py] -> TestZBTrialStops.test_disk_space
+views folder accepted inside a forbidden root  [scripts/pad_arch_bn_factorial.py] -> TestEAugmentation.test_views_store_and_checks
+views folder kept after a stop  [scripts/pad_arch_bn_factorial.py] -> TestEAugmentation.test_views_store_and_checks
+stale views folder not checked  [scripts/pad_arch_bn_factorial.py] -> TestZBTrialStops.test_stale_views_folder
+read guard disabled  [scripts/pad_arch_bn_factorial.py] -> TestDGuardAndComparisons.test_guard_by_identity_and_lower_case
+names compared with their case  [scripts/pad_arch_bn_factorial.py] -> TestDGuardAndComparisons.test_guard_by_identity_and_lower_case
+resolved path not followed  [scripts/pad_arch_bn_factorial.py] -> TestDGuardAndComparisons.test_guard_by_identity_and_lower_case
+relative os.open accepted  [scripts/pad_arch_bn_factorial.py] -> TestDGuardAndComparisons.test_guard_by_identity_and_lower_case
+TMPDIR beside the repository accepted  [scripts/pad_arch_bn_factorial.py] -> TestZBTrialStops.test_temporary_folder_beside_the_repository
+zero Monte Carlo scale reported as not within  [scripts/pad_arch_bn_factorial.py] -> TestDGuardAndComparisons.test_montecarlo_scale_without_reduction
+allowed folders outside the repository not checked at the start  [scripts/pad_arch_bn_factorial.py] -> TestZBTrialStops.test_temporary_folder_checked_at_the_start
+TMPDIR inside a root accepted at the start  [scripts/pad_arch_bn_factorial.py] -> TestZBTrialStops.test_temporary_folder_checked_at_the_start
+allowed folder containing a root accepted  [scripts/pad_arch_bn_factorial.py] -> TestZBTrialStops.test_temporary_folder_checked_at_the_start
+refused opens not checked at every step  [scripts/pad_arch_bn_factorial.py] -> TestZBTrialStops.test_swallowed_refusal_stops_at_the_next_step
+guard hits not checked at the end of the trial  [scripts/pad_arch_bn_factorial.py] -> TestZBTrialStops.test_swallowed_refusal_after_the_last_step
+attempts counted across scopes  [scripts/pad_arch_bn_factorial.py] -> TestZBTrialStops.test_attempts_counted_per_scope
+views folder allowed inside the repository  [scripts/pad_arch_bn_factorial.py] -> TestEAugmentation.test_views_store_and_checks
+translation range 0.06 -> 0.04  [scripts/pad_arch_bn_factorial.py] -> TestEAugmentation.test_draw_ranges_against_the_keras_layers_of_the_source
+zoom range fixed at 0.92-1.08  [scripts/pad_arch_bn_factorial.py] -> TestBRecipe.test_ranges_follow_the_recipe
+Monte Carlo scale reduced by the number of units  [scripts/pad_arch_bn_factorial.py] -> TestDGuardAndComparisons.test_montecarlo_scale_without_reduction
+Monte Carlo half difference of the mean not halved  [scripts/pad_arch_bn_factorial.py] -> TestDGuardAndComparisons.test_montecarlo_scale_without_reduction
+within the view variability at 1 x the scale  [scripts/pad_arch_bn_factorial.py] -> TestDGuardAndComparisons.test_montecarlo_scale_without_reduction
+forbidden folders not compared  [scripts/pad_arch_bn_factorial.py] -> TestDGuardAndComparisons.test_guard_by_identity_and_lower_case
+hard links not checked  [scripts/pad_arch_bn_factorial.py] -> TestDGuardAndComparisons.test_guard_by_identity_and_lower_case
+zones not allowlisted  [scripts/pad_arch_bn_factorial.py] -> TestDGuardAndComparisons.test_zones_and_outside
+outside rule not applied  [scripts/pad_arch_bn_factorial.py] -> TestDGuardAndComparisons.test_zones_and_outside
+input root accepted with the official root  [scripts/pad_arch_bn_factorial.py] -> TestZBTrialStops.test_official_root_refuses_outside_inputs
+configuration outside the repository accepted with the official root  [scripts/pad_arch_bn_factorial.py] -> TestZBTrialStops.test_official_root_refuses_outside_inputs
+unit keys not checked  [scripts/pad_arch_bn_factorial.py] -> TestZBTrialStops.test_check_inputs
+parent files outside the list accepted  [scripts/pad_arch_bn_factorial.py] -> TestDGuardAndComparisons.test_parent_files_listed
+parent file SHA-256 not compared  [scripts/pad_arch_bn_factorial.py] -> TestZBTrialStops.test_check_inputs
+card network, fold, seed or patience not compared  [scripts/pad_arch_bn_factorial.py] -> TestZBTrialStops.test_check_inputs
+null note accepted by the trial  [scripts/pad_arch_bn_factorial.py] -> TestZBTrialStops.test_refusals_before_any_folder
+dirty tree accepted  [scripts/pad_arch_bn_factorial.py] -> TestZBTrialStops.test_refusals_before_any_folder
+sealed cell metrics published  [scripts/pad_arch_bn_factorial.py] -> TestZBTrialStops.test_sealed_metrics
+cap not checked during the views  [scripts/pad_arch_bn_factorial.py] -> TestZBTrialStops.test_cap_during_the_views
+frozen note not compared  [scripts/pad_arch_bn_factorial.py] -> TestZBTrialStops.test_frozen_note_changed
+Keras module not compared  [scripts/pad_arch_bn_factorial.py] -> TestZBTrialStops.test_keras_module_pin
+parent status not compared with its pin  [scripts/pad_arch_bn_factorial.py] -> TestZBTrialStops.test_parent_status_pin
+configuration and code not rechecked at the end  [scripts/pad_arch_bn_factorial.py] -> TestZBTrialStops.test_configuration_changed_during_the_trial
+authorisation flag not required  [scripts/pad_arch_bn_factorial.py] -> TestZBTrialStops.test_authorisation_flag_required
+saved dev rows of another role accepted  [scripts/pad_arch_bn_factorial.py] -> TestZBTrialStops.test_saved_dev_rows_of_the_test_role
+saved dev order not compared  [scripts/pad_arch_bn_factorial.py] -> TestZBTrialStops.test_saved_dev_key_order
+a required name pattern dropped  [scripts/pad_arch_bn_factorial.py] -> TestZBTrialStops.test_required_name_patterns
+budget not checked at the steps  [scripts/pad_arch_bn_factorial.py] -> TestZBTrialStops.test_cap_incomplete_keeps_complete_units
+threshold other than 0.5 accepted  [scripts/pad_arch_bn_factorial.py] -> TestAConfig.test_closed_sets_and_fixed_values
+threads other than 10 accepted  [scripts/pad_arch_bn_factorial.py] -> TestAConfig.test_closed_sets_and_fixed_values
+test statement of the configuration not compared  [scripts/pad_arch_bn_factorial.py] -> TestAConfig.test_closed_sets_and_fixed_values
+results/archeval not required among the forbidden paths  [scripts/pad_arch_bn_factorial.py] -> TestAConfig.test_closed_sets_and_fixed_values
+attempt number not compared  [scripts/pad_arch_bn_factorial.py] -> TestZBTrialStops.test_refusals_before_any_folder
+cap stop reported as FAIL  [scripts/pad_arch_bn_factorial.py] -> TestZBTrialStops.test_cap_incomplete_keeps_complete_units
+launch: nice not checked  [delivery/archbn2x2/launch.zsh] -> TestHLaunch.test_nice_not_zero
+launch: trial on battery  [delivery/archbn2x2/launch.zsh] -> TestHLaunch.test_battery
+launch: low power mode accepted  [delivery/archbn2x2/launch.zsh] -> TestHLaunch.test_low_power_mode
+launch: powermode other than 0 accepted  [delivery/archbn2x2/launch.zsh] -> TestHLaunch.test_powermode_not_zero
+launch: a refusal takes the attempt's name  [delivery/archbn2x2/launch.zsh] -> TestHLaunch.test_refusal_then_launch_with_the_same_attempt
+launch: a failed check-inputs takes the attempt's name  [delivery/archbn2x2/launch.zsh] -> TestHLaunch.test_failed_check_inputs_stops_the_trial
+launch: views folder left accepted  [delivery/archbn2x2/launch.zsh] -> TestHLaunch.test_views_folder_left
+launch: failed check-inputs ignored  [delivery/archbn2x2/launch.zsh] -> TestHLaunch.test_failed_check_inputs_stops_the_trial
+launch: log folder inside the repository accepted  [delivery/archbn2x2/launch.zsh] -> TestHLaunch.test_refusals_of_the_arguments
+launch: existing conditions file overwritten  [delivery/archbn2x2/launch.zsh] -> TestHLaunch.test_refusals_of_the_arguments
+launch: dirty work tree accepted  [delivery/archbn2x2/launch.zsh] -> TestHLaunch.test_dirty_work_tree
+launch: folder that is not the root of a git work tree accepted  [delivery/archbn2x2/launch.zsh] -> TestHLaunch.test_inside_a_clean_git_work_tree_but_not_its_root
+launch: a trial refused before its run folder takes the attempt's name  [delivery/archbn2x2/launch.zsh] -> TestHLaunch.test_trial_refused_before_its_run_folder
+launch: failed git status taken as a clean work tree  [delivery/archbn2x2/launch.zsh] -> TestHLaunch.test_git_status_fails
+launch: start line condition inverted  [delivery/archbn2x2/launch.zsh] -> TestHLaunch.test_started_trial_that_fails_uses_the_attempt
+suite: the Keras randrange warning not filtered in the runner  [scripts/check_pad_arch_bn_factorial.py] -> ZYSuiteOutput.test_no_warning_or_personal_path_in_the_output
+control: comment only  [scripts/pad_arch_bn_factorial.py] (must survive the whole suite)
+declared redundant (must survive): views folder removed with shutil.rmtree  [scripts/pad_arch_bn_factorial.py] (must survive the whole suite)
+declared redundant (must survive): count guard of a re-estimation  [scripts/pad_arch_bn_factorial.py] (must survive the whole suite)
+declared redundant (must survive): consumers check of the chain  [scripts/pad_arch_bn_factorial.py] (must survive the whole suite)
+127 mutations, 1 control mutation and 3 declared redundant, every pattern found exactly once, every declared test in the suite
+exit 0
+# finished 2026-11-25 00:36 CET, wall 0 s

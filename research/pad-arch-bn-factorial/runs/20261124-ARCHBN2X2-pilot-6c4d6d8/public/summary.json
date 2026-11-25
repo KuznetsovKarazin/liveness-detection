@@ -1,0 +1,454 @@
+{
+ "schema": "pad-arch-bn-factorial/1",
+ "run_id": "20261124-ARCHBN2X2-pilot-6c4d6d8",
+ "commit": "6c4d6d8",
+ "dirty": false,
+ "config_sha256": "387e60764ba99a13d7cc155a489ae89c661a33889403d13ca9130bbc87cd1b7f",
+ "command": "trial",
+ "command_line": "python -I -B scripts/pad_arch_bn_factorial.py trial --config delivery/archbn2x2/pad_arch_bn_factorial.json --out-root results/archbn2x2 --attempt 1 --i-am-authorized",
+ "official": true,
+ "attempt": {
+  "attempt": 1,
+  "previous": []
+ },
+ "status": "PASS",
+ "started": "2026-11-24T22:30:12+0100",
+ "finished": "2026-11-25T00:27:47+0100",
+ "wall_seconds": 7054.9,
+ "process_cpu_seconds": 45024.4,
+ "cap_minutes": 200,
+ "stopped": null,
+ "scope": {
+  "name": "pilot",
+  "units": [
+   "p4_LivenessNet_fold1_seed42",
+   "p4_ResNet-18_fold1_seed42"
+  ],
+  "rule": "the first unit of plan/run_order.csv (fold 1, seed 42) at patience 4, one checkpoint per network: a neutral rule fixed before any outcome, not chosen on results; the trial is followed by the public registration of code, configuration and measured time, then by the complete runs p4-24 and p12-24 on fitting/dev, then by the test",
+  "report_cell_metrics": true
+ },
+ "complete_units": 2,
+ "peak_rss_gb": 5.433,
+ "controls": [
+  [
+   "nuaa_patience_4",
+   "LivenessNet",
+   "1",
+   "42",
+   "structure",
+   "1",
+   "{\"pass\": true, \"active_dropout\": {\"dropout1\": 0.25, \"dropout2\": 0.25}, \"chain\": true}"
+  ],
+  [
+   "nuaa_patience_4",
+   "LivenessNet",
+   "1",
+   "42",
+   "baseline",
+   "1",
+   "{\"pass\": true, \"max_abs_diff\": 0.0, \"identical\": true, \"discordant_05\": 0, \"discordant_eer\": 0, \"threshold_eer\": 0.9999997615814209, \"threshold_eer_reference\": 0.9999997615814209, \"threshold_abs_diff\": 0.0, \"reason\": null}"
+  ],
+  [
+   "nuaa_patience_4",
+   "LivenessNet",
+   "1",
+   "42",
+   "E00",
+   "1",
+   "{\"statistics\": {\"identical\": true, \"max_abs_diff\": 0.0, \"outside\": 0}, \"stored_statistics_identical\": true, \"dev\": {\"pass\": true, \"max_abs_diff\": 0.0, \"identical\": true, \"discordant_05\": 0, \"discordant_eer\": 0, \"threshold_eer\": 0.9811608195304871, \"threshold_eer_reference\": 0.9811608195304871, \"threshold_abs_diff\": 0.0, \"reason\": null}, \"pass\": true}"
+  ],
+  [
+   "nuaa_patience_4",
+   "LivenessNet",
+   "1",
+   "42",
+   "E00_chain",
+   "1",
+   "{\"statistics\": {\"identical\": true, \"max_abs_diff\": 0.0, \"outside\": 0}, \"dev\": {\"pass\": true, \"max_abs_diff\": 0.0, \"identical\": true, \"discordant_05\": 0, \"discordant_eer\": 0, \"threshold_eer\": 0.9811608195304871, \"threshold_eer_reference\": 0.9811608195304871, \"threshold_abs_diff\": 0.0, \"reason\": null}, \"pass\": true}"
+  ],
+  [
+   "nuaa_patience_4",
+   "LivenessNet",
+   "1",
+   "42",
+   "duplicates_E01",
+   "1",
+   "{\"layers\": [\"bn1_1\", \"bn1_2\"], \"statistics\": {\"identical\": true, \"max_abs_diff\": 0.0, \"outside\": 0}, \"pass\": true}"
+  ],
+  [
+   "nuaa_patience_4",
+   "LivenessNet",
+   "1",
+   "42",
+   "duplicates_E11",
+   "1",
+   "{\"layers\": [\"bn1_1\", \"bn1_2\"], \"statistics\": {\"identical\": true, \"max_abs_diff\": 0.0, \"outside\": 0}, \"pass\": true}"
+  ],
+  [
+   "nuaa_patience_4",
+   "LivenessNet",
+   "1",
+   "42",
+   "determinism",
+   "1",
+   "{\"cell\": \"E11\", \"statistics_identical\": true, \"dev_identical\": true, \"max_abs_diff\": 0.0, \"views_regenerated_identical\": true, \"pass\": true}"
+  ],
+  [
+   "nuaa_patience_4",
+   "LivenessNet",
+   "1",
+   "42",
+   "weights",
+   "1",
+   "{\"trainable_sha256\": \"df30544c2785c63c662696782657c67a0f8c7ab96896cd5af18388ef09dbfa46\", \"unchanged\": true, \"checkpoint_sha256\": \"8c64bdf2a753b7e4cc1fa963020bb0e37d70ec45c18cf63c99c325c6c87cec64\"}"
+  ],
+  [
+   "nuaa_patience_4",
+   "LivenessNet",
+   "1",
+   "42",
+   "masks_E01_all",
+   "1",
+   "{\"dropout1\": {\"zeros\": 733979826, \"values\": 2936012800, \"rate\": 0.25, \"frequency\": 0.24999203886304583, \"band\": 117313.9377908695, \"pass\": true}, \"dropout2\": {\"zeros\": 367008287, \"values\": 1468006400, \"rate\": 0.25, \"frequency\": 0.25000455515725273, \"band\": 82953.48093962061, \"pass\": true}}"
+  ],
+  [
+   "nuaa_patience_4",
+   "LivenessNet",
+   "1",
+   "42",
+   "masks_E11_all",
+   "1",
+   "{\"dropout1\": {\"zeros\": 733979826, \"values\": 2936012800, \"rate\": 0.25, \"frequency\": 0.24999203886304583, \"band\": 117313.9377908695, \"pass\": true}, \"dropout2\": {\"zeros\": 367008287, \"values\": 1468006400, \"rate\": 0.25, \"frequency\": 0.25000455515725273, \"band\": 82953.48093962061, \"pass\": true}}"
+  ],
+  [
+   "nuaa_patience_4",
+   "LivenessNet",
+   "1",
+   "42",
+   "masks_E01_101-104",
+   "1",
+   "{\"dropout1\": {\"zeros\": 367001419, \"values\": 1468006400, \"rate\": 0.25, \"frequency\": 0.2499998767035348, \"band\": 82953.48093962061, \"pass\": true}, \"dropout2\": {\"zeros\": 183509561, \"values\": 734003200, \"rate\": 0.25, \"frequency\": 0.25001193591526577, \"band\": 58656.96889543475, \"pass\": true}}"
+  ],
+  [
+   "nuaa_patience_4",
+   "LivenessNet",
+   "1",
+   "42",
+   "masks_E01_105-108",
+   "1",
+   "{\"dropout1\": {\"zeros\": 366978407, \"values\": 1468006400, \"rate\": 0.25, \"frequency\": 0.24998420102255686, \"band\": 82953.48093962061, \"pass\": true}, \"dropout2\": {\"zeros\": 183498726, \"values\": 734003200, \"rate\": 0.25, \"frequency\": 0.24999717439923969, \"band\": 58656.96889543475, \"pass\": true}}"
+  ],
+  [
+   "nuaa_patience_4",
+   "LivenessNet",
+   "1",
+   "42",
+   "masks_E11_101-104",
+   "1",
+   "{\"dropout1\": {\"zeros\": 367001419, \"values\": 1468006400, \"rate\": 0.25, \"frequency\": 0.2499998767035348, \"band\": 82953.48093962061, \"pass\": true}, \"dropout2\": {\"zeros\": 183509561, \"values\": 734003200, \"rate\": 0.25, \"frequency\": 0.25001193591526577, \"band\": 58656.96889543475, \"pass\": true}}"
+  ],
+  [
+   "nuaa_patience_4",
+   "LivenessNet",
+   "1",
+   "42",
+   "masks_E11_105-108",
+   "1",
+   "{\"dropout1\": {\"zeros\": 366978407, \"values\": 1468006400, \"rate\": 0.25, \"frequency\": 0.24998420102255686, \"band\": 82953.48093962061, \"pass\": true}, \"dropout2\": {\"zeros\": 183498726, \"values\": 734003200, \"rate\": 0.25, \"frequency\": 0.24999717439923969, \"band\": 58656.96889543475, \"pass\": true}}"
+  ],
+  [
+   "nuaa_patience_4",
+   "ResNet-18",
+   "1",
+   "42",
+   "structure",
+   "1",
+   "{\"pass\": true, \"active_dropout\": {}, \"chain\": false}"
+  ],
+  [
+   "nuaa_patience_4",
+   "ResNet-18",
+   "1",
+   "42",
+   "baseline",
+   "1",
+   "{\"pass\": true, \"max_abs_diff\": 0.0, \"identical\": true, \"discordant_05\": 0, \"discordant_eer\": 0, \"threshold_eer\": 0.4857161343097687, \"threshold_eer_reference\": 0.4857161343097687, \"threshold_abs_diff\": 0.0, \"reason\": null}"
+  ],
+  [
+   "nuaa_patience_4",
+   "ResNet-18",
+   "1",
+   "42",
+   "E00",
+   "1",
+   "{\"statistics\": {\"identical\": true, \"max_abs_diff\": 0.0, \"outside\": 0}, \"stored_statistics_identical\": true, \"dev\": {\"pass\": true, \"max_abs_diff\": 0.0, \"identical\": true, \"discordant_05\": 0, \"discordant_eer\": 0, \"threshold_eer\": 0.7885615229606628, \"threshold_eer_reference\": 0.7885615229606628, \"threshold_abs_diff\": 0.0, \"reason\": null}, \"pass\": true}"
+  ],
+  [
+   "nuaa_patience_4",
+   "ResNet-18",
+   "1",
+   "42",
+   "duplicates_E01",
+   "1",
+   "{\"layers\": [\"bn1\", \"layer1_block1_bn1\", \"layer1_block1_bn2\", \"layer1_block2_bn1\", \"layer1_block2_bn2\", \"layer2_block1_bn1\", \"layer2_block1_bn2\", \"layer2_block1_downsample_bn\", \"layer2_block2_bn1\", \"layer2_block2_bn2\", \"layer3_block1_bn1\", \"layer3_block1_bn2\", \"layer3_block1_downsample_bn\", \"layer3_block2_bn1\", \"layer3_block2_bn2\", \"layer4_block1_bn1\", \"layer4_block1_bn2\", \"layer4_block1_downsample_bn\", \"layer4_block2_bn1\", \"layer4_block2_bn2\"], \"statistics\": {\"identical\": true, \"max_abs_diff\": 0.0, \"outside\": 0}, \"dev\": {\"pass\": true, \"max_abs_diff\": 0.0, \"identical\": true, \"discordant_05\": 0, \"discordant_eer\": 0, \"threshold_eer\": 0.7885615229606628, \"threshold_eer_reference\": 0.7885615229606628, \"threshold_abs_diff\": 0.0, \"reason\": null}, \"pass\": true}"
+  ],
+  [
+   "nuaa_patience_4",
+   "ResNet-18",
+   "1",
+   "42",
+   "duplicates_E11",
+   "1",
+   "{\"layers\": [\"bn1\", \"layer1_block1_bn1\", \"layer1_block1_bn2\", \"layer1_block2_bn1\", \"layer1_block2_bn2\", \"layer2_block1_bn1\", \"layer2_block1_bn2\", \"layer2_block1_downsample_bn\", \"layer2_block2_bn1\", \"layer2_block2_bn2\", \"layer3_block1_bn1\", \"layer3_block1_bn2\", \"layer3_block1_downsample_bn\", \"layer3_block2_bn1\", \"layer3_block2_bn2\", \"layer4_block1_bn1\", \"layer4_block1_bn2\", \"layer4_block1_downsample_bn\", \"layer4_block2_bn1\", \"layer4_block2_bn2\"], \"statistics\": {\"identical\": true, \"max_abs_diff\": 0.0, \"outside\": 0}, \"dev\": {\"pass\": true, \"max_abs_diff\": 0.0, \"identical\": true, \"discordant_05\": 0, \"discordant_eer\": 0, \"threshold_eer\": 0.37468254566192627, \"threshold_eer_reference\": 0.37468254566192627, \"threshold_abs_diff\": 0.0, \"reason\": null}, \"pass\": true}"
+  ],
+  [
+   "nuaa_patience_4",
+   "ResNet-18",
+   "1",
+   "42",
+   "weights",
+   "1",
+   "{\"trainable_sha256\": \"4c404071d888eebcb2f5649a7f7b5d40abad000ed0250b063557f9f2383fc051\", \"unchanged\": true, \"checkpoint_sha256\": \"01c5a0e62b9c9db7c9b55f73d2d4dd6e02966375f4e044b78697d20b1911a0d4\"}"
+  ]
+ ],
+ "timing_units": [
+  {
+   "unit": "p4_LivenessNet_fold1_seed42",
+   "cell": "(unit)",
+   "layer": "(unit)",
+   "started": "2026-11-24T22:30:48+0100",
+   "finished": "2026-11-24T23:01:11+0100",
+   "wall_seconds": 1822.872,
+   "process_cpu_seconds": 7965.27
+  },
+  {
+   "unit": "p4_ResNet-18_fold1_seed42",
+   "cell": "(unit)",
+   "layer": "(unit)",
+   "started": "2026-11-24T23:01:11+0100",
+   "finished": "2026-11-25T00:27:47+0100",
+   "wall_seconds": 5195.434,
+   "process_cpu_seconds": 36987.59
+  }
+ ],
+ "machine": {
+  "processor": "Apple M5 Pro",
+  "core_levels": [
+   {
+    "name": "Super",
+    "physical_cores": 5
+   },
+   {
+    "name": "Performance",
+    "physical_cores": 10
+   }
+  ],
+  "ram_gb": 24.0,
+  "os": "macOS 27.2.1",
+  "logical_cpus": 15,
+  "architecture": "arm64"
+ },
+ "environment": {
+  "python": "3.11.16",
+  "numpy": "1.26.4",
+  "platform": "darwin",
+  "tensorflow": "2.15.0",
+  "tensorflow-metal": "1.1.0",
+  "keras": "2.15.0",
+  "opencv": "4.11.0",
+  "tensorflow_installed": "2.15.0"
+ },
+ "machine_rule": {
+  "trial_run": "20261119-ARCHTRIAL-b8f7cca",
+  "machine": {
+   "processor": {
+    "trial": "Apple M5 Pro",
+    "now": "Apple M5 Pro",
+    "equal": true
+   },
+   "core_levels": {
+    "trial": [
+     {
+      "name": "Super",
+      "physical_cores": 5
+     },
+     {
+      "name": "Performance",
+      "physical_cores": 10
+     }
+    ],
+    "now": [
+     {
+      "name": "Super",
+      "physical_cores": 5
+     },
+     {
+      "name": "Performance",
+      "physical_cores": 10
+     }
+    ],
+    "equal": true
+   },
+   "ram_gb": {
+    "trial": 24.0,
+    "now": 24.0,
+    "equal": true
+   },
+   "os": {
+    "trial": "macOS 27.2.1",
+    "now": "macOS 27.2.1",
+    "equal": true
+   },
+   "logical_cpus": {
+    "trial": 15,
+    "now": 15,
+    "equal": true
+   },
+   "architecture": {
+    "trial": "arm64",
+    "now": "arm64",
+    "equal": true
+   }
+  },
+  "versions": {
+   "python": {
+    "trial": "3.11.16",
+    "now": "3.11.16",
+    "equal": true
+   },
+   "numpy": {
+    "trial": "1.26.4",
+    "now": "1.26.4",
+    "equal": true
+   },
+   "tensorflow_installed": {
+    "trial": "2.15.0",
+    "now": "2.15.0",
+    "equal": true
+   },
+   "keras": {
+    "trial": "2.15.0",
+    "now": "2.15.0",
+    "equal": true
+   },
+   "platform": {
+    "trial": "darwin",
+    "now": "darwin",
+    "equal": true
+   }
+  },
+  "equal": true
+ },
+ "threads": {
+  "requested": {
+   "intra_op": 10,
+   "inter_op": 10
+  },
+  "effective": {
+   "intra_op": 10,
+   "inter_op": 10
+  },
+  "set_by_this_runner": true,
+  "environment": {
+   "TF_NUM_INTRAOP_THREADS": null,
+   "TF_NUM_INTEROP_THREADS": null
+  },
+  "logical_cpus": 15
+ },
+ "threads_rule": {
+  "fields": {
+   "requested": {
+    "trial": {
+     "intra_op": 10,
+     "inter_op": 10
+    },
+    "now": {
+     "intra_op": 10,
+     "inter_op": 10
+    },
+    "equal": true
+   },
+   "effective": {
+    "trial": {
+     "intra_op": 10,
+     "inter_op": 10
+    },
+    "now": {
+     "intra_op": 10,
+     "inter_op": 10
+    },
+    "equal": true
+   },
+   "environment": {
+    "trial": {
+     "TF_NUM_INTRAOP_THREADS": null,
+     "TF_NUM_INTEROP_THREADS": null
+    },
+    "now": {
+     "TF_NUM_INTRAOP_THREADS": null,
+     "TF_NUM_INTEROP_THREADS": null
+    },
+    "equal": true
+   },
+   "set_by_this_runner": {
+    "trial": true,
+    "now": true,
+    "equal": true
+   }
+  },
+  "equal": true,
+  "trial_run": "20261119-ARCHTRIAL-b8f7cca"
+ },
+ "code_sha256": {
+  "scripts/pad_arch_run.py": "c79a8eb834a1bee1e467513cee5cc548321ab5e7c0be007a5f7ad6240b9d503a",
+  "keras.src.layers.preprocessing.image_preprocessing": "f388f243a3ff77377bb06ba248ddba6a0728a18654761823f002096df376b306",
+  "scripts/pad_arch_bn_factorial.py": "17412b40f95120a8d6d6f5ace6398cd68f22eca59c1e84222a5f4bb055d27c31"
+ },
+ "recipe": {
+  "operations": [
+   "RandomFlip",
+   "RandomRotation",
+   "RandomZoom",
+   "RandomTranslation",
+   "RandomBrightness",
+   "RandomContrast",
+   "GaussianNoise"
+  ],
+  "divisions_by_255": 1,
+  "applied_with_training_true": true
+ },
+ "views": {
+  "fold1": {
+   "min": -0.11406612396240234,
+   "max": 1.1861931085586548,
+   "values": 2202009600,
+   "bytes": 8808038400,
+   "storage": "memmap"
+  }
+ },
+ "parent_runs": {
+  "nuaa_patience_4": {
+   "run_id": "20261120-ARCHRUN-p4-7faa49f",
+   "status_sha256": "4e17325da5a9506153a280538bb64c74d1d00632981dd736b17d8bc5648bc0e2",
+   "restricted_sha256sums_sha256": "a4366551c3ae6582617e0f253fbee7501cb5ca0b3540cd799b9a79b5c467c6c1"
+  },
+  "nuaa_patience_12": {
+   "run_id": "20261120-ARCHRUN-p12-ea7fdca",
+   "status_sha256": "52a945cc85eae33507736896085058048ec9e31c283ec9fd9ea14a788de4c4e2",
+   "restricted_sha256sums_sha256": "85e84294cfbe8d9f5465206cd1c418f3f6b298f14628516a9d64996777d1c111"
+  }
+ },
+ "inputs_sha256": {
+  "preregistration": "5a83325e13d29d1a67dcda4f129838d19ec39b8f119f5de647693b68c5128b0a",
+  "package_sums": "8e6e9f26c0b91d08e875aed9ea41e7885de6c44a45f53f491ab154385050a4f4",
+  "trial_status": "eabd17a7f2431cf792a29598002012e2431db75ef543c37474841805263fb094",
+  "trial_json": "d44a82c80bae0f5d54e3df8b07135993e79df75929b2eabd079b97547cf43c80",
+  "run_order": "406fab6ce50f590950ad237f73b97fc993b4c00395b20b204f3996189ae11632",
+  "run_caps": "a1228ddc0ef6b08ac8657eab0d83d0829c0f40ddac4cb3f2377e73b2240b8ef9",
+  "bn_recalibration_config": "d97e2e7497fb038708f09613bab6b8602ddac53976a31d84f8771c87c3d52865",
+  "bn_test_config": "1d72956997fdab1f59ff472b98bd45b84b62b80096d9bee64433ebe163487bf1",
+  "configuration": "387e60764ba99a13d7cc155a489ae89c661a33889403d13ca9130bbc87cd1b7f",
+  "archrun_configuration": "0df7a2ddb16d436a7552169c5ff332e44759237020e8c466077986b92d0d734d"
+ },
+ "test_read": "no test frame is assembled or evaluated and no test score or metric is read. check-inputs and trial read: this configuration; the configuration of the two ARCHRUN runs (delivery/archrun/pad_arch_run.json, pinned) and, through pad_arch_run.load_pins, the files it pins (the pre-registration configuration, the official trial record and the package SHA256SUMS, run_order.csv, run_caps.csv, the configurations of PRs #27 and #28, the code files); the source of pad_arch_comparison.py (the augmentation recipe, read with the AST) and of the Keras 2.15 preprocessing module (SHA-256); what pad_arch_comparison.load_inputs reads (the M2 manifests, the cache hashed whole, the extracted frames file loaded whole: both frame files also hold frames of the held-out subjects; the cells run, the folds run status, restricted SHA256SUMS and extracted_frames.csv, the LivenessNet architecture file, the status and restricted SHA256SUMS of the two accepted runs and one accepted card); of each ARCHRUN run its status.json and restricted SHA256SUMS and, per unit of the scope, only <unit>.keras, <unit>_card.json, <unit>_bn_statistics.json, <unit>_dev_ordinary.csv and <unit>_dev_re-estimated.csv (development rows only). trial, in addition: the image arrays of the cache, loaded whole into the frame store, of which only the fitting and development frames of arm B are assembled (an explicit check refuses any other role). No command loads the fold schema (fold<k>_test.csv), opens a test score file or anything under results/archeval: an audit hook on every Python open compares the opened file by identity and refuses the forbidden folders and names, any undeclared file under results/ and data/, and any file outside the repository other than the Python installation, the system folders, the temporary folder and the Keras configuration folder"
+}
